@@ -1,0 +1,3 @@
+{
+  "_comment": "Khai báo atlas thật ở đây để thay sprite tạo sẵn. Ví dụ: \"player\": { \"atlas\": \"player.png\", \"json\": \"player.json\" }. Tên frame: <anim>_<dir>_<index>, ví dụ run_side_0."
+}

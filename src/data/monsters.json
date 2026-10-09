@@ -1,0 +1,46 @@
+{
+  "linh_thu": {
+    "name": "Linh Thú",
+    "level": 3,
+    "art": "beast_snow",
+    "hp": 220,
+    "atk": 18,
+    "def": 5,
+    "speed": 95,
+    "aggroRadius": 190,
+    "attackRange": 58,
+    "attackInterval": 1600,
+    "attackWindup": 320,
+    "leashRadius": 420,
+    "exp": 35,
+    "respawnMs": 8000,
+    "loot": [
+      { "item": "linh_khi", "qty": [10, 30], "chance": 0.8 },
+      { "item": "linh_thach", "qty": [1, 1], "chance": 0.35 },
+      { "item": "hoi_xuan_dan", "qty": [1, 1], "chance": 0.08 },
+      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.04 }
+    ]
+  },
+  "hoa_ho": {
+    "name": "Hỏa Hồ",
+    "level": 9,
+    "art": "beast_fire",
+    "hp": 760,
+    "atk": 46,
+    "def": 16,
+    "speed": 110,
+    "aggroRadius": 230,
+    "attackRange": 62,
+    "attackInterval": 1400,
+    "attackWindup": 280,
+    "leashRadius": 480,
+    "exp": 110,
+    "respawnMs": 12000,
+    "loot": [
+      { "item": "linh_khi", "qty": [30, 70], "chance": 0.9 },
+      { "item": "linh_thach", "qty": [1, 2], "chance": 0.6 },
+      { "item": "hoi_xuan_dan", "qty": [1, 1], "chance": 0.15 },
+      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.06 }
+    ]
+  }
+}

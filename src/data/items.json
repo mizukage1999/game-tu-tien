@@ -1,0 +1,29 @@
+{
+  "linh_khi": {
+    "name": "Linh Khí",
+    "kind": "currency",
+    "color": "#7fd8ff",
+    "desc": "Linh khí thiên địa, dùng để tu luyện và đột phá cảnh giới."
+  },
+  "linh_thach": {
+    "name": "Linh Thạch",
+    "kind": "material",
+    "color": "#6f8dff",
+    "desc": "Đá chứa linh lực tinh thuần. Cần cho đột phá và giao dịch."
+  },
+  "hoi_xuan_dan": {
+    "name": "Hồi Xuân Đan",
+    "kind": "consumable",
+    "color": "#5fe07a",
+    "heal": 0.45,
+    "desc": "Đan dược hồi phục 45% sinh lực và linh lực."
+  },
+  "nhan_bac": {
+    "name": "Nhẫn Bạc",
+    "kind": "equipment",
+    "slot": "ring",
+    "color": "#d9e1ea",
+    "bonus": { "atk": 8, "def": 4 },
+    "desc": "Nhẫn bạc khắc phù văn. Công +8, Thủ +4."
+  }
+}

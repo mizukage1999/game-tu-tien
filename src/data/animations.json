@@ -1,0 +1,52 @@
+{
+  "rigs": {
+    "humanoid": {
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "originY": 0.92,
+      "dirs": ["down", "up", "side"],
+      "anims": {
+        "idle": { "frames": 4, "frameRate": 5, "repeat": -1 },
+        "run": { "frames": 6, "frameRate": 12, "repeat": -1 },
+        "attack_1": { "frames": 5, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
+        "attack_2": { "frames": 5, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
+        "attack_3": { "frames": 6, "frameRate": 18, "repeat": 0, "hitFrame": 2 },
+        "cast": { "frames": 5, "frameRate": 16, "repeat": 0, "hitFrame": 2 },
+        "hurt": { "frames": 2, "frameRate": 12, "repeat": 0 },
+        "downed": { "frames": 3, "frameRate": 9, "repeat": 0, "dirs": ["side"] },
+        "meditate": { "frames": 4, "frameRate": 3, "repeat": -1, "dirs": ["down"] }
+      }
+    },
+    "npc": {
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "originY": 0.92,
+      "dirs": ["down"],
+      "anims": {
+        "idle": { "frames": 4, "frameRate": 4, "repeat": -1 }
+      }
+    },
+    "beast": {
+      "frameWidth": 96,
+      "frameHeight": 80,
+      "originY": 0.88,
+      "dirs": ["side"],
+      "anims": {
+        "idle": { "frames": 4, "frameRate": 5, "repeat": -1 },
+        "run": { "frames": 6, "frameRate": 12, "repeat": -1 },
+        "attack": { "frames": 5, "frameRate": 14, "repeat": 0, "hitFrame": 2 },
+        "hurt": { "frames": 2, "frameRate": 12, "repeat": 0 },
+        "die": { "frames": 4, "frameRate": 10, "repeat": 0 }
+      }
+    }
+  },
+  "characters": {
+    "player": { "rig": "humanoid", "palette": "player" },
+    "elder": { "rig": "npc", "palette": "elder" },
+    "merchant": { "rig": "npc", "palette": "merchant" },
+    "disciple": { "rig": "npc", "palette": "disciple" },
+    "hermit": { "rig": "npc", "palette": "hermit" },
+    "beast_snow": { "rig": "beast", "palette": "beast_snow" },
+    "beast_fire": { "rig": "beast", "palette": "beast_fire" }
+  }
+}

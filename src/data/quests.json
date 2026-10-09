@@ -1,0 +1,78 @@
+{
+  "main_0": {
+    "kind": "main",
+    "name": "Bái Kiến Trưởng Lão",
+    "desc": "Đến gặp Vân Hạc Trưởng Lão ở chính điện Đại Thừa Viện.",
+    "autoStart": true,
+    "objectives": [{ "type": "talk", "npc": "truong_lao", "count": 1 }],
+    "rewards": { "exp": 50 }
+  },
+  "main_1": {
+    "kind": "main",
+    "name": "Tu Luyện Không Ngừng",
+    "desc": "Linh Thú quanh sân viện đang quấy nhiễu đệ tử. Hãy đánh bại chúng.",
+    "giver": "truong_lao",
+    "requires": "main_0",
+    "turnIn": "truong_lao",
+    "objectives": [{ "type": "kill", "target": "linh_thu", "count": 10 }],
+    "rewards": { "exp": 300, "items": { "linh_thach": 3, "hoi_xuan_dan": 3 } }
+  },
+  "main_2": {
+    "kind": "main",
+    "name": "Tọa Thiền Ngộ Đạo",
+    "desc": "Đến Linh Đài phía bắc, tọa thiền (phím F) để hấp thu linh khí.",
+    "giver": "truong_lao",
+    "requires": "main_1",
+    "turnIn": "truong_lao",
+    "objectives": [{ "type": "meditate", "zone": "linh_dai", "count": 10 }],
+    "rewards": { "exp": 250, "linhKhi": 120 }
+  },
+  "main_3": {
+    "kind": "main",
+    "name": "Thám Hiểm Linh Thú Lâm",
+    "desc": "Đi qua cổng phía đông vào Linh Thú Lâm và trấn áp Hỏa Hồ.",
+    "giver": "truong_lao",
+    "requires": "main_2",
+    "turnIn": "truong_lao",
+    "objectives": [
+      { "type": "enterZone", "zone": "linh_thu_lam", "count": 1 },
+      { "type": "kill", "target": "hoa_ho", "count": 5 }
+    ],
+    "rewards": { "exp": 1200, "items": { "linh_thach": 10 } }
+  },
+  "main_4": {
+    "kind": "main",
+    "name": "Đột Phá Cảnh Giới",
+    "desc": "Tích lũy linh khí, mở bảng Tu Luyện để đột phá lên Luyện Khí Trung Kỳ.",
+    "giver": "truong_lao",
+    "requires": "main_3",
+    "objectives": [{ "type": "reachLevel", "count": 10 }],
+    "rewards": { "exp": 500, "items": { "linh_thach": 5 } }
+  },
+  "side_1": {
+    "kind": "side",
+    "name": "Thu Thập Linh Thạch",
+    "desc": "Thương nhân cần Linh Thạch. Linh Thú thường làm rơi chúng.",
+    "giver": "thuong_nhan",
+    "turnIn": "thuong_nhan",
+    "objectives": [{ "type": "collect", "item": "linh_thach", "count": 3 }],
+    "rewards": { "linhKhi": 80, "items": { "hoi_xuan_dan": 2 } }
+  },
+  "side_2": {
+    "kind": "side",
+    "name": "Tăng Cảnh Giới",
+    "desc": "Không ngừng tu luyện để nâng cao tu vi.",
+    "autoStart": true,
+    "objectives": [{ "type": "reachLevel", "count": 5 }],
+    "rewards": { "exp": 100, "items": { "linh_thach": 2 } }
+  },
+  "side_3": {
+    "kind": "side",
+    "name": "Linh Tuyền Tẩy Tủy",
+    "desc": "Ẩn sĩ chỉ điểm: tọa thiền bên Linh Tuyền trong rừng sẽ tẩy luyện kinh mạch.",
+    "giver": "an_si",
+    "turnIn": "an_si",
+    "objectives": [{ "type": "meditate", "zone": "linh_tuyen", "count": 15 }],
+    "rewards": { "exp": 500, "linhKhi": 200 }
+  }
+}

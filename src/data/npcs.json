@@ -1,0 +1,33 @@
+{
+  "truong_lao": {
+    "name": "Vân Hạc",
+    "title": "Trưởng Lão",
+    "art": "elder",
+    "lines": [
+      "Tu tiên chi lộ, nghịch thiên nhi hành. Con đã sẵn sàng chưa?",
+      "Linh khí nơi Đại Thừa Viện dồi dào, hãy chăm chỉ tu luyện."
+    ]
+  },
+  "thuong_nhan": {
+    "name": "Tiền Đa Bảo",
+    "title": "Thương Nhân",
+    "art": "merchant",
+    "lines": ["Đạo hữu, ta có đan dược thượng hạng, chỉ cần vài viên Linh Thạch thôi."],
+    "shop": [{ "item": "hoi_xuan_dan", "qty": 1, "price": { "linh_thach": 2 } }]
+  },
+  "su_huynh": {
+    "name": "Lục Trần",
+    "title": "Sư Huynh",
+    "art": "disciple",
+    "lines": [
+      "Phía bắc là Linh Đài, tọa thiền ở đó linh khí hội tụ nhanh gấp bội.",
+      "Cổng phía đông dẫn ra Linh Thú Lâm, Hỏa Hồ ở đó rất hung dữ, cẩn thận!"
+    ]
+  },
+  "an_si": {
+    "name": "Mặc Vân",
+    "title": "Ẩn Sĩ",
+    "art": "hermit",
+    "lines": ["Linh Tuyền này đã có từ vạn năm trước... người hữu duyên mới tìm được."]
+  }
+}

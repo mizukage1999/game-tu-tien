@@ -1,0 +1,52 @@
+{
+  "basic": {
+    "name": "Kiếm Pháp Cơ Bản",
+    "key": "J / Space",
+    "mpCost": 0,
+    "cooldownMs": 420,
+    "multiplier": 1,
+    "range": 78,
+    "arc": 150,
+    "desc": "Chém liên hoàn 3 đòn trước mặt."
+  },
+  "bang_tam_tram": {
+    "name": "Băng Tâm Trảm",
+    "key": "1",
+    "mpCost": 18,
+    "cooldownMs": 6000,
+    "multiplier": 1.9,
+    "range": 170,
+    "arc": 120,
+    "desc": "Phóng kiếm khí hình trăng khuyết, gây sát thương diện rộng phía trước."
+  },
+  "phi_kiem": {
+    "name": "Phi Kiếm Thuật",
+    "key": "2",
+    "mpCost": 14,
+    "cooldownMs": 4000,
+    "multiplier": 2.3,
+    "range": 360,
+    "arc": 0,
+    "desc": "Ngự kiếm bay thẳng đến mục tiêu, xuyên qua kẻ địch."
+  },
+  "han_bang_tran": {
+    "name": "Hàn Băng Trận",
+    "key": "3",
+    "mpCost": 32,
+    "cooldownMs": 12000,
+    "multiplier": 1.5,
+    "range": 150,
+    "arc": 360,
+    "desc": "Triệu hồi trận pháp băng quanh thân, gây sát thương và làm chậm kẻ địch."
+  },
+  "than_phap": {
+    "name": "Lăng Ba Vi Bộ",
+    "key": "Shift",
+    "mpCost": 6,
+    "cooldownMs": 3000,
+    "multiplier": 0,
+    "range": 150,
+    "arc": 0,
+    "desc": "Lướt nhanh theo hướng di chuyển, miễn thương trong chốc lát."
+  }
+}
