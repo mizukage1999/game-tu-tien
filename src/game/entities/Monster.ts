@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { MONSTERS, type MonsterDef } from '../../data';
 import { AnimationController } from '../anim/AnimationController';
 import { flash, impact, knockback } from '../fx/HitEffect';
-import { createBrain, isHostile, provoke, stepMonsterAI, type MonsterBrain } from '../systems/monsterAI';
+import { createBrain, isHostile, provoke, stepMonsterAI, type AIParams, type MonsterBrain } from '../systems/monsterAI';
 import type { Vec2 } from '../types';
 import type { WorldScene } from '../scenes/WorldScene';
 
@@ -10,10 +10,14 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   readonly def: MonsterDef;
   readonly brain: MonsterBrain;
   readonly ctrl: AnimationController;
+  readonly arena: boolean;
   hp: number;
   alive = true;
   slowTimer = 0;
 
+  private ai: AIParams;
+  private slamTimer = 0;
+  private summoned = false;
   private shadow: Phaser.GameObjects.Image;
   private label: Phaser.GameObjects.Text;
   private bar: Phaser.GameObjects.Graphics;
@@ -28,11 +32,16 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     readonly type: string,
     x: number,
     y: number,
+    /** Dungeon monsters hunt the player across the whole arena and never respawn. */
+    opts: { arena?: boolean } = {},
   ) {
     const def = MONSTERS[type];
     super(world, x, y, def.art);
     this.def = def;
     this.hp = def.hp;
+    this.arena = !!opts.arena;
+    this.ai = this.arena ? { ...def, aggroRadius: 1400, leashRadius: 99999 } : def;
+    this.slamTimer = (def.boss?.slamInterval ?? 0) * 0.6;
     world.add.existing(this);
     world.physics.add.existing(this);
     this.ctrl = new AnimationController(this, def.art);
@@ -40,15 +49,16 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     body.setSize(34, 16);
     body.setOffset(this.ctrl.rig.frameWidth / 2 - 17, this.ctrl.rig.frameHeight * this.ctrl.rig.originY - 14);
     this.brain = createBrain({ x, y });
-    if (type === 'hoa_ho') this.setScale(1.15);
+    const scale = def.scale ?? (type === 'hoa_ho' ? 1.15 : 1);
+    this.setScale(scale);
 
-    this.shadow = world.add.image(x, y, 'shadow').setScale(1.2, 1).setDepth(-100);
+    this.shadow = world.add.image(x, y, 'shadow').setScale(1.2 * scale, scale).setDepth(-100);
     this.label = world.add
-      .text(x, y, def.name, {
+      .text(x, y, def.boss ? `【${def.name}】` : def.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
-        fontSize: '12px',
+        fontSize: def.boss ? '15px' : '12px',
         fontStyle: 'bold',
-        color: type === 'hoa_ho' ? '#ffb27a' : '#ffd6d6',
+        color: def.boss ? '#ffd34d' : type === 'hoa_ho' ? '#ffb27a' : '#ffd6d6',
         stroke: '#2a0a0a',
         strokeThickness: 3,
       })
@@ -72,7 +82,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.hurtTimer = Math.max(0, this.hurtTimer - dt);
     this.slowTimer = Math.max(0, this.slowTimer - dt);
     const body = this.body as Phaser.Physics.Arcade.Body;
-    const out = stepMonsterAI(this.brain, this.def, {
+    const out = stepMonsterAI(this.brain, this.ai, {
       pos: { x: this.x, y: this.y },
       player,
       dt,
@@ -83,6 +93,14 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       this.barDirty = true;
     }
 
+    const boss = this.def.boss;
+    if (boss && player && isHostile(this.brain) && !this.attacking) {
+      this.slamTimer -= dt;
+      if (this.slamTimer <= 0) {
+        this.slamTimer = boss.slamInterval;
+        this.startSlam();
+      }
+    }
     if (out.attack && player && !this.attacking) this.startAttack(player);
 
     if (this.attacking || this.hurtTimer > 0) {
@@ -112,7 +130,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     if (this.barDirty || this.lastBarPos.x !== this.x || this.lastBarPos.y !== this.y) {
       this.barDirty = false;
       this.lastBarPos = { x: this.x, y: this.y };
-      const w = 44;
+      const w = this.def.boss ? 90 : 44;
       this.bar.clear();
       this.bar.fillStyle(0x140a0a, 0.8).fillRoundedRect(this.x - w / 2 - 1, top - 4, w + 2, 6, 2);
       this.bar.fillStyle(0xe8443a, 1).fillRoundedRect(this.x - w / 2, top - 3, Math.max(0, (w * this.hp) / this.def.hp), 4, 2);
@@ -139,18 +157,36 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  /** Boss ground slam: the world draws the warning circle and resolves the hit after the wind-up. */
+  private startSlam() {
+    const boss = this.def.boss!;
+    this.attacking = true;
+    (this.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
+    this.world.bossSlam(this, boss.slamRadius, boss.slamWindup, boss.slamMul);
+    this.world.tweens.add({ targets: this, scaleY: this.scaleY * 1.12, yoyo: true, duration: boss.slamWindup / 2 });
+    this.world.time.delayedCall(boss.slamWindup + 150, () => {
+      this.attacking = false;
+    });
+  }
+
   hit(amount: number, crit: boolean, from: Vec2) {
     if (!this.alive) return;
     this.hp = Math.max(0, this.hp - amount);
     this.barDirty = true;
     provoke(this.brain);
     flash(this.world, this);
-    impact(this.world, this.x, this.y - 28, crit ? 0xffe28a : 0xbfefff, crit);
-    this.world.damageText.show(this.x, this.y - 60, `-${amount}`, crit ? 'crit' : 'enemy');
+    impact(this.world, this.x, this.y - 28 * this.scaleY, crit ? 0xffe28a : 0xbfefff, crit);
+    this.world.damageText.show(this.x, this.y - 60 * this.scaleY, `-${amount}`, crit ? 'crit' : 'enemy');
     if (this.hp <= 0) {
       this.die();
       return;
     }
+    const summon = this.def.boss?.summon;
+    if (summon && !this.summoned && this.hp <= this.def.hp * summon.atHpPct) {
+      this.summoned = true;
+      this.world.summonAdds(this, summon.type, summon.count);
+    }
+    if (this.def.boss) return;
     if (!this.attacking) {
       this.hurtTimer = 140;
       knockback(this.world, this, from.x, from.y, crit ? 220 : 140);
@@ -175,7 +211,17 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       duration: 500,
       onComplete: () => this.setVisible(false),
     });
-    this.world.time.delayedCall(this.def.respawnMs, () => this.respawn());
+    if (!this.arena && this.def.respawnMs > 0) this.world.time.delayedCall(this.def.respawnMs, () => this.respawn());
+  }
+
+  /** Removes the monster without rewards (dungeon failed / left). */
+  vanish() {
+    if (!this.alive) return;
+    this.alive = false;
+    (this.body as Phaser.Physics.Arcade.Body).enable = false;
+    this.label.setVisible(false);
+    this.bar.clear();
+    this.world.tweens.add({ targets: [this, this.shadow], alpha: 0, duration: 500, onComplete: () => this.setVisible(false) });
   }
 
   private respawn() {

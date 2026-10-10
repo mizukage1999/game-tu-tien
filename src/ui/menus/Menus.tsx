@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import {
   bonusText,
+  DUNGEONS,
   EQUIP_SLOTS,
   equipmentId,
   ITEMS,
+  MONSTERS,
   NPCS,
   QUESTS,
   RARITIES,
@@ -13,17 +15,22 @@ import {
   type RarityId,
   type SkillId,
 } from '../../data';
+import { EventBus } from '../../game/EventBus';
 import { itemIconUrl, skillIconUrl } from '../../game/art/icons';
+import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
 import { canEquip, expToNext, isBottleneck, realmFor } from '../../game/systems/progression';
 import { objectiveText } from '../../game/systems/quest';
 import { clearSave, disableSaving } from '../../game/systems/save';
+import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, SKILL_MAX_LEVEL } from '../../game/systems/skills';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
+import { RewardList } from '../Rewards';
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
   bag: 'Túi Đồ',
   cultivate: 'Tu Luyện',
   skills: 'Kỹ Năng',
+  dungeon: 'Phó Bản',
   quests: 'Nhiệm Vụ',
   shop: 'Cửa Hàng',
   settings: 'Cài Đặt',
@@ -248,21 +255,98 @@ function Cultivate() {
   );
 }
 
+function Delta({ cur, next, suffix = '' }: { cur: number | string; next?: number | string; suffix?: string }) {
+  return (
+    <>
+      {cur}
+      {suffix}
+      {next !== undefined && next !== cur && (
+        <span className="delta">
+          {' '}
+          → {next}
+          {suffix}
+        </span>
+      )}
+    </>
+  );
+}
+
+function CostChip({ item, need, have }: { item: string; need: number; have: number }) {
+  if (need <= 0) return null;
+  return (
+    <span className={`cost-chip ${have < need ? 'short' : ''}`} title={itemName(item)}>
+      <img src={itemIconUrl(item, 20)} alt="" /> {need}
+    </span>
+  );
+}
+
 function Skills() {
+  const player = useGame((s) => s.player);
+  const upgrade = useGame((s) => s.upgradeSkill);
+  const wallet = {
+    linhKhi: player.linhKhi,
+    linhThach: player.inventory.linh_thach ?? 0,
+    kiemPho: player.inventory.kiem_pho ?? 0,
+  };
   return (
     <div className="skill-list">
+      <p className="muted">
+        Nâng cấp tăng sát thương và giảm hồi chiêu. Cấp {SKILL_BONUS_LEVEL} lĩnh ngộ tuyệt kỹ. Từ cấp 4 cần thêm Kiếm Phổ Tàn Trang (rơi trong phó bản).
+      </p>
       {(Object.keys(SKILLS) as SkillId[]).map((id) => {
-        const s = SKILLS[id];
+        const lv = skillLevel(player.skills, id);
+        const cur = effectiveSkill(id, lv);
+        const next = lv < SKILL_MAX_LEVEL ? effectiveSkill(id, lv + 1) : null;
+        const check = checkUpgrade(lv, player.level, wallet);
+        const cost = check.cost;
         return (
-          <div key={id} className="skill-row">
-            <img src={skillIconUrl(id, 56)} alt="" />
-            <div>
-              <b>{s.name}</b> <kbd>{s.key}</kbd>
-              <div className="muted">{s.desc}</div>
+          <div key={id} className="skill-row upgrade">
+            <div className="skill-icon">
+              <img src={skillIconUrl(id, 56)} alt="" />
+              <span className="skill-lv">{lv}</span>
+            </div>
+            <div className="skill-info">
+              <b>{cur.name}</b> <kbd>{cur.key}</kbd>{' '}
+              <span className="skill-level">
+                Cấp {lv}/{SKILL_MAX_LEVEL}
+              </span>
+              <div className="muted">{cur.desc}</div>
               <small>
-                MP {s.mpCost} · Hồi chiêu {(s.cooldownMs / 1000).toFixed(1)}s
-                {s.multiplier ? ` · Sát thương x${s.multiplier}` : ''}
+                MP {cur.mpCost} · Hồi chiêu <Delta cur={(cur.cooldownMs / 1000).toFixed(1)} next={next ? (next.cooldownMs / 1000).toFixed(1) : undefined} suffix="s" />
+                {cur.multiplier ? (
+                  <>
+                    {' '}
+                    · Sát thương x<Delta cur={cur.multiplier} next={next?.multiplier} />
+                  </>
+                ) : null}
+                {next && next.range !== cur.range ? (
+                  <>
+                    {' '}
+                    · Tầm <Delta cur={cur.range} next={next.range} />
+                  </>
+                ) : null}
               </small>
+              <div className={`skill-bonus ${cur.active ? 'on' : ''}`}>
+                {cur.active ? '✦ ' : `Cấp ${SKILL_BONUS_LEVEL}: `}
+                {cur.bonus.desc}
+              </div>
+            </div>
+            <div className="skill-upgrade">
+              {cost ? (
+                <>
+                  <div className="cost-row">
+                    <span className={`cost-chip ${player.level < cost.reqLevel ? 'short' : ''}`}>Lv {cost.reqLevel}</span>
+                    <CostChip item="linh_khi" need={cost.linhKhi} have={wallet.linhKhi} />
+                    <CostChip item="linh_thach" need={cost.linhThach} have={wallet.linhThach} />
+                    <CostChip item="kiem_pho" need={cost.kiemPho} have={wallet.kiemPho} />
+                  </div>
+                  <button className="btn gold small" disabled={!check.ok} title={check.ok ? '' : check.reason} onClick={() => upgrade(id)}>
+                    Nâng cấp
+                  </button>
+                </>
+              ) : (
+                <span className="skill-max">Tối đa</span>
+              )}
             </div>
           </div>
         );
@@ -270,6 +354,69 @@ function Skills() {
       <div className="controls-help">
         Di chuyển: WASD / phím mũi tên / joystick · Tương tác: E · Tọa thiền: F · Đổi mục tiêu: Tab · Tự động: T · Đan dược: Q
       </div>
+    </div>
+  );
+}
+
+function Dungeons() {
+  const player = useGame((s) => s.player);
+  const inDungeon = useGame((s) => s.dungeon);
+  return (
+    <div className="dungeon-list">
+      {inDungeon && (
+        <div className="breakthrough">
+          <div>
+            Bạn đang ở trong <b>{inDungeon.name}</b>.
+          </div>
+          <button className="btn" onClick={() => EventBus.emit('cmd:leaveDungeon')}>
+            Rời phó bản
+          </button>
+        </div>
+      )}
+      {Object.entries(DUNGEONS).map(([id, def]) => {
+        const left = attemptsLeft(player.dungeons, id, def);
+        const check = canEnter(player.dungeons, id, def, player.level);
+        const clears = player.dungeons?.clears[id] ?? 0;
+        const boss = MONSTERS[def.boss];
+        return (
+          <div key={id} className={`dungeon-card ${player.level < def.minLevel ? 'locked' : ''}`}>
+            <div className="dungeon-card-head">
+              <b>{def.name}</b>
+              <span className="muted">
+                Yêu cầu Lv {def.minLevel} · Đã vượt {clears} lần
+              </span>
+            </div>
+            <p className="muted">{def.desc}</p>
+            <div className="dungeon-facts">
+              <span>
+                {def.waves.length} đợt quái + thủ lĩnh <b>{boss.name}</b> (Lv {boss.level})
+              </span>
+              <span>Giới hạn {Math.round(def.timeLimitSec / 60)} phút</span>
+              <span className={left === 0 ? 'short' : ''}>
+                Lượt hôm nay: {left}/{def.attemptsPerDay}
+              </span>
+            </div>
+            <h4>Phần thưởng</h4>
+            <RewardList rewards={def.rewards} />
+            {clears === 0 && (
+              <>
+                <h4>Thưởng lần đầu</h4>
+                <RewardList rewards={def.firstClear} />
+              </>
+            )}
+            <div className="dungeon-enter">
+              {!check.ok && <span className="muted">{check.reason}</span>}
+              <button
+                className="btn gold"
+                disabled={!check.ok || !!inDungeon}
+                onClick={() => EventBus.emit('cmd:enterDungeon', id)}
+              >
+                Tiến vào
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -404,6 +551,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
   bag: Bag,
   cultivate: Cultivate,
   skills: Skills,
+  dungeon: Dungeons,
   quests: Quests,
   shop: Shop,
   settings: Settings,

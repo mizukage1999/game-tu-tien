@@ -1,0 +1,40 @@
+{
+  "bang_tuyet_dong": {
+    "name": "Băng Tuyết Động",
+    "map": "pb_bang_tuyet",
+    "desc": "Hang băng nơi Tuyết Hồ Vương ngủ đông. Linh Thú tụ tập canh giữ cửa động.",
+    "minLevel": 5,
+    "attemptsPerDay": 3,
+    "timeLimitSec": 240,
+    "waves": [
+      [{ "type": "linh_thu", "count": 4 }],
+      [{ "type": "linh_thu", "count": 6 }],
+      [
+        { "type": "linh_thu", "count": 4 },
+        { "type": "hoa_ho", "count": 1 }
+      ]
+    ],
+    "boss": "tuyet_ho_vuong",
+    "rewards": { "exp": 600, "linhKhi": 300, "items": { "linh_thach": 3, "kiem_pho": 2 } },
+    "firstClear": { "items": { "hoi_xuan_dan": 3, "kiem_pho": 2 } }
+  },
+  "hoa_diem_coc": {
+    "name": "Hỏa Diễm Cốc",
+    "map": "pb_hoa_diem",
+    "desc": "Thung lũng dung nham, sào huyệt của Cửu Vĩ Hỏa Hồ. Chỉ cao thủ mới nên bước vào.",
+    "minLevel": 12,
+    "attemptsPerDay": 2,
+    "timeLimitSec": 300,
+    "waves": [
+      [{ "type": "hoa_ho", "count": 3 }],
+      [
+        { "type": "hoa_ho", "count": 4 },
+        { "type": "linh_thu", "count": 3 }
+      ],
+      [{ "type": "hoa_ho", "count": 6 }]
+    ],
+    "boss": "cuu_vi_hoa_ho",
+    "rewards": { "exp": 2500, "linhKhi": 900, "items": { "linh_thach": 6, "kiem_pho": 4 } },
+    "firstClear": { "items": { "nhan_bac": 1, "kiem_pho": 3 } }
+  }
+}

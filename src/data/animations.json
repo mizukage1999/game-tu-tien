@@ -47,6 +47,8 @@
     "disciple": { "rig": "npc", "palette": "disciple" },
     "hermit": { "rig": "npc", "palette": "hermit" },
     "beast_snow": { "rig": "beast", "palette": "beast_snow" },
-    "beast_fire": { "rig": "beast", "palette": "beast_fire" }
+    "beast_fire": { "rig": "beast", "palette": "beast_fire" },
+    "beast_frost_king": { "rig": "beast", "palette": "beast_frost_king" },
+    "beast_fire_king": { "rig": "beast", "palette": "beast_fire_king" }
   }
 }

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { generateArt } from '../art/generate';
 import { gameStore } from '../../store/gameStore';
+import { getMap } from '../maps';
 
 interface AtlasEntry {
   atlas: string;
@@ -35,6 +36,12 @@ export class PreloadScene extends Phaser.Scene {
 
   create() {
     generateArt(this);
-    this.scene.start('World', { mapId: gameStore.getState().mapId, pos: gameStore.getState().spawnPos });
+    const s = gameStore.getState();
+    // never boot straight into a dungeon (that would start a run without spending an attempt)
+    if (getMap(s.mapId).arena) {
+      this.scene.start('World', { mapId: s.dungeonReturn?.mapId ?? 'dai_thua_vien', pos: s.dungeonReturn?.pos ?? null });
+      return;
+    }
+    this.scene.start('World', { mapId: s.mapId, pos: s.spawnPos });
   }
 }

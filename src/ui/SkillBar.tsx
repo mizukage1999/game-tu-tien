@@ -1,21 +1,24 @@
 import type { CSSProperties } from 'react';
-import { SKILLS, type SkillId } from '../data';
+import { useMemo } from 'react';
+import type { SkillId } from '../data';
 import { EventBus } from '../game/EventBus';
 import { itemIconUrl, skillIconUrl } from '../game/art/icons';
+import { effectiveSkill, skillLevel } from '../game/systems/skills';
 import { useGame } from '../store/gameStore';
 
 function SkillButton({ id, className }: { id: SkillId; className: string }) {
   const cd = useGame((s) => s.cooldowns[id] ?? 0);
   const mp = useGame((s) => s.player.mp);
-  const sk = SKILLS[id];
-  const pct = cd > 0 ? cd / sk.cooldownMs : 0;
+  const level = useGame((s) => skillLevel(s.player.skills, id));
+  const sk = useMemo(() => effectiveSkill(id, level), [id, level]);
+  const pct = cd > 0 ? Math.min(1, cd / sk.cooldownMs) : 0;
   const noMp = mp < sk.mpCost;
   const style = { '--cd': `${pct * 360}deg` } as CSSProperties;
   return (
     <button
       className={`skill-btn ${className} ${cd > 0 ? 'cooling' : ''} ${noMp ? 'no-mp' : ''}`}
       style={style}
-      title={`${sk.name} [${sk.key}] - ${sk.desc} (MP ${sk.mpCost})`}
+      title={`${sk.name} cấp ${level} [${sk.key}] - ${sk.desc} (MP ${sk.mpCost})`}
       onPointerDown={(e) => {
         e.preventDefault();
         EventBus.emit('cmd:skill', id);
@@ -24,6 +27,7 @@ function SkillButton({ id, className }: { id: SkillId; className: string }) {
       <img src={skillIconUrl(id, 96)} alt={sk.name} draggable={false} />
       {cd > 0 && id !== 'basic' && <span className="skill-cd">{(cd / 1000).toFixed(1)}</span>}
       <span className="skill-key">{sk.key.split(' ')[0]}</span>
+      {level > 1 && <span className={`skill-badge ${sk.active ? 'awakened' : ''}`}>{level}</span>}
     </button>
   );
 }

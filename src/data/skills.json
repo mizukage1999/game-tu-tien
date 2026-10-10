@@ -7,7 +7,9 @@
     "multiplier": 1,
     "range": 78,
     "arc": 150,
-    "desc": "Chém liên hoàn 3 đòn trước mặt."
+    "desc": "Chém liên hoàn 3 đòn trước mặt.",
+    "growth": { "multiplier": 0.08 },
+    "bonus": { "desc": "Đòn thứ ba gây x2.0 sát thương (thay vì x1.5).", "finisherMul": 2 }
   },
   "bang_tam_tram": {
     "name": "Băng Tâm Trảm",
@@ -17,7 +19,9 @@
     "multiplier": 1.9,
     "range": 170,
     "arc": 120,
-    "desc": "Phóng kiếm khí hình trăng khuyết, gây sát thương diện rộng phía trước."
+    "desc": "Phóng kiếm khí hình trăng khuyết, gây sát thương diện rộng phía trước.",
+    "growth": { "multiplier": 0.12, "cooldown": -0.03 },
+    "bonus": { "desc": "Phóng thêm một đạo kiếm khí thứ hai gây 60% sát thương.", "echo": 0.6 }
   },
   "phi_kiem": {
     "name": "Phi Kiếm Thuật",
@@ -27,7 +31,9 @@
     "multiplier": 2.3,
     "range": 360,
     "arc": 0,
-    "desc": "Ngự kiếm bay thẳng đến mục tiêu, xuyên qua kẻ địch."
+    "desc": "Ngự kiếm bay thẳng đến mục tiêu, xuyên qua kẻ địch.",
+    "growth": { "multiplier": 0.12, "cooldown": -0.03 },
+    "bonus": { "desc": "Phân ra thêm 2 phi kiếm tấn công kẻ địch gần đó (70% sát thương).", "extraSwords": 2 }
   },
   "han_bang_tran": {
     "name": "Hàn Băng Trận",
@@ -37,7 +43,9 @@
     "multiplier": 1.5,
     "range": 150,
     "arc": 360,
-    "desc": "Triệu hồi trận pháp băng quanh thân, gây sát thương và làm chậm kẻ địch."
+    "desc": "Triệu hồi trận pháp băng quanh thân, gây sát thương và làm chậm kẻ địch.",
+    "growth": { "multiplier": 0.1, "cooldown": -0.03, "range": 0.03 },
+    "bonus": { "desc": "Hiệu ứng làm chậm kéo dài 5 giây (thay vì 3 giây).", "slowMs": 5000 }
   },
   "than_phap": {
     "name": "Lăng Ba Vi Bộ",
@@ -47,6 +55,8 @@
     "multiplier": 0,
     "range": 150,
     "arc": 0,
-    "desc": "Lướt nhanh theo hướng di chuyển, miễn thương trong chốc lát."
+    "desc": "Lướt nhanh theo hướng di chuyển, miễn thương trong chốc lát.",
+    "growth": { "cooldown": -0.05 },
+    "bonus": { "desc": "Thời gian miễn thương khi lướt tăng lên 0.6 giây.", "invulnMs": 600 }
   }
 }

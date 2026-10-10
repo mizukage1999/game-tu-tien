@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { SKILLS, type SkillId } from '../../data';
-import { gameStore } from '../../store/gameStore';
+import type { SkillId } from '../../data';
+import { gameStore, playerSkill } from '../../store/gameStore';
 import { AnimationController } from '../anim/AnimationController';
 import { virtualInput } from '../EventBus';
 import { flash, knockback } from '../fx/HitEffect';
@@ -173,7 +173,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private autoControl(): Vec2 {
     const w = this.world;
-    const range = SKILLS.basic.range;
+    const range = playerSkill('basic').range;
     let target = w.target && w.target.alive && w.target.distanceTo(this) < 520 ? w.target : null;
     if (!target) target = w.nearestMonster(this, 420);
     const nearbyLoot = w.nearestLoot(this, 260);
@@ -185,7 +185,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const d = target.distanceTo(this);
     // use skills first, then basic attacks
     for (const id of ['han_bang_tran', 'bang_tam_tram', 'phi_kiem'] as SkillId[]) {
-      const sk = SKILLS[id];
+      const sk = playerSkill(id);
       if (d <= sk.range * 0.8 && this.skillReady(id)) {
         this.faceToward(target);
         this.castSkill(id);
@@ -210,7 +210,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   // ---- actions -----------------------------------------------------------
 
   skillReady(id: SkillId) {
-    return (this.cooldowns[id] ?? 0) <= 0 && gameStore.getState().player.mp >= SKILLS[id].mpCost;
+    return (this.cooldowns[id] ?? 0) <= 0 && gameStore.getState().player.mp >= playerSkill(id).mpCost;
   }
 
   private autoFace(range: number) {
@@ -230,8 +230,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.queuedAttack = false;
     this.combo = this.comboTimer > 0 ? (this.combo % 3) + 1 : 1;
     this.comboTimer = 900;
-    this.cooldowns.basic = SKILLS.basic.cooldownMs;
-    this.autoFace(SKILLS.basic.range + 50);
+    const basic = playerSkill('basic');
+    this.cooldowns.basic = basic.cooldownMs;
+    this.autoFace(basic.range + 50);
     const combo = this.combo;
     this.ctrl.play(`attack_${combo}`, this.dir, {
       lock: true,
@@ -252,7 +253,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const store = gameStore.getState();
     if (!canAct(this.life) || this.ctrl.locked || this.dashTime > 0) return;
     if ((this.cooldowns[id] ?? 0) > 0) return;
-    const sk = SKILLS[id];
+    const sk = playerSkill(id);
     let target: Monster | null = null;
     if (id === 'phi_kiem') {
       target = this.autoFace(sk.range);
@@ -280,7 +281,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!canAct(this.life) || this.dashTime > 0) return;
     if ((this.cooldowns.than_phap ?? 0) > 0) return;
     const store = gameStore.getState();
-    if (!store.spendMp(SKILLS.than_phap.mpCost)) return;
+    const sk = playerSkill('than_phap');
+    if (!store.spendMp(sk.mpCost)) return;
     if (this.meditating) this.stopMeditate();
     let v = this.manualInput();
     if (Math.hypot(v.x, v.y) < 0.1) v = this.facing;
@@ -289,8 +291,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.dashVec = { x: (v.x / l) * speed, y: (v.y / l) * speed };
     this.dir = dirFromVector(v.x, v.y, this.dir);
     this.dashTime = 180;
-    this.cooldowns.than_phap = SKILLS.than_phap.cooldownMs;
-    grantInvuln(this.life, 320);
+    this.cooldowns.than_phap = sk.cooldownMs;
+    grantInvuln(this.life, sk.active?.invulnMs ?? 320);
     this.ctrl.unlock();
     this.ctrl.play('run', this.dir, { force: true });
   }

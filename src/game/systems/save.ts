@@ -1,5 +1,7 @@
 import type { EquipSlot } from '../../data';
 import type { QuestLog } from './quest';
+import type { DungeonRecord } from './dungeon';
+import type { SkillLevels } from './skills';
 import type { Vec2 } from '../types';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
@@ -15,6 +17,9 @@ export interface PlayerSave {
   linhKhi: number;
   inventory: Record<string, number>;
   equipment: Partial<Record<EquipSlot, string>>;
+  /** Missing in saves from before skill upgrades; every skill then counts as level 1. */
+  skills?: SkillLevels;
+  dungeons?: DungeonRecord;
 }
 
 export interface SaveData {

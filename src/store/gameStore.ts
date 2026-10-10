@@ -1,6 +1,8 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import { ITEMS, MONSTERS, NPCS, QUESTS, ZONE_NAMES, type EquipSlot, type QuestRewards, type SkillId } from '../data';
+import { DUNGEONS, ITEMS, MONSTERS, NPCS, QUESTS, SKILLS, ZONE_NAMES, type EquipSlot, type QuestRewards, type SkillId } from '../data';
+import { canEnter, consumeAttempt, recordClear, type RunPhase } from '../game/systems/dungeon';
+import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, type EffectiveSkill } from '../game/systems/skills';
 import {
   addExp,
   applyBreakthrough,
@@ -52,7 +54,26 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'quests' | 'shop' | 'settings';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'quests' | 'shop' | 'settings';
+
+export interface DungeonHud {
+  id: string;
+  name: string;
+  phase: RunPhase;
+  wave: number;
+  waves: number;
+  timeLeft: number;
+  remaining: number;
+  boss: { name: string; hp: number; maxHp: number } | null;
+}
+
+export interface DungeonResult {
+  id: string;
+  success: boolean;
+  elapsedMs: number;
+  rewards: QuestRewards;
+  firstClear: QuestRewards | null;
+}
 
 export interface GameState {
   player: PlayerSave;
@@ -74,6 +95,10 @@ export interface GameState {
   playerTile: Vec2;
   minimap: MinimapData;
   menu: MenuTab | null;
+  dungeon: DungeonHud | null;
+  dungeonResult: DungeonResult | null;
+  /** Where to put the player back after leaving a dungeon. */
+  dungeonReturn: { mapId: string; pos: Vec2 } | null;
 
   addLog(text: string, channel?: LogChannel): void;
   toast(text: string, kind?: ToastKind): void;
@@ -92,6 +117,10 @@ export interface GameState {
   turnInQuest(id: string): void;
   tryBreakthrough(): void;
   buy(npcId: string, index: number): void;
+  upgradeSkill(id: SkillId): void;
+  /** Validates and spends a daily attempt. Called by the world scene before entering. */
+  beginDungeon(id: string): boolean;
+  finishDungeon(id: string, success: boolean, elapsedMs: number): void;
   setMenu(menu: MenuTab | null): void;
   setDialog(npc: string | null): void;
   setAuto(on: boolean): void;
@@ -185,6 +214,9 @@ export const gameStore = createStore<GameState>()((set, get) => {
     playerTile: { x: 0, y: 0 },
     minimap: { player: { x: 0, y: 0 }, monsters: [], npcs: [], loot: [] },
     menu: null,
+    dungeon: null,
+    dungeonResult: null,
+    dungeonReturn: null,
 
     addLog(text, channel = 'system') {
       set((s) => ({ logs: [...s.logs.slice(-(MAX_LOGS - 1)), { id: uid++, channel, text }] }));
@@ -373,6 +405,73 @@ export const gameStore = createStore<GameState>()((set, get) => {
       get().toast(`Đã mua ${itemName(offer.item)}`);
     },
 
+    upgradeSkill(id) {
+      const s = get();
+      const p = s.player;
+      const level = skillLevel(p.skills, id);
+      const check = checkUpgrade(level, p.level, {
+        linhKhi: p.linhKhi,
+        linhThach: p.inventory.linh_thach ?? 0,
+        kiemPho: p.inventory.kiem_pho ?? 0,
+      });
+      if (!check.ok) {
+        s.toast(check.reason, 'warn');
+        return;
+      }
+      const { cost } = check;
+      s.removeItems({ linh_khi: cost.linhKhi, linh_thach: cost.linhThach, ...(cost.kiemPho ? { kiem_pho: cost.kiemPho } : {}) });
+      const next = level + 1;
+      const after = get().player;
+      set({ player: { ...after, skills: { ...after.skills, [id]: next } } });
+      const name = SKILLS[id].name;
+      s.toast(next === SKILL_BONUS_LEVEL ? `${name} cấp ${next}: lĩnh ngộ tuyệt kỹ!` : `${name} đạt cấp ${next}`, 'levelup');
+      s.addLog(`Nâng cấp ${name} lên cấp ${next}`);
+      s.questEvent({ type: 'skillUpgrade', skill: id });
+    },
+
+    beginDungeon(id) {
+      const s = get();
+      const def = DUNGEONS[id];
+      if (!def) return false;
+      if (s.dungeon) {
+        s.toast('Bạn đang ở trong phó bản.', 'warn');
+        return false;
+      }
+      const check = canEnter(s.player.dungeons, id, def, s.player.level);
+      if (!check.ok) {
+        s.toast(check.reason, 'warn');
+        return false;
+      }
+      set({
+        player: { ...s.player, dungeons: consumeAttempt(s.player.dungeons, id) },
+        menu: null,
+        dialogNpc: null,
+        dungeonResult: null,
+      });
+      s.addLog(`Tiến vào phó bản ${def.name}`);
+      return true;
+    },
+
+    finishDungeon(id, success, elapsedMs) {
+      const def = DUNGEONS[id];
+      if (!def) return;
+      const s = get();
+      if (!success) {
+        set({ dungeonResult: { id, success, elapsedMs, rewards: {}, firstClear: null } });
+        s.toast(`Khiêu chiến ${def.name} thất bại!`, 'warn');
+        s.addLog(`Hết thời gian, khiêu chiến ${def.name} thất bại.`);
+        return;
+      }
+      const { record, first } = recordClear(s.player.dungeons, id);
+      set({ player: { ...s.player, dungeons: record } });
+      grantRewards(def.rewards);
+      if (first) grantRewards(def.firstClear);
+      set({ dungeonResult: { id, success, elapsedMs, rewards: def.rewards, firstClear: first ? def.firstClear : null } });
+      s.toast(`Vượt ải ${def.name}!`, 'realm');
+      s.addLog(`Đạo hữu ${s.player.name} vừa vượt ải ${def.name}!`, 'world');
+      s.questEvent({ type: 'dungeonClear', dungeon: id });
+    },
+
     setMenu(menu) {
       set({ menu });
     },
@@ -388,6 +487,11 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
   };
 });
+
+/** The skill as the player currently has it, with level growth applied. */
+export function playerSkill(id: SkillId): EffectiveSkill {
+  return effectiveSkill(id, skillLevel(gameStore.getState().player.skills, id));
+}
 
 export function useGame<T>(selector: (s: GameState) => T): T {
   return useStore(gameStore, selector);

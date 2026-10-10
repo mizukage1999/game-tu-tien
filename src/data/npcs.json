@@ -23,9 +23,11 @@
     "name": "Lục Trần",
     "title": "Sư Huynh",
     "art": "disciple",
+    "dungeon": true,
     "lines": [
       "Phía bắc là Linh Đài, tọa thiền ở đó linh khí hội tụ nhanh gấp bội.",
-      "Cổng phía đông dẫn ra Linh Thú Lâm, Hỏa Hồ ở đó rất hung dữ, cẩn thận!"
+      "Cổng phía đông dẫn ra Linh Thú Lâm, Hỏa Hồ ở đó rất hung dữ, cẩn thận!",
+      "Ta giữ lệnh bài vào bí cảnh. Trong đó có Kiếm Phổ Tàn Trang để luyện kỹ năng đấy."
     ]
   },
   "an_si": {
