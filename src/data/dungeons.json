@@ -16,7 +16,11 @@
     ],
     "boss": "tuyet_ho_vuong",
     "rewards": { "exp": 600, "linhKhi": 300, "items": { "linh_thach": 3, "kiem_pho": 2 } },
-    "firstClear": { "items": { "hoi_xuan_dan": 3, "kiem_pho": 2 } }
+    "firstClear": { "items": { "hoi_xuan_dan": 3, "kiem_pho": 2 } },
+    "drops": [
+      { "item": "gear:white", "qty": [1, 1], "chance": 0.08 },
+      { "item": "gear:blue", "qty": [1, 1], "chance": 0.03 }
+    ]
   },
   "hoa_diem_coc": {
     "name": "Hỏa Diễm Cốc",
@@ -35,6 +39,11 @@
     ],
     "boss": "cuu_vi_hoa_ho",
     "rewards": { "exp": 2500, "linhKhi": 900, "items": { "linh_thach": 6, "kiem_pho": 4 } },
-    "firstClear": { "items": { "nhan_bac": 1, "kiem_pho": 3 } }
+    "firstClear": { "items": { "nhan_bac": 1, "kiem_pho": 3 } },
+    "drops": [
+      { "item": "gear:blue", "qty": [1, 1], "chance": 0.06 },
+      { "item": "gear:green", "qty": [1, 1], "chance": 0.025 },
+      { "item": "gear:purple", "qty": [1, 1], "chance": 0.01 }
+    ]
   }
 }

@@ -16,6 +16,8 @@ export interface PortalDef {
   to: string;
   spawn: [number, number];
   label: string;
+  /** Sends the player to the field map that matches their level. */
+  levelBand?: boolean;
 }
 
 export interface MapDef {
@@ -31,6 +33,8 @@ export interface MapDef {
   zones: ZoneDef[];
   portals: PortalDef[];
   playerSpawn: [number, number];
+  /** When set, only players inside this level range may stay on the map. */
+  level?: { min: number; max: number };
   ambient: 'petals' | 'fireflies' | 'snow' | 'embers';
   /** Set on dungeon maps: the dungeon id plus where waves, the boss and the exit gate appear. */
   arena?: { dungeon: string; spawns: [number, number][]; boss: [number, number]; exit: [number, number, number, number] };

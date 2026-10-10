@@ -2,6 +2,7 @@ import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 import { DUNGEONS, ITEMS, MONSTERS, NPCS, QUESTS, SKILLS, ZONE_NAMES, type EquipSlot, type QuestRewards, type SkillId } from '../data';
 import { canEnter, consumeAttempt, recordClear, type RunPhase } from '../game/systems/dungeon';
+import { rollDungeonGear } from '../game/systems/loot';
 import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, type EffectiveSkill } from '../game/systems/skills';
 import {
   addExp,
@@ -73,6 +74,8 @@ export interface DungeonResult {
   elapsedMs: number;
   rewards: QuestRewards;
   firstClear: QuestRewards | null;
+  /** Gear that actually rolled this clear. Empty when the low chance missed. */
+  dropped: { item: string; qty: number }[];
 }
 
 export interface GameState {
@@ -457,7 +460,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       if (!def) return;
       const s = get();
       if (!success) {
-        set({ dungeonResult: { id, success, elapsedMs, rewards: {}, firstClear: null } });
+        set({ dungeonResult: { id, success, elapsedMs, rewards: {}, firstClear: null, dropped: [] } });
         s.toast(`Khiêu chiến ${def.name} thất bại!`, 'warn');
         s.addLog(`Hết thời gian, khiêu chiến ${def.name} thất bại.`);
         return;
@@ -466,7 +469,10 @@ export const gameStore = createStore<GameState>()((set, get) => {
       set({ player: { ...s.player, dungeons: record } });
       grantRewards(def.rewards);
       if (first) grantRewards(def.firstClear);
-      set({ dungeonResult: { id, success, elapsedMs, rewards: def.rewards, firstClear: first ? def.firstClear : null } });
+      const dropped = rollDungeonGear(def.drops ?? []);
+      for (const d of dropped) get().addItem(d.item, d.qty);
+      if (dropped.length) get().toast(`Rơi được ${dropped.map((d) => itemName(d.item)).join(', ')}`, 'quest');
+      set({ dungeonResult: { id, success, elapsedMs, rewards: def.rewards, firstClear: first ? def.firstClear : null, dropped } });
       s.toast(`Vượt ải ${def.name}!`, 'realm');
       s.addLog(`Đạo hữu ${s.player.name} vừa vượt ải ${def.name}!`, 'world');
       s.questEvent({ type: 'dungeonClear', dungeon: id });

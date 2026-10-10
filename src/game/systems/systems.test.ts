@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { computeDamage, inAttackArc } from './combat';
 import { createBrain, provoke, stepMonsterAI, type AIParams } from './monsterAI';
 import { canAct, canBeHit, createLife, knockDown, tickLife, DOWNED_DURATION_MS } from './respawn';
-import { rollLoot } from './loot';
+import { rollDungeonGear, rollLoot } from './loot';
+import { findPath } from './path';
+import { questDestination, routeOnMap } from './questNav';
 import { addExp, applyBreakthrough, canEquip, checkBreakthrough, computeStats, expToNext } from './progression';
 import { acceptQuest, applyEvent, availableQuests, completeQuest, turnInQuests } from './quest';
 import { meditateGain, zoneAt } from './cultivation';
 import { deserialize, serialize } from './save';
-import { EQUIP_SLOTS, equipmentId, ITEMS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
+import { DUNGEONS, EQUIP_SLOTS, equipmentId, ITEMS, MONSTERS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
+import { getMap } from '../maps';
+import { DIFFICULTIES, DUNGEON_TIERS, FIELD_BANDS, canEnterField, dungeonId, expForMonsterLevel, fieldForLevel } from './scale';
 
 const fixed = (...values: number[]) => {
   let i = 0;
@@ -155,6 +159,81 @@ describe('progression', () => {
       prev = atk;
     }
     expect(NPCS.thuong_nhan.shop!.length).toBe(1 + RARITIES.length * EQUIP_SLOTS.length);
+  });
+});
+
+describe('world scale', () => {
+  it('raises exp as monster level rises and confines a player to one field', () => {
+    expect(expForMonsterLevel(20)).toBeGreaterThan(expForMonsterLevel(10));
+    expect(expForMonsterLevel(90)).toBeGreaterThan(expForMonsterLevel(20));
+    expect(fieldForLevel(1).id).toBe('linh_thu_lam');
+    expect(fieldForLevel(15).minLevel).toBe(11);
+    expect(fieldForLevel(99).maxLevel).toBe(99);
+    expect(canEnterField(15, { min: 11, max: 20 }).ok).toBe(true);
+    expect(canEnterField(15, { min: 1, max: 10 }).ok).toBe(false);
+    expect(canEnterField(9, { min: 11, max: 20 }).ok).toBe(false);
+  });
+
+  it('builds a map for every level band and a dungeon for every difficulty', () => {
+    expect(FIELD_BANDS.map((b) => b.minLevel)).toEqual([1, 11, 21, 31, 41, 51, 61, 71, 81, 91]);
+    for (const band of FIELD_BANDS) {
+      const map = getMap(band.id);
+      expect(map.level).toEqual({ min: band.minLevel, max: band.maxLevel });
+      expect(MONSTERS[band.mob].level).toBeLessThanOrEqual(band.maxLevel);
+      expect(MONSTERS[band.elite].level).toBeGreaterThanOrEqual(MONSTERS[band.mob].level);
+    }
+    for (const tier of DUNGEON_TIERS) {
+      let prevLevel = 0;
+      for (const diff of DIFFICULTIES) {
+        const def = DUNGEONS[dungeonId(tier.level, diff.id)];
+        expect(def.minLevel).toBe(tier.level);
+        expect(def.difficulty).toBe(diff.id);
+        const boss = MONSTERS[def.boss];
+        expect(boss.level).toBeGreaterThan(prevLevel);
+        prevLevel = boss.level;
+        expect(def.drops?.length).toBeGreaterThan(0);
+        for (const drop of def.drops ?? []) expect(drop.chance).toBeLessThanOrEqual(0.08);
+      }
+    }
+  });
+
+  it('keeps guaranteed rewards and only sometimes rolls bonus gear', () => {
+    const table = DUNGEONS[dungeonId(10, 'de')].drops ?? [];
+    expect(rollDungeonGear(table, fixed(0, 0, 0.5))).toEqual([{ item: 'weapon_white', qty: 1 }]);
+    expect(rollDungeonGear(table, fixed(0.5))).toEqual([]);
+    expect(rollDungeonGear([{ item: 'gear:blue', qty: [1, 1], chance: 1 }], fixed(0))).toEqual([{ item: 'weapon_blue', qty: 1 }]);
+  });
+});
+
+describe('quest navigation', () => {
+  it('walks around walls and sends a talk quest to the npc', () => {
+    const blocked = [
+      [false, false, false, false, false],
+      [false, true, true, true, false],
+      [false, false, false, true, false],
+      [false, true, false, true, false],
+      [false, false, false, false, false],
+    ];
+    const path = findPath(blocked, 0, 2, 4, 2);
+    expect(path.reached).toBe(true);
+    expect(path.tiles[path.tiles.length - 1]).toEqual({ x: 4, y: 2 });
+    expect(path.tiles.some((t) => t.x === 3 && t.y === 2)).toBe(false);
+    expect(path.tiles.some((t) => blocked[t.y][t.x])).toBe(false);
+
+    const log = acceptQuest({}, QUESTS, 'main_0', { level: 1 });
+    const nav = questDestination('main_0', log, 1, 'dai_thua_vien', { x: 24, y: 20 });
+    expect(nav.kind).toBe('go');
+    if (nav.kind !== 'go') return;
+    expect(nav.stop.talkTo).toBe('truong_lao');
+    expect(nav.stop.mapId).toBe('dai_thua_vien');
+    const route = routeOnMap(getMap('dai_thua_vien'), { x: 24, y: 20 }, nav.stop, 1);
+    expect(route.kind).toBe('path');
+  });
+
+  it('refuses a field the player has outleveled', () => {
+    const log = acceptQuest({}, QUESTS, 'side_3', { level: 20 });
+    const nav = questDestination('side_3', log, 20, 'dai_thua_vien');
+    expect(nav.kind).toBe('toast');
   });
 });
 

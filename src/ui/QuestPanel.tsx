@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { QUESTS } from '../data';
+import { EventBus } from '../game/EventBus';
 import { objectiveText } from '../game/systems/quest';
 import { npcName, questNames, useGame } from '../store/gameStore';
 
@@ -30,7 +31,7 @@ export function QuestPanel() {
           {active.map(([id, q]) => {
             const def = QUESTS[id];
             return (
-              <li key={id} className={q.status === 'ready' ? 'ready' : ''}>
+              <li key={id} className={`quest-go ${q.status === 'ready' ? 'ready' : ''}`} onClick={() => EventBus.emit('cmd:questGo', id)} title="Bấm để tự chạy tới">
                 <div className="quest-title">
                   <span className={`quest-kind ${def.kind}`}>[{def.kind === 'main' ? 'Chính' : 'Phụ'}]</span> {def.name}
                 </div>

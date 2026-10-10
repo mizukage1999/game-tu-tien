@@ -284,6 +284,15 @@ kbd {
   border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
 }
 
+.quest-go {
+  cursor: pointer;
+}
+
+.quest-list li.quest-go:hover,
+.quest-card.quest-go:hover {
+  background: rgba(255, 214, 120, 0.08);
+}
+
 .quest-list li:last-child {
   border-bottom: 0;
 }
@@ -1563,6 +1572,36 @@ kbd {
   align-items: center;
   gap: 10px;
   margin-top: 8px;
+}
+
+.dungeon-tier {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dungeon-tier.locked {
+  opacity: 0.55;
+}
+
+.diff-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.diff-row button {
+  padding: 3px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.diff-row button.active {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .dungeon-panel {

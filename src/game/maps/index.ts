@@ -1,3 +1,4 @@
+import { FIELD_BANDS, type FieldBand } from '../systems/scale';
 import { MapBuilder, type MapDef } from './MapBuilder';
 
 type Spawn = { type: string; x: number; y: number };
@@ -69,7 +70,7 @@ function daiThuaVien(): MapDef {
     monsters,
     npcs,
     zones: [{ id: 'linh_dai', name: 'Linh Đài', rect: [18, 3, 12, 6], rate: 3 }],
-    portals: [{ rect: [47, 16, 1, 3], to: 'linh_thu_lam', spawn: [3, 17], label: 'Linh Thú Lâm' }],
+    portals: [{ rect: [47, 16, 1, 3], to: 'linh_thu_lam', spawn: [3, 15], label: 'Khu săn', levelBand: true }],
     playerSpawn: [24, 20],
     ambient: 'petals',
   });
@@ -137,6 +138,7 @@ function linhThuLam(): MapDef {
     name: 'Linh Thú Lâm',
     monsters,
     npcs,
+    level: { min: 1, max: 10 },
     zones: [{ id: 'linh_tuyen', name: 'Linh Tuyền', rect: [33, 3, 15, 8], rate: 5 }],
     portals: [{ rect: [0, 16, 1, 3], to: 'dai_thua_vien', spawn: [45, 17], label: 'Đại Thừa Viện' }],
     playerSpawn: [3, 17],
@@ -233,6 +235,50 @@ function pbHoaDiem(): MapDef {
   });
 }
 
+function fieldMap(band: FieldBand): MapDef {
+  const b = new MapBuilder(42, 30, band.terrain, band.minLevel);
+  b.border('wall', [
+    [0, 14],
+    [0, 15],
+    [0, 16],
+  ]);
+  b.fill(1, 14, 18, 3, 'path');
+  b.ellipse(28, 14, 8, 5.5, band.terrain === 'stone' ? 'platform' : 'grass');
+  const monsters = [
+    ...spawns(band.mob, [
+      [12, 8],
+      [16, 22],
+      [22, 9],
+      [24, 21],
+      [31, 8],
+      [34, 22],
+    ]),
+    ...spawns(band.elite, [
+      [20, 14],
+      [28, 14],
+      [33, 15],
+    ]),
+  ];
+  b.reserve([...monsters, { x: 3, y: 15 }]);
+  b.place('lantern', 2, 13, { glow: band.glow });
+  b.place('lantern', 2, 17, { glow: band.glow });
+  b.sprinkle(band.trees, 28, [band.terrain, 'grass', 'path'], [
+    [0, 12, 20, 7],
+    [20, 8, 16, 12],
+  ]);
+  return b.build({
+    id: band.id,
+    name: `${band.name} (Lv ${band.minLevel}-${band.maxLevel})`,
+    level: { min: band.minLevel, max: band.maxLevel },
+    monsters,
+    npcs: [],
+    zones: [],
+    portals: [{ rect: [0, 14, 1, 3], to: 'dai_thua_vien', spawn: [45, 17], label: 'Đại Thừa Viện' }],
+    playerSpawn: [3, 15],
+    ambient: band.ambient,
+  });
+}
+
 const cache = new Map<string, MapDef>();
 const builders: Record<string, () => MapDef> = {
   dai_thua_vien: daiThuaVien,
@@ -240,6 +286,10 @@ const builders: Record<string, () => MapDef> = {
   pb_bang_tuyet: pbBangTuyet,
   pb_hoa_diem: pbHoaDiem,
 };
+
+for (const band of FIELD_BANDS) {
+  if (band.generated) builders[band.id] = () => fieldMap(band);
+}
 
 export function getMap(id: string): MapDef {
   let m = cache.get(id);

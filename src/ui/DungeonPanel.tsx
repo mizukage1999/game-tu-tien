@@ -1,6 +1,7 @@
 import { DUNGEONS } from '../data';
 import { EventBus } from '../game/EventBus';
 import { useGame, type DungeonHud } from '../store/gameStore';
+import type { QuestRewards } from '../data';
 import { RewardList } from './Rewards';
 
 function phaseText(d: DungeonHud) {
@@ -19,6 +20,12 @@ function phaseText(d: DungeonHud) {
 }
 
 const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+
+function droppedRewards(list: { item: string; qty: number }[]): QuestRewards {
+  const items: Record<string, number> = {};
+  for (const d of list) items[d.item] = (items[d.item] ?? 0) + d.qty;
+  return { items };
+}
 
 export function DungeonPanel() {
   const d = useGame((s) => s.dungeon);
@@ -68,6 +75,14 @@ export function DungeonResultOverlay() {
         <>
           <h4>Phần thưởng</h4>
           <RewardList rewards={r.rewards} />
+          {r.dropped.length > 0 ? (
+            <>
+              <h4>Đồ rơi thêm</h4>
+              <RewardList rewards={droppedRewards(r.dropped)} />
+            </>
+          ) : (
+            <p className="muted">Lần này không rơi thêm trang bị.</p>
+          )}
           {r.firstClear && (
             <>
               <h4>Thưởng vượt ải lần đầu</h4>

@@ -6,6 +6,7 @@ import questsJson from './quests.json';
 import npcsJson from './npcs.json';
 import equipmentJson from './equipment.json';
 import dungeonsJson from './dungeons.json';
+import { buildScaledContent, FIELD_BANDS } from '../game/systems/scale';
 
 export interface LootEntry {
   item: string;
@@ -117,6 +118,10 @@ export interface DungeonDef {
   boss: string;
   rewards: QuestRewards;
   firstClear: QuestRewards;
+  /** Low-chance bonus gear. Ids like `gear:white` roll a random slot of that rarity. */
+  drops?: LootEntry[];
+  tier?: number;
+  difficulty?: 'de' | 'thuong' | 'kho' | 'dia_nguc';
 }
 
 export interface RealmDef {
@@ -217,7 +222,12 @@ function equipmentOffers(): ShopOffer[] {
   );
 }
 
-export const MONSTERS = monstersJson as unknown as Record<string, MonsterDef>;
+const scaled = buildScaledContent();
+
+export const MONSTERS: Record<string, MonsterDef> = {
+  ...(monstersJson as unknown as Record<string, MonsterDef>),
+  ...scaled.monsters,
+};
 export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment() };
 export const SKILLS = skillsJson as unknown as Record<SkillId, SkillDef>;
 export const REALMS = realmsJson as unknown as RealmDef[];
@@ -228,12 +238,16 @@ export const NPCS: Record<string, NpcDef> = Object.fromEntries(
     n.equipmentShop ? { ...n, shop: [...(n.shop ?? []), ...equipmentOffers()] } : n,
   ]),
 );
-export const DUNGEONS = dungeonsJson as unknown as Record<string, DungeonDef>;
+export const DUNGEONS: Record<string, DungeonDef> = {
+  ...(dungeonsJson as unknown as Record<string, DungeonDef>),
+  ...scaled.dungeons,
+};
 
 export const ZONE_NAMES: Record<string, string> = {
   linh_dai: 'Linh Đài',
   linh_tuyen: 'Linh Tuyền',
   dai_thua_vien: 'Đại Thừa Viện',
   linh_thu_lam: 'Linh Thú Lâm',
+  ...Object.fromEntries(FIELD_BANDS.map((b) => [b.id, b.name])),
   ...Object.fromEntries(Object.entries(DUNGEONS).map(([id, d]) => [id, d.name])),
 };

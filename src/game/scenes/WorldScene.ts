@@ -16,6 +16,8 @@ import { computeDamage, inAttackArc } from '../systems/combat';
 import { meditateGain, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
 import { rollLoot } from '../systems/loot';
+import { questDestination, routeOnMap, trackedQuest, trackQuest, type QuestStop } from '../systems/questNav';
+import { canEnterField, fieldForLevel, killExp } from '../systems/scale';
 import { saveGame } from '../systems/save';
 import type { Vec2 } from '../types';
 
@@ -23,6 +25,7 @@ interface WorldData {
   mapId?: string;
   spawn?: [number, number];
   pos?: Vec2 | null;
+  dungeonId?: string;
 }
 
 const WORLD_CHAT = [
@@ -47,6 +50,8 @@ export class WorldScene extends Phaser.Scene {
   damageText!: DamageText;
   vfx!: SkillVfx;
   target: Monster | null = null;
+  private navRepaths = 0;
+  private navLabel = '';
   run: DungeonRun | null = null;
 
   private mapId = 'dai_thua_vien';
@@ -60,6 +65,7 @@ export class WorldScene extends Phaser.Scene {
   private secondTimer = 0;
   private saveTimer = 0;
   private chatTimer = 15000;
+  private levelWarned = false;
 
   constructor() {
     super('World');
@@ -79,6 +85,15 @@ export class WorldScene extends Phaser.Scene {
 
   create() {
     const map = (this.map = getMap(this.mapId));
+    if (map.level) {
+      const level = gameStore.getState().player.level;
+      const check = canEnterField(level, map.level);
+      if (!check.ok) {
+        gameStore.getState().toast(check.reason, 'warn');
+        this.scene.restart({ mapId: 'dai_thua_vien' });
+        return;
+      }
+    }
     this.damageText = new DamageText(this);
     this.vfx = new SkillVfx(this);
     const W = map.width * TILE;
@@ -136,13 +151,16 @@ export class WorldScene extends Phaser.Scene {
     s.toast(map.name, 'info');
     s.questEvent({ type: 'enterZone', zone: map.id });
     if (map.arena) {
-      this.run = startRun(map.arena.dungeon, DUNGEONS[map.arena.dungeon]);
-      s.addLog(`Tiêu diệt ${DUNGEONS[map.arena.dungeon].waves.length} đợt quái và thủ lĩnh trước khi hết giờ!`);
+      const dungeonId = this.spawnData.dungeonId ?? map.arena.dungeon;
+      const def = DUNGEONS[dungeonId];
+      this.run = startRun(dungeonId, def);
+      s.addLog(`Tiêu diệt ${def.waves.length} đợt quái và thủ lĩnh trước khi hết giờ!`);
     } else {
       if (s.dungeonReturn) s.patch({ dungeonReturn: null });
       if (!s.quests.main_0 || s.quests.main_0.status === 'active') {
         s.addLog('Hãy đến gặp Vân Hạc Trưởng Lão ở phía bắc (phím E để trò chuyện).');
       }
+      if (trackedQuest()) this.guideQuest();
     }
     this.save();
 
@@ -259,10 +277,12 @@ export class WorldScene extends Phaser.Scene {
     const cx = (x + w / 2) * TILE;
     const cy = (y + h / 2) * TILE;
     const side = x === 0 ? -1 : x + w >= this.map.width ? 1 : 0;
+    const band = p.levelBand ? fieldForLevel(gameStore.getState().player.level) : null;
+    const label = band ? `${band.name} (Lv ${band.minLevel}-${band.maxLevel})` : p.label;
     const img = this.add.image(cx, cy, 'portal').setBlendMode(Phaser.BlendModes.ADD).setScale(1.1).setDepth(cy);
     this.tweens.add({ targets: img, angle: 360, duration: 3000, repeat: -1 });
     this.add
-      .text(cx - side * 40, cy - 70, `${side < 0 ? '◀ ' : side > 0 ? '▶ ' : ''}${p.label}`, {
+      .text(cx - side * 40, cy - 70, `${side < 0 ? '◀ ' : side > 0 ? '▶ ' : ''}${label}`, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: '14px',
         fontStyle: 'bold',
@@ -374,6 +394,7 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:target', () => this.cycleTarget()),
       EventBus.on('cmd:enterDungeon', (id: string) => this.enterDungeon(id)),
       EventBus.on('cmd:leaveDungeon', () => this.leaveDungeon()),
+      EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
     );
   }
 
@@ -415,6 +436,12 @@ export class WorldScene extends Phaser.Scene {
     if (this.secondTimer >= 1000) {
       this.secondTimer -= 1000;
       this.perSecond();
+      const cap = this.map.level;
+      const level = gameStore.getState().player.level;
+      if (cap && level > cap.max && !this.levelWarned) {
+        this.levelWarned = true;
+        gameStore.getState().toast(`${this.map.name} chỉ đến cấp ${cap.max}. Hãy về Đại Thừa Viện.`, 'warn');
+      }
     }
     this.saveTimer += dt;
     if (this.saveTimer >= 5000) {
@@ -556,6 +583,17 @@ export class WorldScene extends Phaser.Scene {
   private transition(p: PortalDef) {
     if (this.player.life.status !== 'alive') return;
     if (this.map.arena) return this.leaveDungeon();
+    if (p.levelBand) {
+      const level = gameStore.getState().player.level;
+      const band = fieldForLevel(level);
+      const check = canEnterField(level, { min: band.minLevel, max: band.maxLevel });
+      if (!check.ok) {
+        gameStore.getState().toast(check.reason, 'warn');
+        return;
+      }
+      this.goTo({ mapId: band.id, spawn: getMap(band.id).playerSpawn });
+      return;
+    }
     this.goTo({ mapId: p.to, spawn: p.spawn });
   }
 
@@ -574,9 +612,119 @@ export class WorldScene extends Phaser.Scene {
     if (this.player.life.status !== 'alive') return;
     const s = gameStore.getState();
     if (!s.beginDungeon(id)) return;
+    this.cancelQuestNav();
     this.player.stopMeditate();
     s.patch({ dungeonReturn: { mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } } });
-    this.goTo({ mapId: def.map });
+    this.goTo({ mapId: def.map, dungeonId: id });
+  }
+
+  private onQuestGo(id: string) {
+    const s = gameStore.getState();
+    s.patch({ menu: null, dialogNpc: null });
+    if (this.map.arena) {
+      s.toast('Hãy rời phó bản trước.', 'warn');
+      return;
+    }
+    if (this.player.life.status !== 'alive') return;
+    trackQuest(id);
+    this.navRepaths = 0;
+    this.navLabel = '';
+    this.player.stopMeditate();
+    this.guideQuest();
+  }
+
+  /** Walk toward the tracked quest. Continues through gates after a map change. */
+  private guideQuest() {
+    const id = trackedQuest();
+    if (!id || !this.player) return;
+    const s = gameStore.getState();
+    if (this.map.arena) {
+      s.toast('Hãy rời phó bản trước.', 'warn');
+      this.cancelQuestNav();
+      return;
+    }
+    const from = { x: Math.floor(this.player.x / TILE), y: Math.floor(this.player.y / TILE) };
+    const nav = questDestination(id, s.quests, s.player.level, this.map.id, from);
+    if (nav.kind === 'toast') {
+      s.toast(nav.text, 'warn');
+      this.cancelQuestNav();
+      return;
+    }
+    if (nav.kind === 'menu') {
+      s.toast(`Mở bảng ${nav.label} để làm nhiệm vụ.`, 'info');
+      s.setMenu(nav.menu);
+      this.cancelQuestNav();
+      return;
+    }
+    const route = routeOnMap(this.map, from, nav.stop, s.player.level);
+    if (route.kind === 'fail') {
+      s.toast(route.text, 'warn');
+      this.cancelQuestNav();
+      return;
+    }
+    if (route.kind === 'there') {
+      this.arriveAt(nav.stop);
+      return;
+    }
+    if (route.kind === 'wait') return;
+    if (nav.stop.label !== this.navLabel) {
+      this.navLabel = nav.stop.label;
+      s.toast(`Đang chạy tới ${nav.stop.label}`, 'info');
+    }
+    this.player.setRoute(route.tiles.map((t) => ({ x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE / 2 })));
+  }
+
+  private arriveAt(stop: QuestStop) {
+    const s = gameStore.getState();
+    if (stop.talkTo) {
+      const npc = this.npcs.find((n) => n.npcId === stop.talkTo);
+      if (npc) {
+        const d = Phaser.Math.Distance.Between(npc.x, npc.y, this.player.x, this.player.y);
+        if (d > 80) {
+          const k = (d - 64) / d;
+          this.player.setRoute([
+            { x: this.player.x + (npc.x - this.player.x) * k, y: this.player.y + (npc.y - this.player.y) * k },
+          ]);
+          return;
+        }
+        this.cancelQuestNav();
+        this.player.faceToward(npc);
+        s.questEvent({ type: 'talk', npc: stop.talkTo });
+        s.setDialog(stop.talkTo);
+        return;
+      }
+    }
+    this.cancelQuestNav();
+    if (stop.meditate) {
+      this.player.startMeditate();
+      return;
+    }
+    if (stop.monsterType) {
+      const mob = this.monsters.find((m) => m.alive && m.type === stop.monsterType);
+      if (mob) this.setTarget(mob);
+    }
+    s.toast(`Đã tới ${stop.label}`, 'info');
+  }
+
+  cancelQuestNav() {
+    trackQuest(null);
+    this.navRepaths = 0;
+    this.navLabel = '';
+    this.player?.clearRoute();
+  }
+
+  repathQuest() {
+    this.navRepaths += 1;
+    if (this.navRepaths > 5) {
+      gameStore.getState().toast('Không tìm được đường đi.', 'warn');
+      this.cancelQuestNav();
+      return;
+    }
+    this.guideQuest();
+  }
+
+  onQuestRouteDone() {
+    if (trackedQuest()) this.guideQuest();
   }
 
   private leaveDungeon() {
@@ -849,8 +997,9 @@ export class WorldScene extends Phaser.Scene {
     const s = gameStore.getState();
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
     if (m.def.boss) this.cameras.main.shake(500, 0.012);
-    this.damageText.show(m.x, m.y - 86, `+${m.def.exp} EXP`, 'info');
-    s.gainExp(m.def.exp);
+    const exp = killExp(m.def);
+    this.damageText.show(m.x, m.y - 86, `+${exp} EXP`, 'info');
+    s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
     const drops = rollLoot(m.def.loot);
     drops.forEach((d, i) => {

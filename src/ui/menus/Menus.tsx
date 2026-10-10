@@ -18,12 +18,13 @@ import {
 import { EventBus } from '../../game/EventBus';
 import { itemIconUrl, skillIconUrl } from '../../game/art/icons';
 import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
+import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
 import { canEquip, expToNext, isBottleneck, realmFor } from '../../game/systems/progression';
 import { objectiveText } from '../../game/systems/quest';
 import { clearSave, disableSaving } from '../../game/systems/save';
 import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, SKILL_MAX_LEVEL } from '../../game/systems/skills';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
-import { RewardList } from '../Rewards';
+import { DropChanceList, RewardList } from '../Rewards';
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -358,9 +359,61 @@ function Skills() {
   );
 }
 
+function DungeonCard({ id }: { id: string }) {
+  const player = useGame((s) => s.player);
+  const inDungeon = useGame((s) => s.dungeon);
+  const def = DUNGEONS[id];
+  const left = attemptsLeft(player.dungeons, id, def);
+  const check = canEnter(player.dungeons, id, def, player.level);
+  const clears = player.dungeons?.clears[id] ?? 0;
+  const boss = MONSTERS[def.boss];
+  return (
+    <div className={`dungeon-card ${player.level < def.minLevel ? 'locked' : ''}`}>
+      <div className="dungeon-card-head">
+        <b>{def.name}</b>
+        <span className="muted">
+          Yêu cầu Lv {def.minLevel} · Đã vượt {clears} lần
+        </span>
+      </div>
+      <p className="muted">{def.desc}</p>
+      <div className="dungeon-facts">
+        <span>
+          {def.waves.length} đợt quái + thủ lĩnh <b>{boss.name}</b> (Lv {boss.level})
+        </span>
+        <span>Giới hạn {Math.round(def.timeLimitSec / 60)} phút</span>
+        <span className={left === 0 ? 'short' : ''}>
+          Lượt hôm nay: {left}/{def.attemptsPerDay}
+        </span>
+      </div>
+      <h4>Phần thưởng</h4>
+      <RewardList rewards={def.rewards} />
+      {def.drops && def.drops.length > 0 && (
+        <>
+          <h4>Có thể rơi</h4>
+          <DropChanceList drops={def.drops} />
+        </>
+      )}
+      {clears === 0 && (
+        <>
+          <h4>Thưởng lần đầu</h4>
+          <RewardList rewards={def.firstClear} />
+        </>
+      )}
+      <div className="dungeon-enter">
+        {!check.ok && <span className="muted">{check.reason}</span>}
+        <button className="btn gold" disabled={!check.ok || !!inDungeon} onClick={() => EventBus.emit('cmd:enterDungeon', id)}>
+          Tiến vào
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Dungeons() {
   const player = useGame((s) => s.player);
   const inDungeon = useGame((s) => s.dungeon);
+  const [picked, setPicked] = useState<Record<number, DifficultyId>>({});
+  const legacy = Object.keys(DUNGEONS).filter((id) => !DUNGEONS[id].tier);
   return (
     <div className="dungeon-list">
       {inDungeon && (
@@ -373,50 +426,43 @@ function Dungeons() {
           </button>
         </div>
       )}
-      {Object.entries(DUNGEONS).map(([id, def]) => {
-        const left = attemptsLeft(player.dungeons, id, def);
-        const check = canEnter(player.dungeons, id, def, player.level);
-        const clears = player.dungeons?.clears[id] ?? 0;
-        const boss = MONSTERS[def.boss];
+      <p className="muted">Mỗi mốc cấp mở một phó bản. Trong đó chọn Dễ, Thường, Khó hoặc Địa Ngục.</p>
+      {DUNGEON_TIERS.map((tier) => {
+        const diff = picked[tier.level] ?? 'de';
+        const id = dungeonId(tier.level, diff);
+        const locked = player.level < tier.level;
         return (
-          <div key={id} className={`dungeon-card ${player.level < def.minLevel ? 'locked' : ''}`}>
+          <div key={tier.level} className={`dungeon-tier ${locked ? 'locked' : ''}`}>
             <div className="dungeon-card-head">
-              <b>{def.name}</b>
-              <span className="muted">
-                Yêu cầu Lv {def.minLevel} · Đã vượt {clears} lần
-              </span>
+              <b>
+                Lv {tier.level} · {tier.name}
+              </b>
+              {locked && <span className="req-bad">Mở khi đạt cấp {tier.level}</span>}
             </div>
-            <p className="muted">{def.desc}</p>
-            <div className="dungeon-facts">
-              <span>
-                {def.waves.length} đợt quái + thủ lĩnh <b>{boss.name}</b> (Lv {boss.level})
-              </span>
-              <span>Giới hạn {Math.round(def.timeLimitSec / 60)} phút</span>
-              <span className={left === 0 ? 'short' : ''}>
-                Lượt hôm nay: {left}/{def.attemptsPerDay}
-              </span>
+            <div className="diff-row">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d.id}
+                  className={diff === d.id ? 'active' : ''}
+                  style={{ color: d.color, borderColor: diff === d.id ? d.color : undefined }}
+                  onClick={() => setPicked((prev) => ({ ...prev, [tier.level]: d.id }))}
+                >
+                  {d.name}
+                </button>
+              ))}
             </div>
-            <h4>Phần thưởng</h4>
-            <RewardList rewards={def.rewards} />
-            {clears === 0 && (
-              <>
-                <h4>Thưởng lần đầu</h4>
-                <RewardList rewards={def.firstClear} />
-              </>
-            )}
-            <div className="dungeon-enter">
-              {!check.ok && <span className="muted">{check.reason}</span>}
-              <button
-                className="btn gold"
-                disabled={!check.ok || !!inDungeon}
-                onClick={() => EventBus.emit('cmd:enterDungeon', id)}
-              >
-                Tiến vào
-              </button>
-            </div>
+            <DungeonCard id={id} />
           </div>
         );
       })}
+      {legacy.length > 0 && (
+        <>
+          <h4>Phó bản sư môn</h4>
+          {legacy.map((id) => (
+            <DungeonCard key={id} id={id} />
+          ))}
+        </>
+      )}
     </div>
   );
 }
@@ -430,7 +476,12 @@ function Quests() {
         const def = QUESTS[id];
         const r = def.rewards;
         return (
-          <div key={id} className={`quest-card ${q.status}`}>
+          <div
+            key={id}
+            className={`quest-card ${q.status}${q.status === 'done' ? '' : ' quest-go'}`}
+            onClick={() => q.status !== 'done' && EventBus.emit('cmd:questGo', id)}
+            title={q.status === 'done' ? undefined : 'Bấm để tự chạy tới'}
+          >
             <div className="quest-title">
               <span className={`quest-kind ${def.kind}`}>[{def.kind === 'main' ? 'Chính' : 'Phụ'}]</span> {def.name}
               <span className="quest-status">

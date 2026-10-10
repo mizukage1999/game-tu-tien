@@ -46,6 +46,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private bar: Phaser.GameObjects.Graphics;
   private aura: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
   private blink: Phaser.Tweens.Tween | null = null;
+  private route: Vec2[] = [];
+  private stuckMs = 0;
+  private anchorX = 0;
+  private anchorY = 0;
 
   constructor(
     private world: WorldScene,
@@ -137,8 +141,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     } else {
       let move = this.manualInput();
       const manual = Math.hypot(move.x, move.y) > 0.1;
-      if (!manual && gameStore.getState().auto && !this.meditating) move = this.autoControl();
-      if (manual && this.meditating) this.stopMeditate();
+      if (manual) {
+        if (this.route.length) this.world.cancelQuestNav();
+        if (this.meditating) this.stopMeditate();
+      } else if (this.route.length && !this.meditating) {
+        move = this.followRoute();
+        if (this.route.length) this.watchStuck(dt);
+      } else if (gameStore.getState().auto && !this.meditating) {
+        move = this.autoControl();
+      }
 
       if (this.ctrl.locked || this.meditating) {
         body.setVelocity(0, 0);
@@ -198,6 +209,51 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return { x: 0, y: 0 };
     }
     return this.toward(target);
+  }
+
+  setRoute(points: Vec2[]) {
+    this.route = points;
+    this.stuckMs = 0;
+    this.anchorX = this.x;
+    this.anchorY = this.y;
+    if (this.meditating) this.stopMeditate();
+  }
+
+  clearRoute() {
+    this.route = [];
+    this.stuckMs = 0;
+  }
+
+  private followRoute(): Vec2 {
+    for (let i = 0; i < 4; i++) {
+      const step = this.stepRoute();
+      if (step) return step;
+      this.world.onQuestRouteDone();
+      if (this.route.length === 0) return { x: 0, y: 0 };
+    }
+    return { x: 0, y: 0 };
+  }
+
+  private stepRoute(): Vec2 | null {
+    while (this.route.length) {
+      const goal = this.route[0];
+      const dx = goal.x - this.x;
+      const dy = goal.y - this.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 22) return { x: dx / dist, y: dy / dist };
+      this.route.shift();
+    }
+    return null;
+  }
+
+  private watchStuck(dt: number) {
+    this.stuckMs += dt;
+    if (this.stuckMs < 800) return;
+    const moved = Math.hypot(this.x - this.anchorX, this.y - this.anchorY);
+    this.stuckMs = 0;
+    this.anchorX = this.x;
+    this.anchorY = this.y;
+    if (moved < 12) this.world.repathQuest();
   }
 
   private toward(p: Vec2): Vec2 {
@@ -342,6 +398,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private goDown() {
+    this.world.cancelQuestNav();
     knockDown(this.life);
     this.queuedAttack = false;
     this.dashTime = 0;
