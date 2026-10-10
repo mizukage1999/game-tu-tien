@@ -12,8 +12,12 @@
     "name": "Tiền Đa Bảo",
     "title": "Thương Nhân",
     "art": "merchant",
-    "lines": ["Đạo hữu, ta có đan dược thượng hạng, chỉ cần vài viên Linh Thạch thôi."],
-    "shop": [{ "item": "hoi_xuan_dan", "qty": 1, "price": { "linh_thach": 2 } }]
+    "lines": [
+      "Đạo hữu, ta có đan dược thượng hạng, chỉ cần vài viên Linh Thạch thôi.",
+      "Pháp bảo từ Phàm Phẩm tới Thiên Phẩm, ta đều có cả!"
+    ],
+    "shop": [{ "item": "hoi_xuan_dan", "qty": 1, "price": { "linh_thach": 2 } }],
+    "equipmentShop": true
   },
   "su_huynh": {
     "name": "Lục Trần",

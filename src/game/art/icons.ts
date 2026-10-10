@@ -1,9 +1,113 @@
-import { fillEllipse, linear, makeCanvas, radial, type Ctx } from './canvas';
+import { ITEMS, rarityOf, type EquipSlot } from '../../data';
+import { fillEllipse, linear, makeCanvas, radial, rgba, shade, type Ctx } from './canvas';
 import { drawPortrait, PALETTES } from './character';
+
+function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
+  const m = s / 2;
+  ctx.fillStyle = radial(ctx, m, m, m, [
+    [0, rgba(color, 0.4)],
+    [1, rgba(color, 0)],
+  ]);
+  ctx.fillRect(0, 0, s, s);
+  const metal = linear(ctx, 0, 0, s, s, [
+    [0, shade(color, 0.55)],
+    [0.5, color],
+    [1, shade(color, -0.45)],
+  ]);
+  ctx.fillStyle = metal;
+  ctx.strokeStyle = metal;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  switch (slot) {
+    case 'weapon':
+      ctx.translate(m, m);
+      ctx.rotate(-Math.PI / 4);
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.42);
+      ctx.lineTo(s * 0.06, -s * 0.32);
+      ctx.lineTo(s * 0.06, s * 0.14);
+      ctx.lineTo(-s * 0.06, s * 0.14);
+      ctx.lineTo(-s * 0.06, -s * 0.32);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e1b854';
+      ctx.fillRect(-s * 0.16, s * 0.14, s * 0.32, s * 0.06);
+      ctx.fillStyle = '#3a2a1a';
+      ctx.fillRect(-s * 0.035, s * 0.2, s * 0.07, s * 0.18);
+      break;
+    case 'armor':
+      ctx.beginPath();
+      ctx.moveTo(s * 0.3, s * 0.14);
+      ctx.lineTo(s * 0.12, s * 0.3);
+      ctx.lineTo(s * 0.22, s * 0.42);
+      ctx.lineTo(s * 0.28, s * 0.36);
+      ctx.lineTo(s * 0.26, s * 0.88);
+      ctx.lineTo(s * 0.74, s * 0.88);
+      ctx.lineTo(s * 0.72, s * 0.36);
+      ctx.lineTo(s * 0.78, s * 0.42);
+      ctx.lineTo(s * 0.88, s * 0.3);
+      ctx.lineTo(s * 0.7, s * 0.14);
+      ctx.lineTo(m, s * 0.3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e1b854';
+      ctx.fillRect(s * 0.27, s * 0.56, s * 0.46, s * 0.06);
+      break;
+    case 'helmet':
+      ctx.beginPath();
+      ctx.moveTo(s * 0.18, s * 0.72);
+      ctx.quadraticCurveTo(s * 0.18, s * 0.26, m, s * 0.22);
+      ctx.quadraticCurveTo(s * 0.82, s * 0.26, s * 0.82, s * 0.72);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#e1b854';
+      ctx.fillRect(s * 0.14, s * 0.68, s * 0.72, s * 0.08);
+      fillEllipse(ctx, m, s * 0.18, s * 0.08, s * 0.08, '#e1b854');
+      break;
+    case 'boots':
+      for (const dx of [-s * 0.14, s * 0.14]) {
+        ctx.beginPath();
+        ctx.moveTo(m + dx - s * 0.1, s * 0.2);
+        ctx.lineTo(m + dx + s * 0.06, s * 0.2);
+        ctx.lineTo(m + dx + s * 0.06, s * 0.66);
+        ctx.lineTo(m + dx + s * 0.16, s * 0.74);
+        ctx.lineTo(m + dx + s * 0.16, s * 0.84);
+        ctx.lineTo(m + dx - s * 0.1, s * 0.84);
+        ctx.closePath();
+        ctx.fill();
+      }
+      break;
+    case 'ring':
+      ctx.lineWidth = s * 0.12;
+      ctx.beginPath();
+      ctx.ellipse(m, s * 0.6, s * 0.28, s * 0.22, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      fillEllipse(ctx, m, s * 0.3, s * 0.13, s * 0.13, shade(color, 0.6));
+      fillEllipse(ctx, m - s * 0.04, s * 0.26, s * 0.04, s * 0.04, '#ffffff');
+      break;
+    case 'amulet':
+      ctx.lineWidth = s * 0.04;
+      ctx.strokeStyle = '#e1b854';
+      ctx.beginPath();
+      ctx.arc(m, s * 0.3, s * 0.22, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.stroke();
+      fillEllipse(ctx, m, s * 0.6, s * 0.24, s * 0.24, metal);
+      fillEllipse(ctx, m, s * 0.6, s * 0.09, s * 0.09, rgba('#ffffff', 0.6));
+      ctx.fillStyle = '#e1b854';
+      ctx.fillRect(m - s * 0.03, s * 0.16, s * 0.06, s * 0.2);
+      break;
+  }
+}
 
 export function drawItem(ctx: Ctx, id: string, s: number) {
   const m = s / 2;
   ctx.save();
+  const equip = ITEMS[id];
+  if (equip?.slot && equip.rarity && id !== 'nhan_bac') {
+    drawEquipment(ctx, equip.slot, rarityOf(equip.rarity).color, s);
+    ctx.restore();
+    return;
+  }
   switch (id) {
     case 'linh_thach': {
       ctx.fillStyle = radial(ctx, m, m, m, [

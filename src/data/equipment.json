@@ -1,0 +1,19 @@
+{
+  "rarities": [
+    { "id": "white", "name": "Phàm Phẩm", "label": "Trắng", "color": "#e6e6e6", "prefix": "Thiết", "reqLevel": 1, "mul": 1, "price": { "linh_khi": 50, "linh_thach": 1 } },
+    { "id": "blue", "name": "Lương Phẩm", "label": "Xanh da trời", "color": "#5ab8ff", "prefix": "Lam Ngọc", "reqLevel": 5, "mul": 1.8, "price": { "linh_khi": 200, "linh_thach": 3 } },
+    { "id": "green", "name": "Tinh Phẩm", "label": "Xanh lục", "color": "#4fd66a", "prefix": "Bích Linh", "reqLevel": 10, "mul": 3, "price": { "linh_khi": 500, "linh_thach": 6 } },
+    { "id": "purple", "name": "Linh Phẩm", "label": "Tím", "color": "#b46cff", "prefix": "Tử Tinh", "reqLevel": 20, "mul": 5, "price": { "linh_khi": 1200, "linh_thach": 12 } },
+    { "id": "orange", "name": "Huyền Phẩm", "label": "Cam", "color": "#ff9a3c", "prefix": "Xích Kim", "reqLevel": 30, "mul": 8, "price": { "linh_khi": 3000, "linh_thach": 25 } },
+    { "id": "red", "name": "Địa Phẩm", "label": "Đỏ", "color": "#ff4a4a", "prefix": "Huyết Long", "reqLevel": 45, "mul": 13, "price": { "linh_khi": 7000, "linh_thach": 45 } },
+    { "id": "pink", "name": "Thiên Phẩm", "label": "Hồng", "color": "#ff7ad9", "prefix": "Hồng Liên", "reqLevel": 60, "mul": 20, "price": { "linh_khi": 15000, "linh_thach": 80 } }
+  ],
+  "slots": [
+    { "id": "weapon", "name": "Vũ Khí", "noun": "Kiếm", "bonus": { "atk": 10 } },
+    { "id": "armor", "name": "Y Phục", "noun": "Đạo Bào", "bonus": { "def": 6, "hp": 60 } },
+    { "id": "helmet", "name": "Đầu", "noun": "Đạo Quan", "bonus": { "def": 3, "hp": 40 } },
+    { "id": "boots", "name": "Giày", "noun": "Vân Hài", "bonus": { "def": 3, "hp": 20 } },
+    { "id": "ring", "name": "Nhẫn", "noun": "Giới Chỉ", "bonus": { "atk": 5, "def": 2 } },
+    { "id": "amulet", "name": "Ngọc Bội", "noun": "Bội", "bonus": { "atk": 3, "hp": 50 } }
+  ]
+}

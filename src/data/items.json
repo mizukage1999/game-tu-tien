@@ -22,6 +22,8 @@
     "name": "Nhẫn Bạc",
     "kind": "equipment",
     "slot": "ring",
+    "rarity": "white",
+    "reqLevel": 1,
     "color": "#d9e1ea",
     "bonus": { "atk": 8, "def": 4 },
     "desc": "Nhẫn bạc khắc phù văn. Công +8, Thủ +4."

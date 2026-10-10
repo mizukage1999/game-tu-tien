@@ -1,9 +1,10 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import { ITEMS, MONSTERS, NPCS, QUESTS, ZONE_NAMES, type QuestRewards, type SkillId } from '../data';
+import { ITEMS, MONSTERS, NPCS, QUESTS, ZONE_NAMES, type EquipSlot, type QuestRewards, type SkillId } from '../data';
 import {
   addExp,
   applyBreakthrough,
+  canEquip,
   checkBreakthrough,
   computeStats,
   expToNext,
@@ -85,7 +86,7 @@ export interface GameState {
   spendMp(amount: number): boolean;
   consumeItem(id: string): void;
   equip(id: string): void;
-  unequip(slot: 'ring'): void;
+  unequip(slot: EquipSlot): void;
   questEvent(ev: GameEvent): void;
   acceptQuest(id: string): void;
   turnInQuest(id: string): void;
@@ -293,6 +294,11 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const def = ITEMS[id];
       const s = get();
       if (!def?.slot || (s.player.inventory[id] ?? 0) <= 0) return;
+      const check = canEquip(id, s.player.level);
+      if (!check.ok) {
+        s.toast(check.reason, 'warn');
+        return;
+      }
       const current = s.player.equipment[def.slot];
       s.removeItems({ [id]: 1 });
       if (current) s.addItem(current, 1, { silent: true });
@@ -364,6 +370,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
         return;
       }
       get().addItem(offer.item, offer.qty);
+      get().toast(`Đã mua ${itemName(offer.item)}`);
     },
 
     setMenu(menu) {

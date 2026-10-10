@@ -3,11 +3,11 @@ import { computeDamage, inAttackArc } from './combat';
 import { createBrain, provoke, stepMonsterAI, type AIParams } from './monsterAI';
 import { canAct, canBeHit, createLife, knockDown, tickLife, DOWNED_DURATION_MS } from './respawn';
 import { rollLoot } from './loot';
-import { addExp, applyBreakthrough, checkBreakthrough, computeStats, expToNext } from './progression';
+import { addExp, applyBreakthrough, canEquip, checkBreakthrough, computeStats, expToNext } from './progression';
 import { acceptQuest, applyEvent, availableQuests, completeQuest, turnInQuests } from './quest';
 import { meditateGain, zoneAt } from './cultivation';
 import { deserialize, serialize } from './save';
-import { QUESTS, type QuestDef } from '../../data';
+import { EQUIP_SLOTS, equipmentId, ITEMS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
 
 const fixed = (...values: number[]) => {
   let i = 0;
@@ -136,6 +136,25 @@ describe('progression', () => {
     const base = computeStats(5, 0, {});
     const ringed = computeStats(5, 0, { ring: 'nhan_bac' });
     expect(ringed.atk).toBe(base.atk + 8);
+  });
+
+  it('gates equipment by rarity level', () => {
+    expect(canEquip('weapon_white', 1).ok).toBe(true);
+    expect(canEquip('weapon_purple', 19).ok).toBe(false);
+    expect(canEquip('weapon_purple', 20).ok).toBe(true);
+    expect(canEquip('hoi_xuan_dan', 99).ok).toBe(false);
+  });
+
+  it('generates every slot for all seven rarities with rising stats', () => {
+    expect(RARITIES.map((r) => r.id)).toEqual(['white', 'blue', 'green', 'purple', 'orange', 'red', 'pink']);
+    let prev = 0;
+    for (const r of RARITIES) {
+      for (const slot of EQUIP_SLOTS) expect(ITEMS[equipmentId(slot.id, r.id)]?.slot).toBe(slot.id);
+      const atk = ITEMS[equipmentId('weapon', r.id)].bonus!.atk!;
+      expect(atk).toBeGreaterThan(prev);
+      prev = atk;
+    }
+    expect(NPCS.thuong_nhan.shop!.length).toBe(1 + RARITIES.length * EQUIP_SLOTS.length);
   });
 });
 

@@ -1,3 +1,4 @@
+import type { EquipSlot } from '../../data';
 import type { QuestLog } from './quest';
 import type { Vec2 } from '../types';
 
@@ -13,7 +14,7 @@ export interface PlayerSave {
   mp: number;
   linhKhi: number;
   inventory: Record<string, number>;
-  equipment: { ring?: string };
+  equipment: Partial<Record<EquipSlot, string>>;
 }
 
 export interface SaveData {

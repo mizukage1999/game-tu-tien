@@ -1,6 +1,20 @@
-import { ITEMS, NPCS, QUESTS, REALMS, SKILLS, type SkillId } from '../../data';
+import { useState } from 'react';
+import {
+  bonusText,
+  EQUIP_SLOTS,
+  equipmentId,
+  ITEMS,
+  NPCS,
+  QUESTS,
+  RARITIES,
+  REALMS,
+  rarityOf,
+  SKILLS,
+  type RarityId,
+  type SkillId,
+} from '../../data';
 import { itemIconUrl, skillIconUrl } from '../../game/art/icons';
-import { expToNext, isBottleneck, realmFor } from '../../game/systems/progression';
+import { canEquip, expToNext, isBottleneck, realmFor } from '../../game/systems/progression';
 import { objectiveText } from '../../game/systems/quest';
 import { clearSave, disableSaving } from '../../game/systems/save';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
@@ -14,6 +28,82 @@ const TITLES: Record<MenuTab, string> = {
   shop: 'Cửa Hàng',
   settings: 'Cài Đặt',
 };
+
+function rarityColor(id: string) {
+  const def = ITEMS[id];
+  return def?.rarity ? rarityOf(def.rarity).color : undefined;
+}
+
+function ItemIcon({ id, size }: { id: string; size: number }) {
+  const color = rarityColor(id);
+  return (
+    <img
+      className="item-icon"
+      src={itemIconUrl(id, size)}
+      alt=""
+      style={color ? { borderColor: color, boxShadow: `0 0 6px ${color}` } : undefined}
+    />
+  );
+}
+
+function ItemLabel({ id }: { id: string }) {
+  return <b style={{ color: rarityColor(id) }}>{itemName(id)}</b>;
+}
+
+function Wardrobe() {
+  const player = useGame((s) => s.player);
+  const equip = useGame((s) => s.equip);
+  return (
+    <div className="wardrobe">
+      <h4>Trang bị có thể mặc</h4>
+      <p className="muted">
+        Cấp hiện tại: <b>{player.level}</b>. Phẩm chất sáng màu là đã đủ điều kiện mặc.
+      </p>
+      {RARITIES.map((r) => {
+        const unlocked = player.level >= r.reqLevel;
+        return (
+          <div key={r.id} className={`wardrobe-tier ${unlocked ? 'unlocked' : 'locked'}`} style={{ borderColor: r.color }}>
+            <div className="wardrobe-head">
+              <span className="rarity-name" style={{ color: r.color }}>
+                {r.name} · {r.label}
+              </span>
+              <span className="muted">Yêu cầu cấp {r.reqLevel}</span>
+              <span className={`wardrobe-badge ${unlocked ? 'ok' : 'no'}`}>
+                {unlocked ? 'Có thể mặc' : `Còn thiếu ${r.reqLevel - player.level} cấp`}
+              </span>
+            </div>
+            <div className="wardrobe-items">
+              {EQUIP_SLOTS.map((slot) => {
+                const id = equipmentId(slot.id, r.id);
+                const owned = player.inventory[id] ?? 0;
+                const worn = player.equipment[slot.id] === id;
+                return (
+                  <div key={id} className="wardrobe-item" title={`${itemName(id)} — ${bonusText(ITEMS[id].bonus)}`}>
+                    <ItemIcon id={id} size={36} />
+                    <small>{slot.name}</small>
+                    {worn ? (
+                      <em className="tag worn">Đang mặc</em>
+                    ) : owned > 0 ? (
+                      unlocked ? (
+                        <button className="btn small" onClick={() => equip(id)}>
+                          Mặc
+                        </button>
+                      ) : (
+                        <em className="tag">Có x{owned}</em>
+                      )
+                    ) : (
+                      <em className="tag muted">Chưa có</em>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function Character() {
   const player = useGame((s) => s.player);
@@ -29,43 +119,56 @@ function Character() {
     ['Bạo kích', `${Math.round(stats.critRate * 100)}% (x${stats.critMul})`],
     ['Tốc độ', stats.speed],
   ];
-  const ring = player.equipment.ring;
   return (
-    <div className="menu-grid two">
-      <table className="stat-table">
-        <tbody>
-          {rows.map(([k, v]) => (
-            <tr key={k}>
-              <td>{k}</td>
-              <td>{v}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div>
-        <h4>Trang bị</h4>
-        <div className="equip-slot">
-          <span>Nhẫn</span>
-          {ring ? (
-            <>
-              <img src={itemIconUrl(ring, 40)} alt="" />
-              <b>{itemName(ring)}</b>
-              <button className="btn small" onClick={() => unequip('ring')}>
-                Tháo
-              </button>
-            </>
-          ) : (
-            <i className="muted">Trống</i>
-          )}
+    <>
+      <div className="menu-grid two">
+        <table className="stat-table">
+          <tbody>
+            {rows.map(([k, v]) => (
+              <tr key={k}>
+                <td>{k}</td>
+                <td>{v}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div>
+          <h4>Đang trang bị</h4>
+          <div className="equip-list">
+            {EQUIP_SLOTS.map((slot) => {
+              const id = player.equipment[slot.id];
+              return (
+                <div key={slot.id} className="equip-slot">
+                  <span className="equip-slot-name">{slot.name}</span>
+                  {id ? (
+                    <>
+                      <ItemIcon id={id} size={32} />
+                      <div className="equip-info">
+                        <ItemLabel id={id} />
+                        <small className="muted">{bonusText(ITEMS[id]?.bonus)}</small>
+                      </div>
+                      <button className="btn small" onClick={() => unequip(slot.id)}>
+                        Tháo
+                      </button>
+                    </>
+                  ) : (
+                    <i className="muted">Trống</i>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+      <Wardrobe />
+    </>
   );
 }
 
 function Bag() {
   const inv = useGame((s) => s.player.inventory);
   const linhKhi = useGame((s) => s.player.linhKhi);
+  const level = useGame((s) => s.player.level);
   const consumeItem = useGame((s) => s.consumeItem);
   const entries = Object.entries(inv).filter(([, q]) => q > 0);
   return (
@@ -78,13 +181,17 @@ function Bag() {
         {entries.map(([id, qty]) => {
           const def = ITEMS[id];
           const usable = def?.kind === 'consumable' || def?.kind === 'equipment';
+          const locked = def?.kind === 'equipment' && !canEquip(id, level).ok;
           return (
-            <div key={id} className="bag-item" title={def?.desc}>
-              <img src={itemIconUrl(id, 48)} alt="" />
+            <div key={id} className="bag-item" title={def?.desc} style={{ borderColor: rarityColor(id) }}>
+              <ItemIcon id={id} size={48} />
               <span className="bag-qty">{qty}</span>
-              <div className="bag-name">{def?.name ?? id}</div>
+              <div className="bag-name" style={{ color: rarityColor(id) }}>
+                {def?.name ?? id}
+              </div>
+              {locked && <small className="req-bad">Cần cấp {def.reqLevel}</small>}
               {usable && (
-                <button className="btn small" onClick={() => consumeItem(id)}>
+                <button className="btn small" disabled={locked} onClick={() => consumeItem(id)}>
                   {def.kind === 'equipment' ? 'Trang bị' : 'Dùng'}
                 </button>
               )}
@@ -202,35 +309,72 @@ function Quests() {
   );
 }
 
+type ShopTab = 'misc' | RarityId;
+
 function Shop() {
   const buy = useGame((s) => s.buy);
-  const inv = useGame((s) => s.player.inventory);
-  const offers = NPCS.thuong_nhan.shop ?? [];
+  const player = useGame((s) => s.player);
+  const [tab, setTab] = useState<ShopTab>('misc');
+  const offers = (NPCS.thuong_nhan.shop ?? []).map((o, index) => ({ ...o, index }));
+  const shown = offers.filter((o) => (ITEMS[o.item]?.slot ? ITEMS[o.item].rarity : 'misc') === tab);
+  const have = (id: string) => (id === 'linh_khi' ? player.linhKhi : (player.inventory[id] ?? 0));
   return (
     <div>
       <p className="muted">Tiền Đa Bảo: "Hàng tốt giá hời, đạo hữu cứ xem!"</p>
-      {offers.map((o, i) => (
-        <div key={i} className="shop-row">
-          <img src={itemIconUrl(o.item, 40)} alt="" />
-          <div>
-            <b>
-              {itemName(o.item)} x{o.qty}
-            </b>
-            <div className="muted">{ITEMS[o.item]?.desc}</div>
-          </div>
-          <div className="shop-price">
-            {Object.entries(o.price).map(([id, n]) => (
-              <span key={id}>
-                <img src={itemIconUrl(id, 24)} alt="" /> {n}
-              </span>
-            ))}
-          </div>
-          <button className="btn gold" onClick={() => buy('thuong_nhan', i)}>
-            Mua
+      <div className="shop-tabs">
+        <button className={tab === 'misc' ? 'active' : ''} onClick={() => setTab('misc')}>
+          Đan dược
+        </button>
+        {RARITIES.map((r) => (
+          <button
+            key={r.id}
+            className={tab === r.id ? 'active' : ''}
+            style={{ color: r.color, borderColor: tab === r.id ? r.color : undefined }}
+            onClick={() => setTab(r.id)}
+          >
+            {r.label}
           </button>
-        </div>
-      ))}
-      <p className="muted">Bạn có {inv.linh_thach ?? 0} Linh Thạch.</p>
+        ))}
+      </div>
+      {tab !== 'misc' && (
+        <p className="shop-tier-info">
+          <b style={{ color: rarityOf(tab).color }}>{rarityOf(tab).name}</b> · Yêu cầu cấp {rarityOf(tab).reqLevel}
+          {player.level >= rarityOf(tab).reqLevel ? (
+            <span className="req-ok"> · Bạn có thể mặc</span>
+          ) : (
+            <span className="req-bad"> · Bạn chưa đủ cấp (vẫn có thể mua trước)</span>
+          )}
+        </p>
+      )}
+      {shown.map((o) => {
+        const def = ITEMS[o.item];
+        const affordable = Object.entries(o.price).every(([id, n]) => have(id) >= n);
+        return (
+          <div key={o.index} className="shop-row">
+            <ItemIcon id={o.item} size={40} />
+            <div>
+              <ItemLabel id={o.item} /> {o.qty > 1 && `x${o.qty}`}
+              <div className="muted">{def?.desc}</div>
+              {def?.reqLevel && (
+                <small className={player.level >= def.reqLevel ? 'req-ok' : 'req-bad'}>Yêu cầu cấp {def.reqLevel}</small>
+              )}
+            </div>
+            <div className="shop-price">
+              {Object.entries(o.price).map(([id, n]) => (
+                <span key={id} className={have(id) >= n ? '' : 'req-bad'}>
+                  <img src={itemIconUrl(id, 24)} alt="" /> {n}
+                </span>
+              ))}
+            </div>
+            <button className="btn gold" disabled={!affordable} onClick={() => buy('thuong_nhan', o.index)}>
+              Mua
+            </button>
+          </div>
+        );
+      })}
+      <p className="muted">
+        Bạn có {player.linhKhi} Linh Khí · {player.inventory.linh_thach ?? 0} Linh Thạch.
+      </p>
     </div>
   );
 }

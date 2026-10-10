@@ -78,6 +78,16 @@ export function applyBreakthrough(s: ProgressState) {
   s.exp = 0;
 }
 
+export type EquipCheck = { ok: true } | { ok: false; reason: string };
+
+export function canEquip(itemId: string, level: number): EquipCheck {
+  const def = ITEMS[itemId];
+  if (!def?.slot) return { ok: false, reason: 'Vật phẩm này không thể trang bị.' };
+  const req = def.reqLevel ?? 1;
+  if (level < req) return { ok: false, reason: `Cần đạt cấp ${req} để trang bị ${def.name}.` };
+  return { ok: true };
+}
+
 export function computeStats(
   level: number,
   realmIndex: number,
