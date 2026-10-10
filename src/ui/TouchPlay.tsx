@@ -25,8 +25,22 @@ export function usePortrait() {
   return useMedia(PORTRAIT_QUERY);
 }
 
+/**
+ * Screen drag mapped into game directions.
+ * `turned` is the portrait phone case: the page is rotated 90° clockwise, so a finger
+ * moving down the phone is "right" in the game.
+ */
+export function swipeVector(dx: number, dy: number, turned: boolean) {
+  const lx = turned ? dy : dx;
+  const ly = turned ? -dx : dy;
+  const dist = Math.hypot(lx, ly);
+  if (dist < 0.12 * SWIPE_RADIUS) return { x: 0, y: 0 };
+  const cap = Math.min(dist, SWIPE_RADIUS);
+  return { x: (lx / dist) * (cap / SWIPE_RADIUS), y: (ly / dist) * (cap / SWIPE_RADIUS) };
+}
+
 /** Drag on the world to walk. Buttons and panels keep their own touches. */
-export function SwipeMove({ active }: { active: boolean }) {
+export function SwipeMove({ active, turned }: { active: boolean; turned: boolean }) {
   useEffect(() => {
     if (!active) {
       virtualInput.x = 0;
@@ -57,16 +71,9 @@ export function SwipeMove({ active }: { active: boolean }) {
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerId !== id) return;
-      let dx = e.clientX - originX;
-      let dy = e.clientY - originY;
-      const dist = Math.hypot(dx, dy);
-      if (dist > SWIPE_RADIUS) {
-        dx = (dx / dist) * SWIPE_RADIUS;
-        dy = (dy / dist) * SWIPE_RADIUS;
-      }
-      const mag = Math.min(1, dist / SWIPE_RADIUS);
-      virtualInput.x = mag < 0.12 ? 0 : dx / SWIPE_RADIUS;
-      virtualInput.y = mag < 0.12 ? 0 : dy / SWIPE_RADIUS;
+      const v = swipeVector(e.clientX - originX, e.clientY - originY, turned);
+      virtualInput.x = v.x;
+      virtualInput.y = v.y;
     };
 
     window.addEventListener('pointerdown', onDown);
@@ -81,24 +88,16 @@ export function SwipeMove({ active }: { active: boolean }) {
       window.removeEventListener('pointerup', stop);
       window.removeEventListener('pointercancel', stop);
     };
-  }, [active]);
+  }, [active, turned]);
 
   return null;
 }
 
-/** Ask a phone in portrait to turn sideways. Lock is best-effort; browsers often refuse it. */
-export function RotateHint({ active }: { active: boolean }) {
+/** Browsers only honor this in fullscreen, and a locked phone ignores it. The CSS turn is the real fix. */
+export function useTryLockLandscape(active: boolean) {
   useEffect(() => {
     if (!active) return;
     const orientation = screen.orientation as ScreenOrientation & { lock?: (type: string) => Promise<void> };
     orientation.lock?.('landscape').catch(() => undefined);
   }, [active]);
-
-  if (!active) return null;
-  return (
-    <div className="rotate-hint">
-      <div className="rotate-glyph" />
-      <p>Hãy xoay ngang điện thoại để chơi</p>
-    </div>
-  );
 }

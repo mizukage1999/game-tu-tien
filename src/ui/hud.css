@@ -1921,43 +1921,67 @@ kbd {
   z-index: 2;
 }
 
-.rotate-hint {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
+/* Portrait phone: spin the whole game so it is landscape without an OS setting. */
+.app.turned {
+  top: 0;
+  left: 100vw;
+  right: auto;
+  bottom: auto;
+  width: 100vh;
+  height: 100vw;
+  transform: rotate(90deg);
+  transform-origin: top left;
+  overflow: hidden;
+}
+
+@supports (width: 100dvh) {
+  .app.turned {
+    left: 100dvw;
+    width: 100dvh;
+    height: 100dvw;
+  }
+}
+
+.hud.phone.turned .hud-top-right {
+  flex-direction: row;
+  align-items: flex-start;
+  width: auto;
+}
+
+.hud.phone.turned .top-menu {
+  flex-wrap: nowrap;
+  width: auto;
+  order: 0;
+}
+
+.hud.phone.turned .minimap,
+.hud.phone.turned .minimap-title {
+  order: 0;
+  width: 120px;
+}
+
+.hud.phone.turned .minimap-canvas {
+  width: 108px;
+  height: 108px;
+}
+
+.hud.phone.turned .hud-bottom-center {
+  left: 50%;
+  bottom: 24px;
+  width: min(440px, 46vh);
+  transform: translateX(-62%);
   align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 24px;
-  text-align: center;
-  pointer-events: auto;
-  background: rgba(8, 12, 24, 0.94);
 }
 
-.rotate-hint p {
-  margin: 0;
-  max-width: 260px;
-  font-size: 18px;
-  font-weight: 700;
+.hud.phone.turned .chat-list {
+  height: 108px;
 }
 
-.rotate-glyph {
-  width: 78px;
-  height: 48px;
-  border: 3px solid var(--gold);
-  border-radius: 8px;
-  animation: rotate-tilt 1.4s ease-in-out infinite;
+.hud.phone.turned .chat-toggle {
+  order: 0;
+  margin-left: auto;
 }
 
-@keyframes rotate-tilt {
-  0%,
-  40% {
-    transform: rotate(0deg);
-  }
-  70%,
-  100% {
-    transform: rotate(90deg);
-  }
+.hud.phone.turned .exp-bar {
+  width: min(560px, 60vh);
 }

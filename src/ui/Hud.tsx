@@ -6,7 +6,7 @@ import { ChatLog } from './ChatLog';
 import { ExpBar } from './ExpBar';
 import { SkillBar } from './SkillBar';
 import { VirtualJoystick } from './VirtualJoystick';
-import { RotateHint, SwipeMove, usePhoneLayout, usePortrait } from './TouchPlay';
+import { SwipeMove, usePhoneLayout, usePortrait } from './TouchPlay';
 import { ClockBar, DownedOverlay, InteractPrompt, TargetFrame, Toasts } from './Overlays';
 import { DialogBox } from './DialogBox';
 import { Menus } from './menus/Menus';
@@ -17,8 +17,9 @@ export function Hud() {
   const inDungeon = useGame((s) => s.dungeon !== null);
   const phone = usePhoneLayout();
   const portrait = usePortrait();
+  const turned = phone && portrait;
   return (
-    <div className={`hud${phone ? ' phone' : ''}`}>
+    <div className={`hud${phone ? ' phone' : ''}${turned ? ' turned' : ''}`}>
       <div className="hud-top-left">
         <StatusBars />
         {inDungeon ? <DungeonPanel /> : <QuestPanel />}
@@ -34,8 +35,7 @@ export function Hud() {
         {!phone && <VirtualJoystick />}
         <ClockBar />
       </div>
-      <SwipeMove active={phone && !portrait} />
-      <RotateHint active={phone && portrait} />
+      <SwipeMove active={phone} turned={turned} />
       <div className="hud-bottom-center">
         <InteractPrompt />
         <ChatLog />

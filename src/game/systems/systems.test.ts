@@ -12,6 +12,7 @@ import { deserialize, serialize } from './save';
 import { DUNGEONS, EQUIP_SLOTS, equipmentId, ITEMS, MONSTERS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
 import { getMap } from '../maps';
 import { DIFFICULTIES, DUNGEON_TIERS, FIELD_BANDS, canEnterField, dungeonId, expForMonsterLevel, fieldForLevel } from './scale';
+import { swipeVector } from '../../ui/TouchPlay';
 
 const fixed = (...values: number[]) => {
   let i = 0;
@@ -234,6 +235,17 @@ describe('quest navigation', () => {
     const log = acceptQuest({}, QUESTS, 'side_3', { level: 20 });
     const nav = questDestination('side_3', log, 20, 'dai_thua_vien');
     expect(nav.kind).toBe('toast');
+  });
+});
+
+describe('phone swipe', () => {
+  it('turns a downward finger into a rightward step when the page is rotated', () => {
+    const turned = swipeVector(0, 64, true);
+    expect(turned.x).toBeGreaterThan(0.9);
+    expect(Math.abs(turned.y)).toBeLessThan(0.01);
+    const flat = swipeVector(64, 0, false);
+    expect(flat.x).toBeGreaterThan(0.9);
+    expect(Math.abs(flat.y)).toBeLessThan(0.01);
   });
 });
 
