@@ -1194,6 +1194,298 @@ kbd {
   width: 18px;
 }
 
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+/* ---------- skill upgrades ---------- */
+.skill-badge {
+  position: absolute;
+  z-index: 2;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: #1a2342;
+  border: 1px solid var(--gold-dim);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 13px;
+  color: #ffe6a6;
+}
+
+.skill-badge.awakened {
+  background: linear-gradient(#f3d27e, #b88a2c);
+  color: #2a1a00;
+}
+
+.skill-row.upgrade {
+  display: grid;
+  grid-template-columns: 56px 1fr 150px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid rgba(227, 189, 98, 0.25);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.skill-icon {
+  position: relative;
+}
+
+.skill-lv {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  min-width: 20px;
+  padding: 0 4px;
+  border-radius: 10px;
+  background: linear-gradient(#f3d27e, #b88a2c);
+  color: #2a1a00;
+  font-weight: 800;
+  font-size: 11px;
+  text-align: center;
+}
+
+.skill-level {
+  font-size: 11px;
+  color: var(--gold);
+}
+
+.skill-info small {
+  display: block;
+  margin-top: 2px;
+}
+
+.delta {
+  color: #7dff9a;
+  font-weight: 700;
+}
+
+.skill-bonus {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.skill-bonus.on {
+  color: #ffd84a;
+}
+
+.skill-upgrade {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.cost-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.cost-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cost-chip img {
+  width: 14px;
+}
+
+.cost-chip.short,
+.dungeon-facts .short {
+  color: #ff8a7a;
+}
+
+.skill-max {
+  color: #ffd84a;
+  font-weight: 700;
+}
+
+/* ---------- dungeons ---------- */
+.reward-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(227, 189, 98, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.reward img {
+  width: 18px;
+}
+
+.reward.exp {
+  color: #9dffb0;
+}
+
+.dungeon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dungeon-card {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(227, 189, 98, 0.35);
+  background: linear-gradient(180deg, rgba(227, 189, 98, 0.08), rgba(0, 0, 0, 0.25));
+}
+
+.dungeon-card.locked {
+  opacity: 0.7;
+}
+
+.dungeon-card p {
+  margin: 4px 0 6px;
+}
+
+.dungeon-card h4 {
+  margin: 8px 0 4px;
+  font-size: 12px;
+}
+
+.dungeon-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.dungeon-card-head b {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: #ffe6a6;
+}
+
+.dungeon-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+}
+
+.dungeon-enter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.dungeon-panel {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dungeon-panel .btn {
+  align-self: flex-end;
+}
+
+.dungeon-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dungeon-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: #ffe6a6;
+}
+
+.dungeon-timer {
+  font-weight: 800;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dungeon-timer.urgent {
+  color: #ff6a5a;
+  animation: glow 0.5s infinite alternate;
+}
+
+.dungeon-phase {
+  font-weight: 700;
+  color: #ffd84a;
+}
+
+.dungeon-boss-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffb27a;
+  margin-bottom: 2px;
+}
+
+.dungeon-result {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 92vw);
+  padding: 16px 20px;
+  text-align: center;
+  pointer-events: auto;
+  animation: toast-in 0.3s;
+}
+
+.dungeon-result h3 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.dungeon-result h3.win {
+  color: #ffd84a;
+}
+
+.dungeon-result h3.lose {
+  color: #ff8a7a;
+}
+
+.dungeon-result h4 {
+  margin: 12px 0 6px;
+  color: var(--gold);
+}
+
+.dungeon-result .reward-list {
+  justify-content: center;
+}
+
+.dungeon-result-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 @media (max-width: 1100px) {
   .target-frame {
     top: 66px;

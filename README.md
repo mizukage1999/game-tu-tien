@@ -28,6 +28,15 @@ Tiến trình được lưu vào `localStorage` (5 giây/lần, khi chuyển map
 | T | Bật/tắt tự động chiến đấu |
 | Esc | Đóng cửa sổ |
 
+## Phó bản và nâng cấp kỹ năng
+
+- **Phó bản** (menu **秘**, hoặc nói chuyện với Lục Trần sư huynh): Băng Tuyết Động (Lv 5, 3 lượt/ngày) và Hỏa Diễm Cốc (Lv 12, 2 lượt/ngày).
+  Mỗi phó bản có 3 đợt quái rồi tới thủ lĩnh, phải vượt trước khi hết giờ. Thủ lĩnh dậm đất theo vòng đỏ báo trước và triệu hồi thuộc hạ khi còn nửa máu.
+  Vượt ải lần đầu có thưởng thêm. Tải lại trang khi đang trong phó bản sẽ đưa nhân vật về chỗ đã vào.
+- **Nâng cấp kỹ năng** (menu **技**): mỗi kỹ năng lên tối đa cấp 10, tốn Linh Khí và Linh Thạch, từ cấp 4 trở đi cần thêm Kiếm Phổ Tàn Trang (rơi trong phó bản).
+  Cấp 5 mở tuyệt kỹ riêng cho từng kỹ năng.
+- Thông số nằm trong `src/data/dungeons.json`, `src/data/skills.json` (`growth`, `bonus`) và `src/data/monsters.json` (`boss`).
+
 ## Cấu trúc
 
 ```

@@ -144,10 +144,101 @@ function linhThuLam(): MapDef {
   });
 }
 
+const ARENA_SPAWNS: [number, number][] = [
+  [8, 8],
+  [21, 8],
+  [5, 13],
+  [24, 13],
+  [9, 17],
+  [20, 17],
+  [14, 6],
+  [15, 15],
+];
+
+function pbBangTuyet(): MapDef {
+  const b = new MapBuilder(30, 24, 'stone', 21);
+  b.border('wall');
+  b.ellipse(15, 11, 9, 6.5, 'platform');
+  b.ellipse(3.5, 3.5, 2.5, 2, 'water');
+  b.ellipse(26.5, 3.5, 2.5, 2, 'water');
+  b.ellipse(3.5, 20, 2.5, 1.8, 'water');
+  b.ellipse(26.5, 20, 2.5, 1.8, 'water');
+  b.fill(13, 18, 4, 5, 'path');
+  b.reserve([...ARENA_SPAWNS.map(([x, y]) => ({ x, y })), { x: 15, y: 20 }, { x: 15, y: 9 }]);
+  b.place('circle', 15, 11, { block: [] });
+  for (const [x, y] of [
+    [6, 5],
+    [24, 5],
+    [6, 18],
+    [24, 18],
+  ] as [number, number][]) {
+    b.place('pillar', x, y);
+  }
+  for (const [x, y] of [
+    [12, 20],
+    [18, 20],
+    [2, 11],
+    [27, 11],
+  ] as [number, number][]) {
+    b.place('lantern', x, y, { glow: 'cold' });
+  }
+  b.sprinkle(['rock'], 8, ['stone'], [[4, 4, 22, 16], [12, 17, 6, 7]]);
+  return b.build({
+    id: 'pb_bang_tuyet',
+    name: 'Băng Tuyết Động',
+    monsters: [],
+    npcs: [],
+    zones: [],
+    portals: [],
+    playerSpawn: [15, 20],
+    ambient: 'snow',
+    arena: { dungeon: 'bang_tuyet_dong', spawns: ARENA_SPAWNS, boss: [15, 9], exit: [14, 21, 2, 1] },
+  });
+}
+
+function pbHoaDiem(): MapDef {
+  const b = new MapBuilder(30, 24, 'dirt', 33);
+  b.border('wall');
+  b.ellipse(15, 11, 9, 6.5, 'stone');
+  b.fill(13, 18, 4, 5, 'stone');
+  b.reserve([...ARENA_SPAWNS.map(([x, y]) => ({ x, y })), { x: 15, y: 20 }, { x: 15, y: 9 }]);
+  b.place('circle', 15, 11, { block: [] });
+  for (const [x, y] of [
+    [6, 5],
+    [24, 5],
+    [6, 18],
+    [24, 18],
+  ] as [number, number][]) {
+    b.place('burner', x, y);
+  }
+  for (const [x, y] of [
+    [12, 20],
+    [18, 20],
+    [2, 11],
+    [27, 11],
+  ] as [number, number][]) {
+    b.place('lantern', x, y, { glow: 'warm' });
+  }
+  b.sprinkle(['rock'], 14, ['dirt'], [[4, 4, 22, 16], [12, 17, 6, 7]]);
+  return b.build({
+    id: 'pb_hoa_diem',
+    name: 'Hỏa Diễm Cốc',
+    monsters: [],
+    npcs: [],
+    zones: [],
+    portals: [],
+    playerSpawn: [15, 20],
+    ambient: 'embers',
+    arena: { dungeon: 'hoa_diem_coc', spawns: ARENA_SPAWNS, boss: [15, 9], exit: [14, 21, 2, 1] },
+  });
+}
+
 const cache = new Map<string, MapDef>();
 const builders: Record<string, () => MapDef> = {
   dai_thua_vien: daiThuaVien,
   linh_thu_lam: linhThuLam,
+  pb_bang_tuyet: pbBangTuyet,
+  pb_hoa_diem: pbHoaDiem,
 };
 
 export function getMap(id: string): MapDef {

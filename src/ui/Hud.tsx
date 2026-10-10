@@ -9,13 +9,16 @@ import { VirtualJoystick } from './VirtualJoystick';
 import { ClockBar, DownedOverlay, InteractPrompt, TargetFrame, Toasts } from './Overlays';
 import { DialogBox } from './DialogBox';
 import { Menus } from './menus/Menus';
+import { DungeonPanel, DungeonResultOverlay } from './DungeonPanel';
+import { useGame } from '../store/gameStore';
 
 export function Hud() {
+  const inDungeon = useGame((s) => s.dungeon !== null);
   return (
     <div className="hud">
       <div className="hud-top-left">
         <StatusBars />
-        <QuestPanel />
+        {inDungeon ? <DungeonPanel /> : <QuestPanel />}
       </div>
       <div className="hud-top-right">
         <TopMenu />
@@ -35,6 +38,7 @@ export function Hud() {
       <SkillBar />
       <ExpBar />
       <DialogBox />
+      <DungeonResultOverlay />
       <Menus />
     </div>
   );

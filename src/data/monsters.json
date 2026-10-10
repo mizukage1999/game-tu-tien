@@ -40,7 +40,68 @@
       { "item": "linh_khi", "qty": [30, 70], "chance": 0.9 },
       { "item": "linh_thach", "qty": [1, 2], "chance": 0.6 },
       { "item": "hoi_xuan_dan", "qty": [1, 1], "chance": 0.15 },
-      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.06 }
+      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.06 },
+      { "item": "kiem_pho", "qty": [1, 1], "chance": 0.04 }
     ]
+  },
+  "tuyet_ho_vuong": {
+    "name": "Tuyết Hồ Vương",
+    "level": 8,
+    "art": "beast_frost_king",
+    "scale": 1.9,
+    "hp": 3200,
+    "atk": 38,
+    "def": 12,
+    "speed": 85,
+    "aggroRadius": 900,
+    "attackRange": 84,
+    "attackInterval": 1500,
+    "attackWindup": 380,
+    "leashRadius": 99999,
+    "exp": 600,
+    "respawnMs": 0,
+    "loot": [
+      { "item": "linh_khi", "qty": [80, 150], "chance": 1 },
+      { "item": "linh_thach", "qty": [2, 3], "chance": 1 },
+      { "item": "kiem_pho", "qty": [1, 1], "chance": 0.6 },
+      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.25 }
+    ],
+    "boss": {
+      "slamInterval": 6500,
+      "slamWindup": 1000,
+      "slamRadius": 130,
+      "slamMul": 1.8,
+      "summon": { "type": "linh_thu", "count": 2, "atHpPct": 0.5 }
+    }
+  },
+  "cuu_vi_hoa_ho": {
+    "name": "Cửu Vĩ Hỏa Hồ",
+    "level": 16,
+    "art": "beast_fire_king",
+    "scale": 2.1,
+    "hp": 9000,
+    "atk": 90,
+    "def": 28,
+    "speed": 100,
+    "aggroRadius": 900,
+    "attackRange": 92,
+    "attackInterval": 1300,
+    "attackWindup": 340,
+    "leashRadius": 99999,
+    "exp": 2200,
+    "respawnMs": 0,
+    "loot": [
+      { "item": "linh_khi", "qty": [250, 400], "chance": 1 },
+      { "item": "linh_thach", "qty": [4, 6], "chance": 1 },
+      { "item": "kiem_pho", "qty": [1, 2], "chance": 0.8 },
+      { "item": "hoi_xuan_dan", "qty": [1, 2], "chance": 0.5 }
+    ],
+    "boss": {
+      "slamInterval": 5500,
+      "slamWindup": 900,
+      "slamRadius": 150,
+      "slamMul": 2,
+      "summon": { "type": "hoa_ho", "count": 2, "atHpPct": 0.5 }
+    }
   }
 }

@@ -40,6 +40,17 @@ export function DialogBox() {
               <small>{QUESTS[id].desc}</small>
             </button>
           ))}
+          {def.dungeon && (
+            <button
+              className="opt"
+              onClick={() => {
+                setDialog(null);
+                setMenu('dungeon');
+              }}
+            >
+              Vào bí cảnh (phó bản)
+            </button>
+          )}
           {def.shop && (
             <button
               className="opt"

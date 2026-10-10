@@ -75,6 +75,36 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
       fillEllipse(ctx, m - s * 0.04, s * 0.26, s * 0.04, s * 0.04, '#ffffff');
       break;
     }
+    case 'kiem_pho': {
+      ctx.fillStyle = radial(ctx, m, m, m, [
+        [0, 'rgba(255,210,120,0.45)'],
+        [1, 'rgba(255,210,120,0)'],
+      ]);
+      ctx.fillRect(0, 0, s, s);
+      ctx.fillStyle = linear(ctx, 0, s * 0.2, 0, s * 0.8, [
+        [0, '#fff3d1'],
+        [1, '#d9b77a'],
+      ]);
+      ctx.fillRect(s * 0.24, s * 0.2, s * 0.52, s * 0.6);
+      ctx.fillStyle = '#8a4b22';
+      for (const y of [0.14, 0.78]) {
+        ctx.beginPath();
+        ctx.roundRect(s * 0.16, s * y, s * 0.68, s * 0.09, s * 0.04);
+        ctx.fill();
+      }
+      ctx.strokeStyle = '#7a3a1a';
+      ctx.lineWidth = Math.max(1, s / 22);
+      for (let i = 0; i < 3; i++) {
+        const x = s * (0.36 + i * 0.13);
+        ctx.beginPath();
+        ctx.moveTo(x, s * 0.3);
+        ctx.lineTo(x, s * 0.7);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#d23a3a';
+      ctx.fillRect(s * 0.62, s * 0.58, s * 0.1, s * 0.1);
+      break;
+    }
     default:
       fillEllipse(ctx, m, m, m * 0.6, m * 0.6, '#cccccc');
   }
@@ -172,7 +202,7 @@ export function portraitUrl(palette = 'player', s = 128) {
 
 export function buildLootTextures(): Record<string, HTMLCanvasElement> {
   const out: Record<string, HTMLCanvasElement> = {};
-  for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac']) {
+  for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho']) {
     const [c, ctx] = makeCanvas(32, 32);
     drawItem(ctx, id, 32);
     out[`loot_${id}`] = c;

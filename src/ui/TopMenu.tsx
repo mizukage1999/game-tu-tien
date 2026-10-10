@@ -5,6 +5,7 @@ const ITEMS: { id: MenuTab; label: string; glyph: string }[] = [
   { id: 'bag', label: 'Túi Đồ', glyph: '囊' },
   { id: 'cultivate', label: 'Tu Luyện', glyph: '修' },
   { id: 'skills', label: 'Kỹ Năng', glyph: '技' },
+  { id: 'dungeon', label: 'Phó Bản', glyph: '秘' },
   { id: 'quests', label: 'Nhiệm Vụ', glyph: '任' },
   { id: 'shop', label: 'Cửa Hàng', glyph: '商' },
   { id: 'settings', label: 'Cài Đặt', glyph: '設' },

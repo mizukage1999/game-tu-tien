@@ -31,7 +31,9 @@ export interface MapDef {
   zones: ZoneDef[];
   portals: PortalDef[];
   playerSpawn: [number, number];
-  ambient: 'petals' | 'fireflies';
+  ambient: 'petals' | 'fireflies' | 'snow' | 'embers';
+  /** Set on dungeon maps: the dungeon id plus where waves, the boss and the exit gate appear. */
+  arena?: { dungeon: string; spawns: [number, number][]; boss: [number, number]; exit: [number, number, number, number] };
 }
 
 const BLOCKING: Partial<Record<Terrain, true>> = { wall: true, water: true };

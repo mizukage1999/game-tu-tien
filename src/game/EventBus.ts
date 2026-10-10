@@ -7,6 +7,8 @@ export interface BusEvents {
   'cmd:meditate': void;
   'cmd:target': void;
   'cmd:respawnMap': void;
+  'cmd:enterDungeon': string;
+  'cmd:leaveDungeon': void;
 }
 
 type Handler<T> = (payload: T) => void;

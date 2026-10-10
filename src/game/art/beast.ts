@@ -29,6 +29,24 @@ export const BEAST_PALETTES: Record<string, BeastPalette> = {
     eye: '#d68a00',
     ear: '#ffb47a',
   },
+  beast_frost_king: {
+    fur: '#e9f6ff',
+    furShade: '#8fb4dc',
+    marking: '#2f6cff',
+    flame: '#7ae6ff',
+    flameCore: '#ffffff',
+    eye: '#ff3b5c',
+    ear: '#6fb8ff',
+  },
+  beast_fire_king: {
+    fur: '#3a2230',
+    furShade: '#1c0f18',
+    marking: '#ffb000',
+    flame: '#ff4a12',
+    flameCore: '#ffe36e',
+    eye: '#ffdd33',
+    ear: '#ff6a2a',
+  },
 };
 
 export interface BeastPose {

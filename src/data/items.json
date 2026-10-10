@@ -25,5 +25,11 @@
     "color": "#d9e1ea",
     "bonus": { "atk": 8, "def": 4 },
     "desc": "Nhẫn bạc khắc phù văn. Công +8, Thủ +4."
+  },
+  "kiem_pho": {
+    "name": "Kiếm Phổ Tàn Trang",
+    "kind": "material",
+    "color": "#ffd27a",
+    "desc": "Trang sách cổ ghi chép tâm pháp. Cần để nâng kỹ năng từ cấp 5 trở lên. Rơi nhiều trong phó bản."
   }
 }

@@ -74,5 +74,23 @@
     "turnIn": "an_si",
     "objectives": [{ "type": "meditate", "zone": "linh_tuyen", "count": 15 }],
     "rewards": { "exp": 500, "linhKhi": 200 }
+  },
+  "side_4": {
+    "kind": "side",
+    "name": "Rèn Luyện Kiếm Pháp",
+    "desc": "Sư huynh khuyên: mở bảng Kỹ Năng và nâng cấp kỹ năng 3 lần.",
+    "giver": "su_huynh",
+    "turnIn": "su_huynh",
+    "objectives": [{ "type": "upgradeSkill", "count": 3 }],
+    "rewards": { "exp": 200, "items": { "linh_thach": 3 } }
+  },
+  "side_5": {
+    "kind": "side",
+    "name": "Bí Cảnh Băng Tuyết",
+    "desc": "Lục Trần sư huynh muốn con thử sức trong phó bản Băng Tuyết Động (cần Lv 5).",
+    "giver": "su_huynh",
+    "turnIn": "su_huynh",
+    "objectives": [{ "type": "clearDungeon", "dungeon": "bang_tuyet_dong", "count": 1 }],
+    "rewards": { "exp": 800, "items": { "kiem_pho": 2 } }
   }
 }

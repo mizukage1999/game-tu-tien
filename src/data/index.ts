@@ -4,6 +4,7 @@ import skillsJson from './skills.json';
 import realmsJson from './realms.json';
 import questsJson from './quests.json';
 import npcsJson from './npcs.json';
+import dungeonsJson from './dungeons.json';
 
 export interface LootEntry {
   item: string;
@@ -27,6 +28,16 @@ export interface MonsterDef {
   exp: number;
   respawnMs: number;
   loot: LootEntry[];
+  scale?: number;
+  boss?: BossDef;
+}
+
+export interface BossDef {
+  slamInterval: number;
+  slamWindup: number;
+  slamRadius: number;
+  slamMul: number;
+  summon?: { type: string; count: number; atHpPct: number };
 }
 
 export interface ItemDef {
@@ -50,6 +61,37 @@ export interface SkillDef {
   range: number;
   arc: number;
   desc: string;
+  /** Fractional change per skill level above 1 (e.g. multiplier 0.1 = +10%/level). */
+  growth: { multiplier?: number; cooldown?: number; range?: number };
+  /** Extra effect unlocked at skill level 5. */
+  bonus: SkillBonus;
+}
+
+export interface SkillBonus {
+  desc: string;
+  finisherMul?: number;
+  echo?: number;
+  extraSwords?: number;
+  slowMs?: number;
+  invulnMs?: number;
+}
+
+export interface WaveSpawn {
+  type: string;
+  count: number;
+}
+
+export interface DungeonDef {
+  name: string;
+  map: string;
+  desc: string;
+  minLevel: number;
+  attemptsPerDay: number;
+  timeLimitSec: number;
+  waves: WaveSpawn[][];
+  boss: string;
+  rewards: QuestRewards;
+  firstClear: QuestRewards;
 }
 
 export interface RealmDef {
@@ -66,7 +108,9 @@ export type Objective =
   | { type: 'talk'; npc: string; count: number }
   | { type: 'reachLevel'; count: number }
   | { type: 'enterZone'; zone: string; count: number }
-  | { type: 'meditate'; zone: string; count: number };
+  | { type: 'meditate'; zone: string; count: number }
+  | { type: 'upgradeSkill'; count: number }
+  | { type: 'clearDungeon'; dungeon: string; count: number };
 
 export interface QuestRewards {
   exp?: number;
@@ -91,6 +135,7 @@ export interface NpcDef {
   title: string;
   art: string;
   lines: string[];
+  dungeon?: boolean;
   shop?: { item: string; qty: number; price: Record<string, number> }[];
 }
 
@@ -100,10 +145,12 @@ export const SKILLS = skillsJson as unknown as Record<SkillId, SkillDef>;
 export const REALMS = realmsJson as unknown as RealmDef[];
 export const QUESTS = questsJson as unknown as Record<string, QuestDef>;
 export const NPCS = npcsJson as unknown as Record<string, NpcDef>;
+export const DUNGEONS = dungeonsJson as unknown as Record<string, DungeonDef>;
 
 export const ZONE_NAMES: Record<string, string> = {
   linh_dai: 'Linh Đài',
   linh_tuyen: 'Linh Tuyền',
   dai_thua_vien: 'Đại Thừa Viện',
   linh_thu_lam: 'Linh Thú Lâm',
+  ...Object.fromEntries(Object.entries(DUNGEONS).map(([id, d]) => [id, d.name])),
 };

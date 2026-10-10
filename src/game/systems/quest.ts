@@ -15,7 +15,9 @@ export type GameEvent =
   | { type: 'talk'; npc: string }
   | { type: 'level'; level: number }
   | { type: 'enterZone'; zone: string }
-  | { type: 'meditate'; zone: string | null; seconds: number };
+  | { type: 'meditate'; zone: string | null; seconds: number }
+  | { type: 'skillUpgrade'; skill: string }
+  | { type: 'dungeonClear'; dungeon: string };
 
 export interface QuestContext {
   level: number;
@@ -60,6 +62,10 @@ function objectiveGain(obj: Objective, ev: GameEvent): number | 'set' | 0 {
       return ev.type === 'meditate' && ev.zone === obj.zone ? ev.seconds : 0;
     case 'reachLevel':
       return ev.type === 'level' ? 'set' : 0;
+    case 'upgradeSkill':
+      return ev.type === 'skillUpgrade' ? 1 : 0;
+    case 'clearDungeon':
+      return ev.type === 'dungeonClear' && ev.dungeon === obj.dungeon ? 1 : 0;
   }
 }
 
@@ -149,5 +155,9 @@ export function objectiveText(
       return `Đến ${names.zone(obj.zone)}`;
     case 'meditate':
       return `Tọa thiền tại ${names.zone(obj.zone)} (giây)`;
+    case 'upgradeSkill':
+      return 'Nâng cấp kỹ năng';
+    case 'clearDungeon':
+      return `Vượt phó bản ${names.zone(obj.dungeon)}`;
   }
 }

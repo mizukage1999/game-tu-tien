@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { ITEMS, SKILLS, type SkillId } from '../../data';
-import { gameStore, itemName, type TargetInfo } from '../../store/gameStore';
+import { DUNGEONS, ITEMS, MONSTERS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
+import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { TERRAIN, TILE } from '../art/tiles';
 import { EventBus } from '../EventBus';
 import { Player } from '../entities/Player';
@@ -14,6 +14,7 @@ import { getMap } from '../maps';
 import type { MapDef, PortalDef } from '../maps/MapBuilder';
 import { computeDamage, inAttackArc } from '../systems/combat';
 import { meditateGain, zoneAt, type ZoneDef } from '../systems/cultivation';
+import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
 import { rollLoot } from '../systems/loot';
 import { saveGame } from '../systems/save';
 import type { Vec2 } from '../types';
@@ -31,6 +32,8 @@ const WORLD_CHAT = [
   'Tiêu Dao: Vừa đột phá Luyện Khí Trung Kỳ, đa tạ sư huynh chỉ điểm!',
   'Mộ Dung Tuyết: Bán Linh Thạch giá hữu nghị...',
   'Thương Hội: Tiền Đa Bảo có Hồi Xuân Đan, chỉ 2 Linh Thạch một viên.',
+  'Hàn Lập: Băng Tuyết Động rơi Kiếm Phổ Tàn Trang, nâng kỹ năng lên cấp 5 mạnh hẳn!',
+  'Vương Lâm: Cửu Vĩ Hỏa Hồ ở Hỏa Diễm Cốc dậm đất đau quá, nhớ né vòng đỏ.',
 ];
 
 const hash = (x: number, y: number) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
@@ -44,6 +47,7 @@ export class WorldScene extends Phaser.Scene {
   damageText!: DamageText;
   vfx!: SkillVfx;
   target: Monster | null = null;
+  run: DungeonRun | null = null;
 
   private mapId = 'dai_thua_vien';
   private spawnData: WorldData = {};
@@ -67,6 +71,7 @@ export class WorldScene extends Phaser.Scene {
     this.monsters = [];
     this.npcs = [];
     this.target = null;
+    this.run = null;
     this.currentZone = null;
     this.transitioning = false;
     this.cleanups = [];
@@ -126,12 +131,18 @@ export class WorldScene extends Phaser.Scene {
     this.bindStore();
 
     const s = gameStore.getState();
-    s.patch({ mapId: map.id, zone: null, target: null, nearbyNpc: null, spawnPos: null });
+    s.patch({ mapId: map.id, zone: null, target: null, nearbyNpc: null, spawnPos: null, dungeon: null, dungeonResult: null });
     s.addLog(`Tiến vào ${map.name}`);
     s.toast(map.name, 'info');
     s.questEvent({ type: 'enterZone', zone: map.id });
-    if (!s.quests.main_0 || s.quests.main_0.status === 'active') {
-      s.addLog('Hãy đến gặp Vân Hạc Trưởng Lão ở phía bắc (phím E để trò chuyện).');
+    if (map.arena) {
+      this.run = startRun(map.arena.dungeon, DUNGEONS[map.arena.dungeon]);
+      s.addLog(`Tiêu diệt ${DUNGEONS[map.arena.dungeon].waves.length} đợt quái và thủ lĩnh trước khi hết giờ!`);
+    } else {
+      if (s.dungeonReturn) s.patch({ dungeonReturn: null });
+      if (!s.quests.main_0 || s.quests.main_0.status === 'active') {
+        s.addLog('Hãy đến gặp Vân Hạc Trưởng Lão ở phía bắc (phím E để trò chuyện).');
+      }
     }
     this.save();
 
@@ -207,9 +218,9 @@ export class WorldScene extends Phaser.Scene {
           ease: 'Sine.InOut',
         });
       }
-      if (d.glow === 'warm') {
+      if (d.glow) {
         const g = this.add
-          .image(px, py - 58, 'glow_warm')
+          .image(px, py - 58, d.glow === 'warm' ? 'glow_warm' : 'glow_cold')
           .setBlendMode(Phaser.BlendModes.ADD)
           .setAlpha(0.65)
           .setScale(0.7)
@@ -240,27 +251,31 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildPortals(map: MapDef) {
-    for (const p of map.portals) {
-      const [x, y, w, h] = p.rect;
-      const cx = (x + w / 2) * TILE;
-      const cy = (y + h / 2) * TILE;
-      const img = this.add.image(cx, cy, 'portal').setBlendMode(Phaser.BlendModes.ADD).setScale(1.1).setDepth(cy);
-      this.tweens.add({ targets: img, angle: 360, duration: 3000, repeat: -1 });
-      this.add
-        .text(cx + (x === 0 ? 40 : -40), cy - 70, `${x === 0 ? '◀' : '▶'} ${p.label}`, {
-          fontFamily: '"Segoe UI", Tahoma, sans-serif',
-          fontSize: '14px',
-          fontStyle: 'bold',
-          color: '#bfefff',
-          stroke: '#06223a',
-          strokeThickness: 4,
-        })
-        .setOrigin(0.5)
-        .setDepth(90000);
-      const zone = this.add.zone(cx, cy, w * TILE, h * TILE);
-      this.physics.add.existing(zone, true);
-      this.physics.add.overlap(this.player, zone, () => this.transition(p));
-    }
+    for (const p of map.portals) this.addPortal(p);
+  }
+
+  private addPortal(p: PortalDef) {
+    const [x, y, w, h] = p.rect;
+    const cx = (x + w / 2) * TILE;
+    const cy = (y + h / 2) * TILE;
+    const side = x === 0 ? -1 : x + w >= this.map.width ? 1 : 0;
+    const img = this.add.image(cx, cy, 'portal').setBlendMode(Phaser.BlendModes.ADD).setScale(1.1).setDepth(cy);
+    this.tweens.add({ targets: img, angle: 360, duration: 3000, repeat: -1 });
+    this.add
+      .text(cx - side * 40, cy - 70, `${side < 0 ? '◀ ' : side > 0 ? '▶ ' : ''}${p.label}`, {
+        fontFamily: '"Segoe UI", Tahoma, sans-serif',
+        fontSize: '14px',
+        fontStyle: 'bold',
+        color: '#bfefff',
+        stroke: '#06223a',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setDepth(90000);
+    const zone = this.add.zone(cx, cy, w * TILE, h * TILE);
+    this.physics.add.existing(zone, true);
+    this.physics.add.overlap(this.player, zone, () => this.transition(p));
+    return img;
   }
 
   private buildAmbient(map: MapDef) {
@@ -278,6 +293,22 @@ export class WorldScene extends Phaser.Scene {
       });
       em.setScrollFactor(0).setDepth(95000);
       em.fastForward(8000);
+    } else if (map.ambient === 'snow' || map.ambient === 'embers') {
+      const snow = map.ambient === 'snow';
+      const em = this.add.particles(0, 0, 'fx_dot', {
+        x: { min: -100, max: 2400 },
+        y: snow ? -20 : { min: 0, max: 1400 },
+        speedY: snow ? { min: 30, max: 70 } : { min: -60, max: -20 },
+        speedX: { min: -25, max: 25 },
+        scale: snow ? { min: 0.4, max: 0.9 } : { start: 0.7, end: 0 },
+        alpha: snow ? 0.85 : { start: 0.9, end: 0 },
+        tint: snow ? 0xffffff : [0xff8a3a, 0xffd36e, 0xff4a12],
+        lifespan: snow ? 14000 : 3500,
+        frequency: snow ? 90 : 60,
+        blendMode: snow ? Phaser.BlendModes.NORMAL : Phaser.BlendModes.ADD,
+      });
+      em.setScrollFactor(0).setDepth(95000);
+      em.fastForward(6000);
     } else {
       const em = this.add.particles(0, 0, 'fx_dot', {
         x: { min: 0, max: map.width * TILE },
@@ -341,6 +372,8 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:interact', () => this.interact()),
       EventBus.on('cmd:meditate', () => this.toggleMeditate()),
       EventBus.on('cmd:target', () => this.cycleTarget()),
+      EventBus.on('cmd:enterDungeon', (id: string) => this.enterDungeon(id)),
+      EventBus.on('cmd:leaveDungeon', () => this.leaveDungeon()),
     );
   }
 
@@ -361,6 +394,10 @@ export class WorldScene extends Phaser.Scene {
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
     for (const m of this.monsters) m.update(dt, targetable);
     for (const l of this.loot.getChildren() as LootDrop[]) l.tick(dt, this.player.feet);
+    if (this.run && this.map.arena) {
+      const alive = this.monsters.reduce((n, m) => n + (m.alive ? 1 : 0), 0);
+      for (const ev of tickRun(this.run, DUNGEONS[this.run.id], dt, alive)) this.onRunEvent(ev);
+    }
 
     if (this.target?.alive) {
       this.targetRing.setVisible(true).setPosition(this.target.x, this.target.y - 2);
@@ -443,6 +480,22 @@ export class WorldScene extends Phaser.Scene {
     if (nearby !== s.nearbyNpc) patch.nearbyNpc = nearby;
     if (!nearby && s.dialogNpc) patch.dialogNpc = null;
 
+    if (this.run) {
+      const def = DUNGEONS[this.run.id];
+      const boss = this.monsters.find((m) => m.def.boss && m.alive);
+      const hud: DungeonHud = {
+        id: this.run.id,
+        name: def.name,
+        phase: this.run.phase,
+        wave: Math.max(0, this.run.wave + 1),
+        waves: def.waves.length,
+        timeLeft: Math.ceil(this.run.timeLeft / 1000),
+        remaining: this.monsters.filter((m) => m.alive).length,
+        boss: boss ? { name: boss.def.name, hp: Math.ceil(boss.hp), maxHp: boss.def.hp } : null,
+      };
+      if (JSON.stringify(hud) !== JSON.stringify(s.dungeon)) patch.dungeon = hud;
+    }
+
     patch.minimap = {
       player: { x: p.x, y: p.y },
       monsters: this.monsters.filter((m) => m.alive).map((m) => ({ x: m.x, y: m.y })),
@@ -471,7 +524,11 @@ export class WorldScene extends Phaser.Scene {
 
   save() {
     const s = gameStore.getState();
-    saveGame({ player: s.player, quests: s.quests, mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } });
+    // a reload never resumes inside a dungeon: progress is kept, the player wakes up where they entered
+    const where = this.map.arena
+      ? (s.dungeonReturn ?? { mapId: 'dai_thua_vien', pos: null })
+      : { mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } };
+    saveGame({ player: s.player, quests: s.quests, mapId: where.mapId, pos: where.pos });
   }
 
   // ---- interactions ------------------------------------------------------
@@ -497,14 +554,139 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private transition(p: PortalDef) {
-    if (this.transitioning || this.player.life.status !== 'alive') return;
+    if (this.player.life.status !== 'alive') return;
+    if (this.map.arena) return this.leaveDungeon();
+    this.goTo({ mapId: p.to, spawn: p.spawn });
+  }
+
+  private goTo(data: WorldData) {
+    if (this.transitioning) return;
     this.transitioning = true;
-    this.save();
-    gameStore.getState().patch({ dialogNpc: null });
+    if (!this.map.arena) this.save();
+    gameStore.getState().patch({ dialogNpc: null, menu: null });
     this.cameras.main.fadeOut(350, 0, 0, 0);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.restart({ mapId: p.to, spawn: p.spawn });
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.restart(data));
+  }
+
+  private enterDungeon(id: string) {
+    const def = DUNGEONS[id];
+    if (!def || this.transitioning || this.map.arena) return;
+    if (this.player.life.status !== 'alive') return;
+    const s = gameStore.getState();
+    if (!s.beginDungeon(id)) return;
+    this.player.stopMeditate();
+    s.patch({ dungeonReturn: { mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } } });
+    this.goTo({ mapId: def.map });
+  }
+
+  private leaveDungeon() {
+    if (!this.map.arena || this.transitioning) return;
+    const s = gameStore.getState();
+    if (this.run && !runOver(this.run)) s.addLog(`Rời khỏi ${DUNGEONS[this.run.id].name} giữa chừng.`);
+    const back = s.dungeonReturn ?? { mapId: 'dai_thua_vien', pos: null };
+    this.goTo({ mapId: back.mapId, pos: back.pos });
+  }
+
+  // ---- dungeon -------------------------------------------------------------
+
+  private onRunEvent(ev: RunEvent) {
+    const s = gameStore.getState();
+    const arena = this.map.arena!;
+    const run = this.run!;
+    const def = DUNGEONS[run.id];
+    switch (ev.type) {
+      case 'spawnWave': {
+        s.toast(`Đợt ${ev.wave + 1}/${def.waves.length}`, 'info');
+        this.spawnWave(ev.spawns, arena.spawns);
+        break;
+      }
+      case 'spawnBoss': {
+        const name = MONSTERS[ev.boss].name;
+        s.toast(`Thủ lĩnh ${name} xuất hiện!`, 'warn');
+        s.addLog(`Thủ lĩnh ${name} xuất hiện! Né vòng đỏ dưới đất.`, 'combat');
+        this.cameras.main.shake(400, 0.008);
+        const [bx, by] = arena.boss;
+        const boss = this.spawnMonster(ev.boss, bx * TILE + TILE / 2, by * TILE + TILE / 2);
+        this.setTarget(boss);
+        break;
+      }
+      case 'cleared': {
+        s.finishDungeon(run.id, true, run.elapsed);
+        this.vfx.ascend(this.player, true);
+        this.cameras.main.flash(400, 255, 230, 160);
+        this.openExit();
+        break;
+      }
+      case 'failed': {
+        for (const m of this.monsters) m.vanish();
+        s.finishDungeon(run.id, false, run.elapsed);
+        this.openExit();
+        break;
+      }
+    }
+  }
+
+  private spawnWave(spawns: WaveSpawn[], points: [number, number][]) {
+    let i = Math.floor(Math.random() * points.length);
+    for (const { type, count } of spawns) {
+      for (let k = 0; k < count; k++) {
+        const [tx, ty] = points[i++ % points.length];
+        const jitter = () => (Math.random() - 0.5) * TILE;
+        this.spawnMonster(type, tx * TILE + TILE / 2 + jitter(), ty * TILE + TILE / 2 + jitter());
+      }
+    }
+  }
+
+  private spawnMonster(type: string, x: number, y: number) {
+    const m = new Monster(this, type, x, y, { arena: true });
+    this.monsters.push(m);
+    const ring = this.add.image(x, y, 'portal').setBlendMode(Phaser.BlendModes.ADD).setScale(0.2).setDepth(y - 1);
+    this.tweens.add({ targets: ring, scale: m.def.boss ? 2.2 : 1, alpha: 0, angle: 180, duration: 700, onComplete: () => ring.destroy() });
+    m.setAlpha(0);
+    this.tweens.add({ targets: m, alpha: 1, duration: 450 });
+    return m;
+  }
+
+  private openExit() {
+    const [x, y, w, h] = this.map.arena!.exit;
+    const img = this.addPortal({ rect: [x, y, w, h], to: '', spawn: [0, 0], label: 'Rời phó bản' });
+    img.setScale(0);
+    this.tweens.add({ targets: img, scale: 1.1, duration: 500, ease: 'Back.Out' });
+  }
+
+  /** Telegraphed area attack around a boss; damage lands after `windup` ms if the player is still inside. */
+  bossSlam(m: Monster, radius: number, windup: number, mul: number) {
+    const cx = m.x;
+    const cy = m.y;
+    const zone = this.add.graphics().setDepth(-60);
+    zone.fillStyle(0xff3b2f, 0.16).fillEllipse(cx, cy, radius * 2, radius * 1.3);
+    zone.lineStyle(3, 0xff5a3a, 0.9).strokeEllipse(cx, cy, radius * 2, radius * 1.3);
+    const fill = this.add.graphics().setDepth(-59).setPosition(cx, cy).setScale(0);
+    fill.fillStyle(0xff5a3a, 0.35).fillEllipse(0, 0, radius * 2, radius * 1.3);
+    this.tweens.add({ targets: fill, scale: 1, duration: windup, ease: 'Sine.In' });
+    this.time.delayedCall(windup, () => {
+      zone.destroy();
+      fill.destroy();
+      if (!m.alive) return;
+      this.vfx.frostNova({ x: cx, y: cy }, radius);
+      impact(this, cx, cy - 20, 0xffb07a, true);
+      this.cameras.main.shake(220, 0.012);
+      const p = this.player;
+      const dx = p.x - cx;
+      const dy = (p.y - cy) / 0.65;
+      if (p.life.status !== 'alive' || Math.hypot(dx, dy) > radius + 12) return;
+      const { stats } = gameStore.getState();
+      const r = computeDamage({ atk: m.def.atk, def: stats.def, multiplier: mul, critRate: 0, critMul: 1 });
+      p.takeHit(r.amount, true, { x: cx, y: cy });
     });
+  }
+
+  summonAdds(m: Monster, type: string, count: number) {
+    gameStore.getState().toast(`${m.def.name} triệu hồi thuộc hạ!`, 'warn');
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + Math.random();
+      this.spawnMonster(type, m.x + Math.cos(a) * 110, m.y + Math.sin(a) * 70);
+    }
   }
 
   // ---- targeting ---------------------------------------------------------
@@ -574,17 +756,18 @@ export class WorldScene extends Phaser.Scene {
   }
 
   playerMeleeHit(combo: number) {
-    const sk = SKILLS.basic;
+    const sk = playerSkill('basic');
     const p = this.player;
     const f = p.facing;
     this.vfx.swing(p.feet, Math.atan2(f.y, f.x), combo);
     const finisher = combo === 3;
     const hits = this.monstersInArc(sk.range + (finisher ? 16 : 0), finisher ? 80 : sk.arc);
-    for (const m of hits) this.damageMonster(m, sk.multiplier * (finisher ? 1.5 : 1));
+    const finisherMul = sk.active?.finisherMul ?? 1.5;
+    for (const m of hits) this.damageMonster(m, sk.multiplier * (finisher ? finisherMul : 1));
   }
 
   executeSkill(id: SkillId, target: Monster | null) {
-    const sk = SKILLS[id];
+    const sk = playerSkill(id);
     const p = this.player;
     const f = p.facing;
     const ang = Math.atan2(f.y, f.x);
@@ -594,6 +777,16 @@ export class WorldScene extends Phaser.Scene {
         this.time.delayedCall(90, () => {
           for (const m of this.monstersInArc(sk.range, sk.arc)) this.damageMonster(m, sk.multiplier);
         });
+        const echo = sk.active?.echo;
+        if (echo) {
+          this.time.delayedCall(320, () => {
+            if (p.life.status !== 'alive') return;
+            this.vfx.crescent(p.feet, ang, sk.range * 1.1);
+            this.time.delayedCall(90, () => {
+              for (const m of this.monstersInArc(sk.range * 1.1, sk.arc)) this.damageMonster(m, sk.multiplier * echo);
+            });
+          });
+        }
         break;
       }
       case 'phi_kiem': {
@@ -610,12 +803,28 @@ export class WorldScene extends Phaser.Scene {
             if (d < 34 || m === target) this.damageMonster(m, sk.multiplier);
           }
         });
+        const extra = sk.active?.extraSwords ?? 0;
+        if (extra > 0) {
+          const others = this.monsters
+            .filter((m) => m.alive && m !== target && m.distanceTo(p) <= sk.range)
+            .sort((a, b) => a.distanceTo(p) - b.distanceTo(p))
+            .slice(0, extra);
+          others.forEach((m, i) => {
+            this.time.delayedCall(80 * (i + 1), () => {
+              if (!m.alive) return;
+              this.vfx.flyingSword({ x: p.x, y: p.y }, { x: m.x, y: m.y }, () => {
+                if (m.alive) this.damageMonster(m, sk.multiplier * 0.7);
+              });
+            });
+          });
+        }
         break;
       }
       case 'han_bang_tran': {
         this.vfx.frostNova(p.feet, sk.range);
+        const slowMs = sk.active?.slowMs ?? 3000;
         for (const m of this.monsters) {
-          if (m.alive && m.distanceTo(p) <= sk.range) this.damageMonster(m, sk.multiplier, 3000);
+          if (m.alive && m.distanceTo(p) <= sk.range) this.damageMonster(m, sk.multiplier, slowMs);
         }
         break;
       }
@@ -639,6 +848,7 @@ export class WorldScene extends Phaser.Scene {
   onMonsterKilled(m: Monster) {
     const s = gameStore.getState();
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
+    if (m.def.boss) this.cameras.main.shake(500, 0.012);
     this.damageText.show(m.x, m.y - 86, `+${m.def.exp} EXP`, 'info');
     s.gainExp(m.def.exp);
     s.questEvent({ type: 'kill', target: m.type });
