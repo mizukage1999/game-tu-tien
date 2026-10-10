@@ -1854,3 +1854,110 @@ kbd {
     min-height: 32px;
   }
 }
+
+/* Phone only. Desktop keeps the joystick and the original character frame. */
+.hud.phone .hud-top-left {
+  width: min(168px, 34vw);
+}
+
+.hud.phone .status {
+  gap: 6px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 28px 10px 10px 28px;
+}
+
+.hud.phone .avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.hud.phone .avatar img {
+  border-width: 2px;
+}
+
+.hud.phone .avatar-level {
+  min-width: 16px;
+  height: 16px;
+  font-size: 9px;
+}
+
+.hud.phone .status-name {
+  font-size: 13px;
+}
+
+.hud.phone .status-realm {
+  font-size: 10px;
+}
+
+.hud.phone .status .bar {
+  height: 11px;
+}
+
+.hud.phone .status .bar-text {
+  font-size: 9px;
+  line-height: 11px;
+}
+
+.hud.phone .status-res {
+  gap: 6px;
+  font-size: 10px;
+}
+
+.hud.phone .status-res img {
+  width: 12px;
+  height: 12px;
+}
+
+.hud.phone .joystick {
+  display: none;
+}
+
+.hud.phone .target-frame {
+  top: 102px;
+  left: 50%;
+  right: auto;
+  width: min(200px, 36vw);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.rotate-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  text-align: center;
+  pointer-events: auto;
+  background: rgba(8, 12, 24, 0.94);
+}
+
+.rotate-hint p {
+  margin: 0;
+  max-width: 260px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.rotate-glyph {
+  width: 78px;
+  height: 48px;
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  animation: rotate-tilt 1.4s ease-in-out infinite;
+}
+
+@keyframes rotate-tilt {
+  0%,
+  40% {
+    transform: rotate(0deg);
+  }
+  70%,
+  100% {
+    transform: rotate(90deg);
+  }
+}
