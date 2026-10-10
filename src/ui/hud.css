@@ -344,8 +344,6 @@ kbd {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-family: 'KaiTi', 'STKaiti', 'SimSun', serif;
-  font-size: 20px;
   color: #ffe6a6;
   background: radial-gradient(circle at 40% 35%, #3b4f86, #141b33 70%);
   border: 2px solid var(--gold);
@@ -359,9 +357,17 @@ kbd {
   box-shadow: 0 0 12px rgba(227, 189, 98, 0.8);
 }
 
+.menu-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
 .menu-label {
   font-size: 11px;
   font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
   text-shadow: 0 1px 2px #000, 0 0 4px #000;
 }
 
@@ -632,6 +638,16 @@ kbd {
 .chat-tabs button.active {
   color: #ffe6a6;
   border-bottom: 2px solid var(--gold);
+}
+
+.chat-toggle {
+  margin-left: auto;
+  flex: none;
+  width: 28px;
+  padding: 2px 0;
+  color: var(--gold);
+  font-size: 16px;
+  line-height: 1;
 }
 
 .chat-list {
@@ -1651,18 +1667,48 @@ kbd {
 
 @media (max-width: 900px) {
   .hud-top-left {
-    width: 240px;
-    transform: scale(0.85);
-    transform-origin: top left;
+    width: min(250px, 54vw);
   }
 
   .hud-top-right {
-    transform: scale(0.8);
-    transform-origin: top right;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .top-menu {
+    flex-wrap: nowrap;
+  }
+
+  .menu-btn {
+    width: 48px;
+  }
+
+  .menu-glyph {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-icon {
+    width: 18px;
+    height: 18px;
   }
 
   .menu-label {
-    display: none;
+    font-size: 10px;
+  }
+
+  .minimap {
+    width: 120px;
+  }
+
+  .minimap-canvas {
+    width: 108px;
+    height: 108px;
+  }
+
+  .quest-tabs .quest-toggle {
+    flex-basis: 44px;
+    min-height: 36px;
   }
 
   .skill-bar {
@@ -1673,5 +1719,99 @@ kbd {
   .hud-bottom-center {
     transform: translateX(-50%) scale(0.85);
     transform-origin: bottom center;
+  }
+}
+
+@media (max-width: 520px) {
+  .hud-top-left {
+    width: min(196px, 50vw);
+  }
+
+  .hud-top-right {
+    flex-direction: column;
+    align-items: flex-end;
+    width: min(200px, 52vw);
+    gap: 6px;
+  }
+
+  .top-menu {
+    order: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 2px;
+  }
+
+  .minimap {
+    order: 1;
+    width: 100%;
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .status-realm {
+    overflow: hidden;
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .top-menu {
+    gap: 2px;
+  }
+
+  .menu-btn {
+    width: 44px;
+  }
+
+  .menu-glyph {
+    width: 28px;
+    height: 28px;
+  }
+
+  .menu-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .menu-label {
+    font-size: 8px;
+  }
+
+  .minimap,
+  .minimap-title {
+    width: 100%;
+  }
+
+  .minimap-canvas {
+    width: 80px;
+    height: 80px;
+  }
+
+  .skill-bar {
+    transform: scale(0.8);
+    transform-origin: bottom right;
+  }
+
+  .hud-bottom-center {
+    left: 10px;
+    bottom: 200px;
+    width: min(240px, 62vw);
+    transform: none;
+    align-items: stretch;
+  }
+
+  .chat-list {
+    height: 72px;
+  }
+
+  .chat-toggle {
+    order: -1;
+    margin-left: 0;
+    width: 32px;
+    min-height: 32px;
   }
 }
