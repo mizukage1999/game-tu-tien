@@ -30,6 +30,22 @@ export function usePortrait() {
  * `turned` is the portrait phone case: the page is rotated 90° clockwise, so a finger
  * moving down the phone is "right" in the game.
  */
+/**
+ * Page point → game pixels while `.app` is rotated 90° clockwise.
+ * Layout +x runs down the phone; layout +y runs from the right edge toward the left.
+ */
+export function screenToTurnedGame(
+  pageX: number,
+  pageY: number,
+  bounds: { x: number; y: number; width: number; height: number },
+  gameWidth: number,
+  gameHeight: number,
+) {
+  const x = bounds.height > 0 ? ((pageY - bounds.y) * gameWidth) / bounds.height : 0;
+  const y = bounds.width > 0 ? ((bounds.x + bounds.width - pageX) * gameHeight) / bounds.width : 0;
+  return { x, y };
+}
+
 export function swipeVector(dx: number, dy: number, turned: boolean) {
   const lx = turned ? dy : dx;
   const ly = turned ? -dx : dy;

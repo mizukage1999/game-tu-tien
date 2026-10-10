@@ -12,7 +12,7 @@ import { deserialize, serialize } from './save';
 import { DUNGEONS, EQUIP_SLOTS, equipmentId, ITEMS, MONSTERS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
 import { getMap } from '../maps';
 import { DIFFICULTIES, DUNGEON_TIERS, FIELD_BANDS, canEnterField, dungeonId, expForMonsterLevel, fieldForLevel } from './scale';
-import { swipeVector } from '../../ui/TouchPlay';
+import { screenToTurnedGame, swipeVector } from '../../ui/TouchPlay';
 
 const fixed = (...values: number[]) => {
   let i = 0;
@@ -246,6 +246,15 @@ describe('phone swipe', () => {
     const flat = swipeVector(64, 0, false);
     expect(flat.x).toBeGreaterThan(0.9);
     expect(Math.abs(flat.y)).toBeLessThan(0.01);
+  });
+
+  it('maps a portrait tap through the 90° turn onto the landscape game', () => {
+    const bounds = { x: 0, y: 0, width: 390, height: 844 };
+    const center = screenToTurnedGame(195, 422, bounds, 844, 390);
+    expect(center.x).toBeCloseTo(422, 0);
+    expect(center.y).toBeCloseTo(195, 0);
+    const down = screenToTurnedGame(195, 500, bounds, 844, 390);
+    expect(down.x).toBeGreaterThan(center.x);
   });
 });
 

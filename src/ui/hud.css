@@ -1932,6 +1932,12 @@ kbd {
   transform: rotate(90deg);
   transform-origin: top left;
   overflow: hidden;
+  background: #18202e;
+}
+
+.app.turned .game-host canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @supports (width: 100dvh) {
