@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { SkillId } from '../../data';
 import { gameStore, playerSkill } from '../../store/gameStore';
+import { playerArt } from '../systems/character';
 import { AnimationController } from '../anim/AnimationController';
 import { virtualInput } from '../EventBus';
 import { flash, knockback } from '../fx/HitEffect';
@@ -56,10 +57,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     x: number,
     y: number,
   ) {
-    super(world, x, y, 'player');
+    const art = playerArt(gameStore.getState().player.sex);
+    super(world, x, y, art);
     world.add.existing(this);
     world.physics.add.existing(this);
-    this.ctrl = new AnimationController(this, 'player');
+    this.ctrl = new AnimationController(this, art);
     const body = this.body as Phaser.Physics.Arcade.Body;
     const fw = this.ctrl.rig.frameWidth;
     const fh = this.ctrl.rig.frameHeight;

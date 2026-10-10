@@ -23,7 +23,7 @@ import {
   type GameEvent,
   type QuestLog,
 } from '../game/systems/quest';
-import { loadGame, type PlayerSave } from '../game/systems/save';
+import { loadGame, saveGame, type PlayerSave, type Sex } from '../game/systems/save';
 import type { LifeStatus } from '../game/systems/respawn';
 import type { Vec2 } from '../game/types';
 
@@ -133,10 +133,11 @@ export interface GameState {
 let uid = 1;
 const MAX_LOGS = 80;
 
-export function newPlayer(): PlayerSave {
+export function newPlayer(opts?: { name?: string; sex?: Sex }): PlayerSave {
   const stats = computeStats(1, 0, {});
   return {
-    name: 'Tuyết Kỳ',
+    name: opts?.name ?? 'Tuyết Kỳ',
+    sex: opts?.sex ?? 'female',
     level: 1,
     exp: 0,
     realmIndex: 0,
@@ -493,6 +494,25 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
   };
 });
+
+/** Writes the first save and replaces the placeholder hero. Call this before the world boots. */
+export function createCharacter(name: string, sex: Sex) {
+  const player = newPlayer({ name, sex });
+  const quests = initialQuests();
+  saveGame({ player, quests, mapId: 'dai_thua_vien', pos: null });
+  gameStore.setState({
+    player,
+    stats: computeStats(player.level, player.realmIndex, player.equipment),
+    quests,
+    mapId: 'dai_thua_vien',
+    spawnPos: null,
+    logs: [],
+    toasts: [],
+    dialogNpc: null,
+    menu: null,
+    status: 'alive',
+  });
+}
 
 /** The skill as the player currently has it, with level growth applied. */
 export function playerSkill(id: SkillId): EffectiveSkill {

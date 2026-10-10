@@ -7,8 +7,12 @@ import type { Vec2 } from '../types';
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
 
+export type Sex = 'female' | 'male';
+
 export interface PlayerSave {
   name: string;
+  /** Missing on saves from before character creation; those keep the original look. */
+  sex?: Sex;
   level: number;
   exp: number;
   realmIndex: number;
@@ -54,6 +58,7 @@ export function deserialize(raw: string | null): SaveData | null {
   try {
     const data = JSON.parse(raw) as SaveData;
     if (data.v !== SAVE_VERSION || !data.player || typeof data.player.level !== 'number') return null;
+    if (data.player.sex !== 'male' && data.player.sex !== 'female') data.player.sex = 'female';
     return data;
   } catch {
     return null;

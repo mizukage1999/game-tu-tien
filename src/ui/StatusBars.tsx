@@ -1,5 +1,6 @@
 import { useGame } from '../store/gameStore';
 import { realmFor } from '../game/systems/progression';
+import { playerArt } from '../game/systems/character';
 import { itemIconUrl, portraitUrl } from '../game/art/icons';
 
 function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'mp' }) {
@@ -14,8 +15,6 @@ function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'm
   );
 }
 
-const PORTRAIT_IMG = '/assets/ui/portrait.png';
-
 export function StatusBars() {
   const player = useGame((s) => s.player);
   const stats = useGame((s) => s.stats);
@@ -25,17 +24,7 @@ export function StatusBars() {
   return (
     <div className="status panel-glass">
       <div className={`avatar ${status === 'downed' ? 'avatar-down' : ''}`}>
-        <img
-          src={PORTRAIT_IMG}
-          alt=""
-          onError={(e) => {
-            const img = e.currentTarget;
-            if (!img.dataset.fallback) {
-              img.dataset.fallback = '1';
-              img.src = portraitUrl('player', 128);
-            }
-          }}
-        />
+        <img src={portraitUrl(playerArt(player.sex), 128)} alt="" />
         <span className="avatar-level">{player.level}</span>
       </div>
       <div className="status-info">

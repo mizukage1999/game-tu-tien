@@ -12,6 +12,7 @@ import { deserialize, serialize } from './save';
 import { DUNGEONS, EQUIP_SLOTS, equipmentId, ITEMS, MONSTERS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
 import { getMap } from '../maps';
 import { DIFFICULTIES, DUNGEON_TIERS, FIELD_BANDS, canEnterField, dungeonId, expForMonsterLevel, fieldForLevel } from './scale';
+import { normalizeName, playerArt } from './character';
 import { screenToTurnedGame, swipeVector } from '../../ui/TouchPlay';
 
 const fixed = (...values: number[]) => {
@@ -309,5 +310,21 @@ describe('save', () => {
     expect(deserialize(raw)?.player.level).toBe(2);
     expect(deserialize('{oops')).toBeNull();
     expect(deserialize(JSON.stringify({ v: 999 }))).toBeNull();
+    const old = deserialize(raw);
+    expect(old?.player.sex).toBe('female');
+  });
+});
+
+describe('character creation', () => {
+  it('keeps a trimmed name and rejects a blank one', () => {
+    expect(normalizeName('  Tuyết Kỳ  ')).toBe('Tuyết Kỳ');
+    expect(normalizeName('   ')).toBeNull();
+    expect(normalizeName('a'.repeat(17))).toBeNull();
+  });
+
+  it('gives the male figure its own sprite and leaves older saves on the original', () => {
+    expect(playerArt('male')).toBe('player_male');
+    expect(playerArt('female')).toBe('player');
+    expect(playerArt(undefined)).toBe('player');
   });
 });

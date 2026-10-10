@@ -42,6 +42,7 @@
   },
   "characters": {
     "player": { "rig": "humanoid", "palette": "player" },
+    "player_male": { "rig": "humanoid", "palette": "player_male" },
     "elder": { "rig": "npc", "palette": "elder" },
     "merchant": { "rig": "npc", "palette": "merchant" },
     "disciple": { "rig": "npc", "palette": "disciple" },
