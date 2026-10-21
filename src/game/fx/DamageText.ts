@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { iso } from '../art/iso';
 
 export type DamageKind = 'enemy' | 'crit' | 'player' | 'heal' | 'info';
 
@@ -32,8 +33,12 @@ export class DamageText {
     this.pool.push(t);
   }
 
-  show(x: number, y: number, text: string, kind: DamageKind) {
+  /** `x, y` arrive in map space; the number itself floats up the screen. */
+  show(mapX: number, mapY: number, text: string, kind: DamageKind) {
     const st = STYLES[kind];
+    const at = iso(mapX, mapY);
+    const x = at.x;
+    const y = at.y;
     const t = this.obtain();
     t.setText(text)
       .setFontSize(st.size)

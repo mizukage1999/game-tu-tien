@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { PreloadScene } from './scenes/PreloadScene';
 import { WorldScene } from './scenes/WorldScene';
@@ -73,6 +73,8 @@ export function saveNow() {
 
 export function PhaserGame() {
   const host = useRef<HTMLDivElement>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!host.current) return;
@@ -86,16 +88,36 @@ export function PhaserGame() {
       input: { activePointers: 3 },
       scene: [PreloadScene, WorldScene],
     });
+    const updateProgress = (progress: number) => setLoadingProgress(Math.round(progress * 100));
+    const assetsReady = () => setLoading(false);
+    game.events.on('assets-progress', updateProgress);
+    game.events.once('assets-ready', assetsReady);
+    if (game.scene.isActive('World')) assetsReady();
     fitTurnedCanvas(game);
     if (import.meta.env.DEV) Object.assign(window, { __game: game, __store: gameStore, __social: socialStore });
     const onUnload = () => saveNow();
     window.addEventListener('beforeunload', onUnload);
     return () => {
       window.removeEventListener('beforeunload', onUnload);
+      game?.events.off('assets-progress', updateProgress);
+      game?.events.off('assets-ready', assetsReady);
       game?.destroy(true);
       game = null;
     };
   }, []);
 
-  return <div ref={host} className="game-host" />;
+  return (
+    <>
+      <div ref={host} className="game-host" />
+      {loading && (
+        <div className="loading-overlay" role="status" aria-live="polite">
+          <img src="/assets/ui/ui-loading-orb.png" alt="" className="loading-orb" />
+          <div className="loading-track">
+            <span style={{ width: `${loadingProgress}%` }} />
+          </div>
+          <span>Đang tải... {loadingProgress}%</span>
+        </div>
+      )}
+    </>
+  );
 }

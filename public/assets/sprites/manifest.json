@@ -1,3 +1,19 @@
 {
-  "_comment": "Khai báo atlas thật ở đây để thay sprite tạo sẵn. Ví dụ: \"player\": { \"atlas\": \"player.png\", \"json\": \"player.json\" }. Tên frame: <anim>_<dir>_<index>, ví dụ run_side_0."
+  "_comment": "Khai báo atlas thật ở đây để thay sprite tạo sẵn. Ví dụ: \"player\": { \"atlas\": \"player.png\", \"json\": \"player.json\" }. Tên frame: <anim>_<dir>_<index>, ví dụ run_side_0.",
+  "player": {
+    "atlas": "li-mu-uyen.png",
+    "json": "li-mu-uyen.json"
+  },
+  "player_male": {
+    "atlas": "wang-lin.png",
+    "json": "wang-lin.json"
+  },
+  "skill_ice": {
+    "atlas": "skills-ice.png",
+    "json": "skills-ice.json"
+  },
+  "beast_snow": {
+    "atlas": "beast-snow.png",
+    "json": "beast-snow.json"
+  }
 }

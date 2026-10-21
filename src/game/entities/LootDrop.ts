@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ITEMS } from '../../data';
+import { iso } from '../art/iso';
 import { LOOT_LIFETIME_MS, MAGNET_RADIUS, PICKUP_RADIUS } from '../systems/loot';
 import type { Vec2 } from '../types';
 import type { WorldScene } from '../scenes/WorldScene';
@@ -8,6 +9,8 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
   ready = false;
   collected = false;
   private glow: Phaser.GameObjects.Image;
+  /** Drawn copy; the physics image stays hidden in map space. */
+  private art: Phaser.GameObjects.Image;
   private age = 0;
   private bobTween: Phaser.Tweens.Tween | null = null;
 
@@ -26,9 +29,12 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
     body.setAllowGravity(false);
     body.moves = false;
     this.setOrigin(0.5, 0.5).setScale(item === 'linh_khi' ? 0.85 : 0.9);
+    this.setVisible(false);
+    const spot = iso(from.x, from.y);
+    this.art = world.add.image(spot.x, spot.y, `loot_${item}`).setScale(this.scaleX);
     const color = Phaser.Display.Color.HexStringToColor(ITEMS[item]?.color ?? '#ffffff').color;
     this.glow = world.add
-      .image(from.x, from.y, 'fx_dot')
+      .image(spot.x, spot.y, 'fx_dot')
       .setBlendMode(Phaser.BlendModes.ADD)
       .setTint(color)
       .setScale(3)
@@ -60,8 +66,9 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
   tick(dt: number, player: Vec2) {
     if (this.collected) return;
     this.age += dt;
-    this.setDepth(this.y);
-    this.glow.setPosition(this.x, this.y + 2).setDepth(this.y - 1);
+    const spot = iso(this.x, this.y);
+    this.art.setPosition(spot.x, spot.y).setDepth(spot.y).setAlpha(this.alpha);
+    this.glow.setPosition(spot.x, spot.y + 2).setDepth(spot.y - 1);
     if (this.age > LOOT_LIFETIME_MS - 5000) this.setAlpha(Math.floor(this.age / 150) % 2 ? 0.3 : 1);
     if (this.age > LOOT_LIFETIME_MS) {
       this.destroy();
@@ -79,6 +86,7 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
   }
 
   destroy(fromScene?: boolean) {
+    this.art?.destroy();
     this.glow?.destroy();
     this.bobTween?.stop();
     super.destroy(fromScene);

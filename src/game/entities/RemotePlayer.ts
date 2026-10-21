@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { WorldScene } from '../scenes/WorldScene';
 import { AnimationController } from '../anim/AnimationController';
+import { iso } from '../art/iso';
 import { playerArt } from '../systems/character';
 import { stepToward, type RemotePlayerState } from '../../net/presence';
 import { socialStore } from '../../store/socialStore';
@@ -21,6 +22,7 @@ export class RemotePlayer {
   private label: Phaser.GameObjects.Text;
   private state: RemotePlayerState;
   private target: Vec2;
+  private map: Vec2;
   private tintTween?: Phaser.Tweens.Tween;
 
   constructor(
@@ -29,12 +31,14 @@ export class RemotePlayer {
   ) {
     this.state = state;
     this.target = { x: state.x, y: state.y };
+    this.map = { x: state.x, y: state.y };
     const art = playerArt(state.sex);
-    this.sprite = world.add.sprite(state.x, state.y, art);
+    const spot = iso(state.x, state.y);
+    this.sprite = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
     this.ctrl = new AnimationController(this.sprite, art);
-    this.shadow = world.add.image(state.x, state.y - 2, 'shadow').setDepth(-100);
+    this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     this.label = world.add
-      .text(state.x, state.y - 84, state.name, {
+      .text(spot.x, spot.y - 108, state.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: '12px',
         fontStyle: 'bold',
@@ -66,11 +70,12 @@ export class RemotePlayer {
   }
 
   update(dt: number) {
-    const p = stepToward({ x: this.sprite.x, y: this.sprite.y }, this.target, dt);
-    this.sprite.setPosition(p.x, p.y);
-    this.sprite.setDepth(p.y);
-    this.shadow.setPosition(p.x, p.y - 2);
-    this.label.setPosition(p.x, p.y - 84);
+    // Interpolation stays in map space; only the drawn position is projected.
+    this.map = stepToward(this.map, this.target, dt);
+    const spot = iso(this.map.x, this.map.y);
+    this.sprite.setPosition(spot.x, spot.y).setDepth(spot.y);
+    this.shadow.setPosition(spot.x, spot.y - 2);
+    this.label.setPosition(spot.x, spot.y - 108);
     this.ctrl.play(this.state.moving ? 'run' : 'idle', this.state.dir);
   }
 

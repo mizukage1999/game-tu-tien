@@ -1,6 +1,6 @@
-import { ITEMS, rarityOf, type EquipSlot } from '../../data';
+import { ITEMS, rarityOf, type EquipSlot, type SkillId } from '../../data';
 import { fillEllipse, linear, makeCanvas, radial, rgba, shade, type Ctx } from './canvas';
-import { drawPortrait, PALETTES } from './character';
+import { BASE_POSE, drawHuman, drawPortrait, PALETTES } from './character';
 
 function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
   const m = s / 2;
@@ -281,6 +281,33 @@ function drawSkill(ctx: Ctx, id: string, s: number) {
 }
 
 const cache = new Map<string, string>();
+export const ITEM_SPRITE_ASSETS: Record<string, string> = {
+  linh_thach: '/assets/ui/item-linh-thach.png',
+  linh_khi: '/assets/ui/item-linh-khi.png',
+  hoi_xuan_dan: '/assets/ui/item-hoi-xuan-dan.png',
+  nhan_bac: '/assets/ui/item-nhan-bac.png',
+  kiem_pho: '/assets/ui/item-kiem-pho.png',
+  equipment_weapon: '/assets/ui/item-equipment-weapon.png',
+  equipment_armor: '/assets/ui/item-equipment-armor.png',
+  equipment_helmet: '/assets/ui/item-equipment-helmet.png',
+  equipment_boots: '/assets/ui/item-equipment-boots.png',
+  equipment_ring: '/assets/ui/item-equipment-ring.png',
+  equipment_amulet: '/assets/ui/item-equipment-amulet.png',
+};
+
+export function itemSpriteTextureKey(id: string) {
+  const item = ITEMS[id];
+  const assetId = ITEM_SPRITE_ASSETS[id] ? id : item?.slot ? `equipment_${item.slot}` : undefined;
+  return assetId && ITEM_SPRITE_ASSETS[assetId] ? `item-sprite-${assetId}` : undefined;
+}
+
+const UI_SKILL_ICONS: Record<SkillId, string> = {
+  basic: '/assets/ui/skill-basic.png',
+  phi_kiem: '/assets/ui/skill-phi-kiem.png',
+  bang_tam_tram: '/assets/ui/skill-bang-tam-tram.png',
+  han_bang_tran: '/assets/ui/skill-han-bang-tran.png',
+  than_phap: '/assets/ui/skill-than-phap.png',
+};
 
 function toUrl(key: string, s: number, draw: (ctx: Ctx) => void): string {
   const hit = cache.get(key);
@@ -293,6 +320,9 @@ function toUrl(key: string, s: number, draw: (ctx: Ctx) => void): string {
 }
 
 export function itemIconUrl(id: string, s = 48) {
+  const key = itemSpriteTextureKey(id);
+  const assetId = key?.slice('item-sprite-'.length);
+  if (assetId) return ITEM_SPRITE_ASSETS[assetId];
   return toUrl(`item:${id}:${s}`, s, (ctx) => drawItem(ctx, id, s));
 }
 
@@ -300,15 +330,34 @@ export function skillIconUrl(id: string, s = 64) {
   return toUrl(`skill:${id}:${s}`, s, (ctx) => drawSkill(ctx, id, s));
 }
 
+export function skillSpriteUrl(id: SkillId) {
+  return UI_SKILL_ICONS[id];
+}
+
 export function portraitUrl(palette = 'player', s = 128) {
   return toUrl(`portrait:${palette}:${s}`, s, (ctx) => drawPortrait(ctx, s, PALETTES[palette]));
 }
 
-export function buildLootTextures(): Record<string, HTMLCanvasElement> {
+export function characterSpriteUrl(palette = 'player', s = 136) {
+  const pal = PALETTES[palette];
+  if (!pal) throw new Error(`Unknown character palette: ${palette}`);
+  return toUrl(`character-sprite:${palette}:${s}`, s, (ctx) => {
+    const scale = (s / 136) * 1.34;
+    ctx.save();
+    ctx.translate(s / 2, s * 0.92);
+    ctx.scale(scale, scale);
+    drawHuman(ctx, 0, 0, 'down', pal, BASE_POSE);
+    ctx.restore();
+  });
+}
+
+export function buildLootTextures(spriteSources: Partial<Record<string, CanvasImageSource>> = {}): Record<string, HTMLCanvasElement> {
   const out: Record<string, HTMLCanvasElement> = {};
   for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho']) {
     const [c, ctx] = makeCanvas(32, 32);
-    drawItem(ctx, id, 32);
+    const sprite = spriteSources[id];
+    if (sprite) ctx.drawImage(sprite, 0, 0, 32, 32);
+    else drawItem(ctx, id, 32);
     out[`loot_${id}`] = c;
   }
   return out;

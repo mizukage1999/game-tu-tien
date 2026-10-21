@@ -6,8 +6,8 @@ import { BEAST_PALETTES, drawBeast } from './beast';
 import { beastPose, humanPose } from './poses';
 import { buildTileset } from './tiles';
 import { buildDecor } from './decor';
-import { buildFx } from './fx';
-import { buildLootTextures } from './icons';
+import { buildFx, createSkillFxAnimations } from './fx';
+import { buildLootTextures, itemSpriteTextureKey } from './icons';
 
 export interface AnimDef {
   frames: number;
@@ -40,6 +40,9 @@ function addCanvas(scene: Phaser.Scene, key: string, canvas: HTMLCanvasElement) 
   if (!scene.textures.exists(key)) scene.textures.addCanvas(key, canvas);
 }
 
+/** How much each rig is blown up inside its frame, keyed by rig name. */
+const RIG_SCALE: Record<string, number> = { humanoid: 1.34, npc: 1.34, beast: 1.2 };
+
 function buildCharacterSheet(scene: Phaser.Scene, art: string, rig: RigDef, rigName: string, palette: string) {
   const frames: { anim: string; dir: string; i: number; n: number }[] = [];
   for (const [anim, def] of Object.entries(rig.anims)) {
@@ -61,8 +64,15 @@ function buildCharacterSheet(scene: Phaser.Scene, art: string, rig: RigDef, rigN
     ctx.clip();
     const cx = x + fw / 2;
     const fy = y + Math.round(fh * rig.originY);
-    if (rigName === 'beast') drawBeast(ctx, cx, fy, BEAST_PALETTES[palette], beastPose(f.anim, f.i, f.n));
-    else drawHuman(ctx, cx, fy, f.dir as 'down' | 'up' | 'side', PALETTES[palette], humanPose(f.anim, f.i, f.n));
+    // Figures are painted at their natural size, then blown up around the feet so a
+    // hero reads about two tiles tall — the framing the concept art uses.
+    const k = RIG_SCALE[rigName] ?? 1;
+    ctx.save();
+    ctx.translate(cx, fy);
+    ctx.scale(k, k);
+    if (rigName === 'beast') drawBeast(ctx, 0, 0, BEAST_PALETTES[palette], beastPose(f.anim, f.i, f.n));
+    else drawHuman(ctx, 0, 0, f.dir as 'down' | 'up' | 'side', PALETTES[palette], humanPose(f.anim, f.i, f.n));
+    ctx.restore();
     ctx.restore();
   });
   const tex = scene.textures.addCanvas(art, canvas);
@@ -100,7 +110,15 @@ export function generateArt(scene: Phaser.Scene) {
   addCanvas(scene, 'tiles', buildTileset());
   for (const [key, c] of Object.entries(buildDecor())) addCanvas(scene, key, c);
   for (const [key, c] of Object.entries(buildFx())) addCanvas(scene, key, c);
-  for (const [key, c] of Object.entries(buildLootTextures())) addCanvas(scene, key, c);
+  const lootSprites: Partial<Record<string, CanvasImageSource>> = {};
+  for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho']) {
+    const key = itemSpriteTextureKey(id);
+    if (!key || !scene.textures.exists(key)) continue;
+    const source = scene.textures.get(key).getSourceImage();
+    if (source instanceof HTMLImageElement || source instanceof HTMLCanvasElement) lootSprites[id] = source;
+  }
+  for (const [key, c] of Object.entries(buildLootTextures(lootSprites))) addCanvas(scene, key, c);
+  createSkillFxAnimations(scene);
   for (const [art, cfg] of Object.entries(CHARACTERS)) {
     const rig = RIGS[cfg.rig];
     if (!scene.textures.exists(art)) buildCharacterSheet(scene, art, rig, cfg.rig, cfg.palette);

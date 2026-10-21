@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { DUNGEONS, ITEMS, MONSTERS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
+import { buildIsoGround } from '../art/ground';
+import { iso, isoBounds, isoX, isoY } from '../art/iso';
 import { TERRAIN, TILE } from '../art/tiles';
 import { EventBus } from '../EventBus';
 import { Player } from '../entities/Player';
@@ -65,6 +67,7 @@ export class WorldScene extends Phaser.Scene {
   private spawnData: WorldData = {};
   private collision!: Phaser.Tilemaps.TilemapLayer;
   private targetRing!: Phaser.GameObjects.Image;
+  private camTarget!: Phaser.GameObjects.Image;
   private currentZone: ZoneDef | null = null;
   private transitioning = false;
   private cleanups: (() => void)[] = [];
@@ -141,8 +144,12 @@ export class WorldScene extends Phaser.Scene {
     this.buildPortals(map);
 
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, W, H);
-    cam.startFollow(this.player, true, 0.12, 0.12);
+    const view = isoBounds();
+    cam.setBounds(0, 0, view.width, view.height);
+    // The camera follows a proxy: the player's physics body lives in map space,
+    // the diamond it stands on lives on screen.
+    this.camTarget = this.add.image(start.x, start.y, 'fx_dot').setVisible(false).setDepth(-10001);
+    cam.startFollow(this.camTarget, true, 0.12, 0.12);
     cam.setRoundPixels(true);
     this.fitZoom();
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitZoom, this);
@@ -188,9 +195,17 @@ export class WorldScene extends Phaser.Scene {
     const data = map.terrain.map((row, y) =>
       row.map((t, x) => TERRAIN[t].base + (hash(x, y) % TERRAIN[t].variants)),
     );
+    // The visible ground is one pre-baked isometric canvas; the grid below stays
+    // flat and invisible so collision, path-finding and AI never meet the
+    // projection at all.
+    const ground = buildIsoGround(map);
+    const key = `ground:${map.id}`;
+    if (this.textures.exists(key)) this.textures.remove(key);
+    this.textures.addCanvas(key, ground.canvas);
+    this.add.image(0, 0, key).setOrigin(0, 0).setDepth(-10000);
+
     const tm = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
     const tileset = tm.addTilesetImage('tiles', 'tiles', TILE, TILE, 0, 0)!;
-    tm.createLayer(0, tileset, 0, 0)!.setDepth(-10000);
     this.collision = tm.createBlankLayer('collision', tileset)!;
     map.blocked.forEach((row, y) =>
       row.forEach((b, x) => {
@@ -202,15 +217,16 @@ export class WorldScene extends Phaser.Scene {
 
   private buildDecor(map: MapDef) {
     for (const d of map.decor) {
-      const px = d.x * TILE + TILE / 2;
+      const anchor = iso(d.x * TILE + TILE / 2, d.y * TILE + TILE - 2);
+      const px = anchor.x;
       if (d.key === 'circle') {
         const zone = map.zones[0];
         const w = zone ? zone.rect[2] * TILE : 320;
         const h = zone ? zone.rect[3] * TILE : 200;
-        const cy = d.y * TILE + TILE / 2;
+        const cy = iso(d.x * TILE + TILE / 2, d.y * TILE + TILE / 2).y;
         const outer = this.add
           .image(px, cy, 'circle')
-          .setScale((w * 0.8) / 320, (h * 0.9) / 320)
+          .setScale((w * 0.8) / 320, (h * 0.4) / 320)
           .setBlendMode(Phaser.BlendModes.ADD)
           .setAlpha(0.55)
           .setDepth(-9000);
@@ -236,7 +252,7 @@ export class WorldScene extends Phaser.Scene {
         motes.setDepth(cy + 200);
         continue;
       }
-      const py = d.y * TILE + TILE - 2;
+      const py = anchor.y;
       const img = this.add.image(px, py, d.key).setOrigin(0.5, 1).setDepth(py);
       if (d.key.startsWith('tree')) {
         this.tweens.add({
@@ -250,15 +266,15 @@ export class WorldScene extends Phaser.Scene {
       }
       if (d.glow) {
         const g = this.add
-          .image(px, py - 58, d.glow === 'warm' ? 'glow_warm' : 'glow_cold')
+          .image(px, py - 82, d.glow === 'warm' ? 'glow_warm' : 'glow_cold')
           .setBlendMode(Phaser.BlendModes.ADD)
-          .setAlpha(0.65)
-          .setScale(0.7)
+          .setAlpha(0.7)
+          .setScale(0.85)
           .setDepth(py + 1);
         this.tweens.add({
           targets: g,
-          alpha: 0.4,
-          scale: 0.62,
+          alpha: 0.44,
+          scale: 0.74,
           yoyo: true,
           repeat: -1,
           duration: 900 + (hash(d.x, d.y) % 500),
@@ -286,8 +302,9 @@ export class WorldScene extends Phaser.Scene {
 
   private addPortal(p: PortalDef) {
     const [x, y, w, h] = p.rect;
-    const cx = (x + w / 2) * TILE;
-    const cy = (y + h / 2) * TILE;
+    const centre = iso((x + w / 2) * TILE, (y + h / 2) * TILE);
+    const cx = centre.x;
+    const cy = centre.y;
     const side = x === 0 ? -1 : x + w >= this.map.width ? 1 : 0;
     const band = p.levelBand ? fieldForLevel(gameStore.getState().player.level) : null;
     const label = band ? `${band.name} (Lv ${band.minLevel}-${band.maxLevel})` : p.label;
@@ -313,7 +330,7 @@ export class WorldScene extends Phaser.Scene {
   private buildAmbient(map: MapDef) {
     if (map.ambient === 'petals') {
       const em = this.add.particles(0, 0, 'fx_petal', {
-        x: { min: -100, max: 2400 },
+        x: { min: -100, max: isoBounds().width },
         y: -20,
         speedY: { min: 25, max: 60 },
         speedX: { min: -50, max: -5 },
@@ -328,8 +345,8 @@ export class WorldScene extends Phaser.Scene {
     } else if (map.ambient === 'snow' || map.ambient === 'embers') {
       const snow = map.ambient === 'snow';
       const em = this.add.particles(0, 0, 'fx_dot', {
-        x: { min: -100, max: 2400 },
-        y: snow ? -20 : { min: 0, max: 1400 },
+        x: { min: -100, max: isoBounds().width },
+        y: snow ? -20 : { min: 0, max: isoBounds().height },
         speedY: snow ? { min: 30, max: 70 } : { min: -60, max: -20 },
         speedX: { min: -25, max: 25 },
         scale: snow ? { min: 0.4, max: 0.9 } : { start: 0.7, end: 0 },
@@ -343,8 +360,8 @@ export class WorldScene extends Phaser.Scene {
       em.fastForward(6000);
     } else {
       const em = this.add.particles(0, 0, 'fx_dot', {
-        x: { min: 0, max: map.width * TILE },
-        y: { min: 0, max: map.height * TILE },
+        x: { min: 0, max: isoBounds().width },
+        y: { min: 0, max: isoBounds().height },
         speed: { min: 5, max: 22 },
         scale: { min: 0.3, max: 0.7 },
         alpha: { start: 0, end: 0, onUpdate: (_p: unknown, _k: string, t: number) => Math.sin(t * Math.PI) },
@@ -372,9 +389,13 @@ export class WorldScene extends Phaser.Scene {
   private fitZoom() {
     const h = this.scale.height;
     const w = this.scale.width;
-    const zoom = Phaser.Math.Clamp(Math.min(h / 760, w / 1100), 0.7, 1.35);
-    this.cameras.main.setZoom(zoom);
+    // Show more of the isometric map while keeping the UI panels at a fixed size.
+    const worldZoom = Math.min(h / 840, w / 1200);
+    if (this._zoom === undefined) this._zoom = worldZoom;
+    this.cameras.main.setZoom(this._zoom);
   }
+
+  private _zoom?: number;
 
   // ---- other players -----------------------------------------------------
 
@@ -544,8 +565,11 @@ export class WorldScene extends Phaser.Scene {
       for (const ev of tickRun(this.run, DUNGEONS[this.run.id], dt, alive)) this.onRunEvent(ev);
     }
 
+    this.camTarget.setPosition(isoX(this.player.x, this.player.y), isoY(this.player.x, this.player.y));
+
     if (this.target?.alive) {
-      this.targetRing.setVisible(true).setPosition(this.target.x, this.target.y - 2);
+      const ring = iso(this.target.x, this.target.y);
+      this.targetRing.setVisible(true).setPosition(ring.x, ring.y);
     } else {
       if (this.target) this.setTarget(null);
       this.targetRing.setVisible(false);
@@ -621,7 +645,8 @@ export class WorldScene extends Phaser.Scene {
     let nearby: string | null = null;
     let best = 95;
     for (const n of this.npcs) {
-      const d = Phaser.Math.Distance.Between(n.x, n.y, p.x, p.y);
+      // NPC sprites are drawn in screen space; interaction distances stay in map space.
+      const d = Phaser.Math.Distance.Between(n.map.x, n.map.y, p.x, p.y);
       if (d < best) {
         best = d;
         nearby = n.npcId;
@@ -803,16 +828,19 @@ export class WorldScene extends Phaser.Scene {
     if (stop.talkTo) {
       const npc = this.npcs.find((n) => n.npcId === stop.talkTo);
       if (npc) {
-        const d = Phaser.Math.Distance.Between(npc.x, npc.y, this.player.x, this.player.y);
+        const d = Phaser.Math.Distance.Between(npc.map.x, npc.map.y, this.player.x, this.player.y);
         if (d > 80) {
           const k = (d - 64) / d;
           this.player.setRoute([
-            { x: this.player.x + (npc.x - this.player.x) * k, y: this.player.y + (npc.y - this.player.y) * k },
+            {
+              x: this.player.x + (npc.map.x - this.player.x) * k,
+              y: this.player.y + (npc.map.y - this.player.y) * k,
+            },
           ]);
           return;
         }
         this.cancelQuestNav();
-        this.player.faceToward(npc);
+        this.player.faceToward(npc.map);
         s.questEvent({ type: 'talk', npc: stop.talkTo });
         s.setDialog(stop.talkTo);
         return;
@@ -912,7 +940,12 @@ export class WorldScene extends Phaser.Scene {
   private spawnMonster(type: string, x: number, y: number) {
     const m = new Monster(this, type, x, y, { arena: true });
     this.monsters.push(m);
-    const ring = this.add.image(x, y, 'portal').setBlendMode(Phaser.BlendModes.ADD).setScale(0.2).setDepth(y - 1);
+    const at = iso(x, y);
+    const ring = this.add
+      .image(at.x, at.y, 'portal')
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setScale(0.2, 0.1)
+      .setDepth(at.y - 1);
     this.tweens.add({ targets: ring, scale: m.def.boss ? 2.2 : 1, alpha: 0, angle: 180, duration: 700, onComplete: () => ring.destroy() });
     m.setAlpha(0);
     this.tweens.add({ targets: m, alpha: 1, duration: 450 });
@@ -930,11 +963,15 @@ export class WorldScene extends Phaser.Scene {
   bossSlam(m: Monster, radius: number, windup: number, mul: number) {
     const cx = m.x;
     const cy = m.y;
-    const zone = this.add.graphics().setDepth(-60);
-    zone.fillStyle(0xff3b2f, 0.16).fillEllipse(cx, cy, radius * 2, radius * 1.3);
-    zone.lineStyle(3, 0xff5a3a, 0.9).strokeEllipse(cx, cy, radius * 2, radius * 1.3);
-    const fill = this.add.graphics().setDepth(-59).setPosition(cx, cy).setScale(0);
-    fill.fillStyle(0xff5a3a, 0.35).fillEllipse(0, 0, radius * 2, radius * 1.3);
+    // Warning circle: an ellipse on the ground, squashed by the isometric ratio.
+    const show = iso(cx, cy);
+    const rx = radius * 2;
+    const ry = radius * 1.3;
+    const zone = this.add.graphics().setDepth(show.y - 6);
+    zone.fillStyle(0xff3b2f, 0.16).fillEllipse(show.x, show.y, rx, ry);
+    zone.lineStyle(3, 0xff5a3a, 0.9).strokeEllipse(show.x, show.y, rx, ry);
+    const fill = this.add.graphics().setDepth(show.y - 5).setPosition(show.x, show.y).setScale(0);
+    fill.fillStyle(0xff5a3a, 0.35).fillEllipse(0, 0, rx, ry);
     this.tweens.add({ targets: fill, scale: 1, duration: windup, ease: 'Sine.In' });
     this.time.delayedCall(windup, () => {
       zone.destroy();

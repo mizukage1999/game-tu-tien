@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { iso } from '../art/iso';
 
 /** White flash on the hit sprite. */
 export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, color = 0xffffff, ms = 90) {
@@ -8,22 +9,38 @@ export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, co
   });
 }
 
-/** Spark burst at the impact point. */
-export function impact(scene: Phaser.Scene, x: number, y: number, tint = 0xbfefff, crit = false) {
-  const burst = scene.add
-    .image(x, y, 'fx_burst')
-    .setBlendMode(Phaser.BlendModes.ADD)
-    .setTint(tint)
-    .setDepth(99000)
-    .setScale(crit ? 0.7 : 0.45)
-    .setRotation(Math.random() * Math.PI);
-  scene.tweens.add({
-    targets: burst,
-    scale: crit ? 1.4 : 0.9,
-    alpha: 0,
-    duration: 220,
-    onComplete: () => burst.destroy(),
-  });
+/** Spark burst at the impact point (given in map space). */
+export function impact(scene: Phaser.Scene, mapX: number, mapY: number, tint = 0xbfefff, crit = false) {
+  const { x, y } = iso(mapX, mapY);
+  const hitAnimation = 'skill_ice:hit';
+  if (scene.textures.exists('skill_ice') && scene.anims.exists(hitAnimation)) {
+    const hit = scene.add
+      .sprite(x, y, 'skill_ice', 'hit_0')
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setTint(tint)
+      .setDepth(99000)
+      .setScale(crit ? 1.3 : 0.9)
+      .setRotation(Math.random() * Math.PI);
+    hit.play(hitAnimation);
+    hit.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      if (hit.active) hit.destroy();
+    });
+  } else {
+    const burst = scene.add
+      .image(x, y, 'fx_burst')
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setTint(tint)
+      .setDepth(99000)
+      .setScale(crit ? 0.7 : 0.45)
+      .setRotation(Math.random() * Math.PI);
+    scene.tweens.add({
+      targets: burst,
+      scale: crit ? 1.4 : 0.9,
+      alpha: 0,
+      duration: 220,
+      onComplete: () => burst.destroy(),
+    });
+  }
   const spark = scene.add
     .image(x, y, 'fx_spark')
     .setBlendMode(Phaser.BlendModes.ADD)

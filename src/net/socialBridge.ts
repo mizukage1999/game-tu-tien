@@ -125,8 +125,11 @@ function handleMessage(message: SocialMessage) {
       // Fill from presence if available so the friend card is not all dashes.
       const incoming = message.from;
       const presence = presenceFor(social.roster, incoming.userId);
-      social.addFriend(presence ? { userId: incoming.userId, name: presence.name } : incoming);
-      persistFriends(social.friends);
+      const friend = presence ? { userId: incoming.userId, name: presence.name } : incoming;
+      social.addFriend(friend);
+      // Read the store again: addFriend returns a new list, and saving the snapshot
+      // taken at the top of handleMessage would drop the friend that was just added.
+      persistFriends(socialStore.getState().friends);
       game.toast(`${message.from.name} đã nhận lời kết hảo hữu.`, 'quest');
       break;
     }
@@ -259,7 +262,7 @@ export function respondInvite(invite: SocialInvite, accept: boolean) {
   if (invite.kind === 'friend') {
     if (!channel) return;
     social.addFriend(invite.from);
-    persistFriends(social.friends);
+    persistFriends(socialStore.getState().friends);
     channel.send({ t: 'friend:ok', to: invite.from.userId, from: myRef() });
   }
 }

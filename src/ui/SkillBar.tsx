@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { useMemo } from 'react';
 import type { SkillId } from '../data';
 import { EventBus } from '../game/EventBus';
-import { itemIconUrl, skillIconUrl } from '../game/art/icons';
+import { itemIconUrl, skillSpriteUrl } from '../game/art/icons';
 import { effectiveSkill, skillLevel } from '../game/systems/skills';
 import { useGame } from '../store/gameStore';
 
@@ -24,7 +24,7 @@ function SkillButton({ id, className }: { id: SkillId; className: string }) {
         EventBus.emit('cmd:skill', id);
       }}
     >
-      <img src={skillIconUrl(id, 96)} alt={sk.name} draggable={false} />
+      <img src={skillSpriteUrl(id)} alt={sk.name} draggable={false} />
       {cd > 0 && id !== 'basic' && <span className="skill-cd">{(cd / 1000).toFixed(1)}</span>}
       <span className="skill-key">{sk.key.split(' ')[0]}</span>
       {level > 1 && <span className={`skill-badge ${sk.active ? 'awakened' : ''}`}>{level}</span>}
@@ -41,11 +41,11 @@ export function SkillBar() {
   return (
     <div className="skill-bar">
       <button className={`round-btn auto-btn ${auto ? 'on' : ''}`} onClick={() => setAuto(!auto)} title="Tự động chiến đấu [T]">
-        <span>{auto ? 'Đang' : 'Tự'}</span>
-        <span>{auto ? 'Tự Động' : 'Động'}</span>
+        <img src="/assets/ui/skill-auto.svg" alt="" aria-hidden="true" draggable={false} />
+        <span className="auto-label">{auto ? 'ON' : 'T'}</span>
       </button>
       <button className="round-btn target-btn" onPointerDown={() => EventBus.emit('cmd:target')} title="Đổi mục tiêu [Tab]">
-        ◎
+        <img src="/assets/ui/skill-target.png" alt="" aria-hidden="true" draggable={false} />
       </button>
       <SkillButton id="phi_kiem" className="pos-s1" />
       <SkillButton id="bang_tam_tram" className="pos-s2" />

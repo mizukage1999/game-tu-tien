@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { MONSTERS, type MonsterDef } from '../../data';
+import { iso } from '../art/iso';
 import { AnimationController } from '../anim/AnimationController';
 import { flash, impact, knockback } from '../fx/HitEffect';
 import { createBrain, isHostile, provoke, stepMonsterAI, type AIParams, type MonsterBrain } from '../systems/monsterAI';
@@ -10,6 +11,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   readonly def: MonsterDef;
   readonly brain: MonsterBrain;
   readonly ctrl: AnimationController;
+  /** Drawn body; the physics sprite itself stays hidden in map space. */
+  readonly art: Phaser.GameObjects.Sprite;
   readonly arena: boolean;
   hp: number;
   alive = true;
@@ -44,17 +47,21 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.slamTimer = (def.boss?.slamInterval ?? 0) * 0.6;
     world.add.existing(this);
     world.physics.add.existing(this);
-    this.ctrl = new AnimationController(this, def.art);
+    this.setVisible(false);
+    const spot = iso(x, y);
+    this.art = world.add.sprite(spot.x, spot.y, def.art).setOrigin(0.5, 1);
+    this.ctrl = new AnimationController(this.art, def.art);
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(34, 16);
     body.setOffset(this.ctrl.rig.frameWidth / 2 - 17, this.ctrl.rig.frameHeight * this.ctrl.rig.originY - 14);
     this.brain = createBrain({ x, y });
     const scale = def.scale ?? (type === 'hoa_ho' ? 1.15 : 1);
     this.setScale(scale);
+    this.art.setScale(scale);
 
-    this.shadow = world.add.image(x, y, 'shadow').setScale(1.2 * scale, scale).setDepth(-100);
+    this.shadow = world.add.image(spot.x, spot.y, 'shadow').setScale(1.2 * scale, scale).setDepth(-100);
     this.label = world.add
-      .text(x, y, def.boss ? `【${def.name}】` : def.name, {
+      .text(spot.x, spot.y, def.boss ? `【${def.name}】` : def.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: def.boss ? '15px' : '12px',
         fontStyle: 'bold',
@@ -123,18 +130,28 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   private syncDecor() {
-    this.setDepth(this.y);
-    this.shadow.setPosition(this.x, this.y - 2);
-    const top = this.y - 66 * this.scaleY;
-    this.label.setPosition(this.x, top - 6);
+    const spot = iso(this.x, this.y);
+    this.art.setPosition(spot.x, spot.y).setDepth(spot.y);
+    this.syncLook();
+    this.shadow.setPosition(spot.x, spot.y - 2);
+    const top = spot.y - 66 * this.scaleY;
+    this.label.setPosition(spot.x, top - 6);
     if (this.barDirty || this.lastBarPos.x !== this.x || this.lastBarPos.y !== this.y) {
       this.barDirty = false;
       this.lastBarPos = { x: this.x, y: this.y };
       const w = this.def.boss ? 90 : 44;
       this.bar.clear();
-      this.bar.fillStyle(0x140a0a, 0.8).fillRoundedRect(this.x - w / 2 - 1, top - 4, w + 2, 6, 2);
-      this.bar.fillStyle(0xe8443a, 1).fillRoundedRect(this.x - w / 2, top - 3, Math.max(0, (w * this.hp) / this.def.hp), 4, 2);
+      this.bar.fillStyle(0x140a0a, 0.8).fillRoundedRect(spot.x - w / 2 - 1, top - 4, w + 2, 6, 2);
+      this.bar.fillStyle(0xe8443a, 1).fillRoundedRect(spot.x - w / 2, top - 3, Math.max(0, (w * this.hp) / this.def.hp), 4, 2);
     }
+  }
+
+  /** The drawn body mirrors the hidden sprite's tint, alpha and squash. */
+  private syncLook() {
+    this.art.setAlpha(this.alpha).setScale(this.scaleX, this.scaleY);
+    if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
+    else if (this.isTinted) this.art.setTint(this.tintTopLeft);
+    else this.art.clearTint();
   }
 
   private startAttack(player: Vec2) {
@@ -205,7 +222,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.bar.clear();
     this.world.onMonsterKilled(this);
     this.world.tweens.add({
-      targets: [this, this.shadow],
+      targets: [this, this.art, this.shadow],
       alpha: 0,
       delay: 450,
       duration: 500,

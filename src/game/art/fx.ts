@@ -1,5 +1,43 @@
 import { fillEllipse, linear, makeCanvas, radial, type Ctx } from './canvas';
 
+const SKILL_FX_ANIMS = {
+  slash: { frames: 9, frameRate: 24 },
+  combo: { frames: 9, frameRate: 20 },
+  wave: { frames: 9, frameRate: 18 },
+  pillar: { frames: 8, frameRate: 18 },
+  spin: { frames: 8, frameRate: 18 },
+  rain: { frames: 8, frameRate: 18 },
+  barrier: { frames: 8, frameRate: 18 },
+  explosion: { frames: 8, frameRate: 20 },
+  teleport: { frames: 8, frameRate: 18 },
+  buff: { frames: 8, frameRate: 18 },
+  hit: { frames: 6, frameRate: 22 },
+  death: { frames: 7, frameRate: 16 },
+  other: { frames: 5, frameRate: 20 },
+} as const;
+
+export function createSkillFxAnimations(scene: Phaser.Scene) {
+  const textureKey = 'skill_ice';
+  if (!scene.textures.exists(textureKey)) return;
+  const names = scene.textures.get(textureKey).getFrameNames();
+  for (const [name, def] of Object.entries(SKILL_FX_ANIMS)) {
+    const key = `${textureKey}:${name}`;
+    if (scene.anims.exists(key)) continue;
+    const frames = names
+      .filter((frame) => frame.startsWith(`${name}_`))
+      .sort((a, b) => Number(a.slice(name.length + 1)) - Number(b.slice(name.length + 1)));
+    if (frames.length !== def.frames) {
+      throw new Error(`Expected ${def.frames} frames for ${key}, found ${frames.length}`);
+    }
+    scene.anims.create({
+      key,
+      frames: frames.map((frame) => ({ key: textureKey, frame })),
+      frameRate: def.frameRate,
+      repeat: 0,
+    });
+  }
+}
+
 function crescent(): HTMLCanvasElement {
   const [c, ctx] = makeCanvas(180, 180);
   const m = 90;

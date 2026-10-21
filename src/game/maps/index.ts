@@ -51,9 +51,34 @@ function daiThuaVien(): MapDef {
   b.place('lantern', 31, 3, { glow: 'warm' });
   b.place('burner', 18, 21);
   b.place('burner', 29, 21);
+
+  // Two planted beds framing the south gate, right where the player starts.
+  for (const [px, tree] of [
+    [17, 'tree_cherry'],
+    [29, 'tree_cherry_b'],
+  ] as [number, string][]) {
+    b.fill(px, 23, 3, 2, 'grass');
+    b.place(tree, px + 1, 23);
+    b.place('bush', px + 2, 24);
+    b.place('rock', px, 24, { block: [] });
+  }
   b.place('rock', 12, 29);
   b.place('rock', 36, 5);
   b.place('rock', 3, 25);
+
+  // Planted corners: the courtyard needs green and pink against all that sandstone.
+  // Kept clear of the pillar rows at y=11 and y=26.
+  for (const [px, py, tree] of [
+    [8, 12, 'tree_cherry'],
+    [37, 12, 'tree_cherry_b'],
+    [8, 23, 'tree_cherry_b'],
+    [37, 23, 'tree_cherry'],
+  ] as [number, number, string][]) {
+    b.fill(px, py, 3, 2, 'grass');
+    b.place('rock', px, py + 1, { block: [] });
+    b.place('bush', px + 2, py + 1);
+    b.place(tree, px + 1, py);
+  }
 
   const clear: [number, number, number, number][] = [
     [7, 10, 34, 18],

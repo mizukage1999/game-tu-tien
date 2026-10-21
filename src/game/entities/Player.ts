@@ -15,6 +15,7 @@ import {
   DOWNED_DURATION_MS,
   type LifeState,
 } from '../systems/respawn';
+import { inputToMap, iso, isoVector } from '../art/iso';
 import { dirFromVector, dirVector, type Dir, type Vec2 } from '../types';
 import type { WorldScene } from '../scenes/WorldScene';
 import type { Monster } from './Monster';
@@ -29,6 +30,9 @@ const SKILL_ANIM: Partial<Record<SkillId, string>> = {
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   readonly ctrl: AnimationController;
+  /** The drawn body. The physics sprite underneath is invisible: it lives in map
+   *  space, while everything visible is placed through the isometric projection. */
+  readonly art: Phaser.GameObjects.Sprite;
   readonly life: LifeState = createLife();
   dir: Dir = 'down';
   cooldowns: Partial<Record<SkillId, number>> = {};
@@ -61,7 +65,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     super(world, x, y, art);
     world.add.existing(this);
     world.physics.add.existing(this);
-    this.ctrl = new AnimationController(this, art);
+    this.setVisible(false);
+    const spot = iso(x, y);
+    this.art = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
+    this.ctrl = new AnimationController(this.art, art);
     const body = this.body as Phaser.Physics.Arcade.Body;
     const fw = this.ctrl.rig.frameWidth;
     const fh = this.ctrl.rig.frameHeight;
@@ -69,9 +76,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     body.setOffset(fw / 2 - 11, fh * this.ctrl.rig.originY - 12);
     body.setCollideWorldBounds(true);
 
-    this.shadow = world.add.image(x, y, 'shadow').setDepth(-100);
+    this.shadow = world.add.image(spot.x, spot.y, 'shadow').setDepth(-100);
     this.label = world.add
-      .text(x, y, gameStore.getState().player.name, {
+      .text(spot.x, spot.y, gameStore.getState().player.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: '13px',
         fontStyle: 'bold',
@@ -120,7 +127,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       y = virtualInput.y;
     }
     const l = Math.hypot(x, y);
-    return l > 1 ? { x: x / l, y: y / l } : { x, y };
+    if (l < 0.01) return { x: 0, y: 0 };
+    // Keys and joystick point at the screen; the body moves along the map's
+    // diagonal axes, so the input is rotated into map space here.
+    return inputToMap(x / l, y / l);
   }
 
   faceToward(p: Vec2) {
@@ -145,6 +155,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.afterimageTimer = 30;
         this.world.vfx.afterimage(this);
       }
+      if (this.dashTime <= 0) this.world.vfx.teleport(this.feet);
     } else {
       let move = this.manualInput();
       const manual = Math.hypot(move.x, move.y) > 0.1;
@@ -165,7 +176,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const mag = Math.hypot(move.x, move.y);
         body.setVelocity(move.x * speed, move.y * speed);
         if (mag > 0.1) {
-          this.dir = dirFromVector(move.x, move.y, this.dir);
+          const onScreen = isoVector(move.x, move.y);
+          this.dir = dirFromVector(onScreen.x, onScreen.y, this.dir);
           this.ctrl.play('run', this.dir);
         } else {
           this.ctrl.play('idle', this.dir);
@@ -173,18 +185,28 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     }
 
-    this.setDepth(this.y);
-    this.shadow.setPosition(this.x, this.y - 2);
-    this.label.setPosition(this.x, this.y - 84);
-    this.drawBar();
+    const spot = iso(this.x, this.y);
+    this.art.setPosition(spot.x, spot.y).setDepth(spot.y);
+    this.syncLook();
+    this.shadow.setPosition(spot.x, spot.y - 2);
+    this.label.setPosition(spot.x, spot.y - 106);
+    this.drawBar(spot);
   }
 
-  private drawBar() {
+  /** Copies flashing/alpha from the hidden physics sprite onto the drawn body. */
+  private syncLook() {
+    this.art.setAlpha(this.alpha).setScale(this.scaleX, this.scaleY);
+    if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
+    else if (this.isTinted) this.art.setTint(this.tintTopLeft);
+    else this.art.clearTint();
+  }
+
+  private drawBar(spot: Vec2) {
     const { player, stats } = gameStore.getState();
     const w = 46;
     this.bar.clear();
-    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(this.x - w / 2 - 1, this.y - 82, w + 2, 6, 2);
-    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(this.x - w / 2, this.y - 81, (w * player.hp) / stats.maxHp, 4, 2);
+    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(spot.x - w / 2 - 1, spot.y - 104, w + 2, 6, 2);
+    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(spot.x - w / 2, spot.y - 103, (w * player.hp) / stats.maxHp, 4, 2);
   }
 
   // ---- auto combat -------------------------------------------------------
@@ -354,6 +376,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.dashVec = { x: (v.x / l) * speed, y: (v.y / l) * speed };
     this.dir = dirFromVector(v.x, v.y, this.dir);
     this.dashTime = 180;
+    this.world.vfx.teleport(this.feet);
     this.cooldowns.than_phap = sk.cooldownMs;
     grantInvuln(this.life, sk.active?.invulnMs ?? 320);
     this.ctrl.unlock();
@@ -440,6 +463,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   destroy(fromScene?: boolean) {
+    this.art?.destroy();
     this.shadow?.destroy();
     this.label?.destroy();
     this.bar?.destroy();

@@ -1,7 +1,7 @@
 ﻿import { useMemo } from 'react';
 import { NPCS, QUESTS } from '../data';
 import { CHARACTERS } from '../game/art/generate';
-import { portraitUrl } from '../game/art/icons';
+import { characterSpriteUrl } from '../game/art/icons';
 import { availableQuests, turnInQuests } from '../game/systems/quest';
 import { useGame } from '../store/gameStore';
 
@@ -22,7 +22,7 @@ export function DialogBox() {
 
   return (
     <div className="dialog panel-ornate">
-      <img className="dialog-portrait" src={portraitUrl(palette, 112)} alt="" />
+      <img className="dialog-portrait" src={characterSpriteUrl(palette, 136)} alt="" />
       <div className="dialog-body">
         <div className="dialog-name">
           {def.name} <span>《{def.title}》</span>

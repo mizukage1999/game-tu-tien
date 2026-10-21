@@ -41,6 +41,9 @@ export function App() {
       ) : ready ? (
         <>
           <PhaserGame />
+          {/* Warm sun from the north-east and cool shade below: the grade that ties the
+              painted tiles together without touching the HUD. */}
+          <div className="world-grade" aria-hidden="true" />
           <Hud />
         </>
       ) : (

@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { portraitUrl } from '../game/art/icons';
 import { NAME_MAX, normalizeName } from '../game/systems/character';
 import type { Sex } from '../game/systems/save';
 import { createCharacter } from '../store/gameStore';
 
-const CHOICES: { sex: Sex; label: string; art: string }[] = [
-  { sex: 'female', label: 'Nữ', art: 'player' },
-  { sex: 'male', label: 'Nam', art: 'player_male' },
+const CHOICES: { sex: Sex; label: string; portrait: string }[] = [
+  { sex: 'female', label: 'Lý Mộ Uyển', portrait: '/assets/sprites/li-mu-uyen-portrait.png' },
+  { sex: 'male', label: 'Vương Lâm', portrait: '/assets/sprites/wang-lin-portrait.png' },
 ];
 
 export function CreateCharacter({ onDone }: { onDone: () => void }) {
@@ -43,8 +42,8 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
               className={`create-sex${sex === c.sex ? ' on' : ''}`}
               onClick={() => setSex(c.sex)}
             >
-              <img src={portraitUrl(c.art, 160)} alt="" />
-              <span>{c.label}</span>
+              <img src={c.portrait} alt="" />
+              <span>{c.sex === 'female' ? 'Nữ' : 'Nam'} · {c.label}</span>
             </button>
           ))}
         </div>

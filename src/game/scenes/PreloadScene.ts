@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { generateArt } from '../art/generate';
+import { ITEM_SPRITE_ASSETS } from '../art/icons';
 import { gameStore } from '../../store/gameStore';
 import { getMap } from '../maps';
 
@@ -20,6 +21,10 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => this.game.events.emit('assets-progress', progress));
+    for (const [id, url] of Object.entries(ITEM_SPRITE_ASSETS)) {
+      this.load.image(`item-sprite-${id}`, url);
+    }
     this.load.json('sprite-manifest', 'assets/sprites/manifest.json');
     this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (key: string) => {
       if (key !== 'sprite-manifest') return;
@@ -37,6 +42,7 @@ export class PreloadScene extends Phaser.Scene {
   create() {
     generateArt(this);
     const s = gameStore.getState();
+    this.game.events.emit('assets-ready');
     // never boot straight into a dungeon (that would start a run without spending an attempt)
     if (getMap(s.mapId).arena) {
       this.scene.start('World', { mapId: s.dungeonReturn?.mapId ?? 'dai_thua_vien', pos: s.dungeonReturn?.pos ?? null });

@@ -1,12 +1,15 @@
 import Phaser from 'phaser';
 import { NPCS, QUESTS, type NpcDef } from '../../data';
 import { AnimationController } from '../anim/AnimationController';
+import { iso } from '../art/iso';
 import { availableQuests, turnInQuests, type QuestLog } from '../systems/quest';
 import type { WorldScene } from '../scenes/WorldScene';
 
 /** Blocking is handled by the collision layer (the NPC tile is marked blocked). */
 export class Npc extends Phaser.GameObjects.Sprite {
   readonly def: NpcDef;
+  /** Where the NPC stands in map space; the sprite itself is drawn projected. */
+  readonly map: { x: number; y: number };
   private label: Phaser.GameObjects.Text;
   private marker: Phaser.GameObjects.Text;
   private shadow: Phaser.GameObjects.Image;
@@ -21,15 +24,18 @@ export class Npc extends Phaser.GameObjects.Sprite {
     const def = NPCS[npcId];
     super(world, x, y, def.art);
     this.def = def;
+    this.map = { x, y };
     world.add.existing(this);
+    const spot = iso(x, y);
+    this.setPosition(spot.x, spot.y);
     const ctrl = new AnimationController(this, def.art);
-    this.setDepth(y);
+    this.setDepth(spot.y);
     ctrl.play('idle', 'down');
     this.anims.setProgress(Math.random());
 
-    this.shadow = world.add.image(x, y - 2, 'shadow').setDepth(-100);
+    this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     this.label = world.add
-      .text(x, y - 82, `${def.name}\n《${def.title}》`, {
+      .text(spot.x, spot.y - 104, `${def.name}\n《${def.title}》`, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: '12px',
         fontStyle: 'bold',
@@ -41,7 +47,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
       .setOrigin(0.5, 1)
       .setDepth(90000);
     this.marker = world.add
-      .text(x, y - 116, '', {
+      .text(spot.x, spot.y - 138, '', {
         fontFamily: 'Georgia, serif',
         fontSize: '26px',
         fontStyle: 'bold',
@@ -51,7 +57,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
       })
       .setOrigin(0.5, 1)
       .setDepth(90001);
-    world.tweens.add({ targets: this.marker, y: y - 122, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
+    world.tweens.add({ targets: this.marker, y: spot.y - 144, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
   }
 
   refreshMarker(log: QuestLog) {

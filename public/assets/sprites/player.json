@@ -1,0 +1,2192 @@
+{
+    "frames":  {
+                   "idle_down_0":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "run_down_0":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  0
+                                                }
+                                  },
+                   "idle_down_1":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  136
+                                                 }
+                                   },
+                   "run_down_1":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  136
+                                                }
+                                  },
+                   "idle_down_2":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  272
+                                                 }
+                                   },
+                   "run_down_2":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  272
+                                                }
+                                  },
+                   "idle_down_3":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  408
+                                                 }
+                                   },
+                   "run_down_3":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  408
+                                                }
+                                  },
+                   "idle_down_4":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "run_down_4":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  0
+                                                }
+                                  },
+                   "idle_down_5":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  136
+                                                 }
+                                   },
+                   "run_down_5":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  136
+                                                }
+                                  },
+                   "idle_down_6":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  272
+                                                 }
+                                   },
+                   "run_down_6":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  272
+                                                }
+                                  },
+                   "idle_down_7":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  408
+                                                 }
+                                   },
+                   "run_down_7":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  408
+                                                }
+                                  },
+                   "attack_1_down_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "attack_1_down_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "attack_1_down_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "attack_1_down_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "attack_2_down_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "attack_2_down_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "attack_2_down_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "attack_2_down_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "attack_3_down_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "attack_3_down_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "attack_3_down_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "attack_3_down_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "cast_down_0":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "cast_down_1":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  136
+                                                 }
+                                   },
+                   "cast_down_2":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  272
+                                                 }
+                                   },
+                   "cast_down_3":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  408
+                                                 }
+                                   },
+                   "hurt_down_0":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "hurt_down_1":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "meditate_down_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  0,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "meditate_down_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  0,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "meditate_down_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  0,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "meditate_down_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  0,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "idle_up_0":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  0,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  0
+                                               }
+                                 },
+                   "run_up_0":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  272,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  0
+                                              }
+                                },
+                   "idle_up_1":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  0,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  136
+                                               }
+                                 },
+                   "run_up_1":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  272,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  136
+                                              }
+                                },
+                   "idle_up_2":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  0,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  272
+                                               }
+                                 },
+                   "run_up_2":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  272,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  272
+                                              }
+                                },
+                   "idle_up_3":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  0,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  408
+                                               }
+                                 },
+                   "run_up_3":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  272,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  408
+                                              }
+                                },
+                   "idle_up_4":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  136,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  0
+                                               }
+                                 },
+                   "run_up_4":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  408,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  0
+                                              }
+                                },
+                   "idle_up_5":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  136,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  136
+                                               }
+                                 },
+                   "run_up_5":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  408,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  136
+                                              }
+                                },
+                   "idle_up_6":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  136,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  272
+                                               }
+                                 },
+                   "run_up_6":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  408,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  272
+                                              }
+                                },
+                   "idle_up_7":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  136,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  408
+                                               }
+                                 },
+                   "run_up_7":  {
+                                    "trimmed":  false,
+                                    "spriteSourceSize":  {
+                                                             "y":  0,
+                                                             "w":  136,
+                                                             "h":  136,
+                                                             "x":  0
+                                                         },
+                                    "sourceSize":  {
+                                                       "h":  136,
+                                                       "w":  136
+                                                   },
+                                    "rotated":  false,
+                                    "frame":  {
+                                                  "y":  408,
+                                                  "w":  136,
+                                                  "h":  136,
+                                                  "x":  408
+                                              }
+                                },
+                   "attack_1_up_0":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  0
+                                                   }
+                                     },
+                   "attack_1_up_1":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  136
+                                                   }
+                                     },
+                   "attack_1_up_2":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  272
+                                                   }
+                                     },
+                   "attack_1_up_3":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  408
+                                                   }
+                                     },
+                   "attack_2_up_0":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  0
+                                                   }
+                                     },
+                   "attack_2_up_1":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  136
+                                                   }
+                                     },
+                   "attack_2_up_2":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  272
+                                                   }
+                                     },
+                   "attack_2_up_3":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  408
+                                                   }
+                                     },
+                   "attack_3_up_0":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  0
+                                                   }
+                                     },
+                   "attack_3_up_1":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  136
+                                                   }
+                                     },
+                   "attack_3_up_2":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  272
+                                                   }
+                                     },
+                   "attack_3_up_3":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  408
+                                                   }
+                                     },
+                   "cast_up_0":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  544,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  0
+                                               }
+                                 },
+                   "cast_up_1":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  544,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  136
+                                               }
+                                 },
+                   "cast_up_2":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  544,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  272
+                                               }
+                                 },
+                   "cast_up_3":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  544,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  408
+                                               }
+                                 },
+                   "hurt_up_0":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  0,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  0
+                                               }
+                                 },
+                   "hurt_up_1":  {
+                                     "trimmed":  false,
+                                     "spriteSourceSize":  {
+                                                              "y":  0,
+                                                              "w":  136,
+                                                              "h":  136,
+                                                              "x":  0
+                                                          },
+                                     "sourceSize":  {
+                                                        "h":  136,
+                                                        "w":  136
+                                                    },
+                                     "rotated":  false,
+                                     "frame":  {
+                                                   "y":  0,
+                                                   "w":  136,
+                                                   "h":  136,
+                                                   "x":  0
+                                               }
+                                 },
+                   "idle_side_0":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "run_side_0":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  0
+                                                }
+                                  },
+                   "idle_side_1":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  136
+                                                 }
+                                   },
+                   "run_side_1":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  136
+                                                }
+                                  },
+                   "idle_side_2":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  272
+                                                 }
+                                   },
+                   "run_side_2":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  272
+                                                }
+                                  },
+                   "idle_side_3":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  408
+                                                 }
+                                   },
+                   "run_side_3":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  272,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  408
+                                                }
+                                  },
+                   "idle_side_4":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "run_side_4":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  0
+                                                }
+                                  },
+                   "idle_side_5":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  136
+                                                 }
+                                   },
+                   "run_side_5":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  136
+                                                }
+                                  },
+                   "idle_side_6":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  272
+                                                 }
+                                   },
+                   "run_side_6":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  272
+                                                }
+                                  },
+                   "idle_side_7":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  136,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  408
+                                                 }
+                                   },
+                   "run_side_7":  {
+                                      "trimmed":  false,
+                                      "spriteSourceSize":  {
+                                                               "y":  0,
+                                                               "w":  136,
+                                                               "h":  136,
+                                                               "x":  0
+                                                           },
+                                      "sourceSize":  {
+                                                         "h":  136,
+                                                         "w":  136
+                                                     },
+                                      "rotated":  false,
+                                      "frame":  {
+                                                    "y":  408,
+                                                    "w":  136,
+                                                    "h":  136,
+                                                    "x":  408
+                                                }
+                                  },
+                   "attack_1_side_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "attack_1_side_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "attack_1_side_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "attack_1_side_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "attack_2_side_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "attack_2_side_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "attack_2_side_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "attack_2_side_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "attack_3_side_0":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  0
+                                                     }
+                                       },
+                   "attack_3_side_1":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  136
+                                                     }
+                                       },
+                   "attack_3_side_2":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  272
+                                                     }
+                                       },
+                   "attack_3_side_3":  {
+                                           "trimmed":  false,
+                                           "spriteSourceSize":  {
+                                                                    "y":  0,
+                                                                    "w":  136,
+                                                                    "h":  136,
+                                                                    "x":  0
+                                                                },
+                                           "sourceSize":  {
+                                                              "h":  136,
+                                                              "w":  136
+                                                          },
+                                           "rotated":  false,
+                                           "frame":  {
+                                                         "y":  544,
+                                                         "w":  136,
+                                                         "h":  136,
+                                                         "x":  408
+                                                     }
+                                       },
+                   "cast_side_0":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "cast_side_1":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  136
+                                                 }
+                                   },
+                   "cast_side_2":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  272
+                                                 }
+                                   },
+                   "cast_side_3":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  544,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  408
+                                                 }
+                                   },
+                   "hurt_side_0":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "hurt_side_1":  {
+                                       "trimmed":  false,
+                                       "spriteSourceSize":  {
+                                                                "y":  0,
+                                                                "w":  136,
+                                                                "h":  136,
+                                                                "x":  0
+                                                            },
+                                       "sourceSize":  {
+                                                          "h":  136,
+                                                          "w":  136
+                                                      },
+                                       "rotated":  false,
+                                       "frame":  {
+                                                     "y":  0,
+                                                     "w":  136,
+                                                     "h":  136,
+                                                     "x":  0
+                                                 }
+                                   },
+                   "downed_side_0":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  408
+                                                   }
+                                     },
+                   "downed_side_1":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  408
+                                                   }
+                                     },
+                   "downed_side_2":  {
+                                         "trimmed":  false,
+                                         "spriteSourceSize":  {
+                                                                  "y":  0,
+                                                                  "w":  136,
+                                                                  "h":  136,
+                                                                  "x":  0
+                                                              },
+                                         "sourceSize":  {
+                                                            "h":  136,
+                                                            "w":  136
+                                                        },
+                                         "rotated":  false,
+                                         "frame":  {
+                                                       "y":  544,
+                                                       "w":  136,
+                                                       "h":  136,
+                                                       "x":  408
+                                                   }
+                                     }
+               },
+    "meta":  {
+                 "scale":  1,
+                 "size":  {
+                              "h":  816,
+                              "w":  544
+                          },
+                 "image":  "player.png"
+             }
+}

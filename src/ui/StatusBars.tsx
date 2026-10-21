@@ -1,7 +1,6 @@
 import { useGame } from '../store/gameStore';
 import { realmFor } from '../game/systems/progression';
-import { playerArt } from '../game/systems/character';
-import { itemIconUrl, portraitUrl } from '../game/art/icons';
+import { itemIconUrl } from '../game/art/icons';
 
 function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'mp' }) {
   const pct = Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100));
@@ -24,7 +23,10 @@ export function StatusBars() {
   return (
     <div className="status panel-glass">
       <div className={`avatar ${status === 'downed' ? 'avatar-down' : ''}`}>
-        <img src={portraitUrl(playerArt(player.sex), 128)} alt="" />
+        <img
+          src={player.sex === 'male' ? '/assets/sprites/wang-lin-portrait.png' : '/assets/sprites/li-mu-uyen-portrait.png'}
+          alt=""
+        />
         <span className="avatar-level">{player.level}</span>
       </div>
       <div className="status-info">

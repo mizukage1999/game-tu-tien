@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { resetSupabaseChannel } from './channelReset';
 import { supabase } from './supabase';
 import {
   applyPose,
@@ -44,6 +45,7 @@ export function joinWorldChannel(
   // Unique per connection: the same account open in two tabs is two bodies, and we
   // must still be able to filter out exactly our own connection.
   const selfKey = `${opts.userId}:${Math.random().toString(36).slice(2, 8)}`;
+  resetSupabaseChannel(client, `world:${opts.mapId}`);
   const channel = client.channel(`world:${opts.mapId}`, {
     config: { presence: { key: selfKey }, broadcast: { self: false } },
   });

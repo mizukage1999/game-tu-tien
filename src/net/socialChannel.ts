@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { resetSupabaseChannel } from './channelReset';
 import { supabase } from './supabase';
 import {
   parseProfile,
@@ -39,6 +40,7 @@ export function joinSocialChannel(
   // Keyed by account, so opening a second tab updates the same slot instead of
   // showing the same player twice.
   const selfKey = profile.userId;
+  resetSupabaseChannel(client, 'social');
   const channel = client.channel('social', {
     config: { presence: { key: selfKey }, broadcast: { self: false } },
   });

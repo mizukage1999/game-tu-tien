@@ -16,15 +16,13 @@ import {
   type SkillId,
 } from '../../data';
 import { EventBus } from '../../game/EventBus';
-import { itemIconUrl, skillIconUrl } from '../../game/art/icons';
+import { itemIconUrl, skillSpriteUrl } from '../../game/art/icons';
 import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
 import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
 import { canEquip, expToNext, isBottleneck, realmFor } from '../../game/systems/progression';
 import { objectiveText } from '../../game/systems/quest';
-import { clearSave, disableSaving } from '../../game/systems/save';
 import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, SKILL_MAX_LEVEL } from '../../game/systems/skills';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
-import { deleteCloudSave } from '../../net/cloudSave';
 import { useAccount } from '../../net/session';
 import { AccountPanel } from '../AccountPanel';
 import { SocialPanel } from '../social/SocialPanel';
@@ -36,6 +34,7 @@ const TITLES: Record<MenuTab, string> = {
   cultivate: 'Tu Luyện',
   skills: 'Kỹ Năng',
   dungeon: 'Phó Bản',
+  mail: 'Thư',
   quests: 'Nhiệm Vụ',
   shop: 'Cửa Hàng',
   social: 'Xã Hội',
@@ -50,12 +49,12 @@ function rarityColor(id: string) {
 function ItemIcon({ id, size }: { id: string; size: number }) {
   const color = rarityColor(id);
   return (
-    <img
-      className="item-icon"
-      src={itemIconUrl(id, size)}
-      alt=""
-      style={color ? { borderColor: color, boxShadow: `0 0 6px ${color}` } : undefined}
-    />
+    <span
+      className="item-icon-frame"
+      style={{ width: size, height: size, ...(color ? { borderColor: color, boxShadow: `0 0 6px ${color}` } : {}) }}
+    >
+      <img className="item-icon" src={itemIconUrl(id, size)} alt="" />
+    </span>
   );
 }
 
@@ -122,6 +121,10 @@ function Character() {
   const player = useGame((s) => s.player);
   const stats = useGame((s) => s.stats);
   const unequip = useGame((s) => s.unequip);
+  const expNeeded = expToNext(player.level);
+  const hpPct = Math.max(0, Math.min(100, (player.hp / Math.max(1, stats.maxHp)) * 100));
+  const mpPct = Math.max(0, Math.min(100, (player.mp / Math.max(1, stats.maxMp)) * 100));
+  const expPct = Math.max(0, Math.min(100, (player.exp / Math.max(1, expNeeded)) * 100));
   const rows: [string, string | number][] = [
     ['Cảnh giới', realmFor(player.realmIndex).name],
     ['Cấp độ', player.level],
@@ -134,6 +137,34 @@ function Character() {
   ];
   return (
     <>
+      <div className="character-hero">
+        <img
+          className="character-portrait"
+          src={player.sex === 'male' ? '/assets/sprites/wang-lin-portrait.png' : '/assets/sprites/li-mu-uyen-portrait.png'}
+          alt=""
+          aria-hidden="true"
+        />
+        <div className="character-hero-info">
+          <div className="character-name">
+            {player.name} <span>Lv.{player.level}</span>
+          </div>
+          <div className="character-realm">{realmFor(player.realmIndex).name}</div>
+          <div className="bar bar-hp">
+            <div className="bar-fill" style={{ width: `${hpPct}%` }} />
+            <span className="bar-text">HP {Math.round(player.hp)} / {stats.maxHp}</span>
+          </div>
+          <div className="bar bar-mp">
+            <div className="bar-fill" style={{ width: `${mpPct}%` }} />
+            <span className="bar-text">MP {Math.round(player.mp)} / {stats.maxMp}</span>
+          </div>
+          <div className="character-exp">
+            <span>EXP {player.exp} / {expNeeded}</span>
+            <div className="character-exp-track">
+              <span style={{ width: `${expPct}%` }} />
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="menu-grid two">
         <table className="stat-table">
           <tbody>
@@ -213,6 +244,16 @@ function Bag() {
         })}
       </div>
     </>
+  );
+}
+
+function Mail() {
+  return (
+    <div className="mail-empty">
+      <img src="/assets/ui/menu-mail.png" alt="" aria-hidden="true" />
+      <h4>Hộp thư</h4>
+      <p className="muted">Hiện chưa có thư mới.</p>
+    </div>
   );
 }
 
@@ -308,7 +349,7 @@ function Skills() {
         return (
           <div key={id} className="skill-row upgrade">
             <div className="skill-icon">
-              <img src={skillIconUrl(id, 56)} alt="" />
+              <img src={skillSpriteUrl(id)} alt="" />
               <span className="skill-lv">{lv}</span>
             </div>
             <div className="skill-info">
@@ -593,19 +634,6 @@ function Settings() {
         Game tự động lưu mỗi 5 giây và khi chuyển bản đồ
         {account.user ? ' — vào cả trình duyệt và cloud.' : ' vào trình duyệt (localStorage).'}
       </p>
-      <button
-        className="btn danger"
-        onClick={() => {
-          if (!window.confirm('Xóa toàn bộ tiến trình và chơi lại từ đầu?')) return;
-          disableSaving();
-          clearSave();
-          const done = () => window.location.reload();
-          if (account.user) void deleteCloudSave(account.user.id).then(done, done);
-          else done();
-        }}
-      >
-        Chơi lại từ đầu
-      </button>
     </div>
   );
 }
@@ -616,6 +644,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
   cultivate: Cultivate,
   skills: Skills,
   dungeon: Dungeons,
+  mail: Mail,
   quests: Quests,
   shop: Shop,
   social: SocialPanel,
@@ -629,9 +658,12 @@ export function Menus() {
   const Content = CONTENT[menu];
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
-      <div className="menu-window panel-ornate">
+      <div className={`menu-window panel-ornate menu-${menu}`}>
         <div className="menu-header">
-          <h3>{TITLES[menu]}</h3>
+          <h3>
+            <img src={`/assets/ui/menu-${menu}.png`} alt="" aria-hidden="true" />
+            {TITLES[menu]}
+          </h3>
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>

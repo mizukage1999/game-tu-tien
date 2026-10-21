@@ -84,7 +84,10 @@ export function Minimap() {
           ({tile.x}, {tile.y})
         </span>
       </div>
-      <canvas ref={canvas} width={SIZE} height={SIZE} className="minimap-canvas" />
+      <div className="minimap-map">
+        <canvas ref={canvas} width={SIZE} height={SIZE} className="minimap-canvas" />
+        <img className="minimap-frame" src="/assets/ui/frame-minimap.png" alt="" aria-hidden="true" />
+      </div>
       {zone && <div className="minimap-zone">{zone.name} · linh khí x{zone.rate}</div>}
     </div>
   );
