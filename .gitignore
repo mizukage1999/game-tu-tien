@@ -2,3 +2,7 @@ node_modules
 dist
 *.log
 .vite
+.preview
+.env
+.env.local
+.env.*.local

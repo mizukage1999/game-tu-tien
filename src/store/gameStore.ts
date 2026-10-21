@@ -55,7 +55,7 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'quests' | 'shop' | 'settings';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'quests' | 'shop' | 'social' | 'settings';
 
 export interface DungeonHud {
   id: string;
@@ -102,6 +102,8 @@ export interface GameState {
   dungeonResult: DungeonResult | null;
   /** Where to put the player back after leaving a dungeon. */
   dungeonReturn: { mapId: string; pos: Vec2 } | null;
+  /** Other humans on this map right now (online builds only). */
+  online: number;
 
   addLog(text: string, channel?: LogChannel): void;
   toast(text: string, kind?: ToastKind): void;
@@ -221,6 +223,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     dungeon: null,
     dungeonResult: null,
     dungeonReturn: null,
+    online: 0,
 
     addLog(text, channel = 'system') {
       set((s) => ({ logs: [...s.logs.slice(-(MAX_LOGS - 1)), { id: uid++, channel, text }] }));

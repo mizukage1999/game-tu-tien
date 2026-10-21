@@ -24,6 +24,10 @@ import { objectiveText } from '../../game/systems/quest';
 import { clearSave, disableSaving } from '../../game/systems/save';
 import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, SKILL_MAX_LEVEL } from '../../game/systems/skills';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
+import { deleteCloudSave } from '../../net/cloudSave';
+import { useAccount } from '../../net/session';
+import { AccountPanel } from '../AccountPanel';
+import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
 
 const TITLES: Record<MenuTab, string> = {
@@ -34,6 +38,7 @@ const TITLES: Record<MenuTab, string> = {
   dungeon: 'Phó Bản',
   quests: 'Nhiệm Vụ',
   shop: 'Cửa Hàng',
+  social: 'Xã Hội',
   settings: 'Cài Đặt',
 };
 
@@ -578,17 +583,25 @@ function Shop() {
 }
 
 function Settings() {
+  const account = useAccount();
   return (
     <div>
-      <p>Game tự động lưu vào trình duyệt (localStorage) mỗi 5 giây và khi chuyển bản đồ.</p>
+      <h4>Tài khoản</h4>
+      <AccountPanel />
+      <h4>Dữ liệu</h4>
+      <p>
+        Game tự động lưu mỗi 5 giây và khi chuyển bản đồ
+        {account.user ? ' — vào cả trình duyệt và cloud.' : ' vào trình duyệt (localStorage).'}
+      </p>
       <button
         className="btn danger"
         onClick={() => {
-          if (window.confirm('Xóa toàn bộ tiến trình và chơi lại từ đầu?')) {
-            disableSaving();
-            clearSave();
-            window.location.reload();
-          }
+          if (!window.confirm('Xóa toàn bộ tiến trình và chơi lại từ đầu?')) return;
+          disableSaving();
+          clearSave();
+          const done = () => window.location.reload();
+          if (account.user) void deleteCloudSave(account.user.id).then(done, done);
+          else done();
         }}
       >
         Chơi lại từ đầu
@@ -605,6 +618,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
   dungeon: Dungeons,
   quests: Quests,
   shop: Shop,
+  social: SocialPanel,
   settings: Settings,
 };
 

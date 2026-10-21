@@ -1,17 +1,53 @@
-# Tu Tiên Demo (offline)
+# Tu Tiên Demo
 
-Web game tu tiên chạy trên trình duyệt: Vite + React + TypeScript + Phaser 3 + Zustand.
+Web game tu tiên chạy trên trình duyệt: Vite + React + TypeScript + Phaser 3 + Zustand, có tài khoản và save trên cloud (Supabase).
 
 ## Chạy
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm test         # Vitest cho các hệ thống thuần (combat, AI, loot, tiến trình, nhiệm vụ, lưu game)
+npm test         # Vitest cho logic thuần (combat, AI, loot, tiến trình, nhiệm vụ, lưu game, tài khoản)
 npm run build    # kiểm tra kiểu + đóng gói vào dist/
 ```
 
-Tiến trình được lưu vào `localStorage` (5 giây/lần, khi chuyển map và khi đóng tab). Xóa dữ liệu trong menu **設 Cài đặt**.
+Không cần cấu hình gì thì game chạy **offline** như cũ, tiến trình chỉ nằm trong `localStorage`. Xóa dữ liệu trong menu **設 Cài đặt**.
+
+## Tài khoản và save online
+
+1. Tạo project tại [supabase.com](https://supabase.com), rồi mở **SQL Editor** và chạy toàn bộ [`supabase/schema.sql`](supabase/schema.sql)
+   (bảng `profiles` + `saves`, RLS chỉ cho mỗi người đọc/ghi dữ liệu của mình, trigger tạo hồ sơ, hàm kiểm tra username).
+2. Trong **Authentication → Sign In / Providers**, bật **Anonymous sign-ins** và tắt **Confirm email**
+   (tài khoản đăng ký bằng username dùng email nội bộ `@players.tutien.invalid` nên không nhận được thư xác nhận).
+3. Chép `.env.example` thành `.env.local` và điền hai biến public:
+
+   ```bash
+   VITE_SUPABASE_URL=https://<project>.supabase.co
+   VITE_SUPABASE_ANON_KEY=<anon key>
+   ```
+
+   Chỉ dùng **anon key**. Không bao giờ đưa `service_role` vào client.
+
+Khởi động lại `npm run dev`. Màn hình đầu tiên sẽ có ba lựa chọn:
+
+- **Chơi ngay** — đăng nhập ẩn danh, vẫn có save trên server nhưng gắn với phiên trình duyệt này.
+- **Đăng nhập** — bằng username *hoặc* email.
+- **Đăng ký** — username + mật khẩu (không cần email, đăng nhập về sau bằng username), hoặc email + mật khẩu (đăng nhập bằng email).
+
+Khách có thể vào **Cài đặt → Tài khoản** để nâng cấp thành tài khoản thật mà **giữ nguyên nhân vật** (`updateUser` gắn email + mật khẩu vào đúng user đang chơi).
+
+### Save hoạt động thế nào
+
+- Mỗi tài khoản có key `localStorage` riêng (`tu-tien-demo-save:<user id>`), nên hai người dùng chung máy không lẫn save.
+- `saveGame()` ghi cache local rồi đẩy lên bảng `saves` (một request tại một thời điểm, save mới nhất thắng).
+- Khi mở game, client so `savedAt` của local và cloud rồi lấy bản mới hơn — chơi lúc mất mạng vẫn không mất tiến trình.
+- **Cảnh báo:** save nằm ở client và được client tin tưởng, nên người chơi sửa được save của chính mình. Muốn chống hack (PvP, xếp hạng) thì phải kiểm tra phía server.
+
+### Giới hạn hiện tại
+
+- Chưa có khôi phục mật khẩu trên UI và chưa có bảng xếp hạng.
+- Guest xóa dữ liệu trình duyệt là mất đường vào nhân vật (dù save còn trên server).
+- Chưa có multiplayer: hai người chơi không nhìn thấy nhau trong map.
 
 ## Điều khiển
 
@@ -50,8 +86,11 @@ src/
     art/         đồ họa vẽ bằng Canvas 2D (nhân vật, linh thú, tile, decor, hiệu ứng, icon)
     anim/        AnimationController (hướng, khóa khi tấn công, frame gây sát thương)
     fx/          số sát thương, hiệu ứng trúng đòn, VFX kỹ năng
+  net/           Supabase: client, phiên đăng nhập, auth, cloud save, boot
   store/         Zustand store: nguồn dữ liệu chung giữa Phaser và HUD React
-  ui/            HUD, menu, hội thoại
+  ui/            HUD, menu, hội thoại, màn hình đăng nhập
+supabase/
+  schema.sql     bảng profiles/saves, RLS, trigger và hàm kiểm tra username
 ```
 
 Phaser gửi trạng thái lên store; React đọc store để vẽ HUD và gửi lệnh ngược lại qua `EventBus`.

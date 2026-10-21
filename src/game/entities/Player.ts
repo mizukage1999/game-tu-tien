@@ -84,16 +84,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.bar = world.add.graphics().setDepth(90000);
 
     const kb = world.input.keyboard!;
-    this.keys = kb.addKeys({
-      up: 'UP',
-      down: 'DOWN',
-      left: 'LEFT',
-      right: 'RIGHT',
-      w: 'W',
-      a: 'A',
-      s: 'S',
-      d: 'D',
-    }) as Keys;
+    // No capture: a captured key is preventDefault'ed page-wide, which would stop
+    // the player from typing w/a/s/d/arrows into HUD and menu inputs.
+    this.keys = kb.addKeys(
+      {
+        up: 'UP',
+        down: 'DOWN',
+        left: 'LEFT',
+        right: 'RIGHT',
+        w: 'W',
+        a: 'A',
+        s: 'S',
+        d: 'D',
+      },
+      false,
+    ) as Keys;
 
     this.ctrl.play('idle', this.dir);
   }

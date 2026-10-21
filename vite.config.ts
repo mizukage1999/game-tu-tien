@@ -11,6 +11,12 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    // Tests must never depend on the developer's .env.local: with credentials
+    // present the auth screen would hit the real network and hang.
+    env: {
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+    },
   },
 });

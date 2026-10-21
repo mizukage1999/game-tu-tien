@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import { PreloadScene } from './scenes/PreloadScene';
 import { WorldScene } from './scenes/WorldScene';
 import { gameStore } from '../store/gameStore';
+import { socialStore } from '../store/socialStore';
 import { screenToTurnedGame } from '../ui/TouchPlay';
 
 let game: Phaser.Game | null = null;
@@ -86,7 +87,7 @@ export function PhaserGame() {
       scene: [PreloadScene, WorldScene],
     });
     fitTurnedCanvas(game);
-    if (import.meta.env.DEV) Object.assign(window, { __game: game, __store: gameStore });
+    if (import.meta.env.DEV) Object.assign(window, { __game: game, __store: gameStore, __social: socialStore });
     const onUnload = () => saveNow();
     window.addEventListener('beforeunload', onUnload);
     return () => {

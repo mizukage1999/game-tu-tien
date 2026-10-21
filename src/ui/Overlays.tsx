@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EventBus } from '../game/EventBus';
 import { npcName, useGame, type Toast } from '../store/gameStore';
+import { onlineEnabled } from '../net/config';
 
 export function TargetFrame() {
   const t = useGame((s) => s.target);
@@ -85,14 +86,18 @@ export function InteractPrompt() {
 
 export function ClockBar() {
   const auto = useGame((s) => s.auto);
+  const online = useGame((s) => s.online);
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 15000);
     return () => window.clearInterval(id);
   }, []);
+  // Counting yourself makes the number match what other players see on their screen.
+  const people = onlineEnabled ? ` · ${online + 1} người chơi` : ' · Offline';
   return (
     <div className="clock">
-      {String(now.getHours()).padStart(2, '0')}:{String(now.getMinutes()).padStart(2, '0')} · Offline
+      {String(now.getHours()).padStart(2, '0')}:{String(now.getMinutes()).padStart(2, '0')}
+      {people}
       {auto ? ' · Tự động' : ''}
     </div>
   );

@@ -7,7 +7,35 @@ import type { Vec2 } from '../types';
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
 
+/**
+ * Offline play uses the bare key. Signed-in accounts get their own key so two
+ * players on the same browser never pick up each other's cache.
+ */
+let scope: string | null = null;
+
+export function setSaveScope(userId: string | null) {
+  scope = userId;
+}
+
+export function saveKey(): string {
+  return scope ? `${SAVE_KEY}:${scope}` : SAVE_KEY;
+}
+
+export type SaveSink = (data: SaveData) => void;
+let sink: SaveSink | null = null;
+
+/** Cloud sync registers here; localStorage keeps working as the instant cache. */
+export function setSaveSink(next: SaveSink | null) {
+  sink = next;
+}
+
 export type Sex = 'female' | 'male';
+
+/** A friend, as stored in the save file. Level/realm come from presence at runtime. */
+export interface FriendRef {
+  userId: string;
+  name: string;
+}
 
 export interface PlayerSave {
   name: string;
@@ -24,6 +52,8 @@ export interface PlayerSave {
   /** Missing in saves from before skill upgrades; every skill then counts as level 1. */
   skills?: SkillLevels;
   dungeons?: DungeonRecord;
+  /** Missing in saves from before social existed; those players start with no friends. */
+  friends?: FriendRef[];
 }
 
 export interface SaveData {
@@ -50,7 +80,16 @@ function storage(): StorageLike | null {
 }
 
 export function serialize(data: Omit<SaveData, 'v' | 'savedAt'>): string {
-  return JSON.stringify({ ...data, v: SAVE_VERSION, savedAt: Date.now() });
+  return JSON.stringify(snapshotOf(data));
+}
+
+function snapshotOf(data: Omit<SaveData, 'v' | 'savedAt'>): SaveData {
+  return { ...data, v: SAVE_VERSION, savedAt: Date.now() };
+}
+
+/** Stores an already timestamped save, e.g. one pulled from the cloud. */
+export function writeSnapshot(data: SaveData, store: StorageLike | null = storage()) {
+  store?.setItem(saveKey(), JSON.stringify(data));
 }
 
 export function deserialize(raw: string | null): SaveData | null {
@@ -66,7 +105,7 @@ export function deserialize(raw: string | null): SaveData | null {
 }
 
 export function loadGame(store: StorageLike | null = storage()): SaveData | null {
-  return deserialize(store?.getItem(SAVE_KEY) ?? null);
+  return deserialize(store?.getItem(saveKey()) ?? null);
 }
 
 let savingDisabled = false;
@@ -78,9 +117,11 @@ export function disableSaving() {
 
 export function saveGame(data: Omit<SaveData, 'v' | 'savedAt'>, store: StorageLike | null = storage()) {
   if (savingDisabled) return;
-  store?.setItem(SAVE_KEY, serialize(data));
+  const snapshot = snapshotOf(data);
+  store?.setItem(saveKey(), JSON.stringify(snapshot));
+  sink?.(snapshot);
 }
 
 export function clearSave(store: StorageLike | null = storage()) {
-  store?.removeItem(SAVE_KEY);
+  store?.removeItem(saveKey());
 }

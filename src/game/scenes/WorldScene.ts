@@ -18,7 +18,14 @@ import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../s
 import { rollLoot } from '../systems/loot';
 import { questDestination, routeOnMap, trackedQuest, trackQuest, type QuestStop } from '../systems/questNav';
 import { canEnterField, fieldForLevel, killExp } from '../systems/scale';
+import { realmFor } from '../systems/progression';
 import { saveGame } from '../systems/save';
+import { isTypingTarget } from '../systems/typing';
+import { RemotePlayer } from '../entities/RemotePlayer';
+import { joinWorldChannel, type WorldChannel } from '../../net/worldChannel';
+import type { RemotePlayerState } from '../../net/presence';
+import { getAccountState } from '../../net/session';
+import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
 
 interface WorldData {
@@ -61,6 +68,8 @@ export class WorldScene extends Phaser.Scene {
   private currentZone: ZoneDef | null = null;
   private transitioning = false;
   private cleanups: (() => void)[] = [];
+  private channel: WorldChannel | null = null;
+  private remotes = new Map<string, RemotePlayer>();
   private syncTimer = 0;
   private secondTimer = 0;
   private saveTimer = 0;
@@ -81,6 +90,8 @@ export class WorldScene extends Phaser.Scene {
     this.currentZone = null;
     this.transitioning = false;
     this.cleanups = [];
+    this.channel = null;
+    this.remotes.clear();
   }
 
   create() {
@@ -163,6 +174,7 @@ export class WorldScene extends Phaser.Scene {
       if (trackedQuest()) this.guideQuest();
     }
     this.save();
+    this.startMultiplayer(map);
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.cleanups.forEach((fn) => fn());
@@ -364,11 +376,114 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.setZoom(zoom);
   }
 
+  // ---- other players -----------------------------------------------------
+
+  /**
+   * Joins this map's channel so other humans show up. Dungeons are instanced per
+   * player, and offline builds have no session, so both skip silently.
+   */
+  private startMultiplayer(map: MapDef) {
+    if (map.arena) return;
+    const user = getAccountState().user;
+    if (!user) return;
+    const p = gameStore.getState().player;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    const channel = joinWorldChannel({
+      mapId: map.id,
+      userId: user.id,
+      name: p.name,
+      sex: p.sex ?? 'female',
+      realm: realmFor(p.realmIndex).name,
+      party: socialStore.getState().partyId,
+      pose: {
+        x: this.player.x,
+        y: this.player.y,
+        dir: this.player.dir,
+        moving: Math.hypot(body.velocity.x, body.velocity.y) > 8,
+      },
+    });
+    if (!channel) return;
+    this.channel = channel;
+    const stop = channel.onRoster((roster) => this.syncRoster(roster));
+    // Re-advertise the party so teammates still tint green after a map change.
+    const stopParty = socialStore.subscribe((s, prev) => {
+      if (s.partyId !== prev.partyId) channel.setParty(s.partyId);
+    });
+    this.cleanups.push(stop, stopParty, () => {
+      this.channel = null;
+      this.remotes.clear();
+      gameStore.getState().patch({ online: 0 });
+      void channel.leave();
+    });
+  }
+
+  private syncRoster(roster: RemotePlayerState[]) {
+    // The HUD only needs the count, and this runs on every movement packet.
+    if (gameStore.getState().online !== roster.length) gameStore.getState().patch({ online: roster.length });
+    const seen = new Set<string>();
+    for (const meta of roster) {
+      seen.add(meta.key);
+      const existing = this.remotes.get(meta.key);
+      if (existing) existing.apply(meta);
+      else this.remotes.set(meta.key, new RemotePlayer(this, meta));
+    }
+    for (const [key, remote] of this.remotes) {
+      if (seen.has(key)) continue;
+      remote.destroy();
+      this.remotes.delete(key);
+    }
+  }
+
+  private tickMultiplayer(dt: number) {
+    const channel = this.channel;
+    if (!channel) return;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    channel.publish({
+      x: Math.round(this.player.x),
+      y: Math.round(this.player.y),
+      dir: this.player.dir,
+      moving: Math.hypot(body.velocity.x, body.velocity.y) > 8,
+    });
+    for (const remote of this.remotes.values()) remote.update(dt);
+  }
+
+  /**
+   * Focus in a text field must win over every game binding, including movement:
+   * otherwise typing a name keeps walking and fires J/1/2/3/E/F/Q/T hotkeys.
+   */
+  private releaseKeysWhileTyping() {
+    const kb = this.input.keyboard;
+    if (!kb) return;
+    const sync = (target: EventTarget | null) => {
+      const typing = isTypingTarget(target);
+      if (typing === !kb.enabled) return;
+      kb.enabled = !typing;
+      kb.resetKeys();
+    };
+    const onFocusIn = (e: FocusEvent) => sync(e.target);
+    const onFocusOut = () => setTimeout(() => sync(document.activeElement), 0);
+    // Focusing on its own is not enough: inputs can already be focused when a key
+    // arrives (programmatic focus, autofocus, React keeping focus across renders),
+    // so the keystroke itself re-checks and heals the state. Capture phase, because
+    // Phaser's own listener runs on window and must see the settled value.
+    const onKeyDown = (e: KeyboardEvent) => sync(e.target);
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
+    window.addEventListener('keydown', onKeyDown, true);
+    this.cleanups.push(() => {
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
+      window.removeEventListener('keydown', onKeyDown, true);
+    });
+  }
+
   // ---- input & store wiring ---------------------------------------------
 
   private bindInput() {
     const kb = this.input.keyboard!;
-    kb.addCapture('SPACE,TAB');
+    // Capturing keys here would eat them for every text field on the page (TAB is
+    // also the only way to move between inputs), so leave the browser in charge.
+    this.releaseKeysWhileTyping();
     const on = (key: string, fn: () => void) => {
       kb.on(`keydown-${key}`, fn);
       this.cleanups.push(() => kb.off(`keydown-${key}`, fn));
@@ -385,6 +500,14 @@ export class WorldScene extends Phaser.Scene {
     on('Q', () => gameStore.getState().consumeItem('hoi_xuan_dan'));
     on('T', () => gameStore.getState().setAuto(!gameStore.getState().auto));
     on('ESC', () => gameStore.getState().patch({ menu: null, dialogNpc: null }));
+
+    // SPACE would otherwise scroll/activate a focused button while playing.
+    const swallowGameKeys = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return;
+      if (e.code === 'Space') e.preventDefault();
+    };
+    window.addEventListener('keydown', swallowGameKeys);
+    this.cleanups.push(() => window.removeEventListener('keydown', swallowGameKeys));
 
     this.cleanups.push(
       EventBus.on('cmd:attack', () => this.player.attack()),
@@ -412,6 +535,7 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     const dt = Math.min(delta, 50);
     this.player.update(dt);
+    this.tickMultiplayer(dt);
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
     for (const m of this.monsters) m.update(dt, targetable);
     for (const l of this.loot.getChildren() as LootDrop[]) l.tick(dt, this.player.feet);

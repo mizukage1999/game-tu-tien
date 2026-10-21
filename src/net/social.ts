@@ -57,12 +57,14 @@ function duelist(value: unknown): Duelist | null {
   const raw = value as Record<string, unknown>;
   const userId = text(raw.userId, 64);
   if (!userId) return null;
+  const maxHp = Math.round(number(raw.maxHp, 100, 10_000_000));
   return {
     userId,
     name: text(raw.name, 16).trim() || 'Đạo hữu',
     level: Math.round(number(raw.level, 1, 999)),
     realm: text(raw.realm, 40),
-    maxHp: Math.round(number(raw.maxHp, 100, 10_000_000)),
+    hp: maxHp,
+    maxHp,
     atk: number(raw.atk, 10, 1_000_000),
     def: number(raw.def, 0, 1_000_000),
     critRate: number(raw.critRate, 0, 1),

@@ -19,7 +19,7 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const run = async (action: () => Promise<AuthResult>) => {
+  const run = async (action: () => Promise<AuthResult>, allowOffline = false) => {
     if (busy) return;
     setBusy(true);
     setError('');
@@ -27,6 +27,10 @@ export function AuthScreen() {
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
+      if (allowOffline) {
+        // Even without a server session the player can keep playing locally.
+        window.location.reload();
+      }
       return;
     }
     // A reload re-runs the boot sequence so the store loads this account's save.
@@ -68,7 +72,7 @@ export function AuthScreen() {
               duyệt này — xóa dữ liệu trình duyệt là mất nhân vật. Vào <b>Cài đặt</b> để tạo tài khoản
               và giữ tiến trình.
             </p>
-            <button className="btn gold" type="button" disabled={busy} onClick={() => run(signInGuest)}>
+            <button className="btn gold" type="button" disabled={busy} onClick={() => run(signInGuest, true)}>
               {busy ? 'Đang vào...' : 'Vào thế giới'}
             </button>
           </div>

@@ -17,6 +17,7 @@ export interface WorldChannelOptions {
   name: string;
   sex: Sex;
   realm: string;
+  party?: string | null;
   pose: Pose;
 }
 
@@ -25,6 +26,7 @@ export interface WorldChannel {
   /** Cheap to call every frame: throttling and change detection happen inside. */
   publish(pose: Pose): void;
   onRoster(fn: (roster: RemotePlayerState[]) => void): () => void;
+  setParty(partyId: string | null): void;
   leave(): Promise<void>;
 }
 
@@ -101,6 +103,7 @@ export function joinWorldChannel(
     }
   });
 
+  let currentParty: string | null = opts.party ?? null;
   return {
     mapId: opts.mapId,
     publish(pose) {
@@ -117,6 +120,11 @@ export function joinWorldChannel(
       return () => {
         listeners.delete(fn);
       };
+    },
+    setParty(partyId) {
+      currentParty = partyId ?? null;
+      if (closed || !ready) return;
+      void channel.track({ user_id: opts.userId, party: currentParty });
     },
     async leave() {
       closed = true;

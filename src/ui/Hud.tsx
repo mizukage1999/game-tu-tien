@@ -1,6 +1,7 @@
 import { StatusBars } from './StatusBars';
 import { QuestPanel } from './QuestPanel';
 import { TopMenu } from './TopMenu';
+import { CloudBadge } from './CloudBadge';
 import { Minimap } from './Minimap';
 import { ChatLog } from './ChatLog';
 import { ExpBar } from './ExpBar';
@@ -10,6 +11,8 @@ import { SwipeMove, usePhoneLayout, usePortrait } from './TouchPlay';
 import { ClockBar, DownedOverlay, InteractPrompt, TargetFrame, Toasts } from './Overlays';
 import { DialogBox } from './DialogBox';
 import { Menus } from './menus/Menus';
+import { PlayerCard } from './PlayerCard';
+import { DuelOverlay } from './social/DuelOverlay';
 import { DungeonPanel, DungeonResultOverlay } from './DungeonPanel';
 import { useGame } from '../store/gameStore';
 
@@ -25,7 +28,10 @@ export function Hud() {
         {inDungeon ? <DungeonPanel /> : <QuestPanel />}
       </div>
       <div className="hud-top-right">
-        <TopMenu />
+        <div className="hud-top-stack">
+          <CloudBadge />
+          <TopMenu />
+        </div>
         <Minimap />
       </div>
       <TargetFrame />
@@ -44,6 +50,8 @@ export function Hud() {
       <ExpBar />
       <DialogBox />
       <DungeonResultOverlay />
+      <DuelOverlay />
+      <PlayerCard />
       <Menus />
     </div>
   );

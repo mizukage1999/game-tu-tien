@@ -20,6 +20,8 @@ export interface RemotePlayerState extends Pose {
   realm: string;
   /** Local clock when we last heard from them, used to drop silent connections. */
   updatedAt: number;
+  /** Party id when known; missing until a social channel carries it. */
+  party?: string;
 }
 
 const DIRS: Dir[] = ['down', 'up', 'left', 'right'];

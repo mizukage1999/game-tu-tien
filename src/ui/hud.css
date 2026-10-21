@@ -331,6 +331,49 @@ kbd {
   align-items: flex-start;
 }
 
+.hud-top-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.cloud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-dim);
+  background: rgba(8, 12, 22, 0.72);
+  color: var(--gold);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cloud-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.cloud-badge.offline {
+  border-color: rgba(200, 130, 110, 0.5);
+  color: #e2a793;
+}
+
+.cloud-badge.error {
+  border-color: #d16060;
+  color: #ff9a9a;
+}
+
 .top-menu {
   display: flex;
   gap: 4px;
@@ -2084,4 +2127,467 @@ kbd {
 
 .hud.phone.turned .exp-bar {
   width: min(560px, 60vh);
+}
+
+/* ---- account / login ---------------------------------------------------- */
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 8px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(227, 189, 98, 0.35);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.auth-tab.on {
+  border-color: var(--gold);
+  background: rgba(227, 189, 98, 0.14);
+  color: var(--ink);
+}
+
+.auth-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-body > .btn {
+  align-self: center;
+  min-width: 190px;
+  margin-top: 6px;
+}
+
+.auth-modes {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 2px 0 6px;
+}
+
+.auth-mode {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(227, 189, 98, 0.3);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.auth-mode.on {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.auth-note {
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 6px 0;
+}
+
+.account {
+  margin-bottom: 12px;
+}
+
+.account p {
+  margin: 4px 0;
+}
+
+.account-badge {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 11px;
+}
+
+.account .create-name {
+  max-width: 100%;
+}
+
+.account .btn {
+  margin-top: 8px;
+}
+
+.account-hint {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.account-ok {
+  margin: 0 0 8px;
+  color: #7bd88f;
+  font-size: 13px;
+}
+
+.auth-error {
+  margin: 10px 0 0;
+  text-align: left;
+}
+/* ---- player card ------------------------------------------------------- */
+
+.player-card {
+  width: min(420px, 92vw);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  animation: toast-in 0.2s;
+}
+
+.card-body {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  align-items: flex-start;
+}
+
+.card-portrait {
+  flex: 0 0 auto;
+}
+
+.card-glyph {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 700;
+  border: 2px solid var(--gold-dim);
+}
+
+.card-glyph.female {
+  background: linear-gradient(#4a3a6a, #241a3a);
+  color: #f3c6e8;
+}
+
+.card-glyph.male {
+  background: linear-gradient(#2c4a6a, #14243a);
+  color: #b6d8f8;
+}
+
+.card-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 4px;
+}
+
+.card-label {
+  color: var(--muted);
+}
+
+.card-value {
+  font-weight: 700;
+  text-align: right;
+}
+
+.card-value.gold {
+  color: var(--gold);
+}
+
+.card-value.online {
+  color: #7bd88f;
+}
+
+.card-value.offline {
+  color: var(--muted);
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+  flex-wrap: wrap;
+}
+
+.card-note {
+  padding: 0 16px 14px;
+  margin: 0;
+  font-size: 12px;
+}
+
+/* ---- social panel ------------------------------------------------------ */
+
+.social-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.social-tabs button {
+  flex: 1 1 0;
+  border: 1px solid var(--gold-dim);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 7px 6px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.social-tabs button.active {
+  background: linear-gradient(#f3d27e, #b88a2c);
+  color: #2a1a00;
+}
+
+.invite-badge {
+  display: inline-block;
+  min-width: 16px;
+  padding: 0 4px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: #d14a3a;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+}
+
+.social-offline {
+  margin: 0 0 10px;
+}
+
+.social-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.social-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.social-cap {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+.social-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(227, 189, 98, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.social-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(#2c3b66, #1a2342);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.social-avatar.online {
+  border-color: #7bd88f;
+}
+
+.social-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.social-name {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.social-sub {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.social-map {
+  color: var(--muted);
+  font-size: 11px;
+  flex: 0 0 auto;
+}
+
+.social-status {
+  flex: 0 0 auto;
+  font-size: 14px;
+}
+
+.social-status.online {
+  color: #7bd88f;
+}
+
+.social-status.offline {
+  color: var(--muted);
+}
+
+.social-actions {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+/* ---- duel overlay ------------------------------------------------------ */
+
+.duel-panel {
+  width: min(520px, 94vw);
+  max-height: 84vh;
+  display: flex;
+  flex-direction: column;
+  animation: toast-in 0.2s;
+}
+
+.duel-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.duel-side {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.duel-side.win {
+  border-color: #7bd88f;
+  box-shadow: 0 0 12px rgba(123, 216, 143, 0.3);
+}
+
+.duel-side.lose {
+  opacity: 0.6;
+}
+
+.duel-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.duel-tag {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.duel-side.win .duel-tag {
+  background: #7bd88f;
+  color: #0d2a12;
+}
+
+.duel-side.lose .duel-tag {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+}
+
+.duel-vs {
+  flex: 0 0 auto;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.duel-log {
+  max-height: 32vh;
+  overflow-y: auto;
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.duel-round {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.duel-round.crit {
+  background: rgba(224, 69, 58, 0.12);
+}
+
+.duel-turn {
+  color: var(--muted);
+}
+
+.duel-hit {
+  color: var(--ink);
+}
+
+.duel-hpleft {
+  color: var(--muted);
+  text-align: right;
+}
+
+.duel-note {
+  margin: 0;
+  padding: 0 16px 16px;
+  font-size: 12px;
+}
+
+/* Phone: the card and duel overlay are already capped by vw/vh, but tighten
+   the social panel so the lists do not overflow a small screen. */
+.hud.phone .social-item {
+  padding: 6px 8px;
+}
+
+.hud.phone .card-body {
+  gap: 12px;
+  padding: 12px;
+}
+
+.hud.phone .card-glyph {
+  width: 56px;
+  height: 56px;
+  font-size: 26px;
 }

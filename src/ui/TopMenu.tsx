@@ -8,6 +8,7 @@ const ITEMS: { id: MenuTab; label: string }[] = [
   { id: 'dungeon', label: 'Phó Bản' },
   { id: 'quests', label: 'Nhiệm Vụ' },
   { id: 'shop', label: 'Cửa Hàng' },
+  { id: 'social', label: 'Xã Hội' },
   { id: 'settings', label: 'Cài Đặt' },
 ];
 
@@ -65,6 +66,14 @@ function MenuIcon({ id }: { id: MenuTab }) {
           <path {...common} d="M4 10l1.8-5h12.4L20 10" />
           <path {...common} d="M5 10h14v9H5z" />
           <path {...common} d="M10 19v-5h4v5" />
+        </>
+      )}
+      {id === 'social' && (
+        <>
+          <circle {...common} cx="9" cy="8" r="3" />
+          <path {...common} d="M3.5 19c.7-3.2 2.8-5 5.5-5s4.8 1.8 5.5 5" />
+          <circle {...common} cx="16.5" cy="9.5" r="2.2" />
+          <path {...common} d="M15 14.2c2.7-.3 4.6 1.3 5.5 4.3" />
         </>
       )}
       {id === 'settings' && (
