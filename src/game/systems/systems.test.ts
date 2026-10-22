@@ -5,14 +5,34 @@ import { canAct, canBeHit, createLife, knockDown, tickLife, DOWNED_DURATION_MS }
 import { rollDungeonGear, rollLoot } from './loot';
 import { findPath } from './path';
 import { questDestination, routeOnMap } from './questNav';
-import { addExp, applyBreakthrough, canEquip, checkBreakthrough, computeStats, expToNext } from './progression';
+import {
+  addExp,
+  applyBreakthrough,
+  canEquip,
+  checkBreakthrough,
+  computeStats,
+  expToNext,
+  realmNameAtLevel,
+} from './progression';
 import { acceptQuest, applyEvent, availableQuests, completeQuest, turnInQuests } from './quest';
 import { meditateGain, zoneAt } from './cultivation';
 import { deserialize, serialize } from './save';
-import { DUNGEONS, EQUIP_SLOTS, equipmentId, ITEMS, MONSTERS, NPCS, QUESTS, RARITIES, type QuestDef } from '../../data';
+import {
+  DUNGEONS,
+  EQUIP_SLOTS,
+  equipmentId,
+  ITEMS,
+  MONSTERS,
+  NPCS,
+  QUESTS,
+  RARITIES,
+  REALMS,
+  type QuestDef,
+} from '../../data';
 import { getMap } from '../maps';
 import { DIFFICULTIES, DUNGEON_TIERS, FIELD_BANDS, canEnterField, dungeonId, expForMonsterLevel, fieldForLevel } from './scale';
 import { normalizeName, playerArt } from './character';
+import { itemSpriteTextureKey } from '../art/icons';
 import { screenToTurnedGame, swipeVector } from '../../ui/TouchPlay';
 
 const fixed = (...values: number[]) => {
@@ -116,26 +136,69 @@ describe('loot', () => {
 });
 
 describe('progression', () => {
+  it('uses tier-colored sprites for weapons and gear, with the top rarity mapped to red', () => {
+    for (const rarity of ['white', 'blue', 'green', 'purple', 'orange', 'red'] as const) {
+      expect(itemSpriteTextureKey(equipmentId('weapon', rarity))).toBe(`item-sprite-weapon_${rarity}`);
+      for (const slot of ['armor', 'boots', 'ring', 'amulet'] as const) {
+        expect(itemSpriteTextureKey(equipmentId(slot, rarity))).toBe(`item-sprite-${slot}_${rarity}`);
+      }
+    }
+    expect(itemSpriteTextureKey(equipmentId('weapon', 'pink'))).toBe('item-sprite-weapon_red');
+    for (const slot of ['armor', 'boots', 'ring', 'amulet'] as const) {
+      expect(itemSpriteTextureKey(equipmentId(slot, 'pink'))).toBe(`item-sprite-${slot}_red`);
+    }
+  });
+
+  it('uses the weapon tier level requirements for the new gear sprites', () => {
+    const requirements = { white: 10, blue: 20, green: 40, purple: 60, orange: 80, red: 100, pink: 100 } as const;
+    for (const slot of ['armor', 'boots', 'ring', 'amulet'] as const) {
+      for (const [rarity, level] of Object.entries(requirements)) {
+        expect(ITEMS[equipmentId(slot, rarity as keyof typeof requirements)].reqLevel).toBe(level);
+      }
+    }
+  });
+
   it('levels up and stops at the realm bottleneck', () => {
     const s = { level: 1, exp: 0, realmIndex: 0 };
     const r = addExp(s, expToNext(1) + 5);
     expect(r.levelsGained).toBe(1);
     expect(s.exp).toBe(5);
 
-    const capped = { level: 9, exp: 0, realmIndex: 0 };
+    const capped = { level: 10, exp: 0, realmIndex: 0 };
     const res = addExp(capped, 999999);
     expect(res.bottleneck).toBe(true);
-    expect(capped.level).toBe(9);
-    expect(capped.exp).toBe(expToNext(9));
+    expect(capped.level).toBe(10);
+    expect(capped.exp).toBe(expToNext(10));
   });
 
   it('requires resources to break through', () => {
-    const s = { level: 9, exp: expToNext(9), realmIndex: 0 };
+    const s = { level: 10, exp: expToNext(10), realmIndex: 0 };
     expect(checkBreakthrough(s, 0, 0).ok).toBe(false);
     const ok = checkBreakthrough(s, 10000, 100);
     expect(ok.ok).toBe(true);
     applyBreakthrough(s);
-    expect(s).toEqual({ level: 10, exp: 0, realmIndex: 1 });
+    expect(s).toEqual({ level: 11, exp: 0, realmIndex: 1 });
+  });
+
+  it('names major and minor cultivation stages at the requested level boundaries', () => {
+    expect(REALMS.map(({ name, minLevel, maxLevel }) => [name, minLevel, maxLevel])).toEqual([
+      ['Luyện Khí', 1, 10],
+      ['Trúc Cơ', 11, 20],
+      ['Kim Đan', 21, 30],
+      ['Nguyên Anh', 31, 40],
+      ['Hóa Thần', 41, 50],
+      ['Anh Biến', 51, 60],
+      ['Vấn Đỉnh', 61, 70],
+      ['Âm Hư', 71, 80],
+      ['Dương Thực', 81, 90],
+      ['Khuy Niết', 91, 100],
+    ]);
+    expect(realmNameAtLevel(1)).toBe('Luyện Khí Sơ Kỳ');
+    expect(realmNameAtLevel(4)).toBe('Luyện Khí Trung Kỳ');
+    expect(realmNameAtLevel(7)).toBe('Luyện Khí Hậu Kỳ');
+    expect(realmNameAtLevel(10)).toBe('Luyện Khí Hậu Kỳ Đại Viên Mãn');
+    expect(realmNameAtLevel(53)).toBe('Anh Biến Sơ Kỳ');
+    expect(realmNameAtLevel(88)).toBe('Dương Thực Hậu Kỳ');
   });
 
   it('adds equipment bonuses', () => {
@@ -145,9 +208,21 @@ describe('progression', () => {
   });
 
   it('gates equipment by rarity level', () => {
-    expect(canEquip('weapon_white', 1).ok).toBe(true);
-    expect(canEquip('weapon_purple', 19).ok).toBe(false);
-    expect(canEquip('weapon_purple', 20).ok).toBe(true);
+    expect(canEquip('weapon_white', 9).ok).toBe(false);
+    expect(canEquip('weapon_white', 10).ok).toBe(true);
+    expect(canEquip('weapon_blue', 19).ok).toBe(false);
+    expect(canEquip('weapon_blue', 20).ok).toBe(true);
+    expect(canEquip('weapon_green', 39).ok).toBe(false);
+    expect(canEquip('weapon_green', 40).ok).toBe(true);
+    expect(canEquip('weapon_purple', 59).ok).toBe(false);
+    expect(canEquip('weapon_purple', 60).ok).toBe(true);
+    expect(canEquip('weapon_orange', 79).ok).toBe(false);
+    expect(canEquip('weapon_orange', 80).ok).toBe(true);
+    expect(canEquip('weapon_red', 99).ok).toBe(false);
+    expect(canEquip('weapon_red', 100).ok).toBe(true);
+    expect(canEquip('weapon_pink', 100).ok).toBe(true);
+    expect(canEquip('armor_white', 9).ok).toBe(false);
+    expect(canEquip('armor_white', 10).ok).toBe(true);
     expect(canEquip('hoi_xuan_dan', 99).ok).toBe(false);
   });
 
@@ -297,6 +372,13 @@ describe('cultivation', () => {
     expect(zoneAt([{ id: 'z', name: 'Z', rect: [2, 2, 3, 3], rate: 2 }], 3, 3)?.id).toBe('z');
     expect(zoneAt([{ id: 'z', name: 'Z', rect: [2, 2, 3, 3], rate: 2 }], 5, 3)).toBeNull();
   });
+
+  it('keeps Linh Dai meditation at the base x1 rate', () => {
+    const linhDai = getMap('dai_thua_vien').zones.find((zone) => zone.id === 'linh_dai');
+    expect(linhDai?.rate).toBe(1);
+    expect(meditateGain(5, linhDai?.rate ?? null)).toEqual(meditateGain(5, 1));
+  });
+
 });
 
 describe('save', () => {
@@ -312,6 +394,12 @@ describe('save', () => {
     expect(deserialize(JSON.stringify({ v: 999 }))).toBeNull();
     const old = deserialize(raw);
     expect(old?.player.sex).toBe('female');
+
+    const legacy = JSON.stringify({
+      v: 1,
+      player: { name: 'B', level: 88, realmIndex: 6 },
+    });
+    expect(deserialize(legacy)?.player.realmIndex).toBe(8);
   });
 });
 

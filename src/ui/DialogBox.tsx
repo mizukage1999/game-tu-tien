@@ -2,6 +2,7 @@
 import { NPCS, QUESTS } from '../data';
 import { CHARACTERS } from '../game/art/generate';
 import { characterSpriteUrl } from '../game/art/icons';
+import { NPC_SPRITES } from '../game/systems/npcArt';
 import { availableQuests, turnInQuests } from '../game/systems/quest';
 import { useGame } from '../store/gameStore';
 
@@ -19,10 +20,11 @@ export function DialogBox() {
   const ready = turnInQuests(quests, QUESTS, npcId);
   const available = availableQuests(quests, QUESTS, npcId);
   const palette = CHARACTERS[def.art]?.palette ?? 'elder';
+  const portrait = NPC_SPRITES[npcId]?.src ?? characterSpriteUrl(palette, 136);
 
   return (
     <div className="dialog panel-ornate">
-      <img className="dialog-portrait" src={characterSpriteUrl(palette, 136)} alt="" />
+      <img className="dialog-portrait" src={portrait} alt="" />
       <div className="dialog-body">
         <div className="dialog-name">
           {def.name} <span>《{def.title}》</span>

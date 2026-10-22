@@ -195,6 +195,16 @@ export function bonusText(bonus: StatBonus | undefined): string {
     .join(', ');
 }
 
+const EQUIPMENT_REQ_LEVEL: Record<RarityId, number> = {
+  white: 10,
+  blue: 20,
+  green: 40,
+  purple: 60,
+  orange: 80,
+  red: 100,
+  pink: 100,
+};
+
 function buildEquipment(): Record<string, ItemDef> {
   const out: Record<string, ItemDef> = {};
   for (const r of RARITIES) {
@@ -207,7 +217,10 @@ function buildEquipment(): Record<string, ItemDef> {
         color: r.color,
         slot: slot.id,
         rarity: r.id,
-        reqLevel: r.reqLevel,
+        reqLevel:
+          ['weapon', 'armor', 'boots', 'ring', 'amulet'].includes(slot.id)
+            ? EQUIPMENT_REQ_LEVEL[r.id]
+            : r.reqLevel,
         bonus,
         desc: `${slot.name} ${r.name}. ${bonusText(bonus)}.`,
       };

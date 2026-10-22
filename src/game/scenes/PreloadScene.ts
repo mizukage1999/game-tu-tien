@@ -22,6 +22,9 @@ export class PreloadScene extends Phaser.Scene {
 
   preload() {
     this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => this.game.events.emit('assets-progress', progress));
+    for (const id of ['elder', 'disciple', 'quest-giver', 'guard', 'merchant']) {
+      this.load.image(`npc-${id}`, `assets/sprites/npc-${id}.png`);
+    }
     for (const [id, url] of Object.entries(ITEM_SPRITE_ASSETS)) {
       this.load.image(`item-sprite-${id}`, url);
     }

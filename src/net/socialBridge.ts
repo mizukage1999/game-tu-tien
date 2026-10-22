@@ -1,7 +1,7 @@
 import { gameStore } from '../store/gameStore';
 import { socialStore, type SocialInvite, presenceFor } from '../store/socialStore';
 import { buildDuelist, simulateDuel, type Duelist } from '../game/systems/duel';
-import { realmFor } from '../game/systems/progression';
+import { realmNameAtLevel } from '../game/systems/progression';
 import { saveGame } from '../game/systems/save';
 import { getAccountState } from './session';
 import { joinSocialChannel, type SocialChannel } from './socialChannel';
@@ -20,7 +20,7 @@ function myRef(): FriendRef {
 
 function myDuelist(): Duelist {
   const s = gameStore.getState();
-  return buildDuelist(s.player, s.stats, realmFor(s.player.realmIndex).name, myRef().userId);
+  return buildDuelist(s.player, s.stats, realmNameAtLevel(s.player.level), myRef().userId);
 }
 
 function myProfile(): PublicProfile {
@@ -30,7 +30,7 @@ function myProfile(): PublicProfile {
     name: s.player.name,
     sex: s.player.sex ?? 'female',
     level: s.player.level,
-    realm: realmFor(s.player.realmIndex).name,
+    realm: realmNameAtLevel(s.player.level),
     mapId: s.mapId,
     party: socialStore.getState().partyId,
   };

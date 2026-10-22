@@ -20,7 +20,7 @@ import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../s
 import { rollLoot } from '../systems/loot';
 import { questDestination, routeOnMap, trackedQuest, trackQuest, type QuestStop } from '../systems/questNav';
 import { canEnterField, fieldForLevel, killExp } from '../systems/scale';
-import { realmFor } from '../systems/progression';
+import { realmNameAtLevel } from '../systems/progression';
 import { saveGame } from '../systems/save';
 import { isTypingTarget } from '../systems/typing';
 import { RemotePlayer } from '../entities/RemotePlayer';
@@ -414,7 +414,7 @@ export class WorldScene extends Phaser.Scene {
       userId: user.id,
       name: p.name,
       sex: p.sex ?? 'female',
-      realm: realmFor(p.realmIndex).name,
+      realm: realmNameAtLevel(p.level),
       party: socialStore.getState().partyId,
       pose: {
         x: this.player.x,
@@ -559,7 +559,9 @@ export class WorldScene extends Phaser.Scene {
     this.tickMultiplayer(dt);
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
     for (const m of this.monsters) m.update(dt, targetable);
-    for (const l of this.loot.getChildren() as LootDrop[]) l.tick(dt, this.player.feet);
+    for (const l of this.loot.getChildren() as LootDrop[]) {
+      if (l.tick(dt, this.player.feet)) this.collectLoot(l);
+    }
     if (this.run && this.map.arena) {
       const alive = this.monsters.reduce((n, m) => n + (m.alive ? 1 : 0), 0);
       for (const ev of tickRun(this.run, DUNGEONS[this.run.id], dt, alive)) this.onRunEvent(ev);
@@ -1068,7 +1070,7 @@ export class WorldScene extends Phaser.Scene {
     const sk = playerSkill('basic');
     const p = this.player;
     const f = p.facing;
-    this.vfx.swing(p.feet, Math.atan2(f.y, f.x), combo);
+    this.vfx.swing(p.feet, Math.atan2(f.y, f.x), combo, p.art.texture.key === 'player_male');
     const finisher = combo === 3;
     const hits = this.monstersInArc(sk.range + (finisher ? 16 : 0), finisher ? 80 : sk.arc);
     const finisherMul = sk.active?.finisherMul ?? 1.5;
@@ -1080,9 +1082,11 @@ export class WorldScene extends Phaser.Scene {
     const p = this.player;
     const f = p.facing;
     const ang = Math.atan2(f.y, f.x);
+    const liMuStyle = p.art.texture.key === 'player';
+    const wangLinStyle = p.art.texture.key === 'player_male';
     switch (id) {
       case 'bang_tam_tram': {
-        this.vfx.crescent(p.feet, ang, sk.range);
+        this.vfx.crescent(p.feet, ang, sk.range, liMuStyle, wangLinStyle);
         this.time.delayedCall(90, () => {
           for (const m of this.monstersInArc(sk.range, sk.arc)) this.damageMonster(m, sk.multiplier);
         });
@@ -1090,7 +1094,7 @@ export class WorldScene extends Phaser.Scene {
         if (echo) {
           this.time.delayedCall(320, () => {
             if (p.life.status !== 'alive') return;
-            this.vfx.crescent(p.feet, ang, sk.range * 1.1);
+            this.vfx.crescent(p.feet, ang, sk.range * 1.1, liMuStyle, wangLinStyle);
             this.time.delayedCall(90, () => {
               for (const m of this.monstersInArc(sk.range * 1.1, sk.arc)) this.damageMonster(m, sk.multiplier * echo);
             });
@@ -1111,7 +1115,7 @@ export class WorldScene extends Phaser.Scene {
             const d = Math.hypot(from.x + (to.x - from.x) * t - m.x, from.y + (to.y - from.y) * t - m.y);
             if (d < 34 || m === target) this.damageMonster(m, sk.multiplier);
           }
-        });
+        }, liMuStyle, wangLinStyle);
         const extra = sk.active?.extraSwords ?? 0;
         if (extra > 0) {
           const others = this.monsters
@@ -1123,14 +1127,14 @@ export class WorldScene extends Phaser.Scene {
               if (!m.alive) return;
               this.vfx.flyingSword({ x: p.x, y: p.y }, { x: m.x, y: m.y }, () => {
                 if (m.alive) this.damageMonster(m, sk.multiplier * 0.7);
-              });
+              }, liMuStyle, wangLinStyle);
             });
           });
         }
         break;
       }
       case 'han_bang_tran': {
-        this.vfx.frostNova(p.feet, sk.range);
+        this.vfx.frostNova(p.feet, sk.range, liMuStyle, wangLinStyle);
         const slowMs = sk.active?.slowMs ?? 3000;
         for (const m of this.monsters) {
           if (m.alive && m.distanceTo(p) <= sk.range) this.damageMonster(m, sk.multiplier, slowMs);

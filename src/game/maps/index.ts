@@ -35,6 +35,9 @@ function daiThuaVien(): MapDef {
     { id: 'truong_lao', x: 24, y: 10 },
     { id: 'thuong_nhan', x: 11, y: 19 },
     { id: 'su_huynh', x: 36, y: 19 },
+    { id: 'thanh_nhi', x: 17, y: 19 },
+    { id: 'ho_ve', x: 18, y: 12 },
+    { id: 'ho_ve', x: 30, y: 12 },
   ];
   b.reserve([...monsters, ...npcs]);
 
@@ -94,7 +97,7 @@ function daiThuaVien(): MapDef {
     name: 'Đại Thừa Viện',
     monsters,
     npcs,
-    zones: [{ id: 'linh_dai', name: 'Linh Đài', rect: [18, 3, 12, 6], rate: 3 }],
+    zones: [{ id: 'linh_dai', name: 'Linh Đài', rect: [18, 3, 12, 6], rate: 1 }],
     portals: [{ rect: [47, 16, 1, 3], to: 'linh_thu_lam', spawn: [3, 15], label: 'Khu săn', levelBand: true }],
     playerSpawn: [24, 20],
     ambient: 'petals',

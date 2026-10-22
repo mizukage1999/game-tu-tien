@@ -8,6 +8,14 @@
     "atlas": "wang-lin.png",
     "json": "wang-lin.json"
   },
+  "li_mu_fx": {
+    "atlas": "li-mu-fx.png",
+    "json": "li-mu-fx.json"
+  },
+  "wang_lin_fx": {
+    "atlas": "wang-lin-fx.png",
+    "json": "wang-lin-fx.json"
+  },
   "skill_ice": {
     "atlas": "skills-ice.png",
     "json": "skills-ice.json"

@@ -1005,12 +1005,26 @@ kbd {
   gap: 6px;
   margin-bottom: 10px;
 }
+.bag-overview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #ffe6a6;
+  font-family: var(--serif);
+  font-weight: 700;
+}
+.bag-overview img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
 .bag-currency img {
   width: 20px;
 }
 .bag-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 .bag-item {
@@ -1033,6 +1047,67 @@ kbd {
 .bag-name {
   font-size: 12px;
   text-align: center;
+}
+.menu-bag .bag-item {
+  min-width: 0;
+  padding: 8px 4px;
+  background:
+    url(/assets/ui/frame-inventory-slot.png) center / 100% 100% no-repeat,
+    linear-gradient(180deg, #14263b, #09121f);
+}
+.cultivate-hero {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.9fr) minmax(180px, 1.1fr);
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 10px;
+  border: 1px solid rgba(93, 177, 255, 0.55);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #061c37, #0a1022 72%);
+  box-shadow: inset 0 0 20px #398dff22, 0 4px 14px #0008;
+}
+.cultivate-hero > img {
+  width: 100%;
+  max-height: 118px;
+  object-fit: cover;
+  border: 1px solid #56b7ff88;
+  border-radius: 7px;
+  box-shadow: 0 0 14px #218dff66;
+}
+.cultivate-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  text-align: center;
+}
+.cultivate-progress b {
+  color: #eaf6ff;
+  text-shadow: 0 1px 4px #3ca8ff;
+}
+.cultivate-progress small {
+  color: #c6d9ec;
+}
+.cultivate-progress-track {
+  height: 12px;
+  overflow: hidden;
+  border: 1px solid #d8a94c;
+  border-radius: 8px;
+  background: #09111c;
+  box-shadow: inset 0 1px 4px #000;
+}
+.cultivate-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22aaff, #8ae8ff);
+  box-shadow: 0 0 8px #32baff;
+  transition: width 0.25s ease;
+}
+.cultivate-action {
+  align-self: center;
+  min-width: 132px;
 }
 .realm-ladder {
   display: flex;
@@ -2605,6 +2680,44 @@ kbd {
   background: url(/assets/ui/frame-inventory-slot.png) center / 100% 100%
     no-repeat;
 }
+@property --rarity-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.item-icon-frame.equip-rarity-orbit {
+  position: relative;
+  isolation: isolate;
+}
+.item-icon-frame.equip-rarity-orbit::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: 1;
+  padding: 2px;
+  border-radius: 9px;
+  background: conic-gradient(
+    from var(--rarity-border-angle),
+    transparent 0deg 260deg,
+    currentColor 290deg,
+    #fff 310deg,
+    currentColor 330deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 3px currentColor);
+  pointer-events: none;
+  animation: rarity-border-orbit 1.8s linear infinite;
+}
+@keyframes rarity-border-orbit {
+  to {
+    --rarity-border-angle: 1turn;
+  }
+}
 .dialog {
   position: absolute;
   z-index: 5;
@@ -2808,13 +2921,15 @@ kbd {
 }
 
 .menu-bag .bag-grid {
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
 .menu-bag .bag-item {
   border-color: rgba(227, 189, 98, 0.32);
-  background: linear-gradient(180deg, #18263c, #0b1220);
+  background:
+    url(/assets/ui/frame-inventory-slot.png) center / 100% 100% no-repeat,
+    linear-gradient(180deg, #18263c, #0b1220);
 }
 
 .menu-bag .item-icon-frame {
@@ -2845,4 +2960,16 @@ kbd {
 
 .pos-potion {
   border: 2px solid var(--gold);
+}
+
+@media (max-width: 520px) {
+  .menu-bag .bag-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cultivate-hero {
+    grid-template-columns: 1fr;
+  }
+  .cultivate-hero > img {
+    max-height: 140px;
+  }
 }

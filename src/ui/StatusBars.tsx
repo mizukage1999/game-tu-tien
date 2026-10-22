@@ -1,5 +1,5 @@
 import { useGame } from '../store/gameStore';
-import { realmFor } from '../game/systems/progression';
+import { realmNameAtLevel } from '../game/systems/progression';
 import { itemIconUrl } from '../game/art/icons';
 
 function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'mp' }) {
@@ -18,7 +18,6 @@ export function StatusBars() {
   const player = useGame((s) => s.player);
   const stats = useGame((s) => s.stats);
   const status = useGame((s) => s.status);
-  const realm = realmFor(player.realmIndex);
 
   return (
     <div className="status panel-glass">
@@ -32,7 +31,7 @@ export function StatusBars() {
       <div className="status-info">
         <div className="status-name">{player.name}</div>
         <div className="status-realm">
-          Lv. {player.level} <span>{realm.name}</span>
+          Lv. {player.level} <span>{realmNameAtLevel(player.level)}</span>
         </div>
         <Bar value={player.hp} max={stats.maxHp} kind="hp" />
         <Bar value={player.mp} max={stats.maxMp} kind="mp" />

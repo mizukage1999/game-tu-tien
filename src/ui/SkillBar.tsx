@@ -9,6 +9,7 @@ import { useGame } from '../store/gameStore';
 function SkillButton({ id, className }: { id: SkillId; className: string }) {
   const cd = useGame((s) => s.cooldowns[id] ?? 0);
   const mp = useGame((s) => s.player.mp);
+  const sex = useGame((s) => s.player.sex);
   const level = useGame((s) => skillLevel(s.player.skills, id));
   const sk = useMemo(() => effectiveSkill(id, level), [id, level]);
   const pct = cd > 0 ? Math.min(1, cd / sk.cooldownMs) : 0;
@@ -24,7 +25,7 @@ function SkillButton({ id, className }: { id: SkillId; className: string }) {
         EventBus.emit('cmd:skill', id);
       }}
     >
-      <img src={skillSpriteUrl(id)} alt={sk.name} draggable={false} />
+      <img src={skillSpriteUrl(id, sex)} alt={sk.name} draggable={false} />
       {cd > 0 && id !== 'basic' && <span className="skill-cd">{(cd / 1000).toFixed(1)}</span>}
       <span className="skill-key">{sk.key.split(' ')[0]}</span>
       {level > 1 && <span className={`skill-badge ${sk.active ? 'awakened' : ''}`}>{level}</span>}

@@ -12,7 +12,7 @@ import {
   computeStats,
   expToNext,
   isBottleneck,
-  realmFor,
+  realmNameAtLevel,
   type DerivedStats,
 } from '../game/systems/progression';
 import {
@@ -394,7 +394,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       applyBreakthrough(p);
       const stats = computeStats(p.level, p.realmIndex, p.equipment);
       set({ player: { ...p, hp: stats.maxHp, mp: stats.maxMp }, stats });
-      const realm = realmFor(p.realmIndex).name;
+      const realm = realmNameAtLevel(p.level);
       s.toast(`Đột phá thành công: ${realm}!`, 'realm');
       s.addLog(`Đột phá cảnh giới ${realm}, đạt cấp ${p.level}!`);
       s.addLog(`Đạo hữu ${p.name} vừa đột phá ${realm}!`, 'world');

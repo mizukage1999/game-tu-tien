@@ -35,5 +35,17 @@
     "title": "Ẩn Sĩ",
     "art": "hermit",
     "lines": ["Linh Tuyền này đã có từ vạn năm trước... người hữu duyên mới tìm được."]
+  },
+  "thanh_nhi": {
+    "name": "Thanh Nhi",
+    "title": "Đệ Tử",
+    "art": "disciple",
+    "lines": ["Sư huynh, tỷ đang tìm đường vào Linh Sơn Tông sao? Đi theo con đường đá phía trước nhé."]
+  },
+  "ho_ve": {
+    "name": "Hộ Vệ",
+    "title": "Vân Sơn Tông",
+    "art": "disciple",
+    "lines": ["Đứng lại! Phía trước là nội viện Vân Sơn Tông."]
   }
 }

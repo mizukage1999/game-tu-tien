@@ -21,7 +21,14 @@ export function expToNext(level: number): number {
 }
 
 export function realmFor(index: number): RealmDef {
-  return REALMS[Math.min(index, REALMS.length - 1)];
+  return REALMS[Math.max(0, Math.min(index, REALMS.length - 1))];
+}
+
+export function realmNameAtLevel(level: number): string {
+  const realm = REALMS.find((entry) => level <= entry.maxLevel) ?? REALMS[REALMS.length - 1];
+  const levelInRealm = Math.max(0, Math.min(9, level - realm.minLevel));
+  const phase = levelInRealm <= 2 ? 'Sơ Kỳ' : levelInRealm <= 5 ? 'Trung Kỳ' : 'Hậu Kỳ';
+  return `${realm.name} ${phase}${levelInRealm === 9 ? ' Đại Viên Mãn' : ''}`;
 }
 
 export function isBottleneck(s: ProgressState): boolean {
@@ -93,7 +100,8 @@ export function computeStats(
   realmIndex: number,
   equipment: Record<string, string | undefined>,
 ): DerivedStats {
-  const mul = realmFor(realmIndex).statMul;
+  const statRealmIndex = Math.min(realmIndex + (level > 0 && level % 10 === 0 ? 1 : 0), REALMS.length - 1);
+  const mul = realmFor(statRealmIndex).statMul;
   const stats: DerivedStats = {
     maxHp: Math.round((300 + 42 * level) * mul),
     maxMp: Math.round((120 + 12 * level) * mul),

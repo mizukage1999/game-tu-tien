@@ -19,7 +19,7 @@ import { EventBus } from '../../game/EventBus';
 import { itemIconUrl, skillSpriteUrl } from '../../game/art/icons';
 import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
 import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
-import { canEquip, expToNext, isBottleneck, realmFor } from '../../game/systems/progression';
+import { canEquip, expToNext, isBottleneck, realmFor, realmNameAtLevel } from '../../game/systems/progression';
 import { objectiveText } from '../../game/systems/quest';
 import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, SKILL_MAX_LEVEL } from '../../game/systems/skills';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
@@ -46,12 +46,16 @@ function rarityColor(id: string) {
   return def?.rarity ? rarityOf(def.rarity).color : undefined;
 }
 
-function ItemIcon({ id, size }: { id: string; size: number }) {
+function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: number; rotatingBorder?: boolean }) {
   const color = rarityColor(id);
   return (
     <span
-      className="item-icon-frame"
-      style={{ width: size, height: size, ...(color ? { borderColor: color, boxShadow: `0 0 6px ${color}` } : {}) }}
+      className={`item-icon-frame${rotatingBorder && color ? ' equip-rarity-orbit' : ''}`}
+      style={{
+        width: size,
+        height: size,
+        ...(color ? { color, borderColor: color, boxShadow: `0 0 6px ${color}` } : {}),
+      }}
     >
       <img className="item-icon" src={itemIconUrl(id, size)} alt="" />
     </span>
@@ -126,7 +130,7 @@ function Character() {
   const mpPct = Math.max(0, Math.min(100, (player.mp / Math.max(1, stats.maxMp)) * 100));
   const expPct = Math.max(0, Math.min(100, (player.exp / Math.max(1, expNeeded)) * 100));
   const rows: [string, string | number][] = [
-    ['Cảnh giới', realmFor(player.realmIndex).name],
+    ['Cảnh giới', realmNameAtLevel(player.level)],
     ['Cấp độ', player.level],
     ['Sinh lực (HP)', stats.maxHp],
     ['Linh lực (MP)', stats.maxMp],
@@ -148,7 +152,7 @@ function Character() {
           <div className="character-name">
             {player.name} <span>Lv.{player.level}</span>
           </div>
-          <div className="character-realm">{realmFor(player.realmIndex).name}</div>
+          <div className="character-realm">{realmNameAtLevel(player.level)}</div>
           <div className="bar bar-hp">
             <div className="bar-fill" style={{ width: `${hpPct}%` }} />
             <span className="bar-text">HP {Math.round(player.hp)} / {stats.maxHp}</span>
@@ -186,7 +190,7 @@ function Character() {
                   <span className="equip-slot-name">{slot.name}</span>
                   {id ? (
                     <>
-                      <ItemIcon id={id} size={32} />
+                      <ItemIcon id={id} size={32} rotatingBorder />
                       <div className="equip-info">
                         <ItemLabel id={id} />
                         <small className="muted">{bonusText(ITEMS[id]?.bonus)}</small>
@@ -217,6 +221,10 @@ function Bag() {
   const entries = Object.entries(inv).filter(([, q]) => q > 0);
   return (
     <>
+      <div className="bag-overview">
+        <img src="/assets/ui/menu-bag.png" alt="" aria-hidden="true" />
+        <span>{entries.length} loại vật phẩm</span>
+      </div>
       <div className="bag-currency">
         <img src={itemIconUrl('linh_khi', 32)} alt="" /> Linh Khí: <b>{linhKhi}</b>
       </div>
@@ -260,14 +268,36 @@ function Mail() {
 function Cultivate() {
   const player = useGame((s) => s.player);
   const zone = useGame((s) => s.zone);
+  const meditating = useGame((s) => s.meditating);
+  const setMenu = useGame((s) => s.setMenu);
   const tryBreakthrough = useGame((s) => s.tryBreakthrough);
   const realm = realmFor(player.realmIndex);
   const next = REALMS[player.realmIndex + 1];
   const need = expToNext(player.level);
+  const expPct = Math.min(100, (player.exp / Math.max(1, need)) * 100);
   const capped = isBottleneck(player) && player.exp >= need;
   const cost = realm.breakthrough;
   return (
     <div className="cultivate">
+      <div className="cultivate-hero">
+        <img src="/assets/ui/cultivation-meditation.png" alt="" aria-hidden="true" />
+        <div className="cultivate-progress">
+          <b>{realmNameAtLevel(player.level)} · Cấp {player.level}</b>
+          <div className="cultivate-progress-track" role="progressbar" aria-label="Tu vi" aria-valuenow={player.exp} aria-valuemin={0} aria-valuemax={need}>
+            <span style={{ width: `${expPct}%` }} />
+          </div>
+          <small>{player.exp} / {need}</small>
+          <button
+            className="btn gold cultivate-action"
+            onClick={() => {
+              EventBus.emit('cmd:meditate');
+              setMenu(null);
+            }}
+          >
+            {meditating ? 'Dừng tu luyện' : 'Tu luyện'}
+          </button>
+        </div>
+      </div>
       <div className="realm-ladder">
         {REALMS.map((r, i) => (
           <div key={r.name} className={`realm-step ${i === player.realmIndex ? 'current' : i < player.realmIndex ? 'past' : ''}`}>
@@ -278,17 +308,14 @@ function Cultivate() {
           </div>
         ))}
       </div>
-      <p>
-        Tu vi: <b>{player.exp}</b> / {need} · Cảnh giới hiện tại: <b>{realm.name}</b>
-      </p>
       <p className="muted">
-        Tọa thiền (F) để hấp thu linh khí. Linh Đài (x3) và Linh Tuyền (x5) cho tốc độ cao nhất.
+        Tọa thiền (F) để hấp thu linh khí. Linh Đài (x1), Linh Tuyền (x5).
         {zone ? ` Bạn đang ở ${zone.name}.` : ''}
       </p>
       {next && cost ? (
         <div className="breakthrough">
           <div>
-            Đột phá lên <b>{next.name}</b> cần: đạt cấp {realm.maxLevel} đầy tu vi, {cost.linhKhi} Linh Khí ({player.linhKhi}),{' '}
+            Đột phá lên <b>{realmNameAtLevel(next.minLevel)}</b> cần: đạt cấp {realm.maxLevel} đầy tu vi, {cost.linhKhi} Linh Khí ({player.linhKhi}),{' '}
             {cost.linhThach} Linh Thạch ({player.inventory.linh_thach ?? 0}).
           </div>
           <button className={`btn gold ${capped ? 'pulse' : ''}`} onClick={tryBreakthrough}>
@@ -349,7 +376,7 @@ function Skills() {
         return (
           <div key={id} className="skill-row upgrade">
             <div className="skill-icon">
-              <img src={skillSpriteUrl(id)} alt="" />
+              <img src={skillSpriteUrl(id, player.sex)} alt="" />
               <span className="skill-lv">{lv}</span>
             </div>
             <div className="skill-info">

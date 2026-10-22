@@ -7,6 +7,16 @@ const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
 export class SkillVfx {
   constructor(private scene: Phaser.Scene) {}
 
+  private liMuFxImage(name: string, x: number, y: number, depth: number) {
+    if (!this.scene.textures.exists('li_mu_fx') || !this.scene.textures.get('li_mu_fx').has(name)) return null;
+    return this.scene.add.image(x, y, 'li_mu_fx', name).setDepth(depth);
+  }
+
+  private wangLinFxImage(name: string, x: number, y: number, depth: number) {
+    if (!this.scene.textures.exists('wang_lin_fx') || !this.scene.textures.get('wang_lin_fx').has(name)) return null;
+    return this.scene.add.image(x, y, 'wang_lin_fx', name).setDepth(depth);
+  }
+
   private iceSprite(name: string, x: number, y: number, depth: number) {
     const animation = `skill_ice:${name}`;
     if (!this.scene.textures.exists('skill_ice') || !this.scene.anims.exists(animation)) return null;
@@ -35,10 +45,29 @@ export class SkillVfx {
   }
 
   /** Short arc trail in front of the player for basic attacks. */
-  swing(origin: Vec2, facing: number, combo: number) {
+  swing(origin: Vec2, facing: number, combo: number, wangLinStyle = false) {
     const base = iso(origin.x, origin.y);
     const dir = isoVector(Math.cos(facing), Math.sin(facing));
     const ang = Math.atan2(dir.y, dir.x);
+    if (wangLinStyle) {
+      const slash = this.wangLinFxImage('fx_01', base.x + dir.x * 26, base.y - 24 + dir.y * 26, base.y + 30);
+      if (slash) {
+        slash
+          .setOrigin(0.5, 0.82)
+          .setRotation(ang + (combo === 1 ? 0.3 : combo === 2 ? -0.3 : 0))
+          .setScale(combo === 3 ? 0.55 : 0.45)
+          .setFlipY(combo === 2)
+          .setAlpha(0.9);
+        this.scene.tweens.add({
+          targets: slash,
+          alpha: 0,
+          scale: slash.scale * 1.25,
+          duration: 220,
+          onComplete: () => slash.destroy(),
+        });
+        return;
+      }
+    }
     const slash = this.iceSprite('slash', base.x + dir.x * 26, base.y - 24 + dir.y * 26, base.y + 30);
     if (slash) {
       slash
@@ -60,18 +89,25 @@ export class SkillVfx {
   }
 
   /** Crescent sword wave travelling forward (Băng Tâm Trảm). */
-  crescent(origin: Vec2, facing: number, range: number) {
+  crescent(origin: Vec2, facing: number, range: number, liMuStyle = false, wangLinStyle = false) {
     const base = iso(origin.x, origin.y);
     const dir = isoVector(Math.cos(facing), Math.sin(facing));
     const ang = Math.atan2(dir.y, dir.x);
-    const wave = this.iceSprite('wave', base.x, base.y - 26, 99400);
+    const wave =
+      (liMuStyle ? this.liMuFxImage('fx_03', base.x, base.y - 26, 99400) : null) ??
+      (wangLinStyle ? this.wangLinFxImage('fx_01', base.x, base.y - 26, 99400) : null) ??
+      this.iceSprite('wave', base.x, base.y - 26, 99400);
     if (wave) {
-      wave.setOrigin(0.5, 0.82).setRotation(ang).setScale(1.2).setAlpha(0.95);
+      wave
+        .setOrigin(0.5, 0.82)
+        .setRotation(ang)
+        .setScale(wave.texture.key === 'li_mu_fx' || wave.texture.key === 'wang_lin_fx' ? 0.55 : 1.2)
+        .setAlpha(0.95);
       this.scene.tweens.add({
         targets: wave,
         x: base.x + dir.x * range,
         y: base.y - 26 + dir.y * range,
-        scale: 1.65,
+        scale: wave.texture.key === 'li_mu_fx' || wave.texture.key === 'wang_lin_fx' ? 0.78 : 1.65,
         alpha: 0,
         duration: 420,
         ease: 'Cubic.Out',
@@ -101,13 +137,14 @@ export class SkillVfx {
         });
       }
     }
-    const em = this.scene.add.particles(base.x, base.y - 26, 'fx_shard', {
+    const em = this.scene.add.particles(base.x, base.y - 26, liMuStyle ? 'fx_petal' : 'fx_shard', {
       speed: { min: 200, max: 420 },
       angle: { min: Phaser.Math.RadToDeg(ang) - 35, max: Phaser.Math.RadToDeg(ang) + 35 },
       rotate: { min: 0, max: 360 },
       scale: { start: 0.8, end: 0.1 },
       alpha: { start: 1, end: 0 },
       lifespan: 450,
+      tint: wangLinStyle ? [0xff455b, 0xd20c2c, 0xffffff] : undefined,
       blendMode: Phaser.BlendModes.ADD,
       emitting: false,
     });
@@ -118,25 +155,53 @@ export class SkillVfx {
   }
 
   /** Expanding frost ring around the caster (Hàn Băng Trận). */
-  frostNova(origin: Vec2, radius: number) {
+  frostNova(origin: Vec2, radius: number, liMuStyle = false, wangLinStyle = false) {
     const base = iso(origin.x, origin.y);
-    const burst = this.iceSprite('explosion', base.x, base.y - 8, 99400);
+    const burst =
+      (liMuStyle ? this.liMuFxImage('fx_15', base.x, base.y - 8, 99400) : null) ??
+      (wangLinStyle ? this.wangLinFxImage('fx_04', base.x, base.y - 8, 99400) : null) ??
+      this.iceSprite('explosion', base.x, base.y - 8, 99400);
     if (burst) {
-      burst.setOrigin(0.5, 0.82).setScale((radius * 2) / 72, radius / 78).setAlpha(0.9);
+      const size = burst.texture.key === 'li_mu_fx' ? 256 : burst.texture.key === 'wang_lin_fx' ? 192 : 72;
+      burst.setOrigin(0.5, 0.82).setScale((radius * 2) / size, radius / size).setAlpha(0.9);
+      if (burst.texture.key === 'li_mu_fx' || burst.texture.key === 'wang_lin_fx') {
+        this.scene.tweens.add({
+          targets: burst,
+          alpha: 0,
+          delay: 350,
+          duration: 400,
+          onComplete: () => burst.destroy(),
+        });
+      }
     }
     for (let i = 0; i < 4; i++) {
       const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
       const x = base.x + Math.cos(angle) * radius * 0.55;
       const y = base.y + Math.sin(angle) * radius * 0.28;
-      const pillar = this.iceSprite('pillar', x, y, base.y + Math.sin(angle) * radius * 0.28);
-      pillar?.setOrigin(0.5, 0.88).setScale(0.85);
+      const depth = base.y + Math.sin(angle) * radius * 0.28;
+      const pillar =
+        (liMuStyle ? this.liMuFxImage('hoa_vu', x, y, depth) : null) ??
+        (wangLinStyle ? this.wangLinFxImage('fx_04', x, y, depth) : null) ??
+        this.iceSprite('pillar', x, y, depth);
+      pillar?.setOrigin(0.5, 0.88).setScale(pillar.texture.key === 'li_mu_fx' ? 0.16 : pillar.texture.key === 'wang_lin_fx' ? 0.3 : 0.85);
+      if (pillar?.texture.key === 'li_mu_fx' || pillar?.texture.key === 'wang_lin_fx') {
+        this.scene.tweens.add({
+          targets: pillar,
+          alpha: 0,
+          delay: 100,
+          duration: 450,
+          onComplete: () => pillar.destroy(),
+        });
+      }
     }
-    const circle = this.scene.add
-      .image(base.x, base.y, 'circle')
-      .setBlendMode(Phaser.BlendModes.ADD)
-      .setScale(0.1)
-      .setAlpha(0.9)
-      .setDepth(base.y - 5);
+    const circle =
+      (liMuStyle ? this.liMuFxImage('fx_14', base.x, base.y, base.y - 5) : null) ??
+      (wangLinStyle ? this.wangLinFxImage('fx_06', base.x, base.y, base.y - 5) : null) ??
+      this.scene.add
+        .image(base.x, base.y, 'circle')
+        .setBlendMode(Phaser.BlendModes.ADD)
+        .setDepth(base.y - 5);
+    circle.setScale(0.1).setAlpha(0.9);
     this.scene.tweens.add({
       targets: circle,
       scaleX: (radius * 2) / 320,
@@ -146,11 +211,14 @@ export class SkillVfx {
       ease: 'Cubic.Out',
     });
     this.scene.tweens.add({ targets: circle, alpha: 0, delay: 500, duration: 400, onComplete: () => circle.destroy() });
-    const ring = this.scene.add
-      .image(base.x, base.y, 'fx_ring')
-      .setBlendMode(Phaser.BlendModes.ADD)
-      .setScale(0.2, 0.12)
-      .setDepth(99300);
+    const ring =
+      (liMuStyle ? this.liMuFxImage('magic_ring', base.x, base.y, 99300) : null) ??
+      (wangLinStyle ? this.wangLinFxImage('fx_06', base.x, base.y, 99300) : null) ??
+      this.scene.add
+        .image(base.x, base.y, 'fx_ring')
+        .setBlendMode(Phaser.BlendModes.ADD)
+        .setDepth(99300);
+    ring.setScale(0.2, 0.12);
     this.scene.tweens.add({
       targets: ring,
       scaleX: (radius * 2.2) / 256,
@@ -164,7 +232,7 @@ export class SkillVfx {
       const a = (i / 12) * Math.PI * 2;
       const r = radius * (0.55 + Math.random() * 0.4);
       const shard = this.scene.add
-        .image(base.x + Math.cos(a) * r, base.y + Math.sin(a) * r * 0.5, 'fx_shard')
+        .image(base.x + Math.cos(a) * r, base.y + Math.sin(a) * r * 0.5, liMuStyle ? 'fx_petal' : 'fx_shard')
         .setOrigin(0.5, 1)
         .setBlendMode(Phaser.BlendModes.ADD)
         .setScale(0.2)
@@ -180,18 +248,30 @@ export class SkillVfx {
         onComplete: () => shard.destroy(),
       });
     }
-    this.burstParticles(base.x, base.y - 10, 30, 260);
+    this.burstParticles(
+      base.x,
+      base.y - 10,
+      30,
+      260,
+      liMuStyle ? [0xffb6e6, 0x8fcfff, 0xffffff] : wangLinStyle ? [0xff455b, 0xd20c2c, 0xffffff] : ICE,
+    );
     this.scene.cameras.main.shake(140, 0.005);
   }
 
   /** Flying sword projectile; resolves when it reaches the end. */
-  flyingSword(from: Vec2, to: Vec2, onArrive: () => void) {
+  flyingSword(from: Vec2, to: Vec2, onArrive: () => void, liMuStyle = false, wangLinStyle = false) {
     const a = iso(from.x, from.y);
     const b = iso(to.x, to.y);
     const ang = Phaser.Math.Angle.Between(a.x, a.y, b.x, b.y);
-    const s = this.iceSprite('combo', a.x, a.y - 30, 99600) ?? this.scene.add.image(a.x, a.y - 30, 'fx_flysword');
+    const s =
+      (liMuStyle ? this.liMuFxImage('fx_09', a.x, a.y - 30, 99600) : null) ??
+      (wangLinStyle ? this.wangLinFxImage('fx_01', a.x, a.y - 30, 99600) : null) ??
+      this.iceSprite('combo', a.x, a.y - 30, 99600) ??
+      this.scene.add.image(a.x, a.y - 30, 'fx_flysword');
     s.setRotation(ang).setBlendMode(Phaser.BlendModes.ADD).setDepth(99600);
-    if (s instanceof Phaser.GameObjects.Sprite && s.texture.key === 'skill_ice') s.setScale(0.9);
+    if (s.texture.key === 'li_mu_fx') s.setScale(0.42);
+    else if (s.texture.key === 'wang_lin_fx') s.setScale(0.5);
+    else if (s instanceof Phaser.GameObjects.Sprite && s.texture.key === 'skill_ice') s.setScale(0.9);
     const trail = this.scene.add.particles(0, 0, 'fx_dot', {
       follow: s,
       speed: 10,
@@ -213,6 +293,19 @@ export class SkillVfx {
       onComplete: () => {
         onArrive();
         this.burstParticles(s.x, s.y, 14, 180);
+        if (liMuStyle) {
+          const bloom = this.liMuFxImage('fx_15', s.x, s.y, 99610);
+          bloom?.setScale(0.22).setAlpha(0.95);
+          if (bloom) {
+            this.scene.tweens.add({
+              targets: bloom,
+              scale: 0.55,
+              alpha: 0,
+              duration: 320,
+              onComplete: () => bloom.destroy(),
+            });
+          }
+        }
         s.destroy();
         trail.stop();
         this.scene.time.delayedCall(400, () => trail.destroy());
@@ -233,20 +326,6 @@ export class SkillVfx {
       .setScale(0.25, 0.12)
       .setDepth(base.y + 1);
     this.scene.tweens.add({ targets: ring, scaleX: 1, alpha: 0, duration: 280, onComplete: () => ring.destroy() });
-  }
-
-  /** Afterimages while dashing. */
-  afterimage(sprite: Phaser.GameObjects.Sprite) {
-    const at = iso(sprite.x, sprite.y);
-    const g = this.scene.add
-      .image(at.x, at.y, sprite.texture.key, sprite.frame.name)
-      .setOrigin(sprite.originX, sprite.originY)
-      .setFlipX(sprite.flipX)
-      .setTintFill(0x9fe3ff)
-      .setAlpha(0.55)
-      .setBlendMode(Phaser.BlendModes.ADD)
-      .setDepth(sprite.depth - 1);
-    this.scene.tweens.add({ targets: g, alpha: 0, duration: 280, onComplete: () => g.destroy() });
   }
 
   /** Bright column and rings when leveling up or breaking through. */

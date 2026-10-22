@@ -18,14 +18,14 @@ export function humanPose(anim: string, i: number, n: number): HumanPose {
       break;
     case 'attack_1': {
       const angles = [-2.3, -2.0, -0.5, 0.7, 1.0];
-      p.sword = angles[i];
+      p.sword = angles[Math.min(i, angles.length - 1)];
       p.trailFrom = i === 2 || i === 3 ? -2.1 : null;
       p.bob = i >= 2 ? 1 : 0;
       break;
     }
     case 'attack_2': {
       const angles = [1.3, 1.1, -0.5, -1.4, -1.6];
-      p.sword = angles[i];
+      p.sword = angles[Math.min(i, angles.length - 1)];
       p.trailFrom = i === 2 || i === 3 ? 1.2 : null;
       p.bob = i === 1 ? 1 : 0;
       break;

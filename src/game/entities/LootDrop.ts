@@ -63,8 +63,8 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
     });
   }
 
-  tick(dt: number, player: Vec2) {
-    if (this.collected) return;
+  tick(dt: number, player: Vec2): boolean {
+    if (this.collected) return false;
     this.age += dt;
     const spot = iso(this.x, this.y);
     this.art.setPosition(spot.x, spot.y).setDepth(spot.y).setAlpha(this.alpha);
@@ -72,9 +72,9 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
     if (this.age > LOOT_LIFETIME_MS - 5000) this.setAlpha(Math.floor(this.age / 150) % 2 ? 0.3 : 1);
     if (this.age > LOOT_LIFETIME_MS) {
       this.destroy();
-      return;
+      return false;
     }
-    if (!this.ready) return;
+    if (!this.ready) return false;
     const d = Math.hypot(player.x - this.x, player.y - 24 - this.y);
     if (d < MAGNET_RADIUS) {
       this.bobTween?.stop();
@@ -82,7 +82,9 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
       this.x += (player.x - this.x) * k;
       this.y += (player.y - 24 - this.y) * k;
       (this.body as Phaser.Physics.Arcade.Body).updateFromGameObject();
+      return Math.hypot(player.x - this.x, player.y - 24 - this.y) < 12;
     }
+    return false;
   }
 
   destroy(fromScene?: boolean) {

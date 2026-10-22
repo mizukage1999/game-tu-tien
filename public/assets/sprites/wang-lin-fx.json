@@ -1,0 +1,132 @@
+{
+    "frames":  {
+                   "fx_01":  {
+                                 "trimmed":  false,
+                                 "spriteSourceSize":  {
+                                                          "y":  0,
+                                                          "w":  192,
+                                                          "h":  192,
+                                                          "x":  0
+                                                      },
+                                 "sourceSize":  {
+                                                    "h":  192,
+                                                    "w":  192
+                                                },
+                                 "rotated":  false,
+                                 "frame":  {
+                                               "y":  0,
+                                               "w":  192,
+                                               "h":  192,
+                                               "x":  0
+                                           }
+                             },
+                   "fx_02":  {
+                                 "trimmed":  false,
+                                 "spriteSourceSize":  {
+                                                          "y":  0,
+                                                          "w":  192,
+                                                          "h":  192,
+                                                          "x":  0
+                                                      },
+                                 "sourceSize":  {
+                                                    "h":  192,
+                                                    "w":  192
+                                                },
+                                 "rotated":  false,
+                                 "frame":  {
+                                               "y":  0,
+                                               "w":  192,
+                                               "h":  192,
+                                               "x":  192
+                                           }
+                             },
+                   "fx_03":  {
+                                 "trimmed":  false,
+                                 "spriteSourceSize":  {
+                                                          "y":  0,
+                                                          "w":  192,
+                                                          "h":  192,
+                                                          "x":  0
+                                                      },
+                                 "sourceSize":  {
+                                                    "h":  192,
+                                                    "w":  192
+                                                },
+                                 "rotated":  false,
+                                 "frame":  {
+                                               "y":  0,
+                                               "w":  192,
+                                               "h":  192,
+                                               "x":  384
+                                           }
+                             },
+                   "fx_04":  {
+                                 "trimmed":  false,
+                                 "spriteSourceSize":  {
+                                                          "y":  0,
+                                                          "w":  192,
+                                                          "h":  192,
+                                                          "x":  0
+                                                      },
+                                 "sourceSize":  {
+                                                    "h":  192,
+                                                    "w":  192
+                                                },
+                                 "rotated":  false,
+                                 "frame":  {
+                                               "y":  192,
+                                               "w":  192,
+                                               "h":  192,
+                                               "x":  0
+                                           }
+                             },
+                   "fx_05":  {
+                                 "trimmed":  false,
+                                 "spriteSourceSize":  {
+                                                          "y":  0,
+                                                          "w":  192,
+                                                          "h":  192,
+                                                          "x":  0
+                                                      },
+                                 "sourceSize":  {
+                                                    "h":  192,
+                                                    "w":  192
+                                                },
+                                 "rotated":  false,
+                                 "frame":  {
+                                               "y":  192,
+                                               "w":  192,
+                                               "h":  192,
+                                               "x":  192
+                                           }
+                             },
+                   "fx_06":  {
+                                 "trimmed":  false,
+                                 "spriteSourceSize":  {
+                                                          "y":  0,
+                                                          "w":  192,
+                                                          "h":  192,
+                                                          "x":  0
+                                                      },
+                                 "sourceSize":  {
+                                                    "h":  192,
+                                                    "w":  192
+                                                },
+                                 "rotated":  false,
+                                 "frame":  {
+                                               "y":  192,
+                                               "w":  192,
+                                               "h":  192,
+                                               "x":  384
+                                           }
+                             }
+               },
+    "meta":  {
+                 "scale":  "1",
+                 "size":  {
+                              "h":  384,
+                              "w":  576
+                          },
+                 "image":  "wang-lin-fx.png"
+             }
+}

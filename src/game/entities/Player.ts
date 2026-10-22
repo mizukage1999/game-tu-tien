@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import type { SkillId } from '../../data';
+import { ITEMS, RARITIES, type SkillId } from '../../data';
 import { gameStore, playerSkill } from '../../store/gameStore';
 import { playerArt } from '../systems/character';
+import { itemSpriteTextureKey } from '../art/icons';
 import { AnimationController } from '../anim/AnimationController';
 import { virtualInput } from '../EventBus';
 import { flash, knockback } from '../fx/HitEffect';
@@ -16,7 +17,9 @@ import {
   type LifeState,
 } from '../systems/respawn';
 import { inputToMap, iso, isoVector } from '../art/iso';
+import { TILE } from '../art/tiles';
 import { dirFromVector, dirVector, type Dir, type Vec2 } from '../types';
+import { findPath } from '../systems/path';
 import type { WorldScene } from '../scenes/WorldScene';
 import type { Monster } from './Monster';
 
@@ -27,6 +30,20 @@ const SKILL_ANIM: Partial<Record<SkillId, string>> = {
   phi_kiem: 'cast',
   han_bang_tran: 'cast',
 };
+
+const LI_MU_SKILL_ANIM: Partial<Record<SkillId, string>> = {
+  bang_tam_tram: 'skill_nguyet_anh',
+  phi_kiem: 'skill_hoa_vu',
+  han_bang_tran: 'skill_thien_hoa',
+};
+const WANG_LIN_SKILL_ANIM: Partial<Record<SkillId, string>> = {
+  bang_tam_tram: 'skill_ta_kiem',
+  phi_kiem: 'skill_hu_khong',
+  han_bang_tran: 'skill_thon_thien',
+};
+const LI_MU_ART_FOOT_OFFSET_X = 24;
+const AUTO_TARGET_RANGE = 420;
+const AUTO_LOOT_RANGE = 180;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   readonly ctrl: AnimationController;
@@ -45,13 +62,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private queuedAttack = false;
   private dashTime = 0;
   private dashVec: Vec2 = { x: 0, y: 0 };
-  private afterimageTimer = 0;
   private shadow: Phaser.GameObjects.Image;
+  private weaponArt: Phaser.GameObjects.Image;
+  private weaponAura: Phaser.GameObjects.Image;
+  private weaponPulse: Phaser.Tweens.Tween | null = null;
+  private equippedWeaponId: string | null = null;
   private label: Phaser.GameObjects.Text;
   private bar: Phaser.GameObjects.Graphics;
   private aura: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
   private blink: Phaser.Tweens.Tween | null = null;
   private route: Vec2[] = [];
+  private autoRoute: Vec2[] = [];
+  private autoPathBlocked: boolean[][] | null = null;
+  private autoRouteTarget: Monster | null = null;
+  private autoRouteTargetTile = '';
+  private autoRouteStartTile = '';
+  private autoRouteReady = false;
   private stuckMs = 0;
   private anchorX = 0;
   private anchorY = 0;
@@ -69,6 +95,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const spot = iso(x, y);
     this.art = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
     this.ctrl = new AnimationController(this.art, art);
+    this.weaponAura = world.add
+      .image(spot.x, spot.y, 'fx_dot')
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDisplaySize(64, 34)
+      .setVisible(false);
+    this.weaponArt = world.add.image(spot.x, spot.y, 'item-sprite-weapon-white').setScale(0.32).setVisible(false);
     const body = this.body as Phaser.Physics.Arcade.Body;
     const fw = this.ctrl.rig.frameWidth;
     const fh = this.ctrl.rig.frameHeight;
@@ -150,23 +182,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     } else if (this.dashTime > 0) {
       this.dashTime -= dt;
       body.setVelocity(this.dashVec.x, this.dashVec.y);
-      this.afterimageTimer -= dt;
-      if (this.afterimageTimer <= 0) {
-        this.afterimageTimer = 30;
-        this.world.vfx.afterimage(this);
-      }
       if (this.dashTime <= 0) this.world.vfx.teleport(this.feet);
     } else {
       let move = this.manualInput();
       const manual = Math.hypot(move.x, move.y) > 0.1;
       if (manual) {
+        this.clearAutoRoute();
         if (this.route.length) this.world.cancelQuestNav();
         if (this.meditating) this.stopMeditate();
-      } else if (this.route.length && !this.meditating) {
-        move = this.followRoute();
-        if (this.route.length) this.watchStuck(dt);
       } else if (gameStore.getState().auto && !this.meditating) {
+        if (this.route.length) this.world.cancelQuestNav();
         move = this.autoControl();
+      } else {
+        this.clearAutoRoute();
+        if (this.route.length && !this.meditating) {
+          move = this.followRoute();
+          if (this.route.length) this.watchStuck(dt);
+        }
       }
 
       if (this.ctrl.locked || this.meditating) {
@@ -186,8 +218,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     const spot = iso(this.x, this.y);
-    this.art.setPosition(spot.x, spot.y).setDepth(spot.y);
+    const centerOffset =
+      this.art.texture.key === 'player' ? (this.art.flipX ? LI_MU_ART_FOOT_OFFSET_X : -LI_MU_ART_FOOT_OFFSET_X) : 0;
+    this.art.setPosition(spot.x + centerOffset, spot.y).setDepth(spot.y);
     this.syncLook();
+    this.syncWeapon(spot);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.label.setPosition(spot.x, spot.y - 106);
     this.drawBar(spot);
@@ -199,6 +234,50 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
     else if (this.isTinted) this.art.setTint(this.tintTopLeft);
     else this.art.clearTint();
+  }
+
+  private syncWeapon(spot: Vec2) {
+    const weaponId = gameStore.getState().player.equipment.weapon ?? null;
+    if (weaponId !== this.equippedWeaponId) {
+      this.equippedWeaponId = weaponId;
+      const texture = weaponId ? itemSpriteTextureKey(weaponId) : undefined;
+      if (!weaponId || !texture || !this.world.textures.exists(texture)) {
+        this.weaponArt.setVisible(false);
+        this.weaponAura.setVisible(false);
+        this.weaponPulse?.stop();
+        this.weaponPulse = null;
+        return;
+      }
+
+      this.weaponArt.setTexture(texture).setVisible(true);
+      const rarity = ITEMS[weaponId]?.rarity;
+      const rarityIndex = RARITIES.findIndex((entry) => entry.id === rarity);
+      const glowStart = RARITIES.findIndex((entry) => entry.id === 'purple');
+      const glow = rarityIndex >= glowStart;
+      this.weaponPulse?.stop();
+      this.weaponPulse = null;
+      this.weaponAura.setVisible(glow);
+      if (glow) {
+        const color = rarity === 'pink' ? '#ff4a4a' : RARITIES[rarityIndex]?.color ?? '#b46cff';
+        this.weaponAura.setTint(Phaser.Display.Color.HexStringToColor(color).color);
+        this.weaponPulse = this.world.tweens.add({
+          targets: this.weaponAura,
+          alpha: { from: 0.38, to: 0.82 },
+          scaleX: { from: 1.1, to: 1.5 },
+          scaleY: { from: 0.9, to: 1.2 },
+          duration: 700,
+          yoyo: true,
+          repeat: -1,
+        });
+      }
+    }
+
+    const left = this.dir === 'left';
+    const rotation = this.dir === 'up' ? -Math.PI / 2 : this.dir === 'down' ? Math.PI / 2 : 0;
+    const x = spot.x + (left ? -17 : 17);
+    const y = spot.y - (this.dir === 'down' ? 40 : 51);
+    this.weaponAura.setPosition(x, y).setDepth(spot.y);
+    this.weaponArt.setPosition(x, y).setRotation(rotation).setFlipX(left).setDepth(spot.y + 1);
   }
 
   private drawBar(spot: Vec2) {
@@ -214,13 +293,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private autoControl(): Vec2 {
     const w = this.world;
     const range = playerSkill('basic').range;
-    let target = w.target && w.target.alive && w.target.distanceTo(this) < 520 ? w.target : null;
-    if (!target) target = w.nearestMonster(this, 420);
-    const nearbyLoot = w.nearestLoot(this, 260);
+    const target = w.nearestMonster(this, AUTO_TARGET_RANGE);
+    if (w.target !== target) w.setTarget(target);
+    const nearbyLoot = target ? null : w.nearestLoot(this, AUTO_LOOT_RANGE);
     const engaged = target && target.distanceTo(this) < range + 40;
 
-    if (!engaged && nearbyLoot) return this.toward(nearbyLoot);
-    if (!target) return { x: 0, y: 0 };
+    if (!engaged && nearbyLoot) {
+      this.clearAutoRoute();
+      return this.toward(nearbyLoot);
+    }
+    if (!target) {
+      this.clearAutoRoute();
+      return { x: 0, y: 0 };
+    }
     w.setTarget(target);
     const d = target.distanceTo(this);
     // use skills first, then basic attacks
@@ -233,11 +318,60 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     }
     if (d <= range - 8) {
+      this.clearAutoRoute();
       this.faceToward(target);
       this.attack();
       return { x: 0, y: 0 };
     }
+    return this.followAutoRoute(target);
+  }
+
+  private followAutoRoute(target: Monster): Vec2 {
+    const targetX = Math.floor(target.x / TILE);
+    const targetY = Math.floor(target.y / TILE);
+    const targetTile = `${targetX},${targetY}`;
+    const startX = Math.floor(this.x / TILE);
+    const startY = Math.floor(this.y / TILE);
+    const startTile = `${startX},${startY}`;
+    if (
+      this.autoRouteTarget !== target ||
+      this.autoRouteTargetTile !== targetTile ||
+      (!this.autoRoute.length && (!this.autoRouteReady || this.autoRouteStartTile !== startTile))
+    ) {
+      if (!this.autoPathBlocked) {
+        this.autoPathBlocked = this.world.map.blocked.map((row) => row.slice());
+        for (const npc of this.world.map.npcs) {
+          if (this.autoPathBlocked[npc.y]) this.autoPathBlocked[npc.y][npc.x] = true;
+        }
+      }
+      const path = findPath(this.autoPathBlocked, startX, startY, targetX, targetY);
+      this.autoRouteTarget = target;
+      this.autoRouteTargetTile = targetTile;
+      this.autoRouteStartTile = startTile;
+      this.autoRouteReady = true;
+      this.autoRoute = path.reached
+        ? path.tiles.map((tile) => ({ x: tile.x * TILE + TILE / 2, y: tile.y * TILE + TILE / 2 }))
+        : [];
+      if (!path.reached) return { x: 0, y: 0 };
+    }
+
+    while (this.autoRoute.length) {
+      const waypoint = this.autoRoute[0];
+      const dx = waypoint.x - this.x;
+      const dy = waypoint.y - this.y;
+      const distance = Math.hypot(dx, dy);
+      if (distance > 22) return { x: dx / distance, y: dy / distance };
+      this.autoRoute.shift();
+    }
     return this.toward(target);
+  }
+
+  private clearAutoRoute() {
+    this.autoRoute = [];
+    this.autoRouteTarget = null;
+    this.autoRouteTargetTile = '';
+    this.autoRouteStartTile = '';
+    this.autoRouteReady = false;
   }
 
   setRoute(points: Vec2[]) {
@@ -355,7 +489,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     if (this.meditating) this.stopMeditate();
     this.cooldowns[id] = sk.cooldownMs;
-    this.ctrl.play(SKILL_ANIM[id] ?? 'cast', this.dir, {
+    const animation =
+      this.art.texture.key === 'player'
+        ? LI_MU_SKILL_ANIM[id]
+        : this.art.texture.key === 'player_male'
+          ? WANG_LIN_SKILL_ANIM[id]
+          : undefined;
+    this.ctrl.play(animation ?? SKILL_ANIM[id] ?? 'cast', this.dir, {
       lock: true,
       force: true,
       onHit: () => this.world.executeSkill(id, target),
@@ -464,6 +604,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   destroy(fromScene?: boolean) {
     this.art?.destroy();
+    this.weaponArt?.destroy();
+    this.weaponAura?.destroy();
+    this.weaponPulse?.stop();
     this.shadow?.destroy();
     this.label?.destroy();
     this.bar?.destroy();

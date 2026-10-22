@@ -1,4 +1,5 @@
 import type { EquipSlot } from '../../data';
+import { REALMS } from '../../data';
 import type { QuestLog } from './quest';
 import type { DungeonRecord } from './dungeon';
 import type { SkillLevels } from './skills';
@@ -98,6 +99,8 @@ export function deserialize(raw: string | null): SaveData | null {
     const data = JSON.parse(raw) as SaveData;
     if (data.v !== SAVE_VERSION || !data.player || typeof data.player.level !== 'number') return null;
     if (data.player.sex !== 'male' && data.player.sex !== 'female') data.player.sex = 'female';
+    const realmIndex = REALMS.findIndex((realm) => data.player.level <= realm.maxLevel);
+    data.player.realmIndex = realmIndex < 0 ? REALMS.length - 1 : realmIndex;
     return data;
   } catch {
     return null;

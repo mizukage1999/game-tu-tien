@@ -287,6 +287,36 @@ export const ITEM_SPRITE_ASSETS: Record<string, string> = {
   hoi_xuan_dan: '/assets/ui/item-hoi-xuan-dan.png',
   nhan_bac: '/assets/ui/item-nhan-bac.png',
   kiem_pho: '/assets/ui/item-kiem-pho.png',
+  weapon_white: '/assets/sprites/weapon-white.png',
+  weapon_blue: '/assets/sprites/weapon-blue.png',
+  weapon_green: '/assets/sprites/weapon-green.png',
+  weapon_purple: '/assets/sprites/weapon-purple.png',
+  weapon_orange: '/assets/sprites/weapon-orange.png',
+  weapon_red: '/assets/sprites/weapon-red.png',
+  armor_white: '/assets/sprites/armor-white.png',
+  armor_blue: '/assets/sprites/armor-blue.png',
+  armor_green: '/assets/sprites/armor-green.png',
+  armor_purple: '/assets/sprites/armor-purple.png',
+  armor_orange: '/assets/sprites/armor-orange.png',
+  armor_red: '/assets/sprites/armor-red.png',
+  boots_white: '/assets/sprites/boots-white.png',
+  boots_blue: '/assets/sprites/boots-blue.png',
+  boots_green: '/assets/sprites/boots-green.png',
+  boots_purple: '/assets/sprites/boots-purple.png',
+  boots_orange: '/assets/sprites/boots-orange.png',
+  boots_red: '/assets/sprites/boots-red.png',
+  ring_white: '/assets/sprites/ring-white.png',
+  ring_blue: '/assets/sprites/ring-blue.png',
+  ring_green: '/assets/sprites/ring-green.png',
+  ring_purple: '/assets/sprites/ring-purple.png',
+  ring_orange: '/assets/sprites/ring-orange.png',
+  ring_red: '/assets/sprites/ring-red.png',
+  amulet_white: '/assets/sprites/amulet-white.png',
+  amulet_blue: '/assets/sprites/amulet-blue.png',
+  amulet_green: '/assets/sprites/amulet-green.png',
+  amulet_purple: '/assets/sprites/amulet-purple.png',
+  amulet_orange: '/assets/sprites/amulet-orange.png',
+  amulet_red: '/assets/sprites/amulet-red.png',
   equipment_weapon: '/assets/ui/item-equipment-weapon.png',
   equipment_armor: '/assets/ui/item-equipment-armor.png',
   equipment_helmet: '/assets/ui/item-equipment-helmet.png',
@@ -297,7 +327,13 @@ export const ITEM_SPRITE_ASSETS: Record<string, string> = {
 
 export function itemSpriteTextureKey(id: string) {
   const item = ITEMS[id];
-  const assetId = ITEM_SPRITE_ASSETS[id] ? id : item?.slot ? `equipment_${item.slot}` : undefined;
+  const spriteRarity = item?.rarity === 'pink' ? 'red' : item?.rarity;
+  const tieredGearAsset =
+    item?.slot && ['armor', 'boots', 'ring', 'amulet'].includes(item.slot) && spriteRarity
+      ? `${item.slot}_${spriteRarity}`
+      : undefined;
+  const weaponAsset = item?.slot === 'weapon' && spriteRarity ? `weapon_${spriteRarity}` : undefined;
+  const assetId = ITEM_SPRITE_ASSETS[id] ? id : tieredGearAsset ?? weaponAsset ?? (item?.slot ? `equipment_${item.slot}` : undefined);
   return assetId && ITEM_SPRITE_ASSETS[assetId] ? `item-sprite-${assetId}` : undefined;
 }
 
@@ -307,6 +343,22 @@ const UI_SKILL_ICONS: Record<SkillId, string> = {
   bang_tam_tram: '/assets/ui/skill-bang-tam-tram.png',
   han_bang_tran: '/assets/ui/skill-han-bang-tran.png',
   than_phap: '/assets/ui/skill-than-phap.png',
+};
+
+const LI_MU_SKILL_ICONS: Partial<Record<SkillId, string>> = {
+  basic: '/assets/ui/skill-basic-li-mu.png',
+  bang_tam_tram: '/assets/ui/skill-bang-tam-tram-li-mu.png',
+  phi_kiem: '/assets/ui/skill-phi-kiem-li-mu.png',
+  han_bang_tran: '/assets/ui/skill-han-bang-tran-li-mu.png',
+  than_phap: '/assets/ui/skill-than-phap-li-mu.png',
+};
+
+const WANG_LIN_SKILL_ICONS: Record<SkillId, string> = {
+  basic: '/assets/ui/skill-basic-wang-lin.png',
+  bang_tam_tram: '/assets/ui/skill-bang-tam-tram-wang-lin.png',
+  phi_kiem: '/assets/ui/skill-phi-kiem-wang-lin.png',
+  han_bang_tran: '/assets/ui/skill-han-bang-tran-wang-lin.png',
+  than_phap: '/assets/ui/skill-than-phap-wang-lin.png',
 };
 
 function toUrl(key: string, s: number, draw: (ctx: Ctx) => void): string {
@@ -330,8 +382,9 @@ export function skillIconUrl(id: string, s = 64) {
   return toUrl(`skill:${id}:${s}`, s, (ctx) => drawSkill(ctx, id, s));
 }
 
-export function skillSpriteUrl(id: SkillId) {
-  return UI_SKILL_ICONS[id];
+export function skillSpriteUrl(id: SkillId, sex: 'female' | 'male' = 'male') {
+  if (sex === 'male') return WANG_LIN_SKILL_ICONS[id];
+  return LI_MU_SKILL_ICONS[id] ?? UI_SKILL_ICONS[id];
 }
 
 export function portraitUrl(palette = 'player', s = 128) {
