@@ -25,13 +25,13 @@
       "anims": {
         "idle": { "frames": 8, "frameRate": 5, "repeat": -1 },
         "run": { "frames": 8, "frameRate": 12, "repeat": -1 },
-        "attack_1": { "frames": 8, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
-        "attack_2": { "frames": 8, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
-        "attack_3": { "frames": 8, "frameRate": 18, "repeat": 0, "hitFrame": 2 },
-        "cast": { "frames": 8, "frameRate": 16, "repeat": 0, "hitFrame": 2 },
-        "hurt": { "frames": 4, "frameRate": 12, "repeat": 0 },
-        "downed": { "frames": 6, "frameRate": 9, "repeat": 0 },
-        "meditate": { "frames": 8, "frameRate": 3, "repeat": -1 }
+        "attack_1": { "frames": 5, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
+        "attack_2": { "frames": 5, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
+        "attack_3": { "frames": 6, "frameRate": 18, "repeat": 0, "hitFrame": 2 },
+        "cast": { "frames": 5, "frameRate": 16, "repeat": 0, "hitFrame": 2 },
+        "hurt": { "frames": 2, "frameRate": 12, "repeat": 0 },
+        "downed": { "frames": 3, "frameRate": 9, "repeat": 0 },
+        "meditate": { "frames": 4, "frameRate": 3, "repeat": -1 }
       }
     },
     "male_wuxia": {
@@ -42,13 +42,13 @@
       "anims": {
         "idle": { "frames": 8, "frameRate": 5, "repeat": -1 },
         "run": { "frames": 8, "frameRate": 12, "repeat": -1 },
-        "attack_1": { "frames": 4, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
-        "attack_2": { "frames": 4, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
-        "attack_3": { "frames": 4, "frameRate": 18, "repeat": 0, "hitFrame": 2 },
-        "cast": { "frames": 4, "frameRate": 16, "repeat": 0, "hitFrame": 2 },
-        "hurt": { "frames": 4, "frameRate": 12, "repeat": 0 },
-        "downed": { "frames": 4, "frameRate": 9, "repeat": 0 },
-        "meditate": { "frames": 8, "frameRate": 3, "repeat": -1 }
+        "attack_1": { "frames": 5, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
+        "attack_2": { "frames": 5, "frameRate": 20, "repeat": 0, "hitFrame": 2 },
+        "attack_3": { "frames": 6, "frameRate": 18, "repeat": 0, "hitFrame": 2 },
+        "cast": { "frames": 5, "frameRate": 16, "repeat": 0, "hitFrame": 2 },
+        "hurt": { "frames": 2, "frameRate": 12, "repeat": 0 },
+        "downed": { "frames": 3, "frameRate": 9, "repeat": 0 },
+        "meditate": { "frames": 4, "frameRate": 3, "repeat": -1 }
       }
     },
     "npc": {

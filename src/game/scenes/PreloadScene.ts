@@ -26,8 +26,7 @@ export class PreloadScene extends Phaser.Scene {
       this.load.image(`item-sprite-${id}`, url);
     }
     this.load.json('sprite-manifest', 'assets/sprites/manifest.json');
-    this.load.once(Phaser.Loader.Events.FILE_COMPLETE, (key: string) => {
-      if (key !== 'sprite-manifest') return;
+    this.load.once(`${Phaser.Loader.Events.FILE_COMPLETE}-json-sprite-manifest`, () => {
       const manifest = (this.cache.json.get('sprite-manifest') ?? {}) as Record<string, AtlasEntry>;
       for (const [key, entry] of Object.entries(manifest)) {
         if (key.startsWith('_')) continue;
