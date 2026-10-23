@@ -385,25 +385,4 @@ export class SkillVfx {
     this.burstParticles(at.x, at.y, 10, 120, [color, 0xffffff]);
   }
 
-  /** Gathering motes while meditating. */
-  meditateAura(target: Phaser.GameObjects.Sprite): Phaser.GameObjects.Particles.ParticleEmitter {
-    const at = iso(target.x, target.y);
-    const em = this.scene.add.particles(at.x, at.y - 26, 'fx_dot', {
-      emitZone: {
-        type: 'edge',
-        source: new Phaser.Geom.Circle(0, 0, 60),
-        quantity: 24,
-      },
-      moveToX: 0,
-      moveToY: 0,
-      lifespan: 900,
-      scale: { start: 0.8, end: 0.1 },
-      alpha: { start: 0, end: 1 },
-      frequency: 60,
-      tint: ICE,
-      blendMode: Phaser.BlendModes.ADD,
-    });
-    em.setDepth(target.depth + 1);
-    return em;
-  }
 }

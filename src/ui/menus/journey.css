@@ -1,4 +1,76 @@
 .menu-journey { width: min(860px, 94vw); }
+.menu-journey { width: min(1100px, 96vw); background: linear-gradient(120deg, #0a1c2b, #0b1724); border: 1px solid #b39358; }
+.story-open > .immortal-intro { display: none; }
+.journey-book { display: grid; grid-template-columns: 175px minmax(0, 1fr); gap: 14px; }
+.journey-chapters { display: flex; flex-direction: column; gap: 8px; border-right: 1px solid #b69b5b45; padding-right: 12px; }
+.journey-chapters button { display: flex; align-items: center; gap: 10px; min-height: 78px; padding: 10px; text-align: left; border: 1px solid #ac91505e; border-radius: 3px 12px 3px 12px; background: linear-gradient(125deg,#203848,#0a1b2b); color: #b8c8d4; }
+.journey-chapters button.selected { border-color: #e6bd70; background: linear-gradient(125deg,#71522eaa,#21323c); color: #ffe3a1; box-shadow: inset 3px 0 #e8b85e,0 0 12px #edb95718; }
+.journey-chapters button.locked { color: #82939f; }
+.journey-chapters button > span:nth-child(2) { flex: 1; min-width: 0; }
+.journey-chapters b { display: block; font: 15px/1.4 var(--serif); }
+.journey-chapters small { display: block; font-size: 10px; margin-top: 5px; color: #91a4ac; }
+.chapter-medallion,.task-medallion { display: grid; place-items: center; flex: 0 0 35px; height: 35px; border: 1px solid #bd9b5e; border-radius: 50%; font: 20px var(--serif); color: #edca86; background: #0a1a28; }
+.chapter-state { font-size: 16px; color: #c5a36d; }
+.journey-chapter-content { min-width: 0; }
+.journey-chapter-hero { position: relative; min-height: 155px; overflow: hidden; border-radius: 5px; border: 1px solid #c7a26555; margin-bottom: 10px; background: #16334a; }
+.journey-scenery { position: absolute; inset: 0; width: 100%; height: 100%; }
+.journey-chapter-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,#091d30f5 0%,#091d30d4 38%,#091d3010 85%); }
+.journey-chapter-hero > div { position: relative; z-index: 1; padding: 17px 20px; max-width: 65%; }
+.journey-chapter-hero small { color: #d9bd83; font-size: 11px; }
+.journey-chapter-hero h2 { font: 28px/1.2 var(--serif); color: #ffe1a0; margin: 6px 0 8px; }
+.journey-chapter-hero p { color: #b9ced8; font-size: 11px; line-height: 1.65; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.journey-task-list { display: flex; flex-direction: column; gap: 6px; }
+.journey-task { display: grid; grid-template-columns: 35px minmax(0,1fr) auto 92px; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid #8f7c4b65; border-radius: 3px 9px 3px 9px; background: linear-gradient(110deg,#152b3c,#091b2a); }
+.journey-task.current { border-color: #d6ad69; background: linear-gradient(110deg,#283b40,#102334); }
+.journey-task.complete { opacity: .7; }
+.journey-task-copy { min-width: 0; }
+.journey-task-copy h4 { margin: 0 0 4px; font: 14px var(--serif); color: #f1dfb8; }
+.journey-task-copy p { margin: 0 0 6px; font-size: 10px; color: #a2bbc8; line-height: 1.45; }
+.journey-task-progress { position: relative; height: 9px; overflow: hidden; border: 1px solid #728c9560; border-radius: 5px; background: #05101c; }
+.journey-task-progress > span { display: block; height: 100%; background: linear-gradient(90deg,#2a97a8,#a2cc7c); }
+.journey-task-progress > small { position: absolute; right: 5px; top: -2px; line-height: 11px; font-size: 8px; color: #e8f1df; text-shadow: 0 1px #000; }
+.journey-task-copy details { margin-top: 5px; color: #a7bfbc; font-size: 10px; line-height: 1.5; }
+.journey-task-copy summary { cursor: pointer; color: #c6b68d; }
+.journey-task-rewards { display: flex; gap: 5px; }
+.journey-task-rewards > span { display: grid; place-items: center; position: relative; width: 34px; height: 39px; border: 1px solid #879a9c6b; border-radius: 4px; background: #06111d; }
+.journey-task-rewards img { width: 28px; height: 28px; object-fit: contain; margin-bottom: 7px; }
+.journey-task-rewards small { position: absolute; bottom: 1px; font-size: 8px; color: #e5e5cf; text-shadow: 0 1px 2px #000; }
+.journey-task-rewards b { font: bold 10px var(--serif); margin-bottom: 6px; }
+.journey-task-rewards .journey-exp { color: #9ce3b1; border-color: #5b9e7b; background: radial-gradient(circle,#286b5955,#06111d); }
+.journey-task-rewards .journey-qi { color: #9cd8f1; border-color: #508eac; }
+.journey-task > .btn { font-size: 11px; padding: 7px; min-height: 32px; }
+.journey-chapter-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #c7b785; border-top: 1px solid #c3a36b55; margin-top: 10px; padding-top: 10px; font-size: 10px; }
+.journey-chapter-footer progress { flex: 1; min-width: 70px; height: 8px; accent-color: #d8b66e; }
+.journey-chapter-footer > span:last-child { color: #7f9b9f; font-size: 9px; }
+.hud.phone .journey-book { grid-template-columns: 126px minmax(0,1fr); gap: 8px; }
+.hud.phone .journey-chapters { gap: 5px; padding-right: 7px; }
+.hud.phone .journey-chapters button { min-height: 50px; padding: 6px; gap: 6px; }
+.hud.phone .chapter-medallion { flex-basis: 25px; height: 25px; font-size: 14px; }
+.hud.phone .journey-chapters b { font-size: 11px; }
+.hud.phone .journey-chapters small { font-size: 8px; margin-top: 2px; }
+.hud.phone .chapter-state { font-size: 11px; }
+.hud.phone .journey-chapter-hero { min-height: 88px; margin-bottom: 6px; }
+.hud.phone .journey-chapter-hero > div { padding: 9px 11px; max-width: 70%; }
+.hud.phone .journey-chapter-hero small { font-size: 9px; }
+.hud.phone .journey-chapter-hero h2 { font-size: 19px; margin: 3px 0 5px; }
+.hud.phone .journey-chapter-hero p { font-size: 9px; line-height: 1.4; -webkit-line-clamp: 2; }
+.hud.phone .journey-task { grid-template-columns: 25px minmax(0,1fr) auto 76px; padding: 7px 8px; gap: 7px; }
+.hud.phone .task-medallion { width: 25px; height: 25px; font-size: 14px; }
+.hud.phone .journey-task-copy h4 { font-size: 11px; margin-bottom: 3px; }
+.hud.phone .journey-task-copy p { font-size: 9px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hud.phone .journey-task-copy details { font-size: 9px; }
+.hud.phone .journey-task-rewards > span { width: 27px; height: 31px; }
+.hud.phone .journey-task-rewards img { width: 22px; height: 22px; }
+.hud.phone .journey-task-rewards b { font-size: 8px; }
+.hud.phone .journey-task-rewards small { font-size: 7px; }
+.hud.phone .journey-chapter-footer { margin-top: 7px; padding-top: 7px; font-size: 9px; }
+@media (max-width: 600px) and (orientation: portrait) {
+  .hud:not(.turned) .journey-book { grid-template-columns: minmax(0,1fr); }
+  .hud:not(.turned) .journey-chapters { flex-direction: row; overflow-x: auto; border: 0; }
+  .hud:not(.turned) .journey-chapters button { min-width: 125px; }
+  .hud:not(.turned) .journey-task-rewards { display: none; }
+  .hud:not(.turned) .journey-task { grid-template-columns: 25px minmax(0,1fr) 70px; }
+}
 .immortal-journey { color: #dbe7df; }
 .immortal-intro { display: flex; align-items: center; gap: 18px; padding: 18px 20px; margin-bottom: 16px; border: 1px solid #9bba922f; background: radial-gradient(ellipse at 80% 0%, #456e5d3b, transparent 65%), linear-gradient(115deg, #172a2a, #132027); border-radius: 8px; }
 .immortal-seal { flex: 0 0 auto; display: grid; place-items: center; width: 60px; height: 68px; border: 1px solid #d2bb7a70; outline: 1px solid #d2bb7a25; outline-offset: 4px; color: #e0ca91; font: 38px var(--serif); }

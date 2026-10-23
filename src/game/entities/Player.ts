@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
-import { ITEMS, RARITIES, type SkillId } from '../../data';
+import type { SkillId } from '../../data';
 import { gameStore, playerSkill } from '../../store/gameStore';
 import { playerArt } from '../systems/character';
-import { itemSpriteTextureKey } from '../art/icons';
 import { AnimationController } from '../anim/AnimationController';
 import { virtualInput } from '../EventBus';
 import { flash, knockback } from '../fx/HitEffect';
@@ -66,13 +65,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private dashVec: Vec2 = { x: 0, y: 0 };
   private shadow: Phaser.GameObjects.Image;
   private mountArt: Phaser.GameObjects.Image;
-  private weaponArt: Phaser.GameObjects.Image;
-  private weaponAura: Phaser.GameObjects.Image;
-  private weaponPulse: Phaser.Tweens.Tween | null = null;
-  private equippedWeaponId: string | null = null;
   private label: Phaser.GameObjects.Text;
   private bar: Phaser.GameObjects.Graphics;
-  private aura: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
   private blink: Phaser.Tweens.Tween | null = null;
   private route: Vec2[] = [];
   private autoRoute: Vec2[] = [];
@@ -99,12 +93,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const spot = iso(x, y);
     this.art = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
     this.ctrl = new AnimationController(this.art, art);
-    this.weaponAura = world.add
-      .image(spot.x, spot.y, 'fx_dot')
-      .setBlendMode(Phaser.BlendModes.ADD)
-      .setDisplaySize(64, 34)
-      .setVisible(false);
-    this.weaponArt = world.add.image(spot.x, spot.y, 'item-sprite-weapon-white').setScale(0.32).setVisible(false);
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(22, 14);
     // This invisible sprite holds the whole atlas, not an animated rig frame.
@@ -243,7 +231,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(this.dir === 'left').setPosition(spot.x, spot.y - lift - 4).setDepth(spot.y - 0.1);
     this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
     this.syncLook();
-    this.syncWeapon(spot);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.label.setPosition(spot.x, spot.y - 106 - lift);
     this.drawBar(spot);
@@ -255,50 +242,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
     else if (this.isTinted) this.art.setTint(this.tintTopLeft);
     else this.art.clearTint();
-  }
-
-  private syncWeapon(spot: Vec2) {
-    const weaponId = gameStore.getState().player.equipment.weapon ?? null;
-    if (weaponId !== this.equippedWeaponId) {
-      this.equippedWeaponId = weaponId;
-      const texture = weaponId ? itemSpriteTextureKey(weaponId) : undefined;
-      if (!weaponId || !texture || !this.world.textures.exists(texture)) {
-        this.weaponArt.setVisible(false);
-        this.weaponAura.setVisible(false);
-        this.weaponPulse?.stop();
-        this.weaponPulse = null;
-        return;
-      }
-
-      this.weaponArt.setTexture(texture).setVisible(true);
-      const rarity = ITEMS[weaponId]?.rarity;
-      const rarityIndex = RARITIES.findIndex((entry) => entry.id === rarity);
-      const glowStart = RARITIES.findIndex((entry) => entry.id === 'purple');
-      const glow = rarityIndex >= glowStart;
-      this.weaponPulse?.stop();
-      this.weaponPulse = null;
-      this.weaponAura.setVisible(glow);
-      if (glow) {
-        const color = rarity === 'pink' ? '#ff4a4a' : RARITIES[rarityIndex]?.color ?? '#b46cff';
-        this.weaponAura.setTint(Phaser.Display.Color.HexStringToColor(color).color);
-        this.weaponPulse = this.world.tweens.add({
-          targets: this.weaponAura,
-          alpha: { from: 0.38, to: 0.82 },
-          scaleX: { from: 1.1, to: 1.5 },
-          scaleY: { from: 0.9, to: 1.2 },
-          duration: 700,
-          yoyo: true,
-          repeat: -1,
-        });
-      }
-    }
-
-    const left = this.dir === 'left';
-    const rotation = this.dir === 'up' ? -Math.PI / 2 : this.dir === 'down' ? Math.PI / 2 : 0;
-    const x = spot.x + (left ? -17 : 17);
-    const y = spot.y - (this.dir === 'down' ? 40 : 51);
-    this.weaponAura.setPosition(x, y).setDepth(spot.y);
-    this.weaponArt.setPosition(x, y).setRotation(rotation).setFlipX(left).setDepth(spot.y + 1);
   }
 
   private drawBar(spot: Vec2) {
@@ -573,7 +516,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.meditating = true;
     (this.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
     this.ctrl.play('meditate', 'down', { force: true });
-    this.aura = this.world.vfx.meditateAura(this);
     gameStore.getState().patch({ meditating: true });
     gameStore.getState().addLog('Bắt đầu tọa thiền, hấp thu linh khí...');
   }
@@ -581,8 +523,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   stopMeditate() {
     if (!this.meditating) return;
     this.meditating = false;
-    this.aura?.destroy();
-    this.aura = null;
     this.ctrl.play('idle', this.dir, { force: true });
     gameStore.getState().patch({ meditating: false });
   }
@@ -646,14 +586,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   destroy(fromScene?: boolean) {
     this.art?.destroy();
-    this.weaponArt?.destroy();
-    this.weaponAura?.destroy();
-    this.weaponPulse?.stop();
     this.shadow?.destroy();
     this.mountArt?.destroy();
     this.label?.destroy();
     this.bar?.destroy();
-    this.aura?.destroy();
     super.destroy(fromScene);
   }
 }

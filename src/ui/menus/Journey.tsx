@@ -3,10 +3,10 @@ import { ITEMS, QUESTS } from '../../data';
 import { EventBus } from '../../game/EventBus';
 import {
   HOME_MAX_LEVEL, HOME_QUEST, homeMeditateRate, homeUpgradeCost,
-  immortalProgress, MOUNTS, mountUnlocked, RECIPES, recipeCheck, storyOrder, storyChapter,
+  immortalProgress, MOUNTS, mountUnlocked, RECIPES, recipeCheck, storyOrder,
 } from '../../game/systems/immortal';
-import { objectiveText } from '../../game/systems/quest';
-import { itemName, npcName, questNames, useGame } from '../../store/gameStore';
+import { StoryChapters } from './StoryChapters';
+import { itemName, useGame } from '../../store/gameStore';
 import { isChildhood } from '../../game/systems/origin';
 import { WorldAtlas } from './WorldAtlas';
 import './journey.css';
@@ -33,7 +33,7 @@ export function Journey() {
   const quests = useGame((s) => s.quests);
   const mapId = useGame((s) => s.mapId);
   const status = useGame((s) => s.status);
-  const acceptQuest = useGame((s) => s.acceptQuest);
+
   const craftPill = useGame((s) => s.craftPill);
   const upgradeHome = useGame((s) => s.upgradeHome);
   const harvestGarden = useGame((s) => s.harvestGarden);
@@ -54,7 +54,7 @@ export function Journey() {
   const currentId = order.find((id) => quests[id]?.status !== 'done');
   const currentAim = currentId && QUESTS[currentId].objectives.find((o, i) => (quests[currentId]?.progress[i] ?? 0) < o.count);
 
-  return <div className={`immortal-journey${tab === 'world' ? ' atlas-open' : ''}`}>
+  return <div className={`immortal-journey${tab === 'world' ? ' atlas-open' : tab === 'story' ? ' story-open' : ''}`}>
     <div className="immortal-intro">
       <span className="immortal-seal" aria-hidden="true">道</span>
       <div><small>{childhood ? 'VƯƠNG GIA THÔN · THIẾT TRỤ' : 'SƠN HÀ TIÊN LỘ'}</small><h2>{childhood ? 'Những ngày còn thơ' : 'Một đời cầu đạo'}</h2><p>{childhood ? 'Từ mái nhà bên sông, bước đầu tiên đi về phía núi.' : 'Đi qua sơn hà, giữ một lời hẹn trở về.'}</p></div>
@@ -64,32 +64,7 @@ export function Journey() {
       {TABS.map((t) => <button key={t.id} id={`journey-tab-${t.id}`} role="tab" aria-controls={`journey-panel-${t.id}`} aria-selected={tab === t.id} disabled={childhood && !['story', 'world'].includes(t.id)} className={tab === t.id ? 'active' : ''} onClick={() => setTab(t.id)}><span aria-hidden="true">{t.glyph}</span>{t.label}</button>)}
     </div>
     <div role="tabpanel" id={`journey-panel-${tab}`} aria-labelledby={`journey-tab-${tab}`}>
-      {tab === 'story' && <>
-        <p className="immortal-note">{childhood ? 'Chương mở đầu phóng tác về tuổi thơ Thiết Trụ. Làm việc nhà, khám phá làng, từ biệt gia đình rồi tham gia khảo hạch nhập môn.' : 'Theo lời Vân Hạc, tìm lại Thanh Vân chân nhân và khám phá những con đường của Linh Sơn.'}</p>
-        {order.map((id, index) => {
-          const def = QUESTS[id];
-          const quest = quests[id];
-          const available = !quest && (!def.requires || quests[def.requires]?.status === 'done') && (!childhood || id.startsWith('village_'));
-          const active = quest && quest.status !== 'done';
-          const showChapter = index === 0 || storyChapter(id) !== storyChapter(order[index - 1]);
-          return <div key={id}>
-            {showChapter && <h3 className="immortal-chapter">{storyChapter(id)}</h3>}
-            <article className={`immortal-story ${active || available ? 'current' : ''} ${quest?.status === 'done' ? 'complete' : ''}`}>
-              <span className="immortal-step">{quest?.status === 'done' ? '✓' : String(index + 1).padStart(2, '0')}</span>
-              <div><h4>{def.name}<small>{quest?.status === 'done' ? 'Đã hoàn thành' : quest?.status === 'ready' ? 'Chờ báo đáp' : available ? 'Duyên mới' : active ? 'Đang thực hiện' : 'Chưa mở'}</small></h4>
-                <p>{def.story ?? def.desc}</p>
-                {(active || available) && <>
-                  <p className="immortal-instruction">{def.desc}</p>
-                  {quest && <ul className="immortal-objectives">{def.objectives.map((o, i) => <li key={i} className={(quest.progress[i] ?? 0) >= o.count ? 'done' : ''}>{objectiveText(o, questNames)} <b>{quest.progress[i] ?? 0}/{o.count}</b></li>)}</ul>}
-                  {available ? <button className="btn gold" onClick={() => acceptQuest(id)}>Nhận lời chỉ dẫn</button>
-                    : <button className="btn gold" onClick={() => EventBus.emit('cmd:questGo', id)}>{quest?.status === 'ready' && def.turnIn ? `Về gặp ${npcName(def.turnIn)}` : 'Tiếp tục hành trình'}</button>}
-                </>}
-              </div>
-            </article>
-          </div>;
-        })}
-        {!currentId && <p className="immortal-note">Bạch hạc đã nhận chủ. Con đường tìm Thanh Vân vẫn còn phía trước. Trong lúc chờ chương tiếp theo, hãy chăm động phủ, luyện đan và khám phá bí cảnh.</p>}
-      </>}
+      {tab === 'story' && <StoryChapters/>}
       {tab === 'world' && <WorldAtlas/>}
       {tab === 'alchemy' && <>
         <div className="immortal-feature"><span className="immortal-feature-glyph" aria-hidden="true">丹</span><div><h3>Giữ lửa, kết đan</h3><p>Hái dược quanh sân viện bằng E hoặc chạm khi đứng gần. Yêu Đan rơi từ yêu thú. Mỗi mẻ luyện thành 1 viên, không có tỉ lệ thất bại.</p></div></div>

@@ -1,0 +1,50 @@
+/* Phone rules use the HUD marker, including the rotated portrait layout. */
+.hud.phone .hud-top-left { width: 190px; max-width: 30%; gap: 5px; }
+.hud.phone .quest-panel { width: 100%; border-radius: 5px; background: #071824bd; }
+.hud.phone .quest-panel.collapsed { width: 130px; }
+.hud.phone .quest-tabs button { font-size: 10px; padding: 3px 5px; min-height: 26px; }
+.hud.phone .quest-tabs .quest-toggle { flex-basis: 28px; font-size: 16px; }
+.hud.phone .story-tracker { display: none; }
+.hud.phone .quest-list { padding: 3px 7px; max-height: 55px; overflow: hidden; }
+.hud.phone .quest-list li { padding: 3px 0; }
+.hud.phone .quest-title { font-size: 11px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud.phone .quest-obj { font-size: 10px; line-height: 1.4; padding: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud.phone .quest-details { display: block; width: 100%; padding: 3px 7px; min-height: 24px; border: 0; border-top: 1px solid #bfa26735; text-align: left; font-size: 9px; color: #c7b98e; background: #122c363d; }
+.hud.phone .hud-bottom-center, .hud.phone.turned .hud-bottom-center { width: min(270px, 35%); bottom: 22px; left: 48%; transform: translateX(-50%); gap: 3px; }
+.hud.phone .chat { background: #071824ae; border-radius: 4px; }
+.hud.phone .chat-tabs button { padding: 2px 6px; min-height: 23px; font-size: 9px; }
+.hud.phone .chat-tabs .chat-toggle { width: 28px; font-size: 14px; }
+.hud.phone .chat-tabs .chat-history { margin-left: auto; font-size: 13px; min-width: 26px; padding: 2px; }
+.hud.phone .chat-tabs .chat-history + .chat-toggle { margin-left: 0; }
+.hud.phone .chat.expanded .chat-list { height: 85px; }
+.hud.phone .chat.expanded .chat-list li { white-space: normal; }
+.hud.phone .chat-list, .hud.phone.turned .chat-list { height: 32px; padding: 2px 6px; font-size: 9px; line-height: 14px; overflow: auto; }
+.hud.phone .chat-list li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud.phone .chat-tag { font-size: 8px; padding: 0 3px; }
+.hud.phone .prompt { font-size: 10px; padding: 3px 9px; max-width: 100%; }
+.hud.phone .childhood-actions { width: 150px; padding: 7px; gap: 4px; bottom: 28px; }
+.hud.phone .childhood-actions small { display: none; }
+.hud.phone .childhood-actions .btn { padding: 5px 7px; min-height: 30px; font-size: 10px; }
+.hud.phone .menu-journey { width: calc(100% - 20px); max-height: calc(100% - 16px); }
+.hud.phone .menu-journey .menu-header { padding: 5px 10px; min-height: 32px; }
+.hud.phone .menu-journey .menu-header h3 { font-size: 13px; letter-spacing: .2px; }
+.hud.phone .menu-journey .close { min-width: 32px; min-height: 30px; font-size: 24px; }
+.hud.phone .menu-journey .menu-content { padding: 7px 9px; font-size: 11px; }
+.hud.phone .immortal-intro { padding: 8px; margin-bottom: 8px; gap: 10px; }
+.hud.phone .immortal-intro h2 { font-size: 17px; }
+.hud.phone .immortal-intro p, .hud.phone .immortal-note { font-size: 10px; line-height: 1.5; }
+.hud.phone .immortal-seal { width: 32px; height: 38px; font-size: 23px; }
+.hud.phone .immortal-counter { font-size: 19px; }
+.hud.phone .immortal-tabs { gap: 4px; margin-bottom: 7px; }
+.hud.phone .immortal-tabs button { min-height: 29px; font-size: 10px; padding: 4px; gap: 3px; }
+.hud.phone .immortal-tabs button > span { display: none; }
+.hud.phone .immortal-feature { margin: 7px 0 10px; gap: 10px; }
+.hud.phone .immortal-feature h3 { font-size: 16px; }
+.hud.phone .immortal-feature p, .hud.phone .immortal-card p { font-size: 10px; line-height: 1.5; margin: 6px 0; }
+.hud.phone .immortal-card { padding: 10px; margin-bottom: 8px; }
+.hud.phone .immortal-card h4 { font-size: 12px; }
+.hud.phone .immortal-feature-glyph { flex-basis: 42px; height: 44px; font-size: 30px; }
+.hud.phone .immortal-journey .btn { font-size: 10px; min-height: 30px; padding: 5px 9px; }
+.hud.phone .immortal-costs { margin: 8px 0; }
+.hud.phone .immortal-wallet { font-size: 9px; padding-top: 8px; margin-top: 8px; gap: 6px 12px; }
+.hud.phone .immortal-shortcuts { margin-top: 8px; font-size: 10px; }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame, type LogChannel } from '../store/gameStore';
+import { usePhoneLayout } from './TouchPlay';
 
 const TABS: { id: 'all' | LogChannel; label: string }[] = [
   { id: 'all', label: 'Tất cả' },
@@ -11,8 +12,10 @@ const TAG: Record<LogChannel, string> = { system: 'Hệ Thống', world: 'Thế 
 
 export function ChatLog() {
   const logs = useGame((s) => s.logs);
+  const phone = usePhoneLayout();
   const [tab, setTab] = useState<'all' | LogChannel>('all');
   const [open, setOpen] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const list = useRef<HTMLUListElement>(null);
   const shown = logs.filter((l) => tab === 'all' || l.channel === tab || (tab === 'system' && l.channel === 'combat'));
 
@@ -21,21 +24,22 @@ export function ChatLog() {
   }, [shown.length, tab, open]);
 
   return (
-    <div className={`chat panel-glass ${open ? '' : 'collapsed'}`}>
+    <div className={`chat panel-glass ${open ? '' : 'collapsed'} ${expanded ? 'expanded' : ''}`}>
       <div className="chat-tabs">
         {TABS.map((t) => (
           <button key={t.id} className={tab === t.id ? 'active' : ''} onClick={() => setTab(t.id)}>
             {t.label}
           </button>
         ))}
+        {phone && open && <button className="chat-history" onClick={() => setExpanded(v => !v)} aria-label={expanded ? 'Thu gọn lịch sử chat' : 'Xem lịch sử chat'} aria-expanded={expanded}>{expanded ? '↙' : '↗'}</button>}
         <button className="chat-toggle" onClick={() => setOpen((v) => !v)} aria-label={open ? 'Thu gọn' : 'Mở rộng'}>
           {open ? '▾' : '▴'}
         </button>
       </div>
       {open && (
         <ul ref={list} className="chat-list">
-          {shown.slice(-40).map((l) => (
-            <li key={l.id}>
+          {shown.slice(phone && !expanded ? -2 : -40).map((l) => (
+            <li key={l.id} title={l.text}>
               <span className={`chat-tag ${l.channel}`}>{TAG[l.channel]}</span> {l.text}
             </li>
           ))}

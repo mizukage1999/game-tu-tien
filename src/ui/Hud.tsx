@@ -15,6 +15,7 @@ import { PlayerCard } from './PlayerCard';
 import { DuelOverlay } from './social/DuelOverlay';
 import { DungeonPanel, DungeonResultOverlay } from './DungeonPanel';
 import { useGame } from '../store/gameStore';
+import './mobile.css';
 
 export function Hud() {
   const inDungeon = useGame((s) => s.dungeon !== null);
