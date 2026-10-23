@@ -30,6 +30,7 @@ import { getAccountState } from '../../net/session';
 import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
 import { WORLD_PROPS } from '../art/world';
+import { sceneryKey } from '../art/cohesion';
 import { isChildhood } from '../systems/origin';
 import { mapGateReason, portalGateReason } from '../systems/worldAccess';
 import { worldZoom } from '../systems/display';
@@ -297,9 +298,10 @@ export class WorldScene extends Phaser.Scene {
         continue;
       }
       const py = anchor.y;
-      const prop = WORLD_PROPS[d.key];
+      const artKey = sceneryKey(d.key, map.id === 'vuong_gia_thon', map.ambient);
+      const prop = WORLD_PROPS[artKey];
       const hasAtlas = prop && this.textures.exists(prop.atlas);
-      const img = this.add.image(px, py, hasAtlas ? prop.atlas : prop?.fallback ?? d.key, hasAtlas ? d.key : undefined)
+      const img = this.add.image(px, py, hasAtlas ? prop.atlas : prop?.fallback ?? d.key, hasAtlas ? artKey : undefined)
         .setOrigin(hasAtlas ? prop.originX ?? .5 : .5, hasAtlas ? prop.originY : 1).setDepth(py).setFlipX(d.flipX ?? false);
       if (hasAtlas) img.setScale(prop.height / img.height * (d.scale ?? 1));
       if (d.fade || prop?.fade) this.foregroundDecor.push(img);

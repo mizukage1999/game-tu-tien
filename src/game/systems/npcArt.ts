@@ -1,3 +1,8 @@
+export const PAINTED_NPC_GROUPS = {
+  'city-people-v2': ['truong_lao', 'thuong_nhan', 'su_huynh', 'thanh_nhi', 'ho_ve', 'an_si'],
+  'travel-people-v2': ['tiep_dan', 'khao_hach', 'chap_su', 'giu_dinh', 'lam_ho', 'a_moc'],
+} as const;
+
 export const NPC_SPRITES: Record<string, { texture: string; src: string }> = {
   vuong_mau: { texture: 'npc-village-vuong_mau', src: '/assets/maps/world-people.png' },
   vuong_phu: { texture: 'npc-village-vuong_phu', src: '/assets/maps/world-people.png' },
@@ -5,14 +10,9 @@ export const NPC_SPRITES: Record<string, { texture: string; src: string }> = {
   duoc_ba: { texture: 'npc-village-duoc_ba', src: '/assets/maps/world-people.png' },
   tien_sinh: { texture: 'npc-village-tien_sinh', src: '/assets/maps/world-people.png' },
   giu_suoi: { texture: 'npc-village-giu_suoi', src: '/assets/maps/world-people.png' },
-  tiep_dan: { texture: 'npc-disciple', src: '/assets/sprites/npc-disciple.png' },
-  khao_hach: { texture: 'npc-elder', src: '/assets/sprites/npc-elder.png' },
-  chap_su: { texture: 'npc-elder', src: '/assets/sprites/npc-elder.png' },
-  giu_dinh: { texture: 'npc-quest-giver', src: '/assets/sprites/npc-quest-giver.png' },
-  lam_ho: { texture: 'npc-merchant', src: '/assets/sprites/npc-merchant.png' },
-  truong_lao: { texture: 'npc-elder', src: '/assets/sprites/npc-elder.png' },
-  thuong_nhan: { texture: 'npc-merchant', src: '/assets/sprites/npc-merchant.png' },
-  su_huynh: { texture: 'npc-disciple', src: '/assets/sprites/npc-disciple.png' },
-  thanh_nhi: { texture: 'npc-quest-giver', src: '/assets/sprites/npc-quest-giver.png' },
-  ho_ve: { texture: 'npc-guard', src: '/assets/sprites/npc-guard.png' },
+  ...Object.fromEntries(
+    Object.entries(PAINTED_NPC_GROUPS).flatMap(([atlas, ids]) =>
+      ids.map((id) => [id, { texture: `npc-painted-${id}`, src: `/assets/maps/${atlas}.png` }]),
+    ),
+  ),
 };

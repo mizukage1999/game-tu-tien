@@ -458,7 +458,7 @@ export function buildTileset(): HTMLCanvasElement {
       grass(ctx, x, 0, 101 + v * 3, '#5f8f4c', '#39602f', '#8dbe68', '#2c4d26'),
     );
   cell(TERRAIN.bridge.base, (x) => bridge(ctx, x, 0));
-  for (let v = 0; v < 2; v++) cell(TERRAIN.marble.base + v, (x) => slabTile(ctx, x, 0, 301 + v, v ? '#c7d5df' : '#bacbd4', '#8399ab', v === 1));
+  for (let v = 0; v < 2; v++) cell(TERRAIN.marble.base + v, (x) => slabTile(ctx, x, 0, 301 + v, v ? '#c4c8ba' : '#b5bdae', '#88917c', v === 1));
   for (let v = 0; v < 2; v++) cell(TERRAIN.cave.base + v, (x) => {
     stoneTile(ctx, x, 0, 400 + v, '#23334c', false);
     ctx.fillStyle = 'rgba(11,25,51,.65)'; ctx.fillRect(x, 0, TILE, TILE);

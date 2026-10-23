@@ -12,6 +12,8 @@ Các atlas `maps/world-sect.png`, `maps/world-nature.png`, `maps/world-village.p
 
 `journey/alchemy.png`, `journey/home.png`, `journey/mounts.png`: tranh nền Tiên Lộ tạo bằng imagegen tích hợp theo phong cách ảnh tham khảo của người dùng. Prompt cuối và mô tả tại `journey/README.md`.
 
+`maps/*-v2.png`: 5 atlas kiến trúc, tiểu cảnh và NPC mới tạo bằng imagegen tích hợp theo phong cách Vương Gia Thôn, dựa trên các ảnh tham khảo của người dùng. Danh sách tệp, cách dùng và prompt cuối: `maps/cohesion-v2.md`.
+
 Khi thêm tài nguyên bên ngoài, ghi lại theo mẫu:
 
 | Tệp | Tác giả | Nguồn | Giấy phép |

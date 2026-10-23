@@ -5,6 +5,7 @@ import { buildTileset, TERRAIN, TILE } from './tiles';
 
 /** Raised height of a wall cell, in screen pixels. */
 const WALL_H = 26;
+const AGED_COURTS = new Set(['ngoai_mon', 'linh_son_tong', 'dinh_ta', 'dai_thua_vien', 'dong_phu']);
 
 const WALL_FACE = { light: '#9aa1ac', mid: '#6c7480', dark: '#3d434f' };
 
@@ -25,6 +26,8 @@ function hash(x: number, y: number) {
 function tileIndex(map: MapDef, x: number, y: number) {
   const t = map.terrain[y][x];
   const cfg = TERRAIN[t];
+  // Sect terraces use aged warm stone, with the same material treatment as the village.
+  if (t === 'platform' && AGED_COURTS.has(map.id)) return { index: TERRAIN.stone.base + hash(x,y)%3, terrain: t };
   return { index: cfg.base + (hash(x, y) % cfg.variants), terrain: t };
 }
 
