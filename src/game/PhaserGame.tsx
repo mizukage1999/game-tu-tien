@@ -64,8 +64,10 @@ function fitTurnedCanvas(game: Phaser.Game) {
     const height = Math.round(h * density);
     if (scale.width === width && scale.height === height && game.registry.get('render-density') === density) return;
     game.registry.set('render-density', density);
-    scale.setZoom(1 / density);
     scale.resize(width, height);
+    // NONE mode writes canvas CSS dimensions in setZoom. Apply it after the
+    // buffer resize so turning a phone at density 1 cannot retain the old size.
+    scale.setZoom(1 / density);
   };
   const observer = new ResizeObserver(apply);
   observer.observe(parent);

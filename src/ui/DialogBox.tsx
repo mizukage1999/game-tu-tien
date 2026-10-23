@@ -5,7 +5,7 @@ import { characterSpriteUrl } from '../game/art/icons';
 import { NPC_SPRITES } from '../game/systems/npcArt';
 import { availableQuests, turnInQuests } from '../game/systems/quest';
 import { useGame } from '../store/gameStore';
-import { isChildhood } from '../game/systems/origin';
+import { isChildhood, originText } from '../game/systems/origin';
 import { worldNpcPortraits } from '../game/art/world';
 
 export function DialogBox() {
@@ -34,7 +34,7 @@ export function DialogBox() {
         <div className="dialog-name">
           {def.name} <span>《{def.title}》</span>
         </div>
-        <p className="dialog-line">{storyId ? QUESTS[storyId].story : line}</p>
+        <p className="dialog-line">{originText((storyId ? QUESTS[storyId].story : line)??'',player)}</p>
         <div className="dialog-options">
           {ready.map((id) => (
             <button key={id} className="opt turnin" onClick={() => turnInQuest(id)}>

@@ -7,7 +7,7 @@ import { beastPose, humanPose } from './poses';
 import { buildTileset } from './tiles';
 import { buildDecor } from './decor';
 import { buildFx, createSkillFxAnimations } from './fx';
-import { buildLootTextures, itemSpriteTextureKey } from './icons';
+import { buildLootTextures, drawItem, itemSpriteTextureKey } from './icons';
 
 export interface AnimDef {
   frames: number;
@@ -107,6 +107,9 @@ function createAnims(scene: Phaser.Scene, art: string, rig: RigDef) {
 
 /** Builds every texture the game needs. Textures already loaded from real assets are kept. */
 export function generateArt(scene: Phaser.Scene) {
+  const [wood, woodContext] = makeCanvas(128,128);
+  drawItem(woodContext,'moc_kiem',128);
+  addCanvas(scene,'held-moc-kiem',wood);
   addCanvas(scene, 'tiles', buildTileset());
   for (const [key, c] of Object.entries(buildDecor())) addCanvas(scene, key, c);
   for (const [key, c] of Object.entries(buildFx())) addCanvas(scene, key, c);

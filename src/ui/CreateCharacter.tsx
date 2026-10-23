@@ -33,14 +33,14 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
         }}
       >
         <h1>Tạo nhân vật</h1>
-        <p className="muted">Hành trình bắt đầu tại Vương Gia Thôn, theo tuổi thơ Thiết Trụ. Sau khảo hạch nhập môn, bạn tiếp tục với tên và nhân vật đã chọn.</p>
+        <p className="muted">{sex==='female'?'Theo tuổi thơ Mộ Uyển':'Theo tuổi thơ Thiết Trụ'} tại Vương Gia Thôn. Rời làng, vượt khảo hạch rồi bước lên tiên lộ.</p>
         <div className="create-sexes">
           {CHOICES.map((c) => (
             <button
               key={c.sex}
               type="button"
               className={`create-sex${sex === c.sex ? ' on' : ''}`}
-              onClick={() => setSex(c.sex)}
+              onClick={() => {setSex(c.sex);if(CHOICES.some(c=>c.label===name))setName(c.label);}}
             >
               <img src={c.portrait} alt="" />
               <span>{c.sex === 'female' ? 'Nữ' : 'Nam'} · {c.label}</span>

@@ -89,7 +89,7 @@
   "main_4": {
     "kind": "main",
     "name": "Trúc Cơ Khai Đạo",
-    "desc": "Đạt cấp 10 đầy tu vi, luyện 1 Phá Cảnh Đan và đột phá Trúc Cơ tại bảng Tu Luyện.",
+    "desc": "Đạt Luyện Khí đại viên mãn và đầy tu vi, luyện 1 Phá Cảnh Đan và đột phá Trúc Cơ tại bảng Tu Luyện.",
     "giver": "truong_lao",
     "requires": "main_3",
     "objectives": [
@@ -184,7 +184,7 @@
   "side_5": {
     "kind": "side",
     "name": "Bí Cảnh Băng Tuyết",
-    "desc": "Lục Trần sư huynh muốn con thử sức trong phó bản Băng Tuyết Động (cần Lv 5).",
+    "desc": "Lục Trần sư huynh muốn con thử sức trong phó bản Băng Tuyết Động (cần Luyện Khí Trung Kỳ).",
     "giver": "su_huynh",
     "turnIn": "su_huynh",
     "objectives": [

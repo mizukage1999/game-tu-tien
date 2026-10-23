@@ -59,8 +59,8 @@ export function fieldForLevel(level: number) {
 export type FieldCheck = { ok: true } | { ok: false; reason: string };
 
 export function canEnterField(level: number, range: LevelRange): FieldCheck {
-  if (level < range.min) return { ok: false, reason: `Cần đạt cấp ${range.min} mới vào được khu này.` };
-  if (level > range.max) return { ok: false, reason: `Khu này chỉ dành cho cấp ${range.min}-${range.max}.` };
+  if (level < range.min) return { ok: false, reason: 'Tu vi chưa đủ để vào khu vực này.' };
+  if (level > range.max) return { ok: false, reason: 'Tu vi đã vượt khu vực này. Hãy đến vùng đất phù hợp hơn.' };
   return { ok: true };
 }
 
@@ -177,7 +177,7 @@ export function buildScaledContent(): { monsters: Record<string, MonsterDef>; du
       dungeons[dungeonId(tier.level, diff.id)] = {
         name: `${tier.name} · ${diff.name}`,
         map: tier.map,
-        desc: `Phó bản cấp ${tier.level}, độ khó ${diff.name}. Quái khoảng cấp ${level}.`,
+        desc: `Phó bản thử luyện, độ khó ${diff.name}. Yêu thú hung hiểm, cần chuẩn bị hành trang.`,
         minLevel: tier.level,
         attemptsPerDay: diff.attempts,
         timeLimitSec: diff.time,

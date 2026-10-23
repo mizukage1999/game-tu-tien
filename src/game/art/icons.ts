@@ -103,12 +103,39 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
   const m = s / 2;
   ctx.save();
   const equip = ITEMS[id];
-  if (equip?.slot && equip.rarity && id !== 'nhan_bac') {
+  if (equip?.slot && equip.rarity && id !== 'nhan_bac' && id !== 'moc_kiem') {
     drawEquipment(ctx, equip.slot, rarityOf(equip.rarity).color, s);
     ctx.restore();
     return;
   }
   switch (id) {
+    case 'moc_kiem': {
+      ctx.translate(m,m);ctx.rotate(Math.PI/4);
+      ctx.fillStyle=linear(ctx, -s*.05,0,s*.05,0,[[0,'#76512d'],[.5,'#d4b07a'],[1,'#926538']]);
+      ctx.beginPath();ctx.moveTo(0,-s*.45);ctx.lineTo(s*.055,-s*.32);ctx.lineTo(s*.055,s*.2);ctx.lineTo(-s*.055,s*.2);ctx.lineTo(-s*.055,-s*.32);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#735035';ctx.fillRect(-s*.16,s*.18,s*.32,s*.065);ctx.fillRect(-s*.035,s*.22,s*.07,s*.22);
+      break;
+    }
+    case 'hat_thanh_linh':
+    case 'hat_linh_chi':
+    case 'hat_ngung_lo': {
+      fillEllipse(ctx,m,s*.6,s*.3,s*.27,'#876748');
+      ctx.fillStyle='#cfb47c';ctx.fillRect(s*.38,s*.23,s*.24,s*.15);
+      fillEllipse(ctx,s*.45,s*.55,s*.06,s*.09,ITEMS[id].color);
+      fillEllipse(ctx,s*.6,s*.65,s*.06,s*.09,ITEMS[id].color);
+      break;
+    }
+    case 'huyen_thiet': {
+      ctx.fillStyle=linear(ctx,0,0,s,s,[[0,'#d9e0e4'],[.5,'#607580'],[1,'#263b45']]);
+      ctx.beginPath();ctx.moveTo(s*.15,s*.7);ctx.lineTo(s*.3,s*.27);ctx.lineTo(s*.67,s*.18);ctx.lineTo(s*.87,s*.62);ctx.lineTo(s*.6,s*.85);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#b0bfc5';ctx.lineWidth=s*.025;ctx.beginPath();ctx.moveTo(s*.3,s*.27);ctx.lineTo(s*.5,s*.58);ctx.lineTo(s*.87,s*.62);ctx.stroke();
+      break;
+    }
+    case 'phap_bao_ngoc': {
+      ctx.strokeStyle='#c9a963';ctx.lineWidth=s*.035;ctx.beginPath();ctx.moveTo(m,s*.1);ctx.lineTo(m,s*.35);ctx.stroke();
+      fillEllipse(ctx,m,s*.58,s*.29,s*.3,'#74bba3');fillEllipse(ctx,m,s*.58,s*.13,s*.14,'#243f40');
+      ctx.fillStyle='#e3c784';ctx.fillRect(m-s*.05,s*.84,s*.1,s*.1);break;
+    }
     case 'linh_thach': {
       ctx.fillStyle = radial(ctx, m, m, m, [
         [0, 'rgba(120,160,255,0.45)'],
@@ -179,6 +206,8 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
       fillEllipse(ctx, m - s * 0.04, s * 0.26, s * 0.04, s * 0.04, '#ffffff');
       break;
     }
+    case 'cong_thuc_ngoc':
+    case 'cong_thuc_pha_canh':
     case 'kiem_pho': {
       ctx.fillStyle = radial(ctx, m, m, m, [
         [0, 'rgba(255,210,120,0.45)'],
@@ -209,6 +238,7 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
       ctx.fillRect(s * 0.62, s * 0.58, s * 0.1, s * 0.1);
       break;
     }
+    case 'thuc_an_linh_thu':
     case 'tu_linh_dan':
     case 'pha_canh_dan':
     case 'yeu_dan': {
@@ -349,6 +379,7 @@ export const ITEM_SPRITE_ASSETS: Record<string, string> = {
 };
 
 export function itemSpriteTextureKey(id: string) {
+  if (id === 'moc_kiem') return undefined;
   const item = ITEMS[id];
   const spriteRarity = item?.rarity === 'pink' ? 'red' : item?.rarity;
   const tieredGearAsset =

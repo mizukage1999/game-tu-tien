@@ -88,7 +88,7 @@ export function SocialPanel() {
                       <span className={`social-avatar ${online ? 'online' : ''}`} aria-hidden="true">{f.name[0]}</span>
                       <div className="social-meta">
                         <span className="social-name">{f.name}</span>
-                        <span className="social-sub">{online && p ? `Cấp ${p.level} · ${p.realm}` : online ? 'Có mặt' : 'Ngoài tuyến'}</span>
+                        <span className="social-sub">{online && p ? p.realm : online ? 'Có mặt' : 'Ngoài tuyến'}</span>
                       </div>
                       <span className={`social-status ${online ? 'online' : 'offline'}`}>{online ? '●' : '○'}</span>
                       <button className="btn small danger" onClick={() => removeFriend(f.userId)}>Xóa</button>

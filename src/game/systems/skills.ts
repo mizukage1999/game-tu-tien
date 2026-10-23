@@ -58,7 +58,7 @@ export type UpgradeCheck = { ok: true; cost: UpgradeCost } | { ok: false; reason
 export function checkUpgrade(level: number, playerLevel: number, wallet: Wallet): UpgradeCheck {
   const cost = upgradeCost(level);
   if (!cost) return { ok: false, reason: 'Kỹ năng đã đạt cấp tối đa.', cost };
-  if (playerLevel < cost.reqLevel) return { ok: false, reason: `Cần đạt cấp nhân vật ${cost.reqLevel}.`, cost };
+  if (playerLevel < cost.reqLevel) return { ok: false, reason: 'Cần tinh tiến tu vi trước khi nâng kỹ năng.', cost };
   if (wallet.linhKhi < cost.linhKhi) return { ok: false, reason: 'Không đủ Linh Khí.', cost };
   if (wallet.linhThach < cost.linhThach) return { ok: false, reason: 'Không đủ Linh Thạch.', cost };
   if (wallet.kiemPho < cost.kiemPho) return { ok: false, reason: 'Không đủ Kiếm Phổ Tàn Trang.', cost };

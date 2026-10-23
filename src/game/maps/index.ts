@@ -198,7 +198,7 @@ function fieldMap(band: FieldBand): MapDef {
   ]);
   return b.build({
     id: band.id,
-    name: `${band.name} (Lv ${band.minLevel}-${band.maxLevel})`,
+    name: band.name,
     level: { min: band.minLevel, max: band.maxLevel },
     monsters,
     npcs: [],
@@ -215,9 +215,11 @@ function dongPhu(): MapDef {
   b.border('wall', [[10, 19], [11, 19]]);
   b.fill(6, 4, 10, 6, 'platform');
   b.fill(9, 10, 3, 9, 'path');
-  b.fill(6, 11, 8, 3, 'flower');
+  b.fill(6, 11, 11, 3, 'dirt');
+  b.place('village-house', 10, 4, { block: [[-1,0],[0,0],[1,0],[-1,1],[0,1],[1,1]], fade: true });
   b.place('circle', 10, 7, { block: [] });
-  b.place('burner', 15, 11);
+  b.place('court-burner', 15, 8);
+  for (const x of [7, 10, 13, 16]) b.place('village-farm', x, 12, { block: [], scale: .8 });
   for (const [x, y] of [[4, 5], [17, 5], [4, 14], [17, 14]]) b.place('tree_cherry', x, y);
   b.place('lantern', 7, 9, { glow: 'warm' });
   b.place('lantern', 14, 9, { glow: 'warm' });
@@ -225,6 +227,13 @@ function dongPhu(): MapDef {
     id: 'dong_phu', name: 'Động Phủ Thanh Vân', private: true,
     monsters: [], npcs: [], playerSpawn: [10, 9], ambient: 'petals',
     zones: [{ id: 'phu_linh_mach', name: 'Linh Mạch Động Phủ', rect: [6, 4, 10, 6], rate: 2 }],
+    landmarks: [{name:'Linh điền',x:10,y:14},{name:'Tĩnh thất',x:10,y:3},{name:'Đan phòng',x:16,y:7}],
+    points: [
+      {id:'home_field',name:'Chăm sóc linh điền',x:6,y:12,text:'Gieo hạt và thu hoạch linh thảo theo ngày game.',repeatable:true},
+      {id:'home_chamber',name:'Vào tĩnh thất',x:10,y:6,text:'Bế quan, tích lũy tu vi độc lập với tuổi.',repeatable:true},
+      {id:'home_furnace',name:'Sử dụng lò đan',x:15,y:9,text:'Nâng lò, học công thức và chế tạo.',repeatable:true},
+      {id:'home_array',name:'Tụ linh trận',x:7,y:7,text:'Nâng cấp trận pháp để tăng hiệu suất bế quan.',repeatable:true},
+    ],
     portals: [{ rect: [10, 19, 2, 1], to: 'dai_thua_vien', spawn: [24, 20], label: 'Về Đại Thừa Viện' }],
   });
 }

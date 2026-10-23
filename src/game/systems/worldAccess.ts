@@ -13,6 +13,6 @@ export function portalGateReason(portal: PortalDef, context: TravelContext) {
   return portal.requiresQuest ? questGateReason(portal.requiresQuest, context) : null;
 }
 export function mapGateReason(map: MapDef, context: TravelContext) {
-  if (context.childhood && !['vuong_gia_thon', 'ngoai_mon'].includes(map.id)) return 'Thiết Trụ cần hoàn thành chương mở đầu và nhập môn trước.';
+  if (context.childhood && !['vuong_gia_thon', 'ngoai_mon'].includes(map.id)) return 'Cần hoàn thành chương mở đầu và nhập môn trước.';
   return map.requiresQuest ? questGateReason(map.requiresQuest, context) : null;
 }

@@ -116,7 +116,7 @@ export function recordClear(rec: DungeonRecord | undefined, id: string, day = to
 export type EntryCheck = { ok: true } | { ok: false; reason: string };
 
 export function canEnter(rec: DungeonRecord | undefined, id: string, def: DungeonDef, playerLevel: number, day = todayKey()): EntryCheck {
-  if (playerLevel < def.minLevel) return { ok: false, reason: `Cần đạt cấp ${def.minLevel} để vào ${def.name}.` };
+  if (playerLevel < def.minLevel) return { ok: false, reason: `Tu vi chưa đủ để vào ${def.name}.` };
   if (attemptsLeft(rec, id, def, day) <= 0) return { ok: false, reason: 'Hôm nay đã hết lượt vào phó bản này.' };
   return { ok: true };
 }

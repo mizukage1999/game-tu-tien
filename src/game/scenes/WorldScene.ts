@@ -7,6 +7,10 @@ import { TERRAIN, TILE } from '../art/tiles';
 import { EventBus } from '../EventBus';
 import { Player } from '../entities/Player';
 import { Monster } from '../entities/Monster';
+import { Wanderer } from '../entities/Wanderer';
+import { Companion } from '../entities/Companion';
+import { wandererRoster } from '../systems/wanderers';
+import { lifeProgress } from '../systems/life';
 import { LootDrop } from '../entities/LootDrop';
 import { Npc } from '../entities/Npc';
 import { DamageText } from '../fx/DamageText';
@@ -31,7 +35,7 @@ import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
 import { WORLD_PROPS } from '../art/world';
 import { sceneryKey } from '../art/cohesion';
-import { isChildhood } from '../systems/origin';
+import { isChildhood, originText } from '../systems/origin';
 import { mapGateReason, portalGateReason } from '../systems/worldAccess';
 import { worldZoom } from '../systems/display';
 import { routeDots } from '../systems/routeDots';
@@ -47,7 +51,7 @@ interface WorldData {
 
 const WORLD_CHAT = [
   'Lâm Phong: Có đạo hữu nào lập đội đi Linh Thú Lâm không?',
-  'Bạch Vân: Hỏa Hồ rơi Nhẫn Bạc, ai cần không?',
+  'Bạch Vân: Hỏa Hồ có Yêu Đan, đạo hữu nào cùng đi săn?',
   'Hệ thống Tông Môn: Linh Đài đang có linh khí dồi dào, mau đến tọa thiền!',
   'Tiêu Dao: Vừa đột phá Luyện Khí Trung Kỳ, đa tạ sư huynh chỉ điểm!',
   'Mộ Dung Tuyết: Bán Linh Thạch giá hữu nghị...',
@@ -62,6 +66,8 @@ export class WorldScene extends Phaser.Scene {
   map!: MapDef;
   player!: Player;
   monsters: Monster[] = [];
+  private wanderers: Wanderer[]=[];
+  private companion!: Companion;
   npcs: Npc[] = [];
   loot!: Phaser.Physics.Arcade.Group;
   damageText!: DamageText;
@@ -90,6 +96,7 @@ export class WorldScene extends Phaser.Scene {
   private levelWarned = false;
   private herbs: { node: HerbNode; art: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text }[] = [];
   private foregroundDecor: Phaser.GameObjects.Image[] = [];
+  private gardenVisuals: {art:Phaser.GameObjects.Image;label:Phaser.GameObjects.Text}[] = [];
   private pointCooldowns = new Map<string, number>();
 
   constructor() {
@@ -100,6 +107,7 @@ export class WorldScene extends Phaser.Scene {
     this.mapId = data.mapId ?? 'dai_thua_vien';
     this.spawnData = data;
     this.monsters = [];
+    this.wanderers=[];
     this.npcs = [];
     this.target = null;
     this.run = null;
@@ -109,6 +117,7 @@ export class WorldScene extends Phaser.Scene {
     this.channel = null;
     this.herbs = [];
     this.foregroundDecor = [];
+    this.gardenVisuals = [];
     this.pointCooldowns.clear();
     this.syncTimer = this.secondTimer = this.saveTimer = 0;
     this.guideTimer = 0;
@@ -158,9 +167,24 @@ export class WorldScene extends Phaser.Scene {
 
     const start = this.resolveSpawn(map);
     this.player = new Player(this, start.x, start.y);
+    this.companion=new Companion(this);
+    for(const person of wandererRoster(map,Date.now()%1000000)){
+      let tile:{x:number;y:number}|null=null;
+      for(let tries=0;tries<100;tries++){const x=2+Math.floor(Math.random()*(map.width-4)),y=2+Math.floor(Math.random()*(map.height-4));if(!map.blocked[y][x]&&Math.hypot(x-start.x/TILE,y-start.y/TILE)>4){tile={x,y};break;}}
+      if(tile)this.wanderers.push(new Wanderer(this,{x:(tile.x+.5)*TILE,y:(tile.y+.5)*TILE},person.name,person.cultivation,person.art));
+    }
+    const onWandererTalk=(name:string)=>gameStore.getState().toast(`${name}: Sơn hà rộng lớn, đạo hữu hãy cẩn thận trên đường.`, 'info');
+    this.game.events.on('wanderer-talk',onWandererTalk);
+    this.cleanups.push(()=>this.game.events.off('wanderer-talk',onWandererTalk));
     this.routeGuide = this.add.graphics().setDepth(-7000);
     this.buildHerbs();
     this.buildWorldPoints();
+    if(map.private) for(let i=0;i<5;i++) {
+      const at=iso((7+i*2)*TILE+TILE/2,12*TILE+TILE/2);
+      const art=this.add.image(at.x,at.y-7,'immortal-thanh_linh_thao').setDisplaySize(70,44).setDepth(at.y+1).setVisible(false);
+      const label=this.add.text(at.x,at.y+18,'',{fontSize:'9px',color:'#b9dfb0',stroke:'#1e3826',strokeThickness:2}).setOrigin(.5).setResolution(2).setDepth(at.y+2);
+      this.gardenVisuals.push({art,label});
+    }
     this.targetRing = this.add
       .image(0, 0, 'circle_gold')
       .setScale(0.28, 0.16)
@@ -256,7 +280,7 @@ export class WorldScene extends Phaser.Scene {
   private buildDecor(map: MapDef) {
     for (const landmark of map.landmarks ?? []) {
       const at = iso(landmark.x * TILE + TILE / 2, landmark.y * TILE + TILE / 2);
-      this.add.text(at.x, at.y, landmark.name, {
+      this.add.text(at.x, at.y, originText(landmark.name,gameStore.getState().player), {
         fontFamily: 'Georgia, serif', fontSize: '15px', letterSpacing: 3,
         color: '#e1d3ab', stroke: '#263c3b', strokeThickness: 3,
       }).setOrigin(.5).setAlpha(.8).setResolution(2).setDepth(-8000);
@@ -361,7 +385,7 @@ export class WorldScene extends Phaser.Scene {
     const cy = centre.y;
     const side = x === 0 ? -1 : x + w >= this.map.width ? 1 : 0;
     const band = p.levelBand ? fieldForLevel(gameStore.getState().player.level) : null;
-    const label = band ? `${band.name} (Lv ${band.minLevel}-${band.maxLevel})` : p.label;
+    const label = band ? `${band.name} · ${realmNameAtLevel(band.minLevel)}` : p.label;
     const img = this.add.image(cx, cy, 'portal').setBlendMode(Phaser.BlendModes.ADD).setScale(1.1).setDepth(cy);
     this.tweens.add({ targets: img, angle: 360, duration: 3000, repeat: -1 });
     this.add
@@ -483,6 +507,7 @@ export class WorldScene extends Phaser.Scene {
     const s = gameStore.getState();
     if (this.transitioning || s.status !== 'alive') return;
     if (Math.hypot(this.player.x - point.x * TILE - TILE / 2, this.player.y - point.y * TILE - TILE / 2) > 110) return s.toast('Đến gần rồi nhấn E hoặc chạm để tương tác.', 'info');
+    if(point.id.startsWith('home_')){s.patch({menu:'journey',journeySection:'home',homeSection:point.id==='home_array'?'chamber':point.id==='home_furnace'?'furnace':point.id==='home_chamber'?'chamber':'field'});return;}
     if (this.time.now - (this.pointCooldowns.get(point.id) ?? -10000) < 900) return;
     this.pointCooldowns.set(point.id, this.time.now);
     const progress = s.player.world ?? { interactions: {}, discovered: [] };
@@ -491,7 +516,7 @@ export class WorldScene extends Phaser.Scene {
       s.patch({ player: { ...s.player, world: { ...progress, interactions: { ...progress.interactions, [point.id]: count + 1 } } } });
       s.questEvent({ type: 'interact', point: point.id });
     }
-    s.addLog(point.text); s.toast(point.text, 'quest');
+    s.addLog(originText(point.text,s.player)); s.toast(originText(point.text,s.player), 'quest');
     this.save();
   }
 
@@ -644,6 +669,10 @@ export class WorldScene extends Phaser.Scene {
 
   private bindStore() {
     const unsub = gameStore.subscribe((s, prev) => {
+      if (lifeProgress(s.player).retreat && !lifeProgress(prev.player).retreat) {
+        this.player.stopMeditate();
+        this.player.clearRoute();
+      }
       if (isChildhood(s.player) !== isChildhood(prev.player)) {
         const pos = this.player.feet;
         this.time.delayedCall(0, () => this.scene.restart({ mapId: this.mapId, pos }));
@@ -660,6 +689,9 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     const dt = Math.min(delta, 50);
     this.player.update(dt);
+    for(const person of this.wanderers)person.update(dt);
+    this.companion.update(dt);
+    if(this.gardenVisuals.length){const l=lifeProgress(gameStore.getState().player);this.gardenVisuals.forEach((visual,i)=>{const plot=l.plots[i];visual.art.setVisible(!!plot);visual.label.setVisible(i<l.plots.length);if(plot){visual.art.setTexture(`immortal-${plot.herb}`).setAlpha(plot.readyDay<=l.days?1:.5);visual.label.setText(plot.readyDay<=l.days?'Có thể thu hoạch':`Còn ${plot.readyDay-l.days} ngày`);}else visual.label.setText('Đất trống');});}
     this.routeGuide.setVisible(!gameStore.getState().menu && !gameStore.getState().dialogNpc);
     this.guideTimer -= dt;
     if (this.guideTimer <= 0) { this.guideTimer = 500; this.drawRouteGuide(); }
@@ -689,15 +721,16 @@ export class WorldScene extends Phaser.Scene {
       this.syncTimer = 0;
       this.syncUi();
     }
-    this.secondTimer += dt;
+    this.secondTimer += Math.min(delta, 1000);
     if (this.secondTimer >= 1000) {
       this.secondTimer -= 1000;
       this.perSecond();
+      gameStore.getState().tickGameTime(1000);
       const cap = this.map.level;
       const level = gameStore.getState().player.level;
       if (cap && level > cap.max && !this.levelWarned) {
         this.levelWarned = true;
-        gameStore.getState().toast(`${this.map.name} chỉ đến cấp ${cap.max}. Hãy về Đại Thừa Viện.`, 'warn');
+        gameStore.getState().toast(`Tu vi đã vượt ${this.map.name}. Hãy về Đại Thừa Viện để chọn vùng đất khác.`, 'warn');
       }
     }
     this.saveTimer += dt;
@@ -851,14 +884,14 @@ export class WorldScene extends Phaser.Scene {
     if (p.life.status !== 'alive') return;
     const outOfCombat = this.time.now - p.lastDamageAt > 5000;
     s.restore(outOfCombat ? Math.round(s.stats.maxHp * 0.02) : 0, Math.round(s.stats.maxMp * 0.015));
-    if (p.meditating) {
+    if (p.meditating && !lifeProgress(s.player).retreat) {
       const zone = this.currentZone;
-      const rate = this.map.private ? homeMeditateRate(immortalProgress(s.player).homeLevel) : zone?.rate ?? null;
+      const rate = this.map.private ? homeMeditateRate(immortalProgress(s.player).homeLevel) + lifeProgress(s.player).facilities.array - 1 : zone?.rate ?? null;
       const gain = meditateGain(s.player.level, rate);
       s.addItem('linh_khi', gain.linhKhi, { silent: true });
       s.gainExp(gain.exp, { silent: true });
       s.restore(Math.round(s.stats.maxHp * gain.hpPct), Math.round(s.stats.maxMp * gain.mpPct));
-      this.damageText.show(p.x, p.y - 96, `+${gain.linhKhi} Linh Khí  +${gain.exp} EXP`, 'info');
+      this.damageText.show(p.x, p.y - 96, `+${gain.linhKhi} Linh Khí  +${gain.exp} tu vi`, 'info');
       s.questEvent({ type: 'meditate', zone: zone?.id ?? null, seconds: 1 });
     }
   }
@@ -911,6 +944,7 @@ export class WorldScene extends Phaser.Scene {
 
   private visitHome() {
     const s = gameStore.getState();
+    if(lifeProgress(s.player).retreat)return s.toast('Hãy xuất quan hoặc dừng bế quan trước.','info');
     if (this.transitioning || this.player.life.status !== 'alive') return;
     if (this.map.arena) return s.toast('Hãy rời phó bản trước khi về động phủ.', 'warn');
     if (s.quests[HOME_QUEST]?.status !== 'done') return s.toast('Hoàn thành Lò Đan Khai Hỏa để nhận động phủ.', 'warn');
@@ -946,6 +980,7 @@ export class WorldScene extends Phaser.Scene {
 
   private goTo(data: WorldData) {
     if (this.transitioning) return;
+    if (lifeProgress(gameStore.getState().player).retreat) return gameStore.getState().toast('Hãy xuất quan trước khi rời động phủ.','info');
     this.transitioning = true;
     if (!this.map.arena) this.save();
     gameStore.getState().patch({ dialogNpc: null, menu: null });
@@ -958,6 +993,7 @@ export class WorldScene extends Phaser.Scene {
     if (!def || this.transitioning || this.map.arena) return;
     if (this.player.life.status !== 'alive') return;
     const s = gameStore.getState();
+    if (lifeProgress(s.player).retreat) return s.toast('Hãy xuất quan trước khi vào phó bản.','info');
     if (!s.beginDungeon(id)) return;
     this.cancelQuestNav();
     this.player.stopMeditate();
@@ -1106,6 +1142,7 @@ export class WorldScene extends Phaser.Scene {
 
   private travelTo(id: string) {
     const s = gameStore.getState();
+    if(lifeProgress(s.player).retreat)return s.toast('Hãy xuất quan trước khi rời động phủ.','info');
     if (this.map.arena || this.transitioning || s.status !== 'alive') return;
     this.cancelQuestNav(); this.player.stopMeditate();
     s.patch({ auto: false, menu: null, dialogNpc: null });
@@ -1401,15 +1438,18 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onMonsterKilled(m: Monster) {
+    if(!m.playerContribution)return;
     const s = gameStore.getState();
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
     if (m.def.boss) this.cameras.main.shake(500, 0.012);
     const exp = killExp(m.def);
-    this.damageText.show(m.x, m.y - 86, `+${exp} EXP`, 'info');
+    this.damageText.show(m.x, m.y - 86, `+${exp} tu vi`, 'info');
     s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
     const drops = rollLoot(m.def.loot);
     if (!this.map.arena && Math.random() < (m.type === 'hoa_ho' ? 0.8 : 0.4)) drops.push({ item: 'yeu_dan', qty: 1 });
+    if (!this.map.arena && Math.random() < .25) drops.push({ item: 'huyen_thiet', qty: 1 });
+    if (m.def.boss && Math.random() < .3) drops.push({ item: Math.random() < .5 ? 'cong_thuc_ngoc' : 'cong_thuc_pha_canh', qty: 1 });
     drops.forEach((d, i) => {
       const a = (i / Math.max(1, drops.length)) * Math.PI * 2 + Math.random();
       const r = 26 + Math.random() * 22;

@@ -14,6 +14,7 @@ import {
   isBottleneck,
   realmNameAtLevel,
   type DerivedStats,
+  playerStats,
 } from '../game/systems/progression';
 import {
   acceptQuest as acceptQuestPure,
@@ -28,6 +29,7 @@ import type { LifeStatus } from '../game/systems/respawn';
 import type { Vec2 } from '../game/types';
 import { ADMISSION_QUEST, PROLOGUE_ORDER } from '../data/world';
 import { isChildhood } from '../game/systems/origin';
+import { advanceLife, lifeProgress, performLifeAction, type LifeAction } from '../game/systems/life';
 import { startVillageChapter } from '../game/systems/storyStart';
 import {
   GARDEN_COOLDOWN_MS, HARVEST_COOLDOWN_MS, HOME_MAX_LEVEL, HOME_QUEST,
@@ -108,6 +110,8 @@ export interface GameState {
   playerTile: Vec2;
   minimap: MinimapData;
   menu: MenuTab | null;
+  journeySection: 'story'|'alchemy'|'home'|'mounts'|'world'|'companions';
+  homeSection: 'field'|'chamber'|'furnace'|'artifact';
   dungeon: DungeonHud | null;
   dungeonResult: DungeonResult | null;
   /** Where to put the player back after leaving a dungeon. */
@@ -145,6 +149,9 @@ export interface GameState {
   setDialog(npc: string | null): void;
   setAuto(on: boolean): void;
   patch(p: Partial<GameState>): void;
+  tickGameTime(ms: number): void;
+  lifeAction(action: LifeAction): void;
+  salvageLegacy(id: string): void;
 }
 
 let uid = 1;
@@ -216,10 +223,15 @@ export const gameStore = createStore<GameState>()((set, get) => {
         get().addLog(`Hoàn thành nhiệm vụ [${def.name}]`);
         grantRewards(def.rewards);
         if (id === ADMISSION_QUEST && isChildhood(get().player)) {
-          set({ player: { ...get().player, admitted: true } });
+          set({ player: { ...get().player, admitted: true, life:{...lifeProgress(get().player),days:Math.max(2160,lifeProgress(get().player).days)} } });
+          get().addItem('moc_kiem',1);
+          get().addItem('hat_thanh_linh',3);
+          get().addItem('hat_linh_chi',1);
+          get().addItem('hat_ngung_lo',1);
           get().acceptQuest('main_0');
           get().acceptQuest('side_2');
-          get().toast('Đã nhận lệnh bài nhập môn. Tiên lộ bắt đầu!', 'realm');
+          get().addLog('Sáu năm rèn luyện trôi qua. Từ tuổi thơ Vương Gia Thôn, bạn đã trưởng thành và bắt đầu đời đệ tử.');
+          get().toast('Sáu năm sau · Nhập môn, tiên lộ bắt đầu!', 'realm');
         }
         if (id.startsWith('village_') && isChildhood(get().player)) {
           const next = PROLOGUE_ORDER.find((nextId) => QUESTS[nextId].requires === id);
@@ -234,7 +246,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
   return {
     player: startPlayer,
-    stats: computeStats(startPlayer.level, startPlayer.realmIndex, startPlayer.equipment),
+    stats: playerStats(startPlayer),
     status: 'alive',
     downedRemaining: 0,
     meditating: false,
@@ -254,6 +266,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
     playerTile: { x: 0, y: 0 },
     minimap: { player: { x: 0, y: 0 }, monsters: [], npcs: [], loot: [] },
     menu: null,
+    journeySection: 'story',
+    homeSection: 'field',
     dungeon: null,
     dungeonResult: null,
     dungeonReturn: null,
@@ -276,12 +290,12 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const wasCapped = isBottleneck(p) && p.exp >= expToNext(p.level);
       const res = addExp(p, amount);
       set({ player: p });
-      if (!opts.silent) get().addLog(`Nhận ${Math.round(amount)} EXP`);
+      if (!opts.silent) get().addLog(`Nhận ${Math.round(amount)} tu vi`);
       if (res.levelsGained > 0) {
-        const stats = computeStats(p.level, p.realmIndex, p.equipment);
+        const stats = playerStats(p);
         set({ stats, player: { ...p, hp: stats.maxHp, mp: stats.maxMp } });
-        get().toast(`Thăng cấp ${p.level}!`, 'levelup');
-        get().addLog(`Đạt cấp ${p.level}!`);
+        get().toast(`Tu vi tinh tiến: ${realmNameAtLevel(p.level)}`, 'levelup');
+        get().addLog(`Tu vi đạt ${realmNameAtLevel(p.level)}!`);
         get().addLog('HP/MP đã được hồi đầy');
         get().questEvent({ type: 'level', level: p.level });
       }
@@ -381,7 +395,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       if (current) s.addItem(current, 1, { silent: true });
       const p = get().player;
       const equipment = { ...p.equipment, [def.slot]: id };
-      set({ player: { ...p, equipment }, stats: computeStats(p.level, p.realmIndex, equipment) });
+      set({ player: { ...p, equipment }, stats: playerStats({ ...p, equipment }) });
       s.addLog(`Trang bị ${def.name}`);
     },
 
@@ -390,7 +404,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const id = p.equipment[slot];
       if (!id) return;
       const equipment = { ...p.equipment, [slot]: undefined };
-      set({ player: { ...p, equipment }, stats: computeStats(p.level, p.realmIndex, equipment) });
+      set({ player: { ...p, equipment }, stats: playerStats({ ...p, equipment }) });
       get().addItem(id, 1, { silent: true });
     },
 
@@ -439,11 +453,11 @@ export const gameStore = createStore<GameState>()((set, get) => {
       s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach, pha_canh_dan: 1 });
       const p = { ...get().player };
       applyBreakthrough(p);
-      const stats = computeStats(p.level, p.realmIndex, p.equipment);
+      const stats = playerStats(p);
       set({ player: { ...p, hp: stats.maxHp, mp: stats.maxMp }, stats });
       const realm = realmNameAtLevel(p.level);
       s.toast(`Đột phá thành công: ${realm}!`, 'realm');
-      s.addLog(`Đột phá cảnh giới ${realm}, đạt cấp ${p.level}!`);
+      s.addLog(`Đột phá cảnh giới ${realm}, tu vi tinh tiến!`);
       s.addLog(`Đạo hữu ${p.name} vừa đột phá ${realm}!`, 'world');
       s.questEvent({ type: 'level', level: p.level });
     },
@@ -600,7 +614,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
 
     setMenu(menu) {
-      set({ menu });
+      set({ menu, ...(menu === 'journey' ? {journeySection:'story' as const} : {}) });
     },
     setDialog(dialogNpc) {
       set({ dialogNpc });
@@ -613,6 +627,28 @@ export const gameStore = createStore<GameState>()((set, get) => {
     patch(p) {
       set(p);
     },
+    tickGameTime(ms) {
+      const s=get();
+      set({player:advanceLife(s.player,ms)});
+    },
+    lifeAction(action) {
+      const s=get();
+      if (s.mapId === 'dong_phu' && s.quests[HOME_QUEST]?.status !== 'done') return s.toast('Chưa nhận động phủ riêng.','warn');
+      const result=performLifeAction(s.player,action,s.mapId==='dong_phu',s.status==='alive');
+      if(!result.ok)return s.toast(result.reason,'warn');
+      const stats=playerStats(result.player);
+      set({player:{...result.player,hp:Math.min(result.player.hp,stats.maxHp),mp:Math.min(result.player.mp,stats.maxMp)},stats,...(action.type==='retreat'?{auto:false}: {})});
+      if(result.exp)get().gainExp(result.exp);
+      get().toast(result.message,'quest');
+      get().addLog(result.message);
+      const fresh=get();saveGame({player:fresh.player,quests:fresh.quests,mapId:fresh.mapId,pos:fresh.spawnPos});
+    },
+    salvageLegacy(id) {
+      const s=get(), def=ITEMS[id];
+      if(def?.slot==='weapon'||!def?.slot||!s.removeItems({[id]:1}))return;
+      get().addItem('huyen_thiet',2);
+      s.toast('Đã phân giải thành 2 Huyền Thiết.');
+    },
   };
 });
 
@@ -623,7 +659,7 @@ export function createCharacter(name: string, sex: Sex) {
   saveGame({ player, quests, mapId: 'vuong_gia_thon', pos: null });
   gameStore.setState({
     player,
-    stats: computeStats(player.level, player.realmIndex, player.equipment),
+    stats: playerStats(player),
     quests,
     mapId: 'vuong_gia_thon',
     spawnPos: null,

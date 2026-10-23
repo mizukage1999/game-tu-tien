@@ -5,5 +5,9 @@ export function isChildhood(player: Pick<PlayerSave, 'origin' | 'admitted'>) {
 }
 
 export function heroName(player: PlayerSave) {
-  return isChildhood(player) ? 'Thiết Trụ' : player.name;
+  return isChildhood(player) ? player.sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ' : player.name;
+}
+
+export function originText(text: string, player: PlayerSave) {
+  return player.sex === 'female' ? text.split('Thiết Trụ').join('Mộ Uyển').split('THIẾT TRỤ').join('MỘ UYỂN') : text;
 }

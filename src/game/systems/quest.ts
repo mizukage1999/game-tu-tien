@@ -1,5 +1,6 @@
 import type { Objective, QuestDef } from '../../data';
 import type { ImmortalProgress } from './immortal';
+import { realmNameAtLevel } from './progression';
 
 export type QuestStatus = 'active' | 'ready' | 'done';
 
@@ -171,7 +172,7 @@ export function objectiveText(
     case 'talk':
       return `Trò chuyện với ${names.npc(obj.npc)}`;
     case 'reachLevel':
-      return `Đạt cấp ${obj.count}`;
+      return `Đạt ${realmNameAtLevel(obj.count)}`;
     case 'enterZone':
       return `Đến ${names.zone(obj.zone)}`;
     case 'meditate':

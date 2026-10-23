@@ -39,7 +39,7 @@
     ],
     "boss": "cuu_vi_hoa_ho",
     "rewards": { "exp": 2500, "linhKhi": 900, "items": { "linh_thach": 6, "kiem_pho": 4 } },
-    "firstClear": { "items": { "nhan_bac": 1, "kiem_pho": 3 } },
+    "firstClear": { "items": { "huyen_thiet": 1, "kiem_pho": 3 } },
     "drops": [
       { "item": "gear:blue", "qty": [1, 1], "chance": 0.06 },
       { "item": "gear:green", "qty": [1, 1], "chance": 0.025 },

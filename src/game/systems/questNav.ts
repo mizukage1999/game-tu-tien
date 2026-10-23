@@ -53,7 +53,7 @@ function canVisit(mapId: string, level: number) {
 
 function lockedText(mapId: string) {
   const map = getMap(mapId);
-  if (map.level) return `${map.name} chỉ mở cho cấp ${map.level.min}-${map.level.max}.`;
+  if (map.level) return `Tu vi chưa phù hợp với ${map.name}.`;
   return 'Không tới được chỗ này.';
 }
 

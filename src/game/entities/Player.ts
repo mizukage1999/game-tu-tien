@@ -23,6 +23,8 @@ import type { WorldScene } from '../scenes/WorldScene';
 import type { Monster } from './Monster';
 import { heroName, isChildhood } from '../systems/origin';
 import { immortalProgress, MOUNTS, mountUnlocked } from '../systems/immortal';
+import { lifeProgress } from '../systems/life';
+import { itemSpriteTextureKey } from '../art/icons';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -65,6 +67,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private dashVec: Vec2 = { x: 0, y: 0 };
   private shadow: Phaser.GameObjects.Image;
   private mountArt: Phaser.GameObjects.Image;
+  private heldWeapon: Phaser.GameObjects.Image;
   private label: Phaser.GameObjects.Text;
   private bar: Phaser.GameObjects.Graphics;
   private blink: Phaser.Tweens.Tween | null = null;
@@ -85,7 +88,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     y: number,
   ) {
     const p = gameStore.getState().player;
-    const art = isChildhood(p) && world.textures.exists('thiet_tru') ? 'thiet_tru' : playerArt(p.sex);
+    const childArt=p.sex==='female'?'mu_uyen_child':'thiet_tru';
+    const art = isChildhood(p) && world.textures.exists(childArt) ? childArt : playerArt(p.sex);
     super(world, x, y, art);
     world.add.existing(this);
     world.physics.add.existing(this);
@@ -102,6 +106,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setDepth(-100);
     this.mountArt = world.add.image(spot.x, spot.y, 'immortal-sword').setVisible(false);
+    this.heldWeapon=world.add.image(spot.x,spot.y,'fx_dot').setVisible(false);
     this.label = world.add
       .text(spot.x, spot.y, heroName(p), {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
@@ -149,7 +154,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private get activeMount() {
     const s = gameStore.getState();
     const id = immortalProgress(s.player).mount;
-    if (!id || !mountUnlocked(id, s.quests) || this.world.map.arena || this.meditating || !canAct(this.life)) return null;
+    if (!id || !mountUnlocked(id, s.quests) || this.world.map.arena || this.meditating || lifeProgress(s.player).retreat || !canAct(this.life)) return null;
     return MOUNTS.find((m) => m.id === id) ?? null;
   }
 
@@ -184,8 +189,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.comboTimer = Math.max(0, this.comboTimer - dt);
     const body = this.body as Phaser.Physics.Arcade.Body;
 
-    if (!canAct(this.life)) {
+    if (!canAct(this.life) || lifeProgress(gameStore.getState().player).retreat) {
       body.setVelocity(0, 0);
+      if (canAct(this.life) && this.ctrl.currentAnim !== 'meditate') this.ctrl.play('meditate', 'down', {force:true});
     } else if (this.dashTime > 0) {
       this.dashTime -= dt;
       body.setVelocity(this.dashVec.x, this.dashVec.y);
@@ -232,6 +238,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.mountArt.setVisible(!!mount);
     if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(this.dir === 'left').setPosition(spot.x, spot.y - lift - 4).setDepth(spot.y - 0.1);
     this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
+    const p=gameStore.getState().player,weapon=p.equipment.weapon,key=weapon==='moc_kiem'?'held-moc-kiem':weapon?itemSpriteTextureKey(weapon):undefined;
+    this.heldWeapon.setVisible(!!key&&!isChildhood(p)&&!this.meditating&&!mount&&!lifeProgress(p).retreat&&canAct(this.life));
+    if(key){const left=this.art.flipX;this.heldWeapon.setTexture(key).setOrigin(left?.88:.12,.88).setDisplaySize(42,42).setPosition(spot.x+centerOffset+(left?-18:18),spot.y-42).setFlipX(left).setRotation(this.ctrl.currentAnim?.startsWith('attack')?-.5:0).setDepth(spot.y+.1);}
     this.syncLook();
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.label.setPosition(spot.x, spot.y - 106 - lift);
@@ -416,6 +425,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   attack() {
+    if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
     if (!canAct(this.life) || this.dashTime > 0) return;
     if (this.meditating) this.stopMeditate();
@@ -446,6 +456,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   castSkill(id: SkillId) {
+    if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
     if (id === 'basic') return this.attack();
     if (id === 'than_phap') return this.dash();
@@ -484,6 +495,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   dash() {
+    if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
     if (!canAct(this.life) || this.dashTime > 0) return;
     if ((this.cooldowns.than_phap ?? 0) > 0) return;
@@ -506,8 +518,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   startMeditate() {
+    if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) {
-      gameStore.getState().toast('Thiết Trụ còn là phàm nhân. Hãy theo câu chuyện để nhập môn trước.', 'info');
+      gameStore.getState().toast(`${heroName(gameStore.getState().player)} còn là phàm nhân. Hãy theo câu chuyện để nhập môn trước.`, 'info');
       return;
     }
     if (!canAct(this.life) || this.meditating) return;
@@ -587,6 +600,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   destroy(fromScene?: boolean) {
+    this.heldWeapon?.destroy();
     this.art?.destroy();
     this.shadow?.destroy();
     this.mountArt?.destroy();

@@ -16,6 +16,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   readonly arena: boolean;
   hp: number;
   alive = true;
+  playerContribution = false;
   slowTimer = 0;
 
   private ai: AIParams;
@@ -204,11 +205,12 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  hit(amount: number, crit: boolean, from: Vec2) {
+  hit(amount: number, crit: boolean, from: Vec2, source: 'player'|'wanderer' = 'player') {
     if (!this.alive) return;
+    if(source==='player')this.playerContribution=true;
     this.hp = Math.max(0, this.hp - amount);
     this.barDirty = true;
-    provoke(this.brain);
+    if(source==='player')provoke(this.brain);
     flash(this.world, this);
     impact(this.world, this.x, this.y - 28 * this.scaleY, crit ? 0xffe28a : 0xbfefff, crit);
     this.world.damageText.show(this.x, this.y - 60 * this.scaleY, `-${amount}`, crit ? 'crit' : 'enemy');
@@ -266,6 +268,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     Object.assign(this.brain, createBrain(home));
     this.hp = this.def.hp;
     this.alive = true;
+    this.playerContribution=false;
     this.barDirty = true;
     this.ctrl.unlock();
     this.ctrl.play('idle', 'right', { force: true });

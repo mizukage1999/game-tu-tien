@@ -5,6 +5,7 @@ import { objectiveText } from '../game/systems/quest';
 import { npcName, questNames, useGame } from '../store/gameStore';
 import { storyOrder, storyChapter } from '../game/systems/immortal';
 import { usePhoneLayout } from './TouchPlay';
+import { originText } from '../game/systems/origin';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
@@ -34,7 +35,7 @@ export function QuestPanel() {
       {open && tab === 'quest' && (
         <>
         <button className="story-tracker" onClick={() => setMenu('journey')}>
-          <small>{nextStory ? storyChapter(nextStory) : 'Thanh Vân Truyện'}</small>
+          <small>{originText(nextStory ? storyChapter(nextStory) : 'Thanh Vân Truyện',player)}</small>
           <span>{nextStory ? QUESTS[nextStory].name : 'Tiên lộ đang viết tiếp'} <b>›</b></span>
         </button>
         <ul className="quest-list">

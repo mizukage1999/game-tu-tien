@@ -29,7 +29,7 @@ export const RECIPES = [
 export function recipeCheck(player: PlayerSave, id: string): string | null {
   const recipe = RECIPES.find((r) => r.id === id);
   if (!recipe) return 'Không có đan phương này.';
-  if (player.level < recipe.level) return `Cần đạt cấp ${recipe.level}.`;
+  if (player.level < recipe.level) return 'Cần tinh tiến tu vi để lĩnh ngộ đan phương.';
   for (const [item, qty] of Object.entries(recipe.cost)) {
     if ((item === 'linh_khi' ? player.linhKhi : player.inventory[item] ?? 0) < qty) return 'Chưa đủ nguyên liệu.';
   }
@@ -66,7 +66,7 @@ export function herbNodes(mapId: string): HerbNode[] {
   const points: [HerbNode['item'], number, number][] = mapId === 'dai_thua_vien'
     ? [['thanh_linh_thao', 19, 22], ['thanh_linh_thao', 20, 24], ['ngung_lo', 27, 23], ['linh_chi', 28, 21]]
     : mapId === 'dong_phu'
-      ? [['thanh_linh_thao', 8, 12], ['ngung_lo', 10, 12], ['linh_chi', 12, 12]]
+      ? []
       : mapId === 'linh_thu_lam'
         ? [['thanh_linh_thao', 4, 17], ['linh_chi', 7, 17], ['ngung_lo', 10, 17]]
         : [];

@@ -201,10 +201,11 @@ describe('progression', () => {
     expect(realmNameAtLevel(88)).toBe('Dương Thực Hậu Kỳ');
   });
 
-  it('adds equipment bonuses', () => {
+  it('adds weapon bonuses and ignores legacy armor slots', () => {
     const base = computeStats(5, 0, {});
     const ringed = computeStats(5, 0, { ring: 'nhan_bac' });
-    expect(ringed.atk).toBe(base.atk + 8);
+    expect(ringed).toEqual(base);
+    expect(computeStats(5, 0, {weapon:'moc_kiem',ring:'nhan_bac'}).atk).toBe(base.atk + 4);
   });
 
   it('gates equipment by rarity level', () => {
@@ -222,7 +223,8 @@ describe('progression', () => {
     expect(canEquip('weapon_red', 100).ok).toBe(true);
     expect(canEquip('weapon_pink', 100).ok).toBe(true);
     expect(canEquip('armor_white', 9).ok).toBe(false);
-    expect(canEquip('armor_white', 10).ok).toBe(true);
+    expect(canEquip('armor_white', 100).ok).toBe(false);
+    expect(canEquip('moc_kiem', 1).ok).toBe(true);
     expect(canEquip('hoi_xuan_dan', 99).ok).toBe(false);
   });
 
@@ -235,7 +237,10 @@ describe('progression', () => {
       expect(atk).toBeGreaterThan(prev);
       prev = atk;
     }
-    expect(NPCS.thuong_nhan.shop!.length).toBe(1 + RARITIES.length * EQUIP_SLOTS.length);
+    const equipment = NPCS.thuong_nhan.shop!.filter(o=>ITEMS[o.item]?.kind==='equipment');
+    expect(equipment).toHaveLength(RARITIES.length);
+    expect(equipment.every(o=>ITEMS[o.item].slot==='weapon')).toBe(true);
+    expect(NPCS.thuong_nhan.shop!.some(o=>o.item==='hat_thanh_linh')).toBe(true);
   });
 });
 

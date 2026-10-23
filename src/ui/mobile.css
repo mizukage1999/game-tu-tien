@@ -40,7 +40,10 @@
 .hud.phone .childhood-actions { width: 150px; padding: 7px; gap: 4px; bottom: 28px; }
 .hud.phone .childhood-actions small { display: none; }
 .hud.phone .childhood-actions .btn { padding: 5px 7px; min-height: 30px; font-size: 10px; }
-.hud.phone .menu-journey { width: calc(100% - 20px); max-height: calc(100% - 16px); }
+.hud.phone .menu-journey { width: calc(100% - 20px); max-height: calc(100dvh - 16px); }
+.hud.phone.turned .menu-journey { width: calc(100dvh - 20px); max-height: calc(100dvw - 16px); }
+.hud.phone .menu-journey .menu-header { flex-shrink: 0; }
+.hud.phone .menu-journey .menu-content { min-height: 0; }
 .hud.phone .menu-journey .menu-header { padding: 5px 10px; min-height: 32px; }
 .hud.phone .menu-journey .menu-header h3 { font-size: 13px; letter-spacing: .2px; }
 .hud.phone .menu-journey .close { min-width: 32px; min-height: 30px; font-size: 24px; }

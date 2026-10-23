@@ -1,4 +1,6 @@
 import { ITEMS, REALMS, type RealmDef } from '../../data';
+import type { PlayerSave } from './save';
+import { companionStats, lifeProgress } from './life';
 
 export interface ProgressState {
   level: number;
@@ -70,7 +72,7 @@ export function checkBreakthrough(
   const realm = realmFor(s.realmIndex);
   if (!realm.breakthrough) return { ok: false, reason: 'Đã đạt cảnh giới tối cao của bản demo.' };
   if (s.level < realm.maxLevel || s.exp < expToNext(s.level))
-    return { ok: false, reason: `Cần đạt cấp ${realm.maxLevel} và đầy tu vi.` };
+    return { ok: false, reason: `Cần đạt ${realm.name} đại viên mãn và đầy tu vi.` };
   const cost = realm.breakthrough;
   if (linhKhi < cost.linhKhi) return { ok: false, reason: `Thiếu Linh Khí (${linhKhi}/${cost.linhKhi}).` };
   if (linhThach < cost.linhThach)
@@ -89,9 +91,9 @@ export type EquipCheck = { ok: true } | { ok: false; reason: string };
 
 export function canEquip(itemId: string, level: number): EquipCheck {
   const def = ITEMS[itemId];
-  if (!def?.slot) return { ok: false, reason: 'Vật phẩm này không thể trang bị.' };
+  if (def?.slot !== 'weapon') return { ok: false, reason: 'Chỉ có thể cầm vũ khí. Trang phục không dùng ô trang bị.' };
   const req = def.reqLevel ?? 1;
-  if (level < req) return { ok: false, reason: `Cần đạt cấp ${req} để trang bị ${def.name}.` };
+  if (level < req) return { ok: false, reason: `Cần đạt ${realmNameAtLevel(req)} để cầm ${def.name}.` };
   return { ok: true };
 }
 
@@ -111,12 +113,19 @@ export function computeStats(
     critMul: 1.8,
     speed: 190,
   };
-  for (const itemId of Object.values(equipment)) {
+  for (const itemId of [equipment.weapon]) {
     const bonus = itemId ? ITEMS[itemId]?.bonus : undefined;
     if (!bonus) continue;
     stats.atk += bonus.atk ?? 0;
     stats.def += bonus.def ?? 0;
     stats.maxHp += bonus.hp ?? 0;
   }
+  return stats;
+}
+
+export function playerStats(p: PlayerSave) {
+  const stats=computeStats(p.level,p.realmIndex,p.equipment), pet=companionStats(p);
+  stats.atk+=pet.atk;stats.def+=pet.def;stats.maxHp+=pet.hp;
+  if(lifeProgress(p).artifact==='phap_bao_ngoc'){stats.def+=12;stats.maxHp+=100;}
   return stats;
 }

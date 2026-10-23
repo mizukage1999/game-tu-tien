@@ -7,6 +7,7 @@ import { buildImmortalArt } from '../art/immortal';
 import { COURTYARD_ATLAS, registerCourtyardFrames } from '../art/courtyard';
 import { WORLD_ATLASES, registerWorldArt } from '../art/world';
 import { COHESION_ATLASES, registerCohesiveArt } from '../art/cohesion';
+import { EXPANSION_ATLASES, registerExpansionArt } from '../art/expansionArt';
 
 interface AtlasEntry {
   atlas: string;
@@ -27,6 +28,7 @@ export class PreloadScene extends Phaser.Scene {
   preload() {
     for (const key of WORLD_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for (const key of COHESION_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
+    for(const key of EXPANSION_ATLASES)this.load.image(key,`assets/maps/${key}.png`);
     this.load.image('child-source', 'assets/maps/thiet-tru.png');
     this.load.image(COURTYARD_ATLAS, 'assets/maps/courtyard-architecture.png');
     this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => this.game.events.emit('assets-progress', progress));
@@ -50,6 +52,7 @@ export class PreloadScene extends Phaser.Scene {
     registerCourtyardFrames(this);
     registerWorldArt(this);
     registerCohesiveArt(this);
+    registerExpansionArt(this);
     generateArt(this);
     buildImmortalArt(this);
     const s = gameStore.getState();

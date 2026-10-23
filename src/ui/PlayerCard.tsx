@@ -40,10 +40,6 @@ export function PlayerCard() {
           </div>
           <div className="card-info">
             <div className="card-row">
-              <span className="card-label">Cấp</span>
-              <span className="card-value">{me?.level ?? '—'}</span>
-            </div>
-            <div className="card-row">
               <span className="card-label">Cảnh giới</span>
               <span className="card-value gold">{me?.realm ?? '—'}</span>
             </div>

@@ -18,7 +18,7 @@
       { "item": "linh_khi", "qty": [10, 30], "chance": 0.8 },
       { "item": "linh_thach", "qty": [1, 1], "chance": 0.35 },
       { "item": "hoi_xuan_dan", "qty": [1, 1], "chance": 0.08 },
-      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.04 }
+      { "item": "huyen_thiet", "qty": [1, 1], "chance": 0.04 }
     ]
   },
   "hoa_ho": {
@@ -40,7 +40,7 @@
       { "item": "linh_khi", "qty": [30, 70], "chance": 0.9 },
       { "item": "linh_thach", "qty": [1, 2], "chance": 0.6 },
       { "item": "hoi_xuan_dan", "qty": [1, 1], "chance": 0.15 },
-      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.06 },
+      { "item": "huyen_thiet", "qty": [1, 1], "chance": 0.06 },
       { "item": "kiem_pho", "qty": [1, 1], "chance": 0.04 }
     ]
   },
@@ -64,7 +64,7 @@
       { "item": "linh_khi", "qty": [80, 150], "chance": 1 },
       { "item": "linh_thach", "qty": [2, 3], "chance": 1 },
       { "item": "kiem_pho", "qty": [1, 1], "chance": 0.6 },
-      { "item": "nhan_bac", "qty": [1, 1], "chance": 0.25 }
+      { "item": "huyen_thiet", "qty": [1, 1], "chance": 0.25 }
     ],
     "boss": {
       "slamInterval": 6500,
