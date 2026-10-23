@@ -10,6 +10,8 @@ Các atlas `maps/world-sect.png`, `maps/world-nature.png`, `maps/world-village.p
 
 Đồ họa dự phòng được vẽ bằng code (`src/game/art`). Tài nguyên bổ sung được ghi theo từng mục.
 
+`journey/alchemy.png`, `journey/home.png`, `journey/mounts.png`: tranh nền Tiên Lộ tạo bằng imagegen tích hợp theo phong cách ảnh tham khảo của người dùng. Prompt cuối và mô tả tại `journey/README.md`.
+
 Khi thêm tài nguyên bên ngoài, ghi lại theo mẫu:
 
 | Tệp | Tác giả | Nguồn | Giấy phép |

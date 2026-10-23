@@ -144,6 +144,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return { x: this.x, y: this.y };
   }
 
+  get nameplateBounds() { return this.label.getBounds(); }
+
   private get activeMount() {
     const s = gameStore.getState();
     const id = immortalProgress(s.player).mount;

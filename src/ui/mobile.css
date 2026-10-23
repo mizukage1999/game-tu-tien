@@ -1,4 +1,19 @@
 /* Phone rules use the HUD marker, including the rotated portrait layout. */
+.hud.phone { --hud-safe-bottom: env(safe-area-inset-bottom, 0px); --hud-safe-left: env(safe-area-inset-left, 0px); --hud-safe-right: env(safe-area-inset-right, 0px); }
+.hud.phone.turned { --hud-safe-bottom: env(safe-area-inset-left, 0px); --hud-safe-left: env(safe-area-inset-top, 0px); --hud-safe-right: env(safe-area-inset-bottom, 0px); }
+.hud.phone .exp-bar, .hud.phone.turned .exp-bar { height: 9px; width: min(360px, 48%); bottom: calc(9px + var(--hud-safe-bottom)); left: calc(50% + (var(--hud-safe-left) - var(--hud-safe-right)) / 2); border-radius: 4px; pointer-events: none; }
+.hud.phone .exp-bar span { font-size: 7px; line-height: 7px; white-space: nowrap; }
+.hud.phone .target-frame { width: 145px; padding: 4px 7px; top: 68px; }
+.hud.phone .target-name { font-size: 10px; line-height: 14px; }
+.hud.phone .target-frame .bar { height: 8px; }
+.hud.phone .target-frame .bar-text { font-size: 7px; line-height: 7px; }
+.hud.phone .dungeon-panel { padding: 6px 8px; font-size: 10px; }
+.hud.phone .dungeon-name, .hud.phone .dungeon-boss-name { font-size: 10px; }
+.hud.phone .dungeon-timer { font-size: 12px; }
+.hud.phone .dungeon-phase { font-size: 9px; margin: 3px 0; }
+.hud.phone .dungeon-boss .bar { height: 8px; }
+.hud.phone .dungeon-boss .bar-text { font-size: 7px; line-height: 7px; }
+.hud.phone .dungeon-panel .btn { font-size: 9px; padding: 4px 7px; min-height: 27px; }
 .hud.phone .hud-top-left { width: 190px; max-width: 30%; gap: 5px; }
 .hud.phone .quest-panel { width: 100%; border-radius: 5px; background: #071824bd; }
 .hud.phone .quest-panel.collapsed { width: 130px; }

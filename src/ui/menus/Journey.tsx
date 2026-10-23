@@ -6,6 +6,8 @@ import {
   immortalProgress, MOUNTS, mountUnlocked, RECIPES, recipeCheck, storyOrder,
 } from '../../game/systems/immortal';
 import { StoryChapters } from './StoryChapters';
+import { JourneyFeatureHeader } from './JourneyFeatureHeader';
+import { itemIconUrl } from '../../game/art/icons';
 import { itemName, useGame } from '../../store/gameStore';
 import { isChildhood } from '../../game/systems/origin';
 import { WorldAtlas } from './WorldAtlas';
@@ -54,7 +56,7 @@ export function Journey() {
   const currentId = order.find((id) => quests[id]?.status !== 'done');
   const currentAim = currentId && QUESTS[currentId].objectives.find((o, i) => (quests[currentId]?.progress[i] ?? 0) < o.count);
 
-  return <div className={`immortal-journey${tab === 'world' ? ' atlas-open' : tab === 'story' ? ' story-open' : ''}`}>
+  return <div className={`immortal-journey${tab === 'world' ? ' atlas-open' : tab === 'story' ? ' story-open' : ' feature-open'}`}>
     <div className="immortal-intro">
       <span className="immortal-seal" aria-hidden="true">道</span>
       <div><small>{childhood ? 'VƯƠNG GIA THÔN · THIẾT TRỤ' : 'SƠN HÀ TIÊN LỘ'}</small><h2>{childhood ? 'Những ngày còn thơ' : 'Một đời cầu đạo'}</h2><p>{childhood ? 'Từ mái nhà bên sông, bước đầu tiên đi về phía núi.' : 'Đi qua sơn hà, giữ một lời hẹn trở về.'}</p></div>
@@ -67,11 +69,11 @@ export function Journey() {
       {tab === 'story' && <StoryChapters/>}
       {tab === 'world' && <WorldAtlas/>}
       {tab === 'alchemy' && <>
-        <div className="immortal-feature"><span className="immortal-feature-glyph" aria-hidden="true">丹</span><div><h3>Giữ lửa, kết đan</h3><p>Hái dược quanh sân viện bằng E hoặc chạm khi đứng gần. Yêu Đan rơi từ yêu thú. Mỗi mẻ luyện thành 1 viên, không có tỉ lệ thất bại.</p></div></div>
+        <JourneyFeatureHeader type="alchemy" detail={`Đã luyện ${Object.values(progress.crafted).reduce((sum, n) => sum + n, 0)} viên · ${RECIPES.length} đan phương`}/>
         <div className="immortal-recipes">{RECIPES.map((recipe) => {
           const reason = recipeCheck(player, recipe.id);
           return <article key={recipe.id} className="immortal-card">
-            <div className="immortal-card-heading"><span className={`immortal-pill pill-${recipe.id}`} aria-hidden="true"/><div><h4>{recipe.name}</h4><small>Đã có {player.inventory[recipe.id] ?? 0} · Đã luyện {progress.crafted[recipe.id] ?? 0}</small></div><span className="immortal-tag">Cấp {recipe.level}</span></div>
+            <div className="immortal-card-heading"><img className="journey-pill-icon" src={itemIconUrl(recipe.id)} alt=""/><div><h4>{recipe.name}</h4><small>Đã có {player.inventory[recipe.id] ?? 0} · Đã luyện {progress.crafted[recipe.id] ?? 0}</small></div><span className="immortal-tag">Cấp {recipe.level}</span></div>
             <p>{recipe.desc}</p><Costs cost={recipe.cost}/>
             <button className="btn gold" disabled={!!reason || status !== 'alive'} onClick={() => craftPill(recipe.id)}>{reason ?? 'Khai lò luyện đan'}</button>
           </article>;
@@ -79,7 +81,7 @@ export function Journey() {
         <button className="btn" onClick={() => setMenu('bag')}>Mở túi dùng đan dược</button>
       </>}
       {tab === 'home' && <>
-        <div className="immortal-feature"><span className="immortal-feature-glyph" aria-hidden="true">府</span><div><h3>Động Phủ Thanh Vân</h3><p>Một chốn an thân giữa núi mây. Linh mạch để tu luyện, dược điền nuôi đan đạo.</p></div></div>
+        <JourneyFeatureHeader type="home" detail={homeOpen ? `Linh mạch cấp ${progress.homeLevel} · Linh khí ×${homeMeditateRate(progress.homeLevel)}` : `Mở sau: ${QUESTS[HOME_QUEST].name}`}/>
         {!homeOpen ? <p className="immortal-note">Hoàn thành duyên ngộ “Lò Đan Khai Hỏa” và trả nhiệm vụ cho Vân Hạc để nhận động phủ riêng.</p> : <>
           <div className="immortal-home-grid">
             <article className="immortal-card"><h4>Linh mạch · Cấp {progress.homeLevel}</h4><p>Tọa thiền tại động phủ: linh khí ×{homeMeditateRate(progress.homeLevel)}. Nâng cấp cũng tăng sản lượng dược điền.</p>
@@ -94,10 +96,10 @@ export function Journey() {
         </>}
       </>}
       {tab === 'mounts' && <>
-        <div className="immortal-feature"><span className="immortal-feature-glyph" aria-hidden="true">御</span><div><h3>Đạp gió, vượt ngàn mây</h3><p>Kiếm và hạc xuất hiện dưới nhân vật, tăng tốc di chuyển. Tấn công hoặc trúng đòn sẽ hạ xuống; vào phó bản sẽ tạm dừng ngự hành.</p></div></div>
+        <JourneyFeatureHeader type="mounts" detail={`${MOUNTS.filter(m => mountUnlocked(m.id, quests)).length}/${MOUNTS.length} duyên ngự hành · ${progress.mount ? MOUNTS.find(m => m.id === progress.mount)?.name : 'Chưa chọn tọa kỵ'}`}/>
         <div className="immortal-home-grid">{MOUNTS.map((mount) => {
           const open = mountUnlocked(mount.id, quests);
-          return <article className="immortal-card" key={mount.id}><span className="immortal-mount-glyph" aria-hidden="true">{mount.id === 'sword' ? '⚔' : '羽'}</span><h4>{mount.name}</h4><p>{mount.desc}</p><p className="immortal-note">{open ? `Tốc độ di chuyển ×${mount.speed}` : `Mở sau: ${QUESTS[mount.quest].name}`}</p><button className="btn gold" disabled={!open || status !== 'alive'} onClick={() => selectMount(progress.mount === mount.id ? null : mount.id)}>{progress.mount === mount.id ? 'Hạ xuống' : open ? mount.id === 'sword' ? 'Ngự kiếm' : 'Cưỡi hạc' : 'Chưa kết duyên'}</button></article>;
+          return <article className="immortal-card" key={mount.id}><div className={`journey-mount-art mount-${mount.id}`}><img src="/assets/journey/mounts.png" alt=""/></div><h4>{mount.name}</h4><p>{mount.desc}</p><p className="immortal-note">{open ? `Tốc độ di chuyển ×${mount.speed}` : `Mở sau: ${QUESTS[mount.quest].name}`}</p><button className="btn gold" disabled={!open || status !== 'alive'} onClick={() => selectMount(progress.mount === mount.id ? null : mount.id)}>{progress.mount === mount.id ? 'Hạ xuống' : open ? mount.id === 'sword' ? 'Ngự kiếm' : 'Cưỡi hạc' : 'Chưa kết duyên'}</button></article>;
         })}</div>
       </>}
     </div>

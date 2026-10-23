@@ -33,6 +33,8 @@ import { WORLD_PROPS } from '../art/world';
 import { isChildhood } from '../systems/origin';
 import { mapGateReason, portalGateReason } from '../systems/worldAccess';
 import { worldZoom } from '../systems/display';
+import { routeDots } from '../systems/routeDots';
+import { storyOrder } from '../systems/immortal';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
 
 interface WorldData {
@@ -66,6 +68,8 @@ export class WorldScene extends Phaser.Scene {
   target: Monster | null = null;
   private navRepaths = 0;
   private navLabel = '';
+  private routeGuide!: Phaser.GameObjects.Graphics;
+  private guideTimer = 0;
   run: DungeonRun | null = null;
 
   private mapId = 'dai_thua_vien';
@@ -106,6 +110,7 @@ export class WorldScene extends Phaser.Scene {
     this.foregroundDecor = [];
     this.pointCooldowns.clear();
     this.syncTimer = this.secondTimer = this.saveTimer = 0;
+    this.guideTimer = 0;
     this.levelWarned = false;
     this.remotes.clear();
   }
@@ -152,6 +157,7 @@ export class WorldScene extends Phaser.Scene {
 
     const start = this.resolveSpawn(map);
     this.player = new Player(this, start.x, start.y);
+    this.routeGuide = this.add.graphics().setDepth(-7000);
     this.buildHerbs();
     this.buildWorldPoints();
     this.targetRing = this.add
@@ -434,6 +440,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private fitZoom() {
+    this.registry.set('phone-layout', window.matchMedia('(pointer: coarse), (hover: none) and (max-width: 900px)').matches);
     const density = (this.registry.get('render-density') as number | undefined) ?? 1;
     this.cameras.main.setZoom(worldZoom(this.scale.width / density, this.scale.height / density) * density);
   }
@@ -651,6 +658,9 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     const dt = Math.min(delta, 50);
     this.player.update(dt);
+    this.routeGuide.setVisible(!gameStore.getState().menu && !gameStore.getState().dialogNpc);
+    this.guideTimer -= dt;
+    if (this.guideTimer <= 0) { this.guideTimer = 500; this.drawRouteGuide(); }
     this.tickMultiplayer(dt);
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
     for (const m of this.monsters) m.update(dt, targetable);
@@ -697,6 +707,39 @@ export class WorldScene extends Phaser.Scene {
     if (this.chatTimer <= 0) {
       this.chatTimer = 20000 + Math.random() * 25000;
       gameStore.getState().addLog(Phaser.Utils.Array.GetRandom(WORLD_CHAT), 'world');
+    }
+  }
+
+  private drawRouteGuide() {
+    this.routeGuide.clear();
+    const s = gameStore.getState();
+    if (this.map.arena || this.transitioning || s.status !== 'alive' || s.menu || s.dialogNpc) return;
+    const from = { x: Math.floor(this.player.x / TILE), y: Math.floor(this.player.y / TILE) };
+    const travel = trackedTravel();
+    let stop: QuestStop;
+    if (travel) {
+      const map = getMap(travel);
+      stop = { mapId: travel, tile: { x: map.playerSpawn[0], y: map.playerSpawn[1] }, label: map.name };
+    } else {
+      const id = trackedQuest() ?? storyOrder(s.player).find(id => s.quests[id] && s.quests[id].status !== 'done');
+      if (!id) return;
+      const nav = questDestination(id, s.quests, s.player.level, this.map.id, from);
+      if (nav.kind !== 'go') return;
+      stop = nav.stop;
+      if (stop.gatherItem && stop.mapId === this.map.id) {
+        const readyAt = immortalProgress(s.player).harvestReadyAt;
+        const node = this.herbs.find(h => h.node.item === stop.gatherItem && (readyAt[h.node.id] ?? 0) <= Date.now())?.node;
+        if (!node) return;
+        stop.tile = { x: node.x, y: node.y };
+      }
+    }
+    const route = routeOnMap(this.map, from, stop, s.player.level, { childhood: isChildhood(s.player), quests: s.quests });
+    if (route.kind !== 'path') return;
+    const points = [{ x: (from.x + .5) * TILE, y: (from.y + .5) * TILE }, ...route.tiles.map(t => ({ x: (t.x + .5) * TILE, y: (t.y + .5) * TILE }))];
+    for (const dot of routeDots(points)) {
+      const at = iso(dot.x, dot.y);
+      this.routeGuide.fillStyle(0x233238, .4).fillCircle(at.x, at.y + 1.5, 3.2);
+      this.routeGuide.fillStyle(0xffffff, .8).fillCircle(at.x, at.y, 2.5);
     }
   }
 
