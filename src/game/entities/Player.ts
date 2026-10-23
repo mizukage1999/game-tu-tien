@@ -22,6 +22,8 @@ import { dirFromVector, dirVector, type Dir, type Vec2 } from '../types';
 import { findPath } from '../systems/path';
 import type { WorldScene } from '../scenes/WorldScene';
 import type { Monster } from './Monster';
+import { heroName, isChildhood } from '../systems/origin';
+import { immortalProgress, MOUNTS, mountUnlocked } from '../systems/immortal';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -63,6 +65,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private dashTime = 0;
   private dashVec: Vec2 = { x: 0, y: 0 };
   private shadow: Phaser.GameObjects.Image;
+  private mountArt: Phaser.GameObjects.Image;
   private weaponArt: Phaser.GameObjects.Image;
   private weaponAura: Phaser.GameObjects.Image;
   private weaponPulse: Phaser.Tweens.Tween | null = null;
@@ -87,7 +90,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     x: number,
     y: number,
   ) {
-    const art = playerArt(gameStore.getState().player.sex);
+    const p = gameStore.getState().player;
+    const art = isChildhood(p) && world.textures.exists('thiet_tru') ? 'thiet_tru' : playerArt(p.sex);
     super(world, x, y, art);
     world.add.existing(this);
     world.physics.add.existing(this);
@@ -102,15 +106,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       .setVisible(false);
     this.weaponArt = world.add.image(spot.x, spot.y, 'item-sprite-weapon-white').setScale(0.32).setVisible(false);
     const body = this.body as Phaser.Physics.Arcade.Body;
-    const fw = this.ctrl.rig.frameWidth;
-    const fh = this.ctrl.rig.frameHeight;
     body.setSize(22, 14);
-    body.setOffset(fw / 2 - 11, fh * this.ctrl.rig.originY - 12);
+    // This invisible sprite holds the whole atlas, not an animated rig frame.
+    // Keep its physics centre at (x, y), independently of atlas dimensions.
+    body.setOffset(this.width * this.originX - 11, this.height * this.originY - 7);
     body.setCollideWorldBounds(true);
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setDepth(-100);
+    this.mountArt = world.add.image(spot.x, spot.y, 'immortal-sword').setVisible(false);
     this.label = world.add
-      .text(spot.x, spot.y, gameStore.getState().player.name, {
+      .text(spot.x, spot.y, heroName(p), {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: '13px',
         fontStyle: 'bold',
@@ -119,6 +124,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         strokeThickness: 3,
       })
       .setOrigin(0.5, 1)
+      .setResolution(2)
       .setDepth(90000);
     this.bar = world.add.graphics().setDepth(90000);
 
@@ -148,6 +154,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   get feet(): Vec2 {
     return { x: this.x, y: this.y };
+  }
+
+  private get activeMount() {
+    const s = gameStore.getState();
+    const id = immortalProgress(s.player).mount;
+    if (!id || !mountUnlocked(id, s.quests) || this.world.map.arena || this.meditating || !canAct(this.life)) return null;
+    return MOUNTS.find((m) => m.id === id) ?? null;
+  }
+
+  private dismount() {
+    if (immortalProgress(gameStore.getState().player).mount) gameStore.getState().selectMount(null);
   }
 
   private manualInput(): Vec2 {
@@ -204,13 +221,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (this.ctrl.locked || this.meditating) {
         body.setVelocity(0, 0);
       } else {
-        const speed = gameStore.getState().stats.speed;
+        const speed = gameStore.getState().stats.speed * (this.activeMount?.speed ?? 1);
         const mag = Math.hypot(move.x, move.y);
         body.setVelocity(move.x * speed, move.y * speed);
         if (mag > 0.1) {
           const onScreen = isoVector(move.x, move.y);
           this.dir = dirFromVector(onScreen.x, onScreen.y, this.dir);
-          this.ctrl.play('run', this.dir);
+          this.ctrl.play(this.activeMount ? 'idle' : 'run', this.dir);
         } else {
           this.ctrl.play('idle', this.dir);
         }
@@ -220,11 +237,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const spot = iso(this.x, this.y);
     const centerOffset =
       this.art.texture.key === 'player' ? (this.art.flipX ? LI_MU_ART_FOOT_OFFSET_X : -LI_MU_ART_FOOT_OFFSET_X) : 0;
-    this.art.setPosition(spot.x + centerOffset, spot.y).setDepth(spot.y);
+    const mount = this.activeMount;
+    const lift = mount ? 24 + Math.sin(this.world.time.now / 260) * 3 : 0;
+    this.mountArt.setVisible(!!mount);
+    if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(this.dir === 'left').setPosition(spot.x, spot.y - lift - 4).setDepth(spot.y - 0.1);
+    this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
     this.syncLook();
     this.syncWeapon(spot);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.label.setPosition(spot.x, spot.y - 106);
+    this.label.setPosition(spot.x, spot.y - 106 - lift);
     this.drawBar(spot);
   }
 
@@ -375,7 +396,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   setRoute(points: Vec2[]) {
-    this.route = points;
+    const tileX = Math.floor(this.x / TILE), tileY = Math.floor(this.y / TILE);
+    // A* starts at a tile centre. Align first when a player stops near its edge.
+    const centre = { x: (tileX + .5) * TILE, y: (tileY + .5) * TILE };
+    this.route = points.length && !this.world.map.blocked[tileY]?.[tileX]
+      ? [centre, ...points] : points;
     this.stuckMs = 0;
     this.anchorX = this.x;
     this.anchorY = this.y;
@@ -403,7 +428,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       const dx = goal.x - this.x;
       const dy = goal.y - this.y;
       const dist = Math.hypot(dx, dy);
-      if (dist > 22) return { x: dx / dist, y: dy / dist };
+      // Reach the corner before turning; a large tolerance cuts through walls.
+      if (dist > 4) {
+        const speed = gameStore.getState().stats.speed * (this.activeMount?.speed ?? 1);
+        // Slow down for the last step, also on phones with a low frame rate.
+        const travel = speed * Math.max(1000 / 60, this.scene.game.loop.delta) / 1000;
+        const divisor = Math.max(dist, travel);
+        return { x: dx / divisor, y: dy / divisor };
+      }
       this.route.shift();
     }
     return null;
@@ -416,7 +448,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.stuckMs = 0;
     this.anchorX = this.x;
     this.anchorY = this.y;
-    if (moved < 12) this.world.repathQuest();
+    if (moved < .5) this.world.repathQuest();
   }
 
   private toward(p: Vec2): Vec2 {
@@ -439,6 +471,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   attack() {
+    if (isChildhood(gameStore.getState().player)) return;
     if (!canAct(this.life) || this.dashTime > 0) return;
     if (this.meditating) this.stopMeditate();
     if (this.ctrl.locked) {
@@ -446,6 +479,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
     if ((this.cooldowns.basic ?? 0) > 0) return;
+    this.dismount();
     this.queuedAttack = false;
     this.combo = this.comboTimer > 0 ? (this.combo % 3) + 1 : 1;
     this.comboTimer = 900;
@@ -467,6 +501,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   castSkill(id: SkillId) {
+    if (isChildhood(gameStore.getState().player)) return;
     if (id === 'basic') return this.attack();
     if (id === 'than_phap') return this.dash();
     const store = gameStore.getState();
@@ -487,6 +522,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       store.toast('Không đủ linh lực (MP)', 'warn');
       return;
     }
+    this.dismount();
     if (this.meditating) this.stopMeditate();
     this.cooldowns[id] = sk.cooldownMs;
     const animation =
@@ -503,6 +539,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   dash() {
+    if (isChildhood(gameStore.getState().player)) return;
     if (!canAct(this.life) || this.dashTime > 0) return;
     if ((this.cooldowns.than_phap ?? 0) > 0) return;
     const store = gameStore.getState();
@@ -524,6 +561,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   startMeditate() {
+    if (isChildhood(gameStore.getState().player)) {
+      gameStore.getState().toast('Thiết Trụ còn là phàm nhân. Hãy theo câu chuyện để nhập môn trước.', 'info');
+      return;
+    }
     if (!canAct(this.life) || this.meditating) return;
     if (this.world.time.now - this.lastDamageAt < 3000) {
       gameStore.getState().toast('Đang chiến đấu, không thể tọa thiền', 'warn');
@@ -551,6 +592,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!canBeHit(this.life)) return false;
     const store = gameStore.getState();
     this.lastDamageAt = this.world.time.now;
+    this.dismount();
     if (this.meditating) this.stopMeditate();
     const hp = store.damagePlayer(amount);
     flash(this.world, this, 0xff6b6b);
@@ -608,6 +650,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.weaponAura?.destroy();
     this.weaponPulse?.stop();
     this.shadow?.destroy();
+    this.mountArt?.destroy();
     this.label?.destroy();
     this.bar?.destroy();
     this.aura?.destroy();

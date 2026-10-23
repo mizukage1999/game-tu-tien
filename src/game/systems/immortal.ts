@@ -1,0 +1,93 @@
+import type { PlayerSave } from './save';
+import type { QuestLog } from './quest';
+import { EXPLORATION_ORDER, PROLOGUE_ORDER, WORLD_QUESTS } from '../../data/world';
+
+export type MountId = 'sword' | 'crane';
+export interface ImmortalProgress {
+  crafted: Record<string, number>;
+  gathered: Record<string, number>;
+  homeLevel: number;
+  gardenReadyAt: number;
+  mount: MountId | null;
+  /** Absolute times survive map changes and reloads. */
+  harvestReadyAt: Record<string, number>;
+}
+
+export function immortalProgress(player: PlayerSave): ImmortalProgress {
+  return {
+    crafted: {}, gathered: {}, homeLevel: 0, gardenReadyAt: 0,
+    mount: null, harvestReadyAt: {}, ...player.immortal,
+  };
+}
+
+export const RECIPES = [
+  { id: 'hoi_xuan_dan', name: 'Hồi Xuân Đan', level: 1, desc: 'Hồi 45% sinh lực và linh lực.', cost: { thanh_linh_thao: 2, ngung_lo: 1, linh_khi: 5 } },
+  { id: 'tu_linh_dan', name: 'Tụ Linh Đan', level: 1, desc: 'Dùng trong túi: nhận 120 tu vi và 80 Linh Khí.', cost: { thanh_linh_thao: 3, linh_chi: 1, ngung_lo: 1, linh_khi: 10 } },
+  { id: 'pha_canh_dan', name: 'Phá Cảnh Đan', level: 5, desc: 'Tiêu hao 1 viên khi đột phá đại cảnh giới.', cost: { linh_chi: 3, yeu_dan: 2, ngung_lo: 2, linh_khi: 40 } },
+] as const;
+
+export function recipeCheck(player: PlayerSave, id: string): string | null {
+  const recipe = RECIPES.find((r) => r.id === id);
+  if (!recipe) return 'Không có đan phương này.';
+  if (player.level < recipe.level) return `Cần đạt cấp ${recipe.level}.`;
+  for (const [item, qty] of Object.entries(recipe.cost)) {
+    if ((item === 'linh_khi' ? player.linhKhi : player.inventory[item] ?? 0) < qty) return 'Chưa đủ nguyên liệu.';
+  }
+  return null;
+}
+
+export const MOUNTS = [
+  { id: 'sword' as const, name: 'Thanh Vân Kiếm', speed: 1.45, quest: 'main_4', desc: 'Ngự kiếm sau khi đột phá Trúc Cơ. Tốc độ +45%.' },
+  { id: 'crane' as const, name: 'Bạch Vân Hạc', speed: 1.7, quest: 'main_hac', desc: 'Linh hạc nhận chủ khi hoàn thành duyên ngộ. Tốc độ +70%.' },
+];
+
+export function mountUnlocked(id: MountId, quests: QuestLog) {
+  return quests[MOUNTS.find((m) => m.id === id)!.quest]?.status === 'done';
+}
+
+export const HOME_QUEST = 'main_dan';
+export const HOME_MAX_LEVEL = 3;
+export function homeUpgradeCost(level: number): Record<string, number> {
+  return { linh_thach: 5 * (level + 1), linh_khi: 80 * (level + 1) };
+}
+export function homeMeditateRate(level: number) {
+  return 2 + Math.max(0, Math.min(HOME_MAX_LEVEL, level));
+}
+
+export interface HerbNode {
+  id: string;
+  item: 'thanh_linh_thao' | 'ngung_lo' | 'linh_chi';
+  x: number;
+  y: number;
+}
+
+/** All nodes use open, reachable tiles. Field nodes are added on the entrance path. */
+export function herbNodes(mapId: string): HerbNode[] {
+  const points: [HerbNode['item'], number, number][] = mapId === 'dai_thua_vien'
+    ? [['thanh_linh_thao', 19, 22], ['thanh_linh_thao', 20, 24], ['ngung_lo', 27, 23], ['linh_chi', 28, 21]]
+    : mapId === 'dong_phu'
+      ? [['thanh_linh_thao', 8, 12], ['ngung_lo', 10, 12], ['linh_chi', 12, 12]]
+      : mapId === 'linh_thu_lam'
+        ? [['thanh_linh_thao', 4, 17], ['linh_chi', 7, 17], ['ngung_lo', 10, 17]]
+        : [];
+  const extra: Record<string, [HerbNode['item'], number, number][]> = {
+    vuong_gia_thon: [['thanh_linh_thao', 5, 19], ['thanh_linh_thao', 6, 20]],
+    dinh_ta: [['ngung_lo', 11, 19], ['linh_chi', 29, 27]],
+    rung_linh_thu: [['thanh_linh_thao', 7, 19], ['linh_chi', 12, 20], ['ngung_lo', 14, 10], ['linh_chi', 32, 24]],
+    thac_ngoc: [['ngung_lo', 24, 27], ['linh_chi', 30, 27]],
+    bi_canh_thach_linh: [['linh_chi', 12, 23], ['ngung_lo', 25, 23]],
+  };
+  return (extra[mapId] ?? points).map(([item, x, y], i) => ({ id: `${mapId}:${i}`, item, x, y }));
+}
+
+export const HARVEST_COOLDOWN_MS = 25_000;
+export const GARDEN_COOLDOWN_MS = 90_000;
+
+export const STORY_ORDER = ['main_0', 'main_1', 'main_2', 'main_duoc', 'main_dan', 'main_phu', 'main_3', 'main_4', 'main_kiem', 'main_hac', ...EXPLORATION_ORDER];
+export function storyOrder(player: PlayerSave) { return player.origin ? [...PROLOGUE_ORDER, ...STORY_ORDER] : STORY_ORDER; }
+
+export function storyChapter(id: string) {
+  if (WORLD_QUESTS[id]?.chapter) return WORLD_QUESTS[id].chapter!;
+  const index = STORY_ORDER.indexOf(id);
+  return index <= 2 ? 'Chương I · Tiên duyên' : index <= 5 ? 'Chương II · Đan đạo' : 'Chương III · Thanh vân';
+}

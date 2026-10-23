@@ -5,6 +5,7 @@ import { EventBus } from '../game/EventBus';
 import { itemIconUrl, skillSpriteUrl } from '../game/art/icons';
 import { effectiveSkill, skillLevel } from '../game/systems/skills';
 import { useGame } from '../store/gameStore';
+import { isChildhood } from '../game/systems/origin';
 
 function SkillButton({ id, className }: { id: SkillId; className: string }) {
   const cd = useGame((s) => s.cooldowns[id] ?? 0);
@@ -38,6 +39,9 @@ export function SkillBar() {
   const setAuto = useGame((s) => s.setAuto);
   const potions = useGame((s) => s.player.inventory.hoi_xuan_dan ?? 0);
   const consumeItem = useGame((s) => s.consumeItem);
+  const childhood = useGame((s) => isChildhood(s.player));
+  const setMenu = useGame((s) => s.setMenu);
+  if (childhood) return <div className="childhood-actions panel-glass"><small>NHỮNG NGÀY CÒN THƠ</small><button className="btn gold" onClick={() => setMenu('journey')}>Nhật ký Thiết Trụ</button><button className="btn" onClick={() => EventBus.emit('cmd:interact')}>Trò chuyện / Tương tác <kbd>E</kbd></button></div>;
 
   return (
     <div className="skill-bar">

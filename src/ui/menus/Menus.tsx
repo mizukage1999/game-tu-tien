@@ -27,6 +27,7 @@ import { useAccount } from '../../net/session';
 import { AccountPanel } from '../AccountPanel';
 import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
+import { Journey } from './Journey';
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -39,6 +40,7 @@ const TITLES: Record<MenuTab, string> = {
   shop: 'Cửa Hàng',
   social: 'Xã Hội',
   settings: 'Cài Đặt',
+  journey: 'Tiên Lộ · Hành Trình Tu Tiên',
 };
 
 function rarityColor(id: string) {
@@ -316,7 +318,7 @@ function Cultivate() {
         <div className="breakthrough">
           <div>
             Đột phá lên <b>{realmNameAtLevel(next.minLevel)}</b> cần: đạt cấp {realm.maxLevel} đầy tu vi, {cost.linhKhi} Linh Khí ({player.linhKhi}),{' '}
-            {cost.linhThach} Linh Thạch ({player.inventory.linh_thach ?? 0}).
+            {cost.linhThach} Linh Thạch ({player.inventory.linh_thach ?? 0}) và 1 Phá Cảnh Đan ({player.inventory.pha_canh_dan ?? 0}).
           </div>
           <button className={`btn gold ${capped ? 'pulse' : ''}`} onClick={tryBreakthrough}>
             Đột Phá
@@ -676,6 +678,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
   shop: Shop,
   social: SocialPanel,
   settings: Settings,
+  journey: Journey,
 };
 
 export function Menus() {
@@ -688,7 +691,7 @@ export function Menus() {
       <div className={`menu-window panel-ornate menu-${menu}`}>
         <div className="menu-header">
           <h3>
-            <img src={`/assets/ui/menu-${menu}.png`} alt="" aria-hidden="true" />
+            <img src={`/assets/ui/menu-${menu === 'journey' ? 'cultivate' : menu}.png`} alt="" aria-hidden="true" />
             {TITLES[menu]}
           </h3>
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">

@@ -5,6 +5,7 @@ import { WorldScene } from './scenes/WorldScene';
 import { gameStore } from '../store/gameStore';
 import { socialStore } from '../store/socialStore';
 import { screenToTurnedGame } from '../ui/TouchPlay';
+import { renderDensity } from './systems/display';
 
 let game: Phaser.Game | null = null;
 
@@ -56,14 +57,27 @@ function fitTurnedCanvas(game: Phaser.Game) {
 
   const apply = () => {
     if (!scale.parent) return;
-    if (parent.closest('.app.turned') && parent.clientWidth >= 2 && parent.clientHeight >= 2) {
-      scale.parentSize.setSize(Math.round(parent.clientWidth), Math.round(parent.clientHeight));
-    }
-    scale.refresh();
+    const w = Math.max(1, parent.clientWidth);
+    const h = Math.max(1, parent.clientHeight);
+    const density = renderDensity(w, h, window.devicePixelRatio);
+    const width = Math.round(w * density);
+    const height = Math.round(h * density);
+    if (scale.width === width && scale.height === height && game.registry.get('render-density') === density) return;
+    game.registry.set('render-density', density);
+    scale.setZoom(1 / density);
+    scale.resize(width, height);
   };
+  const observer = new ResizeObserver(apply);
+  observer.observe(parent);
+  window.addEventListener('resize', apply);
   apply();
   game.events.once(Phaser.Core.Events.READY, apply);
-  requestAnimationFrame(apply);
+  const raf = requestAnimationFrame(apply);
+  return () => {
+    observer.disconnect();
+    window.removeEventListener('resize', apply);
+    cancelAnimationFrame(raf);
+  };
 }
 
 export function saveNow() {
@@ -82,7 +96,7 @@ export function PhaserGame() {
       type: Phaser.AUTO,
       parent: host.current,
       backgroundColor: '#18202e',
-      scale: { mode: Phaser.Scale.RESIZE, width: '100%', height: '100%' },
+      scale: { mode: Phaser.Scale.NONE, width: host.current.clientWidth, height: host.current.clientHeight },
       physics: { default: 'arcade', arcade: { debug: false } },
       render: { antialias: true, roundPixels: false },
       input: { activePointers: 3 },
@@ -93,12 +107,13 @@ export function PhaserGame() {
     game.events.on('assets-progress', updateProgress);
     game.events.once('assets-ready', assetsReady);
     if (game.scene.isActive('World')) assetsReady();
-    fitTurnedCanvas(game);
+    const stopFitting = fitTurnedCanvas(game);
     if (import.meta.env.DEV) Object.assign(window, { __game: game, __store: gameStore, __social: socialStore });
     const onUnload = () => saveNow();
     window.addEventListener('beforeunload', onUnload);
     return () => {
       window.removeEventListener('beforeunload', onUnload);
+      stopFitting?.();
       game?.events.off('assets-progress', updateProgress);
       game?.events.off('assets-ready', assetsReady);
       game?.destroy(true);

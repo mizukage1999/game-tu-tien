@@ -26,6 +26,14 @@ import {
 import { loadGame, saveGame, type PlayerSave, type Sex } from '../game/systems/save';
 import type { LifeStatus } from '../game/systems/respawn';
 import type { Vec2 } from '../game/types';
+import { ADMISSION_QUEST, PROLOGUE_ORDER } from '../data/world';
+import { isChildhood } from '../game/systems/origin';
+import { startVillageChapter } from '../game/systems/storyStart';
+import {
+  GARDEN_COOLDOWN_MS, HARVEST_COOLDOWN_MS, HOME_MAX_LEVEL, HOME_QUEST,
+  homeUpgradeCost, immortalProgress, mountUnlocked, RECIPES, recipeCheck,
+  type HerbNode, type MountId,
+} from '../game/systems/immortal';
 
 export type LogChannel = 'system' | 'world' | 'combat';
 export interface LogEntry {
@@ -55,7 +63,7 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey';
 
 export interface DungeonHud {
   id: string;
@@ -92,6 +100,8 @@ export interface GameState {
   toasts: Toast[];
   dialogNpc: string | null;
   nearbyNpc: string | null;
+  nearbyHerb: { id: string; name: string } | null;
+  nearbyPoint: { id: string; name: string } | null;
   zone: { id: string; name: string; rate: number } | null;
   mapId: string;
   spawnPos: Vec2 | null;
@@ -121,6 +131,11 @@ export interface GameState {
   acceptQuest(id: string): void;
   turnInQuest(id: string): void;
   tryBreakthrough(): void;
+  craftPill(id: string): void;
+  harvestHerb(node: HerbNode, now?: number): boolean;
+  upgradeHome(): void;
+  harvestGarden(now?: number): void;
+  selectMount(id: MountId | null): void;
   buy(npcId: string, index: number): void;
   upgradeSkill(id: SkillId): void;
   /** Validates and spends a daily attempt. Called by the world scene before entering. */
@@ -151,9 +166,9 @@ export function newPlayer(opts?: { name?: string; sex?: Sex }): PlayerSave {
   };
 }
 
-function initialQuests(): QuestLog {
+function initialQuests(childhood = false): QuestLog {
   let log: QuestLog = {};
-  for (const id of autoStartQuests(QUESTS)) log = acceptQuestPure(log, QUESTS, id, { level: 1 });
+  for (const id of childhood ? ['village_0'] : autoStartQuests(QUESTS).filter((id) => !id.startsWith('village_'))) log = acceptQuestPure(log, QUESTS, id, { level: 1 });
   return log;
 }
 
@@ -173,8 +188,15 @@ export const questNames = {
   zone: (id: string) => ZONE_NAMES[id] ?? id,
 };
 
-const save = loadGame();
-const startPlayer = save?.player ?? newPlayer();
+const previousSave = loadGame();
+const save = previousSave ? startVillageChapter(previousSave) : null;
+// Persist the one-time chapter entry before autosave or cloud sync starts.
+if (save && save !== previousSave) saveGame(save);
+const startPlayer: PlayerSave = save?.player ?? {
+  ...newPlayer({ name: 'Vương Lâm', sex: 'male' }),
+  origin: 'vuong_gia_thon', admitted: false, inventory: {},
+  world: { interactions: {}, discovered: ['vuong_gia_thon'] },
+};
 
 export const gameStore = createStore<GameState>()((set, get) => {
   const grantRewards = (rewards: QuestRewards) => {
@@ -193,6 +215,16 @@ export const gameStore = createStore<GameState>()((set, get) => {
         get().toast(`Hoàn thành: ${def.name}`, 'quest');
         get().addLog(`Hoàn thành nhiệm vụ [${def.name}]`);
         grantRewards(def.rewards);
+        if (id === ADMISSION_QUEST && isChildhood(get().player)) {
+          set({ player: { ...get().player, admitted: true } });
+          get().acceptQuest('main_0');
+          get().acceptQuest('side_2');
+          get().toast('Đã nhận lệnh bài nhập môn. Tiên lộ bắt đầu!', 'realm');
+        }
+        if (id.startsWith('village_') && isChildhood(get().player)) {
+          const next = PROLOGUE_ORDER.find((nextId) => QUESTS[nextId].requires === id);
+          if (next) get().acceptQuest(next);
+        }
       } else if (q.status === 'ready' && def.turnIn) {
         get().toast(`${def.name}: hãy về gặp ${npcName(def.turnIn)}`, 'quest');
         get().addLog(`Nhiệm vụ [${def.name}] đã đủ điều kiện, về gặp ${npcName(def.turnIn)}.`);
@@ -209,13 +241,15 @@ export const gameStore = createStore<GameState>()((set, get) => {
     cooldowns: {},
     auto: false,
     target: null,
-    quests: save?.quests ?? initialQuests(),
+    quests: save?.quests ?? initialQuests(true),
     logs: [],
     toasts: [],
     dialogNpc: null,
     nearbyNpc: null,
+    nearbyHerb: null,
+    nearbyPoint: null,
     zone: null,
-    mapId: save?.mapId ?? 'dai_thua_vien',
+    mapId: save?.mapId ?? 'vuong_gia_thon',
     spawnPos: save?.pos ?? null,
     playerTile: { x: 0, y: 0 },
     minimap: { player: { x: 0, y: 0 }, monsters: [], npcs: [], loot: [] },
@@ -324,6 +358,10 @@ export const gameStore = createStore<GameState>()((set, get) => {
       if (def.kind !== 'consumable') return;
       if (s.status !== 'alive') return;
       s.removeItems({ [id]: 1 });
+      if (def.cultivation) {
+        s.gainExp(def.cultivation.exp);
+        s.addItem('linh_khi', def.cultivation.linhKhi);
+      }
       const heal = def.heal ?? 0;
       s.restore(Math.round(s.stats.maxHp * heal), Math.round(s.stats.maxMp * heal));
       s.addLog(`Sử dụng ${def.name}`);
@@ -366,7 +404,11 @@ export const gameStore = createStore<GameState>()((set, get) => {
     acceptQuest(id) {
       const def = QUESTS[id];
       if (!def) return;
-      const log = acceptQuestPure(get().quests, QUESTS, id, { level: get().player.level });
+      if (isChildhood(get().player) && !id.startsWith('village_')) return;
+      if (!get().player.origin && id.startsWith('village_')) return;
+      const before = get().quests;
+      const log = acceptQuestPure(before, QUESTS, id, { level: get().player.level, immortal: immortalProgress(get().player), mapId: get().mapId, interactions: get().player.world?.interactions });
+      if (log === before) return;
       set({ quests: log });
       get().toast(`Nhận nhiệm vụ: ${def.name}`, 'quest');
       get().addLog(`Nhận nhiệm vụ [${def.name}]`);
@@ -384,12 +426,17 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
     tryBreakthrough() {
       const s = get();
+      if (s.status !== 'alive') return;
       const check = checkBreakthrough(s.player, s.player.linhKhi, s.player.inventory.linh_thach ?? 0);
       if (!check.ok) {
         s.toast(check.reason, 'warn');
         return;
       }
-      s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach });
+      if ((s.player.inventory.pha_canh_dan ?? 0) < 1) {
+        s.toast('Cần 1 Phá Cảnh Đan. Mở Tiên Lộ → Đan Phòng để luyện.', 'warn');
+        return;
+      }
+      s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach, pha_canh_dan: 1 });
       const p = { ...get().player };
       applyBreakthrough(p);
       const stats = computeStats(p.level, p.realmIndex, p.equipment);
@@ -399,6 +446,76 @@ export const gameStore = createStore<GameState>()((set, get) => {
       s.addLog(`Đột phá cảnh giới ${realm}, đạt cấp ${p.level}!`);
       s.addLog(`Đạo hữu ${p.name} vừa đột phá ${realm}!`, 'world');
       s.questEvent({ type: 'level', level: p.level });
+    },
+
+    craftPill(id) {
+      const s = get();
+      if (isChildhood(s.player)) return s.toast('Đan đạo sẽ mở sau khi nhập môn.', 'info');
+      if (s.status !== 'alive') return;
+      const reason = recipeCheck(s.player, id);
+      if (reason) return s.toast(reason, 'warn');
+      const recipe = RECIPES.find((r) => r.id === id)!;
+      if (!s.removeItems(recipe.cost)) return;
+      const p = get().player;
+      const progress = immortalProgress(p);
+      set({ player: { ...p, immortal: { ...progress, crafted: { ...progress.crafted, [id]: (progress.crafted[id] ?? 0) + 1 } } } });
+      get().addItem(id, 1);
+      get().questEvent({ type: 'craft', item: id });
+      get().toast(`Luyện thành ${recipe.name}!`, 'quest');
+    },
+
+    harvestHerb(node, now = Date.now()) {
+      const s = get();
+      const progress = immortalProgress(s.player);
+      if (s.status !== 'alive' || (progress.harvestReadyAt[node.id] ?? 0) > now) return false;
+      const qty = node.item === 'thanh_linh_thao' ? 2 : 1;
+      set({ player: { ...s.player, immortal: {
+        ...progress,
+        gathered: { ...progress.gathered, [node.item]: (progress.gathered[node.item] ?? 0) + qty },
+        harvestReadyAt: { ...progress.harvestReadyAt, [node.id]: now + HARVEST_COOLDOWN_MS },
+      } } });
+      get().addItem(node.item, qty, { fromPickup: true });
+      get().questEvent({ type: 'gather', item: node.item, qty });
+      get().toast(`Hái ${itemName(node.item)} ×${qty}`, 'info');
+      return true;
+    },
+
+    upgradeHome() {
+      const s = get();
+      if (s.status !== 'alive' || s.quests[HOME_QUEST]?.status !== 'done') return;
+      const progress = immortalProgress(s.player);
+      if (progress.homeLevel >= HOME_MAX_LEVEL) return;
+      if (!s.removeItems(homeUpgradeCost(progress.homeLevel))) return s.toast('Chưa đủ tài nguyên nâng động phủ.', 'warn');
+      set({ player: { ...get().player, immortal: { ...progress, homeLevel: progress.homeLevel + 1 } } });
+      s.toast(`Động phủ đạt cấp ${progress.homeLevel + 1}!`, 'levelup');
+    },
+
+    harvestGarden(now = Date.now()) {
+      const s = get();
+      if (s.status !== 'alive' || s.mapId !== 'dong_phu' || s.quests[HOME_QUEST]?.status !== 'done') return;
+      const progress = immortalProgress(s.player);
+      if (progress.gardenReadyAt > now) return s.toast('Dược điền đang sinh trưởng.', 'info');
+      const qty = 2 + progress.homeLevel;
+      set({ player: { ...s.player, immortal: { ...progress, gardenReadyAt: now + GARDEN_COOLDOWN_MS,
+        gathered: { ...progress.gathered, thanh_linh_thao: (progress.gathered.thanh_linh_thao ?? 0) + qty, linh_chi: (progress.gathered.linh_chi ?? 0) + 1, ngung_lo: (progress.gathered.ngung_lo ?? 0) + 2 },
+      } } });
+      get().addItem('thanh_linh_thao', qty, { fromPickup: true });
+      get().addItem('linh_chi', 1, { fromPickup: true });
+      get().addItem('ngung_lo', 2, { fromPickup: true });
+      get().questEvent({ type: 'gather', item: 'thanh_linh_thao', qty });
+      get().questEvent({ type: 'gather', item: 'linh_chi', qty: 1 });
+      get().questEvent({ type: 'gather', item: 'ngung_lo', qty: 2 });
+      s.toast('Đã thu hoạch dược điền!', 'quest');
+    },
+
+    selectMount(id) {
+      const s = get();
+      if (isChildhood(s.player)) return;
+      if (s.status !== 'alive') return;
+      if (id && !mountUnlocked(id, s.quests)) return s.toast('Hãy hoàn thành tiên duyên để mở khóa.', 'warn');
+      set({ player: { ...s.player, immortal: { ...immortalProgress(s.player), mount: id } } });
+      if (id) get().questEvent({ type: 'mount', mount: id });
+      s.toast(id === 'sword' ? 'Ngự kiếm Thanh Vân' : id === 'crane' ? 'Bạch Vân Hạc đã nhận lệnh' : 'Đã xuống thú cưỡi');
     },
 
     buy(npcId, index) {
@@ -489,6 +606,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       set({ dialogNpc });
     },
     setAuto(auto) {
+      if (auto && isChildhood(get().player)) return;
       set({ auto });
       get().addLog(auto ? 'Bật tự động chiến đấu' : 'Tắt tự động chiến đấu');
     },
@@ -500,14 +618,14 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
 /** Writes the first save and replaces the placeholder hero. Call this before the world boots. */
 export function createCharacter(name: string, sex: Sex) {
-  const player = newPlayer({ name, sex });
-  const quests = initialQuests();
-  saveGame({ player, quests, mapId: 'dai_thua_vien', pos: null });
+  const player: PlayerSave = { ...newPlayer({ name, sex }), origin: 'vuong_gia_thon', admitted: false, inventory: {}, world: { interactions: {}, discovered: ['vuong_gia_thon'] } };
+  const quests = initialQuests(true);
+  saveGame({ player, quests, mapId: 'vuong_gia_thon', pos: null });
   gameStore.setState({
     player,
     stats: computeStats(player.level, player.realmIndex, player.equipment),
     quests,
-    mapId: 'dai_thua_vien',
+    mapId: 'vuong_gia_thon',
     spawnPos: null,
     logs: [],
     toasts: [],

@@ -34,6 +34,12 @@ body,
   bottom: 0;
   left: 0;
 }
+.game-host canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: auto;
+}
 .hud {
   position: fixed;
   top: 0;
@@ -907,6 +913,7 @@ kbd {
   color: #7dff9a;
 }
 .menu-backdrop {
+  z-index: 20;
   position: absolute;
   top: 0;
   right: 0;

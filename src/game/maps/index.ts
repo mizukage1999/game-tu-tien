@@ -1,108 +1,10 @@
 import { FIELD_BANDS, type FieldBand } from '../systems/scale';
 import { MapBuilder, type MapDef } from './MapBuilder';
+import { daiThuaVien } from './courtyard';
+import { vuongGiaThon, ngoaiMon, linhSonTong, dinhTa, rungLinhThu, biCanhThachLinh, thacNgoc } from './worldMaps';
 
 type Spawn = { type: string; x: number; y: number };
 const spawns = (type: string, pts: [number, number][]): Spawn[] => pts.map(([x, y]) => ({ type, x, y }));
-
-function daiThuaVien(): MapDef {
-  const b = new MapBuilder(48, 36, 'grass', 7);
-  b.scatter('flower', 'grass', 0.12);
-  b.border('wall', [
-    [47, 16],
-    [47, 17],
-    [47, 18],
-  ]);
-  b.fill(8, 11, 32, 16, 'stone');
-  b.fill(22, 1, 4, 34, 'path');
-  b.fill(1, 16, 47, 3, 'path');
-  b.fill(15, 2, 18, 8, 'stone');
-  b.fill(18, 3, 12, 6, 'platform');
-  b.ellipse(7, 29, 5, 3.5, 'water');
-  b.ellipse(41, 6, 4.5, 3, 'water');
-
-  const monsters = spawns('linh_thu', [
-    [12, 21],
-    [15, 24],
-    [32, 22],
-    [35, 24],
-    [11, 13],
-    [36, 13],
-    [14, 31],
-    [33, 31],
-    [30, 29],
-  ]);
-  const npcs = [
-    { id: 'truong_lao', x: 24, y: 10 },
-    { id: 'thuong_nhan', x: 11, y: 19 },
-    { id: 'su_huynh', x: 36, y: 19 },
-    { id: 'thanh_nhi', x: 17, y: 19 },
-    { id: 'ho_ve', x: 18, y: 12 },
-    { id: 'ho_ve', x: 30, y: 12 },
-  ];
-  b.reserve([...monsters, ...npcs]);
-
-  b.place('circle', 24, 6, { block: [] });
-  for (const y of [12, 21, 25, 30]) {
-    b.place('lantern', 21, y, { glow: 'warm' });
-    b.place('lantern', 26, y, { glow: 'warm' });
-  }
-  for (const x of [9, 13, 17, 30, 34, 38]) {
-    b.place('pillar', x, 11);
-    b.place('pillar', x, 26);
-  }
-  b.place('lantern', 16, 3, { glow: 'warm' });
-  b.place('lantern', 31, 3, { glow: 'warm' });
-  b.place('burner', 18, 21);
-  b.place('burner', 29, 21);
-
-  // Two planted beds framing the south gate, right where the player starts.
-  for (const [px, tree] of [
-    [17, 'tree_cherry'],
-    [29, 'tree_cherry_b'],
-  ] as [number, string][]) {
-    b.fill(px, 23, 3, 2, 'grass');
-    b.place(tree, px + 1, 23);
-    b.place('bush', px + 2, 24);
-    b.place('rock', px, 24, { block: [] });
-  }
-  b.place('rock', 12, 29);
-  b.place('rock', 36, 5);
-  b.place('rock', 3, 25);
-
-  // Planted corners: the courtyard needs green and pink against all that sandstone.
-  // Kept clear of the pillar rows at y=11 and y=26.
-  for (const [px, py, tree] of [
-    [8, 12, 'tree_cherry'],
-    [37, 12, 'tree_cherry_b'],
-    [8, 23, 'tree_cherry_b'],
-    [37, 23, 'tree_cherry'],
-  ] as [number, number, string][]) {
-    b.fill(px, py, 3, 2, 'grass');
-    b.place('rock', px, py + 1, { block: [] });
-    b.place('bush', px + 2, py + 1);
-    b.place(tree, px + 1, py);
-  }
-
-  const clear: [number, number, number, number][] = [
-    [7, 10, 34, 18],
-    [21, 0, 6, 36],
-    [0, 15, 48, 5],
-    [14, 1, 20, 10],
-  ];
-  b.sprinkle(['tree_cherry', 'tree_cherry_b'], 26, ['grass', 'flower'], clear);
-  b.sprinkle(['bush'], 12, ['grass', 'flower'], clear, false);
-
-  return b.build({
-    id: 'dai_thua_vien',
-    name: 'Đại Thừa Viện',
-    monsters,
-    npcs,
-    zones: [{ id: 'linh_dai', name: 'Linh Đài', rect: [18, 3, 12, 6], rate: 1 }],
-    portals: [{ rect: [47, 16, 1, 3], to: 'linh_thu_lam', spawn: [3, 15], label: 'Khu săn', levelBand: true }],
-    playerSpawn: [24, 20],
-    ambient: 'petals',
-  });
-}
 
 function linhThuLam(): MapDef {
   const b = new MapBuilder(50, 36, 'darkgrass', 13);
@@ -308,7 +210,34 @@ function fieldMap(band: FieldBand): MapDef {
 }
 
 const cache = new Map<string, MapDef>();
+function dongPhu(): MapDef {
+  const b = new MapBuilder(22, 20, 'grass', 71);
+  b.border('wall', [[10, 19], [11, 19]]);
+  b.fill(6, 4, 10, 6, 'platform');
+  b.fill(9, 10, 3, 9, 'path');
+  b.fill(6, 11, 8, 3, 'flower');
+  b.place('circle', 10, 7, { block: [] });
+  b.place('burner', 15, 11);
+  for (const [x, y] of [[4, 5], [17, 5], [4, 14], [17, 14]]) b.place('tree_cherry', x, y);
+  b.place('lantern', 7, 9, { glow: 'warm' });
+  b.place('lantern', 14, 9, { glow: 'warm' });
+  return b.build({
+    id: 'dong_phu', name: 'Động Phủ Thanh Vân', private: true,
+    monsters: [], npcs: [], playerSpawn: [10, 9], ambient: 'petals',
+    zones: [{ id: 'phu_linh_mach', name: 'Linh Mạch Động Phủ', rect: [6, 4, 10, 6], rate: 2 }],
+    portals: [{ rect: [10, 19, 2, 1], to: 'dai_thua_vien', spawn: [24, 20], label: 'Về Đại Thừa Viện' }],
+  });
+}
+
 const builders: Record<string, () => MapDef> = {
+  vuong_gia_thon: vuongGiaThon,
+  ngoai_mon: ngoaiMon,
+  linh_son_tong: linhSonTong,
+  dinh_ta: dinhTa,
+  rung_linh_thu: rungLinhThu,
+  bi_canh_thach_linh: biCanhThachLinh,
+  thac_ngoc: thacNgoc,
+  dong_phu: dongPhu,
   dai_thua_vien: daiThuaVien,
   linh_thu_lam: linhThuLam,
   pb_bang_tuyet: pbBangTuyet,

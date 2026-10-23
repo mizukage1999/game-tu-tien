@@ -50,6 +50,31 @@ function diamond(ctx: Ctx, cx: number, cy: number, w: number, h: number) {
   ctx.closePath();
 }
 
+/** A restrained inlaid compass gives the large courtyard a visible center. */
+function courtyardInlay(ctx: Ctx) {
+  const at = iso(24 * TILE, 18 * TILE);
+  ctx.save();
+  ctx.translate(at.x, at.y);
+  ctx.scale(1, .5);
+  const radius = 204;
+  ctx.fillStyle = 'rgba(33, 66, 71, .3)';
+  ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(218, 194, 134, .6)';
+  ctx.lineWidth = 3;
+  for (const r of [radius, radius - 12, 80, 68]) {
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 8; i++) {
+    ctx.save(); ctx.rotate(i * Math.PI / 4);
+    ctx.beginPath(); ctx.moveTo(90, 0); ctx.lineTo(174, -15); ctx.lineTo(190, 0);
+    ctx.lineTo(174, 15); ctx.closePath(); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.moveTo(0, -54); ctx.lineTo(37, 0); ctx.lineTo(0, 54); ctx.lineTo(-37, 0); ctx.closePath(); ctx.stroke();
+  ctx.restore();
+}
+
 /**
  * Renders the whole terrain into one isometric canvas: flat ground first, then
  * a second pass that lifts wall cells onto short cliff faces. Baked once per
@@ -82,6 +107,8 @@ export function buildIsoGround(map: MapDef) {
       }
     }
   }
+
+  if (map.id === 'dai_thua_vien') courtyardInlay(ctx);
 
   // ---- raised walls ------------------------------------------------------
   const walls: [number, number][] = [];

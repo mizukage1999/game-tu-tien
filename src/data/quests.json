@@ -4,18 +4,40 @@
     "name": "Bái Kiến Trưởng Lão",
     "desc": "Đến gặp Vân Hạc Trưởng Lão ở chính điện Đại Thừa Viện.",
     "autoStart": true,
-    "objectives": [{ "type": "talk", "npc": "truong_lao", "count": 1 }],
-    "rewards": { "exp": 50 }
+    "objectives": [
+      {
+        "type": "talk",
+        "npc": "truong_lao",
+        "count": 1
+      }
+    ],
+    "rewards": {
+      "exp": 50
+    },
+    "story": "Một mảnh ngọc cổ dẫn con đến Đại Thừa Viện. Vân Hạc nhận ra trên đó là ấn ký của Thanh Vân chân nhân, người đã mất tích trong Linh Thú Lâm."
   },
   "main_1": {
     "kind": "main",
-    "name": "Tu Luyện Không Ngừng",
-    "desc": "Linh Thú quanh sân viện đang quấy nhiễu đệ tử. Hãy đánh bại chúng.",
+    "name": "Dấu Vết Linh Ngọc",
+    "desc": "Linh thú bị tà khí trong mảnh ngọc kích động. Đánh bại 10 Linh Thú rồi về báo Trưởng Lão.",
     "giver": "truong_lao",
     "requires": "main_0",
     "turnIn": "truong_lao",
-    "objectives": [{ "type": "kill", "target": "linh_thu", "count": 10 }],
-    "rewards": { "exp": 300, "items": { "linh_thach": 3, "hoi_xuan_dan": 3 } }
+    "objectives": [
+      {
+        "type": "kill",
+        "target": "linh_thu",
+        "count": 10
+      }
+    ],
+    "rewards": {
+      "exp": 300,
+      "items": {
+        "linh_thach": 3,
+        "hoi_xuan_dan": 3
+      }
+    },
+    "story": "Ngọc cổ đang thức tỉnh. Trước khi tìm nguồn gốc của nó, con cần học cách tự bảo vệ mình."
   },
   "main_2": {
     "kind": "main",
@@ -24,30 +46,65 @@
     "giver": "truong_lao",
     "requires": "main_1",
     "turnIn": "truong_lao",
-    "objectives": [{ "type": "meditate", "zone": "linh_dai", "count": 10 }],
-    "rewards": { "exp": 250, "linhKhi": 120 }
+    "objectives": [
+      {
+        "type": "meditate",
+        "zone": "linh_dai",
+        "count": 10
+      }
+    ],
+    "rewards": {
+      "exp": 250,
+      "linhKhi": 120
+    },
+    "story": "Sức mạnh không chỉ đến từ kiếm. Tĩnh tâm tại Linh Đài, lắng nghe luồng linh khí đang đáp lại mảnh ngọc."
   },
   "main_3": {
     "kind": "main",
     "name": "Thám Hiểm Linh Thú Lâm",
     "desc": "Đi qua cổng phía đông vào Linh Thú Lâm và trấn áp Hỏa Hồ.",
     "giver": "truong_lao",
-    "requires": "main_2",
+    "requires": "main_phu",
     "turnIn": "truong_lao",
     "objectives": [
-      { "type": "enterZone", "zone": "linh_thu_lam", "count": 1 },
-      { "type": "kill", "target": "hoa_ho", "count": 5 }
+      {
+        "type": "enterZone",
+        "zone": "linh_thu_lam",
+        "count": 1
+      },
+      {
+        "type": "kill",
+        "target": "hoa_ho",
+        "count": 5
+      }
     ],
-    "rewards": { "exp": 1200, "items": { "linh_thach": 10 } }
+    "rewards": {
+      "exp": 1200,
+      "items": {
+        "linh_thach": 10
+      }
+    },
+    "story": "Trong động phủ, con tìm được lời nhắn: Hỏa Hồ đang giữ mảnh ngọc thứ hai. Hãy theo cổng phía đông để tìm lại di vật."
   },
   "main_4": {
     "kind": "main",
-    "name": "Đột Phá Cảnh Giới",
-    "desc": "Tích lũy linh khí, mở bảng Tu Luyện để đột phá lên Luyện Khí Trung Kỳ.",
+    "name": "Trúc Cơ Khai Đạo",
+    "desc": "Đạt cấp 10 đầy tu vi, luyện 1 Phá Cảnh Đan và đột phá Trúc Cơ tại bảng Tu Luyện.",
     "giver": "truong_lao",
     "requires": "main_3",
-    "objectives": [{ "type": "reachLevel", "count": 10 }],
-    "rewards": { "exp": 500, "items": { "linh_thach": 5 } }
+    "objectives": [
+      {
+        "type": "reachLevel",
+        "count": 11
+      }
+    ],
+    "rewards": {
+      "exp": 500,
+      "items": {
+        "linh_thach": 5
+      }
+    },
+    "story": "Hai mảnh ngọc hợp lại thành kiếm quyết Thanh Vân. Chỉ khi dựng được đạo cơ, con mới có thể cưỡi kiếm mà đi."
   },
   "side_1": {
     "kind": "side",
@@ -55,16 +112,37 @@
     "desc": "Thương nhân cần Linh Thạch. Linh Thú thường làm rơi chúng.",
     "giver": "thuong_nhan",
     "turnIn": "thuong_nhan",
-    "objectives": [{ "type": "collect", "item": "linh_thach", "count": 3 }],
-    "rewards": { "linhKhi": 80, "items": { "hoi_xuan_dan": 2 } }
+    "objectives": [
+      {
+        "type": "collect",
+        "item": "linh_thach",
+        "count": 3
+      }
+    ],
+    "rewards": {
+      "linhKhi": 80,
+      "items": {
+        "hoi_xuan_dan": 2
+      }
+    }
   },
   "side_2": {
     "kind": "side",
     "name": "Tăng Cảnh Giới",
     "desc": "Không ngừng tu luyện để nâng cao tu vi.",
     "autoStart": true,
-    "objectives": [{ "type": "reachLevel", "count": 5 }],
-    "rewards": { "exp": 100, "items": { "linh_thach": 2 } }
+    "objectives": [
+      {
+        "type": "reachLevel",
+        "count": 5
+      }
+    ],
+    "rewards": {
+      "exp": 100,
+      "items": {
+        "linh_thach": 2
+      }
+    }
   },
   "side_3": {
     "kind": "side",
@@ -72,8 +150,17 @@
     "desc": "Ẩn sĩ chỉ điểm: tọa thiền bên Linh Tuyền trong rừng sẽ tẩy luyện kinh mạch.",
     "giver": "an_si",
     "turnIn": "an_si",
-    "objectives": [{ "type": "meditate", "zone": "linh_tuyen", "count": 15 }],
-    "rewards": { "exp": 500, "linhKhi": 200 }
+    "objectives": [
+      {
+        "type": "meditate",
+        "zone": "linh_tuyen",
+        "count": 15
+      }
+    ],
+    "rewards": {
+      "exp": 500,
+      "linhKhi": 200
+    }
   },
   "side_4": {
     "kind": "side",
@@ -81,8 +168,18 @@
     "desc": "Sư huynh khuyên: mở bảng Kỹ Năng và nâng cấp kỹ năng 3 lần.",
     "giver": "su_huynh",
     "turnIn": "su_huynh",
-    "objectives": [{ "type": "upgradeSkill", "count": 3 }],
-    "rewards": { "exp": 200, "items": { "linh_thach": 3 } }
+    "objectives": [
+      {
+        "type": "upgradeSkill",
+        "count": 3
+      }
+    ],
+    "rewards": {
+      "exp": 200,
+      "items": {
+        "linh_thach": 3
+      }
+    }
   },
   "side_5": {
     "kind": "side",
@@ -90,7 +187,152 @@
     "desc": "Lục Trần sư huynh muốn con thử sức trong phó bản Băng Tuyết Động (cần Lv 5).",
     "giver": "su_huynh",
     "turnIn": "su_huynh",
-    "objectives": [{ "type": "clearDungeon", "dungeon": "bang_tuyet_dong", "count": 1 }],
-    "rewards": { "exp": 800, "items": { "kiem_pho": 2 } }
+    "objectives": [
+      {
+        "type": "clearDungeon",
+        "dungeon": "bang_tuyet_dong",
+        "count": 1
+      }
+    ],
+    "rewards": {
+      "exp": 800,
+      "items": {
+        "kiem_pho": 2
+      }
+    }
+  },
+  "main_duoc": {
+    "kind": "main",
+    "name": "Dược Hương Đầu Đời",
+    "giver": "truong_lao",
+    "requires": "main_2",
+    "turnIn": "truong_lao",
+    "desc": "Hái 3 Thanh Linh Thảo và 1 Ngưng Lộ quanh sân viện. Chạm vào dược liệu hoặc nhấn E khi đứng gần.",
+    "story": "Ngọc cổ để lộ một đan phương. Vân Hạc khuyên con bắt đầu từ những nhành linh thảo quanh viện, trước khi bước vào rừng sâu.",
+    "objectives": [
+      {
+        "type": "gather",
+        "item": "thanh_linh_thao",
+        "count": 3
+      },
+      {
+        "type": "gather",
+        "item": "ngung_lo",
+        "count": 1
+      }
+    ],
+    "rewards": {
+      "exp": 100,
+      "linhKhi": 30,
+      "items": {
+        "linh_chi": 2,
+        "thanh_linh_thao": 2,
+        "ngung_lo": 1
+      }
+    }
+  },
+  "main_dan": {
+    "kind": "main",
+    "name": "Lò Đan Khai Hỏa",
+    "giver": "truong_lao",
+    "requires": "main_duoc",
+    "turnIn": "truong_lao",
+    "desc": "Mở Tiên Lộ → Đan Phòng, luyện 1 Hồi Xuân Đan và 1 Tụ Linh Đan. Thiếu nguyên liệu có thể hái thêm quanh viện.",
+    "story": "Giữ lửa vừa đủ, để linh thảo hòa vào Ngưng Lộ. Viên đan đầu tiên sẽ là hành trang trên con đường tìm lại Thanh Vân.",
+    "objectives": [
+      {
+        "type": "craft",
+        "item": "hoi_xuan_dan",
+        "count": 1
+      },
+      {
+        "type": "craft",
+        "item": "tu_linh_dan",
+        "count": 1
+      }
+    ],
+    "rewards": {
+      "exp": 180,
+      "linhKhi": 80,
+      "items": {
+        "linh_thach": 5
+      }
+    }
+  },
+  "main_phu": {
+    "kind": "main",
+    "name": "Một Chốn An Thân",
+    "giver": "truong_lao",
+    "requires": "main_dan",
+    "desc": "Mở Tiên Lộ → Động Phủ để về nơi ở riêng, rồi tọa thiền tại Linh Mạch 5 giây.",
+    "story": "Vân Hạc trao con chìa khóa động phủ từng thuộc về Thanh Vân. Giữa vườn dược và linh mạch, con có một nơi để trở về.",
+    "objectives": [
+      {
+        "type": "enterZone",
+        "zone": "dong_phu",
+        "count": 1
+      },
+      {
+        "type": "meditate",
+        "zone": "phu_linh_mach",
+        "count": 5
+      }
+    ],
+    "rewards": {
+      "exp": 250,
+      "items": {
+        "yeu_dan": 2,
+        "linh_chi": 3,
+        "ngung_lo": 2
+      }
+    }
+  },
+  "main_kiem": {
+    "kind": "main",
+    "name": "Kiếm Khởi Thanh Vân",
+    "giver": "truong_lao",
+    "requires": "main_4",
+    "desc": "Mở Tiên Lộ → Ngự Hành, chọn Thanh Vân Kiếm để ngự kiếm.",
+    "story": "Kiếm quyết đã nhận chủ. Đạp lên phi kiếm, để gió núi đưa con đến trang tiếp theo của tiên lộ.",
+    "objectives": [
+      {
+        "type": "mount",
+        "mount": "sword",
+        "count": 1
+      }
+    ],
+    "rewards": {
+      "exp": 300,
+      "items": {
+        "linh_thach": 8
+      }
+    }
+  },
+  "main_hac": {
+    "kind": "main",
+    "name": "Duyên Ngộ Bạch Hạc",
+    "giver": "truong_lao",
+    "requires": "main_kiem",
+    "turnIn": "truong_lao",
+    "desc": "Hái 3 Linh Chi và luyện tổng cộng 3 Tụ Linh Đan để chữa thương cho linh hạc. Hoàn thành mở cưỡi Bạch Vân Hạc.",
+    "story": "Một con hạc trắng mang vết thương hạ xuống sân viện. Trên chân nó là tín vật của Thanh Vân. Cứu linh hạc để có người bạn dẫn đường tìm vị chân nhân mất tích.",
+    "objectives": [
+      {
+        "type": "gather",
+        "item": "linh_chi",
+        "count": 3
+      },
+      {
+        "type": "craft",
+        "item": "tu_linh_dan",
+        "count": 3
+      }
+    ],
+    "rewards": {
+      "exp": 500,
+      "items": {
+        "linh_thach": 10
+      }
+    }
   }
 }

@@ -5,6 +5,8 @@ import type { MapDef, PortalDef } from '../maps/MapBuilder';
 import { canEnterField, fieldForLevel } from './scale';
 import { findPath, type Tile } from './path';
 import type { QuestLog, QuestProgress } from './quest';
+import { herbNodes } from './immortal';
+import { mapGateReason, portalGateReason, type TravelContext } from './worldAccess';
 
 export interface QuestStop {
   mapId: string;
@@ -14,11 +16,13 @@ export interface QuestStop {
   meditate?: boolean;
   monsterType?: string;
   inside?: [number, number, number, number];
+  interactTo?: string;
+  gatherItem?: string;
 }
 
 export type QuestNav =
   | { kind: 'go'; stop: QuestStop }
-  | { kind: 'menu'; menu: 'skills'; label: string }
+  | { kind: 'menu'; menu: 'skills' | 'journey'; label: string }
   | { kind: 'toast'; text: string };
 
 export type MapRoute =
@@ -28,6 +32,9 @@ export type MapRoute =
   | { kind: 'fail'; text: string };
 
 let pendingQuest: string | null = null;
+let pendingTravel: string | null = null;
+export function trackTravel(id: string | null) { pendingTravel = id; }
+export function trackedTravel() { return pendingTravel; }
 
 export function trackQuest(id: string | null) {
   pendingQuest = id;
@@ -158,6 +165,24 @@ export function questDestination(id: string, log: QuestLog, level: number, here:
       return { kind: 'menu', menu: 'skills', label: 'Kỹ Năng' };
     case 'clearDungeon':
       return goNpc('su_huynh', level, DUNGEONS[aim.dungeon]?.name ?? 'Phó bản');
+    case 'gather': {
+      const candidates = id.startsWith('village_') ? ['vuong_gia_thon'] : [here, 'dai_thua_vien', ...MAP_IDS];
+      for (const mapId of candidates) {
+        if (!canVisit(mapId, level)) continue;
+        const node = herbNodes(mapId).find((n) => n.item === aim.item);
+        if (node) return { kind: 'go', stop: { mapId, tile: { x: node.x, y: node.y }, label: 'Dược liệu · nhấn E hoặc chạm để hái', gatherItem: aim.item } };
+      }
+      return { kind: 'toast', text: 'Tìm dược liệu quanh sân viện hoặc trong động phủ.' };
+    }
+    case 'craft':
+    case 'mount':
+      return { kind: 'menu', menu: 'journey', label: aim.type === 'craft' ? 'Tiên Lộ → Đan Phòng' : 'Tiên Lộ → Ngự Hành' };
+    case 'interact':
+      for (const mapId of MAP_IDS) {
+        const point = getMap(mapId).points?.find((p) => p.id === aim.point);
+        if (point) return { kind: 'go', stop: { mapId, tile: { x: point.x, y: point.y }, label: point.name, interactTo: point.id } };
+      }
+      return { kind: 'toast', text: 'Không tìm thấy địa điểm tương tác.' };
   }
 }
 
@@ -172,12 +197,22 @@ function portalTile(p: PortalDef): Tile {
   return { x: x + Math.floor((w - 1) / 2), y: y + Math.floor((h - 1) / 2) };
 }
 
-function portalToward(map: MapDef, destMap: string, level: number): PortalDef | null {
-  for (const p of map.portals) {
-    if (p.levelBand && fieldForLevel(level).id === destMap) return p;
-    if (!p.levelBand && p.to === destMap) return p;
+export function portalToward(map: MapDef, destMap: string, level: number, context: TravelContext = {}): PortalDef | null {
+  const queue: { id: string; first: PortalDef | null }[] = [{ id: map.id, first: null }];
+  const visited = new Set([map.id]);
+  while (queue.length) {
+    const current = queue.shift()!;
+    for (const p of getMap(current.id).portals) {
+      const next = p.levelBand ? fieldForLevel(level).id : p.to;
+      if (!MAP_IDS.includes(next) || visited.has(next) || portalGateReason(p, context)) continue;
+      const target = getMap(next);
+      if (target.arena || target.private || mapGateReason(target, context) || !canVisit(next, level)) continue;
+      const first = current.first ?? p;
+      if (next === destMap) return first;
+      visited.add(next); queue.push({ id: next, first });
+    }
   }
-  return map.portals.find((p) => p.to === 'dai_thua_vien') ?? map.portals[0] ?? null;
+  return null;
 }
 
 function inside(tile: Tile, rect: [number, number, number, number]) {
@@ -186,7 +221,7 @@ function inside(tile: Tile, rect: [number, number, number, number]) {
 }
 
 /** Next tiles on the current map: the goal itself, or the portal that leads toward it. */
-export function routeOnMap(map: MapDef, from: Tile, stop: QuestStop, level: number): MapRoute {
+export function routeOnMap(map: MapDef, from: Tile, stop: QuestStop, level: number, context: TravelContext = {}): MapRoute {
   const grid = walkGrid(map);
   if (stop.mapId === map.id) {
     if (stop.inside && inside(from, stop.inside)) return { kind: 'there' };
@@ -195,7 +230,9 @@ export function routeOnMap(map: MapDef, from: Tile, stop: QuestStop, level: numb
     if (path.tiles.length === 0) return { kind: 'there' };
     return { kind: 'path', tiles: path.tiles };
   }
-  const portal = portalToward(map, stop.mapId, level);
+  const gate = mapGateReason(getMap(stop.mapId), context);
+  if (gate) return { kind: 'fail', text: gate };
+  const portal = portalToward(map, stop.mapId, level, context);
   if (!portal) return { kind: 'fail', text: 'Không có đường tới đó.' };
   const tile = portalTile(portal);
   const path = findPath(grid, from.x, from.y, tile.x, tile.y, 0);

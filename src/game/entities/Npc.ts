@@ -32,7 +32,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
     const spot = iso(x, y);
     this.setPosition(spot.x, spot.y);
     if (useAtlasArt) {
-      this.setOrigin(0.5, 1).setScale(1.1);
+      this.setOrigin(0.5, 1).setScale(art?.startsWith('npc-village-') ? 152 / this.height : 1.1);
     } else {
       const ctrl = new AnimationController(this, def.art);
       ctrl.play('idle', 'down');
@@ -54,6 +54,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
         strokeThickness: 3,
       })
       .setOrigin(0.5, 1)
+      .setResolution(2)
       .setDepth(90000);
     this.marker = world.add
       .text(spot.x, markerY, '', {
@@ -65,6 +66,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
         strokeThickness: 4,
       })
       .setOrigin(0.5, 1)
+      .setResolution(2)
       .setDepth(90001);
     world.tweens.add({ targets: this.marker, y: markerY - 6, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
   }

@@ -58,6 +58,10 @@ export function DownedOverlay() {
 
 export function InteractPrompt() {
   const npc = useGame((s) => s.nearbyNpc);
+  const herb = useGame((s) => s.nearbyHerb);
+  const point = useGame((s) => s.nearbyPoint);
+  const origin = useGame((s) => s.player.origin);
+  const admitted = useGame((s) => s.player.admitted);
   const dialog = useGame((s) => s.dialogNpc);
   const zone = useGame((s) => s.zone);
   const meditating = useGame((s) => s.meditating);
@@ -70,6 +74,10 @@ export function InteractPrompt() {
       </button>
     );
   }
+  if (point) return <button className="prompt" onClick={() => EventBus.emit('cmd:interact')}><kbd>E</kbd> {point.name}</button>;
+  if (herb) {
+    return <button className="prompt" onClick={() => EventBus.emit('cmd:interact')}><kbd>E</kbd> Hái {herb.name}</button>;
+  }
   if (meditating) {
     return (
       <button className="prompt meditating" onClick={() => EventBus.emit('cmd:meditate')}>
@@ -77,6 +85,7 @@ export function InteractPrompt() {
       </button>
     );
   }
+  if (origin && !admitted) return null;
   return (
     <button className="prompt subtle" onClick={() => EventBus.emit('cmd:meditate')}>
       <kbd>F</kbd> Tọa thiền{zone ? ` (${zone.name} x${zone.rate})` : ''}

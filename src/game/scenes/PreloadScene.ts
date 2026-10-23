@@ -3,6 +3,9 @@ import { generateArt } from '../art/generate';
 import { ITEM_SPRITE_ASSETS } from '../art/icons';
 import { gameStore } from '../../store/gameStore';
 import { getMap } from '../maps';
+import { buildImmortalArt } from '../art/immortal';
+import { COURTYARD_ATLAS, registerCourtyardFrames } from '../art/courtyard';
+import { WORLD_ATLASES, registerWorldArt } from '../art/world';
 
 interface AtlasEntry {
   atlas: string;
@@ -21,6 +24,9 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    for (const key of WORLD_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
+    this.load.image('child-source', 'assets/maps/thiet-tru.png');
+    this.load.image(COURTYARD_ATLAS, 'assets/maps/courtyard-architecture.png');
     this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => this.game.events.emit('assets-progress', progress));
     for (const id of ['elder', 'disciple', 'quest-giver', 'guard', 'merchant']) {
       this.load.image(`npc-${id}`, `assets/sprites/npc-${id}.png`);
@@ -42,7 +48,10 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    registerCourtyardFrames(this);
+    registerWorldArt(this);
     generateArt(this);
+    buildImmortalArt(this);
     const s = gameStore.getState();
     this.game.events.emit('assets-ready');
     // never boot straight into a dungeon (that would start a run without spending an attempt)

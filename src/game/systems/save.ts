@@ -4,6 +4,7 @@ import type { QuestLog } from './quest';
 import type { DungeonRecord } from './dungeon';
 import type { SkillLevels } from './skills';
 import type { Vec2 } from '../types';
+import type { ImmortalProgress } from './immortal';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
@@ -42,6 +43,10 @@ export interface PlayerSave {
   name: string;
   /** Missing on saves from before character creation; those keep the original look. */
   sex?: Sex;
+  /** Legacy saves receive this origin once when entering the village opening chapter. */
+  origin?: 'vuong_gia_thon';
+  admitted?: boolean;
+  world?: { interactions: Record<string, number>; discovered: string[] };
   level: number;
   exp: number;
   realmIndex: number;
@@ -55,6 +60,8 @@ export interface PlayerSave {
   dungeons?: DungeonRecord;
   /** Missing in saves from before social existed; those players start with no friends. */
   friends?: FriendRef[];
+  /** Optional so saves made before the story/alchemy update remain playable. */
+  immortal?: ImmortalProgress;
 }
 
 export interface SaveData {

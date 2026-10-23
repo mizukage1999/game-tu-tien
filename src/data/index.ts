@@ -7,6 +7,7 @@ import npcsJson from './npcs.json';
 import equipmentJson from './equipment.json';
 import dungeonsJson from './dungeons.json';
 import { buildScaledContent, FIELD_BANDS } from '../game/systems/scale';
+import { NEW_MAPS, WORLD_NPCS, WORLD_QUESTS } from './world';
 
 export interface LootEntry {
   item: string;
@@ -70,6 +71,7 @@ export interface ItemDef {
   color: string;
   desc: string;
   heal?: number;
+  cultivation?: { exp: number; linhKhi: number };
   slot?: EquipSlot;
   rarity?: RarityId;
   reqLevel?: number;
@@ -140,7 +142,11 @@ export type Objective =
   | { type: 'enterZone'; zone: string; count: number }
   | { type: 'meditate'; zone: string; count: number }
   | { type: 'upgradeSkill'; count: number }
-  | { type: 'clearDungeon'; dungeon: string; count: number };
+  | { type: 'clearDungeon'; dungeon: string; count: number }
+  | { type: 'gather'; item: string; count: number }
+  | { type: 'craft'; item: string; count: number }
+  | { type: 'mount'; mount: 'sword' | 'crane'; count: number }
+  | { type: 'interact'; point: string; count: number };
 
 export interface QuestRewards {
   exp?: number;
@@ -153,6 +159,8 @@ export interface QuestDef {
   name: string;
   desc: string;
   autoStart?: boolean;
+  story?: string;
+  chapter?: string;
   giver?: string;
   requires?: string;
   turnIn?: string;
@@ -240,13 +248,15 @@ const scaled = buildScaledContent();
 export const MONSTERS: Record<string, MonsterDef> = {
   ...(monstersJson as unknown as Record<string, MonsterDef>),
   ...scaled.monsters,
+  thanh_moc_thu: { name: 'Thanh Mộc Thú', level: 3, art: 'beast_snow', hp: 210, atk: 13, def: 5, speed: 100, aggroRadius: 165, attackRange: 55, attackInterval: 1700, attackWindup: 350, leashRadius: 230, exp: 65, respawnMs: 12000, loot: [{ item: 'linh_khi', qty: [4, 8], chance: 1 }, { item: 'linh_thach', qty: [1, 1], chance: .35 }, { item: 'linh_chi', qty: [1, 1], chance: .25 }] },
+  thach_linh_thu: { name: 'Thạch Linh Thú', level: 5, art: 'beast_snow', hp: 330, atk: 19, def: 9, speed: 95, aggroRadius: 155, attackRange: 58, attackInterval: 1800, attackWindup: 400, leashRadius: 240, exp: 105, respawnMs: 16000, loot: [{ item: 'linh_khi', qty: [8, 15], chance: 1 }, { item: 'yeu_dan', qty: [1, 1], chance: .45 }, { item: 'linh_thach', qty: [1, 2], chance: .4 }] },
 };
 export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment() };
 export const SKILLS = skillsJson as unknown as Record<SkillId, SkillDef>;
 export const REALMS = realmsJson as unknown as RealmDef[];
-export const QUESTS = questsJson as unknown as Record<string, QuestDef>;
+export const QUESTS: Record<string, QuestDef> = { ...(questsJson as unknown as Record<string, QuestDef>), ...WORLD_QUESTS };
 export const NPCS: Record<string, NpcDef> = Object.fromEntries(
-  Object.entries(npcsJson as unknown as Record<string, NpcDef>).map(([id, n]) => [
+  Object.entries({ ...(npcsJson as unknown as Record<string, NpcDef>), ...WORLD_NPCS }).map(([id, n]) => [
     id,
     n.equipmentShop ? { ...n, shop: [...(n.shop ?? []), ...equipmentOffers()] } : n,
   ]),
@@ -257,10 +267,18 @@ export const DUNGEONS: Record<string, DungeonDef> = {
 };
 
 export const ZONE_NAMES: Record<string, string> = {
+  village_well: 'Giếng đầu làng', village_workbench: 'Bàn mộc của cha', village_willow: 'Bóng liễu Thanh Khê', village_notice: 'Cáo thị tuyển đồ', gate_trial: 'Bia khảo hạch', pavilion_tablet: 'Thạch thư hồ sen', waterfall_seal: 'Cổ ấn Ngọc Tuyền', cave_memory: 'Cổ bia thạch linh',
+  ...Object.fromEntries(NEW_MAPS.map((map) => [map.id, map.name])),
+  village_river: 'Bến Thanh Khê',
+  pavilion_lotus: 'Hồ Liên Tâm',
+  ngoc_tuyen: 'Ngọc Tuyền',
+  cave_heart: 'Tâm Mạch Thạch Linh',
   linh_dai: 'Linh Đài',
   linh_tuyen: 'Linh Tuyền',
   dai_thua_vien: 'Đại Thừa Viện',
   linh_thu_lam: 'Linh Thú Lâm',
+  dong_phu: 'Động Phủ Thanh Vân',
+  phu_linh_mach: 'Linh Mạch Động Phủ',
   ...Object.fromEntries(FIELD_BANDS.map((b) => [b.id, b.name])),
   ...Object.fromEntries(Object.entries(DUNGEONS).map(([id, d]) => [id, d.name])),
 };

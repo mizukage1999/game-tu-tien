@@ -1,0 +1,15 @@
+Use case: stylized-concept.
+Asset type: ONE production-ready modular architecture spritesheet atlas for a 2.5D isometric Vietnamese xianxia cultivation RPG.
+Input image 1 is a STYLE REFERENCE supplied by the user, NOT an edit target. Match its exquisite hand-painted Chinese fantasy mobile RPG architecture: lacquer vermilion red wood, ornate engraved gold, blue jade ornament, cool gray carved stone, curved dark blue tiled miniature caps, warm glowing amber lantern glass. Crisp painted edges and fine highlights, stylized semi-realistic painterly game art; NOT simple flat vector shapes and NOT pixel art.
+OUTPUT: one SQUARE 1536x1536 RGBA transparent-background sprite atlas. EXACTLY 3 columns and 3 rows, each cell exactly 512x512 pixels, with generous transparent padding. No asset crosses a cell boundary. Orthographic 2:1 isometric camera consistent with the reference, objects vertical, light from upper left. No ground plane; only a tiny soft contact shadow per prop. Genuinely transparent alpha, NO checkerboard baked into image.
+Cell order LEFT TO RIGHT then TOP TO BOTTOM:
+row 1 col 1: one tall ornate red and gold square temple pillar, ornate blue tiled cap and blue-jade gold stone base. Fits x150..360, y40..480.
+row 1 col 2: same tall temple pillar with a long crimson vertical embroidered gold banner and tassels attached to its right side. Fits x100..430,y40..480.
+row 1 col 3: one elegant tall slim red-bronze lantern POST with an intensely glowing orange glass lantern and small blue-gray tiled roof, gilded finial, marble stone base. Fits x150..360,y70..480.
+row 2 col 1: one SHORT gray stone carved pedestal post with jade-blue inset, small gold finial, stepped base. Fits x140..370,y170..480.
+row 2 col 2: ONE whole gray carved-stone balustrade segment with end posts and TWO panels, running DOWN and RIGHT at slope +0.5 in screen coordinates. Left end base around x55,y290; right end base around x455,y490; center footline y390. This is a true isometric rail along one ground axis, never horizontal.
+row 2 col 3: one slim freestanding ceremonial crimson banner pole, gold embroidered sigil, hanging gold tassels, small stone foot. Fits x120..390,y60..480.
+row 3 col 1: one ornate wood quest notice board with curved blue-tile roof and golden paper notices, TWO small legs, red-and-gold trim. Fits x60..450,y155..480. No readable writing, only decorative fine strokes.
+row 3 col 2: one low rectangular carved white stone PLANTER densely filled with pink cherry blossoms, small white flowers and fresh green foliage. Isometric pot, fits x90..420,y250..480.
+row 3 col 3: one ornate bronze incense cauldron on three short legs with lid and blue-jade inlay, small curls of translucent smoke. Fits x100..410,y180..480.
+Hard constraints: No characters, no NPCs, no labels, no letters, no UI, no grid lines, no surrounding buildings, no watermarks. Nine clearly SEPARATE individual props arranged on the exact invisible 3x3 grid. Objects are game-world props, not presentation cards.

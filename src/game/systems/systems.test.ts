@@ -354,7 +354,7 @@ describe('quests', () => {
   });
 
   it('completes reachLevel immediately when already satisfied', () => {
-    const log = acceptQuest({}, defs, 'b', { level: 5 });
+    const log = acceptQuest({ a: { status: 'done', progress: [2] } }, defs, 'b', { level: 5 });
     expect(log.b.status).toBe('done');
   });
 

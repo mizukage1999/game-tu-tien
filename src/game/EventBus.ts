@@ -10,6 +10,8 @@ export interface BusEvents {
   'cmd:enterDungeon': string;
   'cmd:leaveDungeon': void;
   'cmd:questGo': string;
+  'cmd:home': void;
+  'cmd:travel': string;
 }
 
 type Handler<T> = (payload: T) => void;

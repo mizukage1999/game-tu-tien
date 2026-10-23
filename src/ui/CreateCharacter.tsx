@@ -9,8 +9,8 @@ const CHOICES: { sex: Sex; label: string; portrait: string }[] = [
 ];
 
 export function CreateCharacter({ onDone }: { onDone: () => void }) {
-  const [sex, setSex] = useState<Sex>('female');
-  const [name, setName] = useState('');
+  const [sex, setSex] = useState<Sex>('male');
+  const [name, setName] = useState('Vương Lâm');
   const [error, setError] = useState('');
 
   const submit = () => {
@@ -33,7 +33,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
         }}
       >
         <h1>Tạo nhân vật</h1>
-        <p className="muted">Chọn dáng, đặt tên, rồi vào Đại Thừa Viện.</p>
+        <p className="muted">Hành trình bắt đầu tại Vương Gia Thôn, theo tuổi thơ Thiết Trụ. Sau khảo hạch nhập môn, bạn tiếp tục với tên và nhân vật đã chọn.</p>
         <div className="create-sexes">
           {CHOICES.map((c) => (
             <button
@@ -62,7 +62,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
         </label>
         {error ? <p className="create-error">{error}</p> : null}
         <button className="btn gold" type="submit">
-          Vào thế giới
+          Trở về Vương Gia Thôn
         </button>
       </form>
     </div>

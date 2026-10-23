@@ -1,0 +1,26 @@
+.world-route-map { width: 100%; border: 1px solid #6b897957; border-radius: 8px; background: radial-gradient(ellipse at 50% 50%, #31484477, #12262c); }
+.atlas-open > .immortal-intro { display: none; }
+.hud.phone .world-route-map { max-height: 180px; }
+.hud.phone .world-atlas .immortal-feature { margin: 0 0 8px; gap: 8px; }
+.hud.phone .world-atlas .immortal-feature-glyph, .hud.phone .world-atlas .immortal-feature p { display: none; }
+.world-route-map g { cursor: pointer; outline: none; }
+.world-route-map g:focus circle, .world-route-map g:hover circle { stroke: #fff0bd; }
+.world-map-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.world-map-card { display: flex; align-items: flex-start; gap: 10px; padding: 14px; border: 1px solid #69857855; border-radius: 6px; background: #14282b; }
+.world-map-card.current { border-color: #d9c18b; }
+.world-map-card canvas { width: 100px; height: 70px; flex: 0 0 100px; object-fit: contain; margin-top: 12px; }
+.world-map-card small { color: #97b7a8; font-size: 10px; }
+.world-map-card h4 { margin: 7px 0; color: #e6d4aa; }
+.world-map-card p { font-size: 11px; line-height: 1.7; color: #aebfb9; }
+.world-map-card button { font-size: 11px; white-space: normal; text-align: left; }
+.child-portrait { display: block; width: 100%; height: 100%; border-radius: 50%; background: #39483a url('/assets/maps/thiet-tru.png') no-repeat 0 0 / 400% 200%; }
+.childhood-actions { position: absolute; right: 18px; bottom: 40px; display: flex; flex-direction: column; gap: 9px; width: 210px; padding: 15px; }
+.childhood-actions small { color: #e7cc8d; letter-spacing: 1px; font-size: 10px; text-align: center; }
+.hud .menu-btn:disabled { opacity: .35; cursor: default; }
+.immortal-tabs button:disabled { opacity: .3; cursor: default; }
+@media (max-width: 700px), (max-height: 500px) {
+  .world-map-cards { grid-template-columns: 1fr; }
+  .world-map-card canvas { width: 90px; flex-basis: 90px; }
+  .childhood-actions { width: 180px; padding: 10px; right: 10px; bottom: 30px; }
+  .immortal-tabs button > span { display: none; }
+}

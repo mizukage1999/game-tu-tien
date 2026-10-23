@@ -9,6 +9,10 @@ export interface DecorPlacement {
   /** Tiles blocked by this object, relative to (x, y). */
   block?: [number, number][];
   glow?: 'warm' | 'cold';
+  flipX?: boolean;
+  /** Fade tall foreground objects when they obscure the local player. */
+  fade?: boolean;
+  scale?: number;
 }
 
 export interface PortalDef {
@@ -18,6 +22,8 @@ export interface PortalDef {
   label: string;
   /** Sends the player to the field map that matches their level. */
   levelBand?: boolean;
+  requiresQuest?: string;
+  admission?: boolean;
 }
 
 export interface MapDef {
@@ -36,8 +42,23 @@ export interface MapDef {
   /** When set, only players inside this level range may stay on the map. */
   level?: { min: number; max: number };
   ambient: 'petals' | 'fireflies' | 'snow' | 'embers';
+  private?: boolean;
+  landmarks?: { name: string; x: number; y: number }[];
+  description?: string;
+  requiresAdmission?: boolean;
+  requiresQuest?: string;
+  points?: WorldPoint[];
   /** Set on dungeon maps: the dungeon id plus where waves, the boss and the exit gate appear. */
   arena?: { dungeon: string; spawns: [number, number][]; boss: [number, number]; exit: [number, number, number, number] };
+}
+
+export interface WorldPoint {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  text: string;
+  repeatable?: boolean;
 }
 
 const BLOCKING: Partial<Record<Terrain, true>> = { wall: true, water: true };
@@ -105,14 +126,14 @@ export class MapBuilder {
     return this.inside(x, y) && !this.occupied[y][x] && !BLOCKING[this.terrain[y][x]] && !this.extraBlocked[y][x];
   }
 
-  place(key: string, x: number, y: number, opts: { block?: [number, number][]; glow?: 'warm' | 'cold' } = {}) {
+  place(key: string, x: number, y: number, opts: Omit<DecorPlacement, 'key' | 'x' | 'y'> = {}) {
     const block = opts.block ?? [[0, 0]];
     for (const [dx, dy] of block) {
       if (this.inside(x + dx, y + dy)) this.extraBlocked[y + dy][x + dx] = true;
     }
     for (let dy = -1; dy <= 1; dy++)
       for (let dx = -1; dx <= 1; dx++) if (this.inside(x + dx, y + dy)) this.occupied[y + dy][x + dx] = true;
-    this.decor.push({ key, x, y, block, glow: opts.glow });
+    this.decor.push({ ...opts, key, x, y, block });
     return this;
   }
 

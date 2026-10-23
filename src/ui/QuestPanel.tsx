@@ -3,9 +3,13 @@ import { QUESTS } from '../data';
 import { EventBus } from '../game/EventBus';
 import { objectiveText } from '../game/systems/quest';
 import { npcName, questNames, useGame } from '../store/gameStore';
+import { storyOrder, storyChapter } from '../game/systems/immortal';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
+  const setMenu = useGame((s) => s.setMenu);
+  const player = useGame((s) => s.player);
+  const nextStory = storyOrder(player).find((id) => quests[id]?.status !== 'done');
   const [open, setOpen] = useState(true);
   const [tab, setTab] = useState<'quest' | 'team'>('quest');
   const active = Object.entries(quests)
@@ -26,6 +30,11 @@ export function QuestPanel() {
         </button>
       </div>
       {open && tab === 'quest' && (
+        <>
+        <button className="story-tracker" onClick={() => setMenu('journey')}>
+          <small>{nextStory ? storyChapter(nextStory) : 'Thanh Vân Truyện'}</small>
+          <span>{nextStory ? QUESTS[nextStory].name : 'Tiên lộ đang viết tiếp'} <b>›</b></span>
+        </button>
         <ul className="quest-list">
           {active.length === 0 && <li className="muted">Không có nhiệm vụ. Hãy tìm NPC có dấu !</li>}
           {active.map(([id, q]) => {
@@ -48,6 +57,7 @@ export function QuestPanel() {
             );
           })}
         </ul>
+        </>
       )}
       {open && tab === 'team' && <div className="muted pad">Bản demo offline chưa hỗ trợ tổ đội.</div>}
     </div>

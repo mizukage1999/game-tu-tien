@@ -5,6 +5,8 @@ import { characterSpriteUrl } from '../game/art/icons';
 import { NPC_SPRITES } from '../game/systems/npcArt';
 import { availableQuests, turnInQuests } from '../game/systems/quest';
 import { useGame } from '../store/gameStore';
+import { isChildhood } from '../game/systems/origin';
+import { worldNpcPortraits } from '../game/art/world';
 
 export function DialogBox() {
   const npcId = useGame((s) => s.dialogNpc);
@@ -13,14 +15,17 @@ export function DialogBox() {
   const acceptQuest = useGame((s) => s.acceptQuest);
   const setDialog = useGame((s) => s.setDialog);
   const setMenu = useGame((s) => s.setMenu);
+  const player = useGame((s) => s.player);
   const def = npcId ? NPCS[npcId] : null;
   const line = useMemo(() => (def ? def.lines[Math.floor(Math.random() * def.lines.length)] : ''), [def]);
   if (!npcId || !def) return null;
 
   const ready = turnInQuests(quests, QUESTS, npcId);
-  const available = availableQuests(quests, QUESTS, npcId);
+  const available = availableQuests(quests, QUESTS, npcId).filter((id) => isChildhood(player) ? id.startsWith('village_') : !id.startsWith('village_'));
+  const storyId = [...ready, ...available, ...Object.keys(quests).filter((id) => quests[id].status === 'active' && QUESTS[id]?.giver === npcId)]
+    .find((id) => QUESTS[id]?.story);
   const palette = CHARACTERS[def.art]?.palette ?? 'elder';
-  const portrait = NPC_SPRITES[npcId]?.src ?? characterSpriteUrl(palette, 136);
+  const portrait = worldNpcPortraits[npcId] ?? NPC_SPRITES[npcId]?.src ?? characterSpriteUrl(palette, 136);
 
   return (
     <div className="dialog panel-ornate">
@@ -29,7 +34,7 @@ export function DialogBox() {
         <div className="dialog-name">
           {def.name} <span>《{def.title}》</span>
         </div>
-        <p className="dialog-line">{line}</p>
+        <p className="dialog-line">{storyId ? QUESTS[storyId].story : line}</p>
         <div className="dialog-options">
           {ready.map((id) => (
             <button key={id} className="opt turnin" onClick={() => turnInQuest(id)}>

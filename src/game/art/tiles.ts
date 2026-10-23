@@ -14,10 +14,13 @@ export const TERRAIN = {
   dirt: { base: 14, variants: 2 },
   darkgrass: { base: 16, variants: 3 },
   bridge: { base: 19, variants: 1 },
+  cave: { base: 20, variants: 2 },
+  farmland: { base: 22, variants: 1 },
+  marble: { base: 23, variants: 2 },
 } as const;
 
 export type Terrain = keyof typeof TERRAIN;
-export const TILE_COUNT = 20;
+export const TILE_COUNT = 25;
 
 /** Warm sandstone courtyard palette, lifted from the concept art. */
 const STONE = {
@@ -455,5 +458,19 @@ export function buildTileset(): HTMLCanvasElement {
       grass(ctx, x, 0, 101 + v * 3, '#5f8f4c', '#39602f', '#8dbe68', '#2c4d26'),
     );
   cell(TERRAIN.bridge.base, (x) => bridge(ctx, x, 0));
+  for (let v = 0; v < 2; v++) cell(TERRAIN.marble.base + v, (x) => slabTile(ctx, x, 0, 301 + v, v ? '#c7d5df' : '#bacbd4', '#8399ab', v === 1));
+  for (let v = 0; v < 2; v++) cell(TERRAIN.cave.base + v, (x) => {
+    stoneTile(ctx, x, 0, 400 + v, '#23334c', false);
+    ctx.fillStyle = 'rgba(11,25,51,.65)'; ctx.fillRect(x, 0, TILE, TILE);
+    ctx.strokeStyle = 'rgba(91,190,229,.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x + 6, 0); ctx.lineTo(x + 18, 17); ctx.lineTo(x + 12, 35); ctx.lineTo(x + 22, TILE); ctx.stroke();
+  });
+  cell(TERRAIN.farmland.base, (x) => {
+    dirt(ctx, x, 0, 501);
+    ctx.strokeStyle = '#4c422e'; ctx.lineWidth = 4;
+    for (let y = 8; y < TILE; y += 12) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + TILE, y); ctx.stroke(); }
+    ctx.fillStyle = '#92b369';
+    for (let y = 7; y < TILE; y += 12) for (let j = 8; j < TILE; j += 12) fillEllipse(ctx, x + j, y, 3, 2, '#92b369');
+  });
   return canvas;
 }

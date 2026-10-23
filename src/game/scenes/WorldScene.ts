@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DUNGEONS, ITEMS, MONSTERS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
+import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
 import { iso, isoBounds, isoX, isoY } from '../art/iso';
@@ -13,12 +13,12 @@ import { DamageText } from '../fx/DamageText';
 import { impact } from '../fx/HitEffect';
 import { SkillVfx } from '../fx/SkillVfx';
 import { getMap } from '../maps';
-import type { MapDef, PortalDef } from '../maps/MapBuilder';
+import type { MapDef, PortalDef, WorldPoint } from '../maps/MapBuilder';
 import { computeDamage, inAttackArc } from '../systems/combat';
 import { meditateGain, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
 import { rollLoot } from '../systems/loot';
-import { questDestination, routeOnMap, trackedQuest, trackQuest, type QuestStop } from '../systems/questNav';
+import { questDestination, routeOnMap, trackedQuest, trackQuest, trackTravel, trackedTravel, type QuestStop } from '../systems/questNav';
 import { canEnterField, fieldForLevel, killExp } from '../systems/scale';
 import { realmNameAtLevel } from '../systems/progression';
 import { saveGame } from '../systems/save';
@@ -29,6 +29,11 @@ import type { RemotePlayerState } from '../../net/presence';
 import { getAccountState } from '../../net/session';
 import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
+import { WORLD_PROPS } from '../art/world';
+import { isChildhood } from '../systems/origin';
+import { mapGateReason, portalGateReason } from '../systems/worldAccess';
+import { worldZoom } from '../systems/display';
+import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
 
 interface WorldData {
   mapId?: string;
@@ -78,6 +83,9 @@ export class WorldScene extends Phaser.Scene {
   private saveTimer = 0;
   private chatTimer = 15000;
   private levelWarned = false;
+  private herbs: { node: HerbNode; art: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text }[] = [];
+  private foregroundDecor: Phaser.GameObjects.Image[] = [];
+  private pointCooldowns = new Map<string, number>();
 
   constructor() {
     super('World');
@@ -94,11 +102,28 @@ export class WorldScene extends Phaser.Scene {
     this.transitioning = false;
     this.cleanups = [];
     this.channel = null;
+    this.herbs = [];
+    this.foregroundDecor = [];
+    this.pointCooldowns.clear();
+    this.syncTimer = this.secondTimer = this.saveTimer = 0;
+    this.levelWarned = false;
     this.remotes.clear();
   }
 
   create() {
     const map = (this.map = getMap(this.mapId));
+    const state = gameStore.getState();
+    const denied = mapGateReason(map, { childhood: isChildhood(state.player), quests: state.quests });
+    if (denied) {
+      state.toast(denied, 'warn');
+      this.cancelQuestNav();
+      this.scene.restart({ mapId: isChildhood(state.player) ? 'vuong_gia_thon' : 'rung_linh_thu' });
+      return;
+    }
+    if (map.private && gameStore.getState().quests[HOME_QUEST]?.status !== 'done') {
+      this.scene.restart({ mapId: 'dai_thua_vien' });
+      return;
+    }
     if (map.level) {
       const level = gameStore.getState().player.level;
       const check = canEnterField(level, map.level);
@@ -127,6 +152,8 @@ export class WorldScene extends Phaser.Scene {
 
     const start = this.resolveSpawn(map);
     this.player = new Player(this, start.x, start.y);
+    this.buildHerbs();
+    this.buildWorldPoints();
     this.targetRing = this.add
       .image(0, 0, 'circle_gold')
       .setScale(0.28, 0.16)
@@ -149,8 +176,8 @@ export class WorldScene extends Phaser.Scene {
     // The camera follows a proxy: the player's physics body lives in map space,
     // the diamond it stands on lives on screen.
     this.camTarget = this.add.image(start.x, start.y, 'fx_dot').setVisible(false).setDepth(-10001);
-    cam.startFollow(this.camTarget, true, 0.12, 0.12);
-    cam.setRoundPixels(true);
+    cam.startFollow(this.camTarget, false, 0.12, 0.12);
+    cam.setRoundPixels(false);
     this.fitZoom();
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitZoom, this);
     this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, this.fitZoom, this));
@@ -164,7 +191,10 @@ export class WorldScene extends Phaser.Scene {
     this.bindStore();
 
     const s = gameStore.getState();
-    s.patch({ mapId: map.id, zone: null, target: null, nearbyNpc: null, spawnPos: null, dungeon: null, dungeonResult: null });
+    const progress = s.player.world ?? { interactions: {}, discovered: [] };
+    s.patch({ mapId: map.id, zone: null, target: null, nearbyNpc: null, nearbyHerb: null, nearbyPoint: null, meditating: false, spawnPos: null, dungeon: null, dungeonResult: null,
+      player: { ...s.player, world: { ...progress, discovered: [...new Set([...progress.discovered, map.id])] } },
+    });
     s.addLog(`Tiến vào ${map.name}`);
     s.toast(map.name, 'info');
     s.questEvent({ type: 'enterZone', zone: map.id });
@@ -175,10 +205,11 @@ export class WorldScene extends Phaser.Scene {
       s.addLog(`Tiêu diệt ${def.waves.length} đợt quái và thủ lĩnh trước khi hết giờ!`);
     } else {
       if (s.dungeonReturn) s.patch({ dungeonReturn: null });
-      if (!s.quests.main_0 || s.quests.main_0.status === 'active') {
+      if (!isChildhood(s.player) && (!s.quests.main_0 || s.quests.main_0.status === 'active')) {
         s.addLog('Hãy đến gặp Vân Hạc Trưởng Lão ở phía bắc (phím E để trò chuyện).');
       }
-      if (trackedQuest()) this.guideQuest();
+      if (trackedTravel()) this.guideTravel();
+      else if (trackedQuest()) this.guideQuest();
     }
     this.save();
     this.startMultiplayer(map);
@@ -199,7 +230,7 @@ export class WorldScene extends Phaser.Scene {
     // flat and invisible so collision, path-finding and AI never meet the
     // projection at all.
     const ground = buildIsoGround(map);
-    const key = `ground:${map.id}`;
+    const key = 'ground:active';
     if (this.textures.exists(key)) this.textures.remove(key);
     this.textures.addCanvas(key, ground.canvas);
     this.add.image(0, 0, key).setOrigin(0, 0).setDepth(-10000);
@@ -216,6 +247,13 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildDecor(map: MapDef) {
+    for (const landmark of map.landmarks ?? []) {
+      const at = iso(landmark.x * TILE + TILE / 2, landmark.y * TILE + TILE / 2);
+      this.add.text(at.x, at.y, landmark.name, {
+        fontFamily: 'Georgia, serif', fontSize: '15px', letterSpacing: 3,
+        color: '#e1d3ab', stroke: '#263c3b', strokeThickness: 3,
+      }).setOrigin(.5).setAlpha(.8).setResolution(2).setDepth(-8000);
+    }
     for (const d of map.decor) {
       const anchor = iso(d.x * TILE + TILE / 2, d.y * TILE + TILE - 2);
       const px = anchor.x;
@@ -253,11 +291,16 @@ export class WorldScene extends Phaser.Scene {
         continue;
       }
       const py = anchor.y;
-      const img = this.add.image(px, py, d.key).setOrigin(0.5, 1).setDepth(py);
-      if (d.key.startsWith('tree')) {
+      const prop = WORLD_PROPS[d.key];
+      const hasAtlas = prop && this.textures.exists(prop.atlas);
+      const img = this.add.image(px, py, hasAtlas ? prop.atlas : prop?.fallback ?? d.key, hasAtlas ? d.key : undefined)
+        .setOrigin(hasAtlas ? prop.originX ?? .5 : .5, hasAtlas ? prop.originY : 1).setDepth(py).setFlipX(d.flipX ?? false);
+      if (hasAtlas) img.setScale(prop.height / img.height * (d.scale ?? 1));
+      if (d.fade || prop?.fade) this.foregroundDecor.push(img);
+      if (d.key.startsWith('tree') || ['world-tree', 'sect-cherry', 'village-willow'].includes(d.key)) {
         this.tweens.add({
           targets: img,
-          scaleX: 1.025,
+          scaleX: img.scaleX * 1.025,
           yoyo: true,
           repeat: -1,
           duration: 1800 + (hash(d.x, d.y) % 1200),
@@ -266,22 +309,22 @@ export class WorldScene extends Phaser.Scene {
       }
       if (d.glow) {
         const g = this.add
-          .image(px, py - 82, d.glow === 'warm' ? 'glow_warm' : 'glow_cold')
+          .image(px, py - (prop?.glowY ?? 82), d.glow === 'warm' ? 'glow_warm' : 'glow_cold')
           .setBlendMode(Phaser.BlendModes.ADD)
-          .setAlpha(0.7)
-          .setScale(0.85)
+          .setAlpha(prop ? .35 : .7)
+          .setScale(prop ? .55 : .85)
           .setDepth(py + 1);
         this.tweens.add({
           targets: g,
-          alpha: 0.44,
-          scale: 0.74,
+          alpha: prop ? .2 : .44,
+          scale: prop ? .48 : .74,
           yoyo: true,
           repeat: -1,
           duration: 900 + (hash(d.x, d.y) % 500),
           ease: 'Sine.InOut',
         });
       }
-      if (d.key === 'burner') {
+      if (d.key === 'burner' || d.key === 'court-burner') {
         const smoke = this.add.particles(px, py - 52, 'fx_dot', {
           speedY: { min: -30, max: -14 },
           speedX: { min: -6, max: 6 },
@@ -292,6 +335,9 @@ export class WorldScene extends Phaser.Scene {
           frequency: 260,
         });
         smoke.setDepth(py + 2);
+      }
+      if (d.key === 'world-waterfall') {
+        this.add.particles(px, py - 80, 'fx_dot', { x: { min: -36, max: 36 }, speedY: { min: 20, max: 60 }, speedX: { min: -20, max: 20 }, tint: [0xbfefff, 0xffffff], alpha: { start: .4, end: 0 }, scale: { start: .5, end: 1.6 }, lifespan: 1400, frequency: 100 }).setDepth(py + 1);
       }
     }
   }
@@ -321,7 +367,8 @@ export class WorldScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setDepth(90000);
-    const zone = this.add.zone(cx, cy, w * TILE, h * TILE);
+    // The collider uses map coordinates, like the hidden player physics body.
+    const zone = this.add.zone((x + w / 2) * TILE, (y + h / 2) * TILE, w * TILE, h * TILE);
     this.physics.add.existing(zone, true);
     this.physics.add.overlap(this.player, zone, () => this.transition(p));
     return img;
@@ -387,15 +434,57 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private fitZoom() {
-    const h = this.scale.height;
-    const w = this.scale.width;
-    // Show more of the isometric map while keeping the UI panels at a fixed size.
-    const worldZoom = Math.min(h / 840, w / 1200);
-    if (this._zoom === undefined) this._zoom = worldZoom;
-    this.cameras.main.setZoom(this._zoom);
+    const density = (this.registry.get('render-density') as number | undefined) ?? 1;
+    this.cameras.main.setZoom(worldZoom(this.scale.width / density, this.scale.height / density) * density);
   }
 
-  private _zoom?: number;
+  private buildHerbs() {
+    for (const node of herbNodes(this.mapId)) {
+      if (this.map.blocked[node.y]?.[node.x]) continue;
+      const at = iso(node.x * TILE + TILE / 2, node.y * TILE + TILE / 2);
+      const art = this.add.image(at.x, at.y - 8, `immortal-${node.item}`).setDisplaySize(160, 100).setDepth(at.y + 1);
+      const label = this.add.text(at.x, at.y + 12, itemName(node.item), {
+        fontFamily: 'Segoe UI, sans-serif', fontSize: '13px', color: '#c6f1cf', stroke: '#102b25', strokeThickness: 3,
+      }).setOrigin(0.5).setDepth(at.y + 2).setResolution(2);
+      art.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+      art.on('pointerdown', () => this.harvest(node));
+      this.herbs.push({ node, art, label });
+    }
+  }
+
+  private harvest(node: HerbNode) {
+    if (this.transitioning || this.player.life.status !== 'alive') return;
+    const s = gameStore.getState();
+    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, node.x * TILE + TILE / 2, node.y * TILE + TILE / 2);
+    if (distance > 110) return s.toast('Đến gần dược liệu rồi chạm để hái (hoặc nhấn E).', 'info');
+    if (this.time.now - this.player.lastDamageAt < 3000) return s.toast('Hãy thoát chiến trước khi hái dược.', 'warn');
+    if (s.harvestHerb(node)) this.save();
+  }
+
+  private buildWorldPoints() {
+    for (const point of this.map.points ?? []) {
+      const at = iso(point.x * TILE + TILE / 2, point.y * TILE + TILE / 2);
+      this.add.ellipse(at.x, at.y, 28, 12, 0xe6cf85, .18).setStrokeStyle(1, 0xe6cf85, .65).setDepth(at.y - 1);
+      this.add.text(at.x, at.y + 14, point.name, { fontFamily: 'Segoe UI', fontSize: '12px', color: '#f1ddb0', stroke: '#26352e', strokeThickness: 3 }).setOrigin(.5).setResolution(2).setDepth(at.y + 2);
+      this.add.zone(at.x, at.y - 15, 86, 68).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.interactPoint(point));
+    }
+  }
+
+  private interactPoint(point: WorldPoint) {
+    const s = gameStore.getState();
+    if (this.transitioning || s.status !== 'alive') return;
+    if (Math.hypot(this.player.x - point.x * TILE - TILE / 2, this.player.y - point.y * TILE - TILE / 2) > 110) return s.toast('Đến gần rồi nhấn E hoặc chạm để tương tác.', 'info');
+    if (this.time.now - (this.pointCooldowns.get(point.id) ?? -10000) < 900) return;
+    this.pointCooldowns.set(point.id, this.time.now);
+    const progress = s.player.world ?? { interactions: {}, discovered: [] };
+    const count = progress.interactions[point.id] ?? 0;
+    if (!count || point.repeatable) {
+      s.patch({ player: { ...s.player, world: { ...progress, interactions: { ...progress.interactions, [point.id]: count + 1 } } } });
+      s.questEvent({ type: 'interact', point: point.id });
+    }
+    s.addLog(point.text); s.toast(point.text, 'quest');
+    this.save();
+  }
 
   // ---- other players -----------------------------------------------------
 
@@ -404,7 +493,7 @@ export class WorldScene extends Phaser.Scene {
    * player, and offline builds have no session, so both skip silently.
    */
   private startMultiplayer(map: MapDef) {
-    if (map.arena) return;
+    if (map.arena || map.private || isChildhood(gameStore.getState().player)) return;
     const user = getAccountState().user;
     if (!user) return;
     const p = gameStore.getState().player;
@@ -539,11 +628,17 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:enterDungeon', (id: string) => this.enterDungeon(id)),
       EventBus.on('cmd:leaveDungeon', () => this.leaveDungeon()),
       EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
+      EventBus.on('cmd:home', () => this.visitHome()),
+      EventBus.on('cmd:travel', (id: string) => this.travelTo(id)),
     );
   }
 
   private bindStore() {
     const unsub = gameStore.subscribe((s, prev) => {
+      if (isChildhood(s.player) !== isChildhood(prev.player)) {
+        const pos = this.player.feet;
+        this.time.delayedCall(0, () => this.scene.restart({ mapId: this.mapId, pos }));
+      }
       if (s.player.level > prev.player.level) {
         this.vfx.ascend(this.player, s.player.realmIndex > prev.player.realmIndex);
       }
@@ -609,6 +704,13 @@ export class WorldScene extends Phaser.Scene {
     const s = gameStore.getState();
     const p = this.player;
     const patch: Partial<typeof s> = {};
+    const body = p.art.getBounds();
+    // Tall columns and trees become translucent only while the hero is behind them.
+    for (const prop of this.foregroundDecor) {
+      const bounds = prop.getBounds();
+      const obscures = prop.depth > p.art.depth && Phaser.Geom.Intersects.RectangleToRectangle(bounds, body);
+      prop.setAlpha(obscures ? .38 : 1);
+    }
 
     const cds: Partial<Record<SkillId, number>> = {};
     let cdChanged = false;
@@ -656,6 +758,21 @@ export class WorldScene extends Phaser.Scene {
       n.refreshMarker(s.quests);
     }
     if (nearby !== s.nearbyNpc) patch.nearbyNpc = nearby;
+    let nearbyHerb: HerbNode | null = null;
+    let herbDistance = 110;
+    const now = Date.now();
+    const harvestTimes = immortalProgress(s.player).harvestReadyAt;
+    for (const { node, art, label } of this.herbs) {
+      const remaining = Math.max(0, Math.ceil(((harvestTimes[node.id] ?? 0) - now) / 1000));
+      art.setAlpha(remaining ? 0.25 : 1);
+      label.setText(remaining ? `${itemName(node.item)} · ${remaining}s` : itemName(node.item));
+      const distance = Math.hypot(p.x - node.x * TILE - TILE / 2, p.y - node.y * TILE - TILE / 2);
+      if (!remaining && distance < herbDistance) { nearbyHerb = node; herbDistance = distance; }
+    }
+    if (nearbyHerb?.id !== s.nearbyHerb?.id) patch.nearbyHerb = nearbyHerb ? { id: nearbyHerb.id, name: itemName(nearbyHerb.item) } : null;
+    const nearestPoint = (this.map.points ?? []).filter((point) => Math.hypot(p.x - point.x * TILE - TILE / 2, p.y - point.y * TILE - TILE / 2) <= 110)
+      .sort((a, b) => Math.hypot(p.x - a.x * TILE, p.y - a.y * TILE) - Math.hypot(p.x - b.x * TILE, p.y - b.y * TILE))[0];
+    if (nearestPoint?.id !== s.nearbyPoint?.id) patch.nearbyPoint = nearestPoint ? { id: nearestPoint.id, name: nearestPoint.name } : null;
     if (!nearby && s.dialogNpc) patch.dialogNpc = null;
 
     if (this.run) {
@@ -691,7 +808,8 @@ export class WorldScene extends Phaser.Scene {
     s.restore(outOfCombat ? Math.round(s.stats.maxHp * 0.02) : 0, Math.round(s.stats.maxMp * 0.015));
     if (p.meditating) {
       const zone = this.currentZone;
-      const gain = meditateGain(s.player.level, zone?.rate ?? null);
+      const rate = this.map.private ? homeMeditateRate(immortalProgress(s.player).homeLevel) : zone?.rate ?? null;
+      const gain = meditateGain(s.player.level, rate);
       s.addItem('linh_khi', gain.linhKhi, { silent: true });
       s.gainExp(gain.exp, { silent: true });
       s.restore(Math.round(s.stats.maxHp * gain.hpPct), Math.round(s.stats.maxMp * gain.mpPct));
@@ -717,10 +835,25 @@ export class WorldScene extends Phaser.Scene {
       s.setDialog(null);
       return;
     }
+    const questPoint = (this.map.points ?? []).find((point) =>
+      Math.hypot(this.player.x - (point.x + .5) * TILE, this.player.y - (point.y + .5) * TILE) <= 110 &&
+      Object.entries(s.quests).some(([id, q]) => q.status === 'active' && QUESTS[id]?.objectives.some((o, i) =>
+        o.type === 'interact' && o.point === point.id && (q.progress[i] ?? 0) < o.count)));
+    if (questPoint) { this.interactPoint(questPoint); return; }
+    if (!s.nearbyNpc && s.nearbyPoint) {
+      const point = this.map.points?.find((p) => p.id === s.nearbyPoint?.id);
+      if (point) this.interactPoint(point);
+      return;
+    }
+    if (!s.nearbyNpc && s.nearbyHerb) {
+      const herb = this.herbs.find((h) => h.node.id === s.nearbyHerb?.id);
+      if (herb) this.harvest(herb.node);
+      return;
+    }
     const id = s.nearbyNpc;
     if (!id || this.player.life.status !== 'alive') return;
     const npc = this.npcs.find((n) => n.npcId === id);
-    if (npc) this.player.faceToward(npc);
+    if (npc) this.player.faceToward(npc.map);
     this.player.stopMeditate();
     s.questEvent({ type: 'talk', npc: id });
     s.setDialog(id);
@@ -731,9 +864,27 @@ export class WorldScene extends Phaser.Scene {
     else this.player.startMeditate();
   }
 
+  private visitHome() {
+    const s = gameStore.getState();
+    if (this.transitioning || this.player.life.status !== 'alive') return;
+    if (this.map.arena) return s.toast('Hãy rời phó bản trước khi về động phủ.', 'warn');
+    if (s.quests[HOME_QUEST]?.status !== 'done') return s.toast('Hoàn thành Lò Đan Khai Hỏa để nhận động phủ.', 'warn');
+    if (this.time.now - this.player.lastDamageAt < 3000) return s.toast('Hãy thoát chiến trước khi truyền tống.', 'warn');
+    this.cancelQuestNav();
+    this.player.stopMeditate();
+    s.setAuto(false);
+    this.goTo({ mapId: this.map.private ? 'dai_thua_vien' : 'dong_phu' });
+  }
+
   private transition(p: PortalDef) {
     if (this.player.life.status !== 'alive') return;
     if (this.map.arena) return this.leaveDungeon();
+    const s = gameStore.getState();
+    const reason = portalGateReason(p, { childhood: isChildhood(s.player), quests: s.quests });
+    if (reason) {
+      if (!this.levelWarned) { s.toast(reason, 'warn'); this.levelWarned = true; this.time.delayedCall(2500, () => { this.levelWarned = false; }); }
+      return;
+    }
     if (p.levelBand) {
       const level = gameStore.getState().player.level;
       const band = fieldForLevel(level);
@@ -778,6 +929,7 @@ export class WorldScene extends Phaser.Scene {
     }
     if (this.player.life.status !== 'alive') return;
     trackQuest(id);
+    trackTravel(null);
     this.navRepaths = 0;
     this.navLabel = '';
     this.player.stopMeditate();
@@ -807,7 +959,18 @@ export class WorldScene extends Phaser.Scene {
       this.cancelQuestNav();
       return;
     }
-    const route = routeOnMap(this.map, from, nav.stop, s.player.level);
+    if (nav.stop.mapId === 'dong_phu' && !this.map.private) { this.visitHome(); return; }
+    if (nav.stop.gatherItem && nav.stop.mapId === this.map.id) {
+      const readyAt = immortalProgress(s.player).harvestReadyAt;
+      const node = this.herbs.find((h) => h.node.item === nav.stop.gatherItem && (readyAt[h.node.id] ?? 0) <= Date.now())?.node;
+      if (!node) { s.toast('Dược liệu đang hồi phục, hãy chờ một chút.', 'info'); this.cancelQuestNav(); return; }
+      nav.stop.tile = { x: node.x, y: node.y };
+    }
+    if (nav.stop.mapId !== 'dong_phu' && this.map.private) {
+      this.goTo({ mapId: 'dai_thua_vien' });
+      return;
+    }
+    const route = routeOnMap(this.map, from, nav.stop, s.player.level, { childhood: isChildhood(s.player), quests: s.quests });
     if (route.kind === 'fail') {
       s.toast(route.text, 'warn');
       this.cancelQuestNav();
@@ -849,6 +1012,18 @@ export class WorldScene extends Phaser.Scene {
       }
     }
     this.cancelQuestNav();
+    if (stop.gatherItem) {
+      const readyAt = immortalProgress(s.player).harvestReadyAt;
+      const node = this.herbs.find((h) => h.node.item === stop.gatherItem && (readyAt[h.node.id] ?? 0) <= Date.now() &&
+        Math.hypot(this.player.x - (h.node.x + .5) * TILE, this.player.y - (h.node.y + .5) * TILE) <= 110)?.node;
+      if (node) this.harvest(node);
+      return;
+    }
+    if (stop.interactTo) {
+      const point = this.map.points?.find((p) => p.id === stop.interactTo);
+      if (point) this.interactPoint(point);
+      return;
+    }
     if (stop.meditate) {
       this.player.startMeditate();
       return;
@@ -862,6 +1037,7 @@ export class WorldScene extends Phaser.Scene {
 
   cancelQuestNav() {
     trackQuest(null);
+    trackTravel(null);
     this.navRepaths = 0;
     this.navLabel = '';
     this.player?.clearRoute();
@@ -874,11 +1050,32 @@ export class WorldScene extends Phaser.Scene {
       this.cancelQuestNav();
       return;
     }
-    this.guideQuest();
+    if (trackedTravel()) this.guideTravel();
+    else this.guideQuest();
   }
 
   onQuestRouteDone() {
-    if (trackedQuest()) this.guideQuest();
+    if (trackedTravel()) this.guideTravel();
+    else if (trackedQuest()) this.guideQuest();
+  }
+
+  private travelTo(id: string) {
+    const s = gameStore.getState();
+    if (this.map.arena || this.transitioning || s.status !== 'alive') return;
+    this.cancelQuestNav(); this.player.stopMeditate();
+    s.patch({ auto: false, menu: null, dialogNpc: null });
+    trackTravel(id); this.guideTravel();
+  }
+
+  private guideTravel() {
+    const id = trackedTravel();
+    if (!id) return;
+    const s = gameStore.getState();
+    const target = getMap(id);
+    if (this.map.id === target.id) { this.cancelQuestNav(); s.toast(`Đã tới ${target.name}`); return; }
+    const route = routeOnMap(this.map, { x: Math.floor(this.player.x / TILE), y: Math.floor(this.player.y / TILE) }, { mapId: id, tile: { x: target.playerSpawn[0], y: target.playerSpawn[1] }, label: target.name }, s.player.level, { childhood: isChildhood(s.player), quests: s.quests });
+    if (route.kind === 'fail') { this.cancelQuestNav(); s.toast(route.text, 'warn'); return; }
+    if (route.kind === 'path') this.player.setRoute(route.tiles.map((t) => ({ x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE / 2 })));
   }
 
   private leaveDungeon() {
@@ -1167,6 +1364,7 @@ export class WorldScene extends Phaser.Scene {
     s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
     const drops = rollLoot(m.def.loot);
+    if (!this.map.arena && Math.random() < (m.type === 'hoa_ho' ? 0.8 : 0.4)) drops.push({ item: 'yeu_dan', qty: 1 });
     drops.forEach((d, i) => {
       const a = (i / Math.max(1, drops.length)) * Math.PI * 2 + Math.random();
       const r = 26 + Math.random() * 22;

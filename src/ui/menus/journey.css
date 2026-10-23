@@ -1,0 +1,71 @@
+.menu-journey { width: min(860px, 94vw); }
+.immortal-journey { color: #dbe7df; }
+.immortal-intro { display: flex; align-items: center; gap: 18px; padding: 18px 20px; margin-bottom: 16px; border: 1px solid #9bba922f; background: radial-gradient(ellipse at 80% 0%, #456e5d3b, transparent 65%), linear-gradient(115deg, #172a2a, #132027); border-radius: 8px; }
+.immortal-seal { flex: 0 0 auto; display: grid; place-items: center; width: 60px; height: 68px; border: 1px solid #d2bb7a70; outline: 1px solid #d2bb7a25; outline-offset: 4px; color: #e0ca91; font: 38px var(--serif); }
+.immortal-intro small { letter-spacing: 2px; color: #b7c6a7; font-size: 10px; }
+.immortal-intro h2 { margin: 6px 0; color: #f0dfb1; font: 26px var(--serif); }
+.immortal-intro p { margin: 0; font-size: 12px; color: #afbfbb; line-height: 1.6; }
+.immortal-counter { margin-left: auto; color: #e6d29c; font: 27px var(--serif); white-space: nowrap; }
+.immortal-counter small { display: block; font: 11px var(--font); letter-spacing: 0; }
+.immortal-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-bottom: 18px; }
+.immortal-tabs button { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; padding: 8px 4px; color: #b2c4c1; border: 1px solid #54766a50; border-radius: 4px; background: #172b2a70; font-weight: 600; }
+.immortal-tabs button.active { color: #f2dfaa; border-color: #cbb37b; background: linear-gradient(120deg, #375348, #28382e); box-shadow: inset 0 -2px #cbb37b; }
+.immortal-tabs button > span { font: 22px var(--serif); opacity: .75; }
+.immortal-note { color: #aebfba; font-size: 12px; line-height: 1.7; }
+.immortal-chapter { margin: 24px 0 12px; color: #d5c08f; font: 17px var(--serif); }
+.immortal-story { display: flex; gap: 14px; padding: 16px; margin: 8px 0; border: 1px solid #899e9422; border-radius: 6px; background: #10242655; }
+.immortal-story > div { flex: 1; min-width: 0; }
+.immortal-story.current { border-color: #baaa7275; background: linear-gradient(120deg, #2c3d3160, #12252a); }
+.immortal-story.complete { opacity: .65; }
+.immortal-step { flex: 0 0 30px; font: 22px var(--serif); color: #bca776; }
+.immortal-story h4, .immortal-card h4 { margin: 0; font-size: 15px; color: #eddbab; }
+.immortal-story h4 small { float: right; margin: 2px 0 4px 12px; color: #9abda9; font-size: 10px; font-weight: 400; }
+.immortal-story p, .immortal-card p, .immortal-feature p { margin: 10px 0; font-size: 12px; line-height: 1.8; color: #b6c7c1; }
+.immortal-story .immortal-instruction { color: #e0d6b4; }
+.immortal-objectives { list-style: none; margin: 12px 0; padding: 0; }
+.immortal-objectives li { display: flex; justify-content: space-between; gap: 14px; padding: 5px 0; font-size: 12px; }
+.immortal-objectives li.done { color: #8ad5ad; }
+.immortal-feature { display: flex; align-items: center; gap: 20px; margin: 12px 0 22px; }
+.immortal-feature h3 { margin: 0; font: 23px var(--serif); color: #e6d6aa; }
+.immortal-feature-glyph { flex: 0 0 74px; display: grid; place-items: center; height: 80px; font: 45px var(--serif); color: #b9cbb5; border-radius: 50%; background: radial-gradient(circle, #748e5833, #21363311 70%); }
+.immortal-recipes { display: grid; gap: 12px; margin-bottom: 14px; }
+.immortal-card { padding: 18px; border: 1px solid #78978a45; border-radius: 6px; background: linear-gradient(120deg, #1d343355, #12232b); margin-bottom: 12px; }
+.immortal-card-heading { display: flex; align-items: center; gap: 14px; }
+.immortal-card-heading small { display: block; margin-top: 7px; color: #8daaa1; font-size: 11px; }
+.immortal-tag { margin-left: auto; font-size: 11px; color: #c8b985; padding: 4px 8px; border: 1px solid #c8b98540; border-radius: 3px; white-space: nowrap; }
+.immortal-pill { display: block; flex: 0 0 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #f3ffe1, #80cbb3 28%, #37614c 65%, #1c392e); box-shadow: 0 0 0 6px #93b59610, 0 0 16px #84c9a526; }
+.pill-tu_linh_dan { filter: hue-rotate(45deg); }
+.pill-pha_canh_dan { filter: hue-rotate(290deg); }
+.immortal-costs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+.immortal-costs span { border: 1px solid #85988a40; padding: 5px 9px; border-radius: 3px; font-size: 11px; background: #142125aa; }
+.immortal-costs b { margin-left: 5px; }
+.immortal-costs .enough { color: #a5d8b4; }
+.immortal-costs .short { color: #efaaa0; }
+.immortal-card .btn + .btn { margin-left: 8px; }
+.immortal-home-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.immortal-mount-glyph { display: block; padding: 12px 0; text-align: center; font: 60px var(--serif); color: #bfd4cc; text-shadow: 0 0 25px #75b6b050; }
+.immortal-wallet { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 16px 0 4px; margin-top: 16px; border-top: 1px solid #78978a35; font-size: 11px; }
+.immortal-wallet b { margin-left: 5px; }
+.immortal-shortcuts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; font-size: 12px; }
+.immortal-shortcuts > span { color: #9bb7aa; margin-right: auto; }
+.story-tracker { display: block; width: 100%; border: 0; border-bottom: 1px solid #aeae7040; background: linear-gradient(100deg, #31504470, transparent); color: #e9d79c; padding: 9px 12px; text-align: left; }
+.story-tracker small { display: block; color: #afc6b7; font-size: 10px; margin-bottom: 4px; }
+.story-tracker span { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.menu-btn-journey .menu-glyph { box-shadow: 0 0 12px #9dd4a34a; }
+.hud.phone .top-menu { max-width: min(55vw, 460px); flex-wrap: wrap; justify-content: flex-end; }
+.hud.phone.turned .top-menu { max-width: min(48vh, 400px); flex-wrap: wrap; }
+.app.turned .menu-window { width: min(680px, calc(100dvh - 32px)); max-height: calc(100dvw - 28px); }
+.app.turned .menu-journey { width: min(860px, calc(100dvh - 32px)); }
+.app.turned .dialog { max-height: calc(100dvw - 40px); overflow-y: auto; bottom: 20px; }
+.immortal-journey button { touch-action: manipulation; }
+@media (max-width: 600px), (max-height: 500px) {
+  .immortal-intro { padding: 12px; gap: 12px; }
+  .immortal-intro h2 { font-size: 22px; }
+  .immortal-seal { width: 44px; height: 54px; font-size: 30px; }
+  .immortal-counter { font-size: 23px; }
+  .immortal-counter small { font-size: 9px; }
+  .immortal-story { padding: 12px; gap: 8px; }
+  .immortal-card { padding: 14px; }
+  .immortal-tabs button { gap: 5px; font-size: 12px; }
+  .immortal-home-grid { grid-template-columns: 1fr; }
+}

@@ -1,9 +1,11 @@
 import { useGame, type MenuTab } from '../store/gameStore';
+import { isChildhood } from '../game/systems/origin';
 
 const ITEMS: { id: MenuTab; label: string }[] = [
   { id: 'character', label: 'Nhân Vật' },
   { id: 'bag', label: 'Túi Đồ' },
   { id: 'cultivate', label: 'Tu Luyện' },
+  { id: 'journey', label: 'Tiên Lộ' },
   { id: 'skills', label: 'Kỹ Năng' },
   { id: 'mail', label: 'Thư' },
   { id: 'quests', label: 'Nhiệm Vụ' },
@@ -22,16 +24,20 @@ const MENU_ICONS: Record<MenuTab, string> = {
   shop: 'shop',
   social: 'social',
   settings: 'settings',
+  journey: 'cultivate',
 };
 
 export function TopMenu() {
   const menu = useGame((s) => s.menu);
   const setMenu = useGame((s) => s.setMenu);
+  const childhood = useGame((s) => isChildhood(s.player));
   return (
     <nav className="top-menu">
       {ITEMS.map((it) => (
         <button
           key={it.id}
+          disabled={childhood && ['character', 'cultivate', 'skills'].includes(it.id)}
+          title={childhood && ['character', 'cultivate', 'skills'].includes(it.id) ? 'Mở sau khi nhập môn' : it.label}
           className={`menu-btn menu-btn-${it.id} ${menu === it.id ? 'active' : ''}`}
           onClick={() => setMenu(menu === it.id ? null : it.id)}
         >

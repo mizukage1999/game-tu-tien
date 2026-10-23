@@ -14,6 +14,9 @@ const COLORS: Record<Terrain, string> = {
   dirt: '#7d6449',
   darkgrass: '#3f7340',
   bridge: '#9a6b42',
+  cave: '#273b61',
+  farmland: '#8f8152',
+  marble: '#c6d5df',
 };
 
 const SIZE = 132;

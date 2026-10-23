@@ -49,7 +49,40 @@ Khách có thể vào **Cài đặt → Tài khoản** để nâng cấp thành 
 - Guest xóa dữ liệu trình duyệt là mất đường vào nhân vật (dù save còn trên server).
 - Chưa có multiplayer: hai người chơi không nhìn thấy nhau trong map.
 
-## Điều khiển
+## Tiên Lộ · Thanh Vân Truyện
+
+### Bảy bản đồ và tuổi thơ Thiết Trụ
+
+Nhân vật mới bắt đầu ở **Vương Gia Thôn**, với sprite Thiết Trụ nhỏ tuổi và 10 nhiệm vụ phóng tác về gia đình, việc làng, lời từ biệt và khảo hạch. Chưa nhập môn thì chưa mở chiến đấu, đan đạo hay tu luyện. Nhận lệnh bài ở Ngoại Môn sẽ chuyển sang nhân vật trưởng thành đã chọn và nối vào nhiệm vụ Vân Hạc. Save cũ chưa có chương mở đầu cũng được đưa về làng một lần, giữ nguyên cấp độ, vật phẩm và các nhiệm vụ đã có. Những lần vào sau tiếp tục tại vị trí đã lưu.
+
+| Bản đồ mới | Bối cảnh và hoạt động |
+| --- | --- |
+| Vương Gia Thôn | Nhà gia đình, bàn mộc, giếng làng, ruộng rau, miếu, sông và gốc liễu; chương tuổi thơ |
+| Ngoại Môn | Cổng lên núi, đài khảo hạch, người tiếp dẫn; nhận lệnh bài nhập môn |
+| Linh Sơn Tông | Chính điện, các dãy viện, hồ sen và Chấp Sự; nhận nhiệm vụ khám phá |
+| Đình Tạ | Hai đình, cầu đá, hành lang hồ sen và thạch thư; tọa thiền ×2 |
+| Rừng Linh Thú | Đường mòn, trạm giữ rừng, linh dược và Thanh Mộc Thú |
+| Thác Nước · Ngọc Tuyền | Song thác, cầu qua suối, cổ ấn và người giữ suối; tọa thiền ×4 |
+| Bí Cảnh Thạch Linh | Hang tinh thể, cổ bia và Thạch Linh Thú; mở bằng duyên ngộ Ngọc Tuyền, tọa thiền ×3 |
+
+Mở **Tiên Lộ → Sơn Hà Đồ** để xem địa hình, trạng thái khám phá và dẫn đường qua nhiều cổng. Nhánh khám phá có thêm 6 nhiệm vụ, bắt đầu từ Vân Hạc sau Tọa Thiền Ngộ Đạo. Các cổng dùng va chạm trong tọa độ bản đồ; dẫn đường chọn tuyến ngắn qua các cổng đã mở. Chỉ giữ một texture nền bản đồ tại một thời điểm để hạn chế bộ nhớ khi đi nhiều vùng.
+
+Nguồn map: `src/game/maps/worldMaps.ts`; nội dung chương: `src/data/world.ts`; atlas và prompt: `public/assets/maps/`.
+
+Sân Đại Thừa Viện có trục chính thông suốt, Linh Đài phía bắc, hai khu gặp NPC, vườn dược và sân luyện phía nam. Kiến trúc dùng atlas cột đỏ vàng, đèn lồng, cờ và lan can đá; vật thể cao mờ đi khi che nhân vật. Bố cục tại `src/game/maps/courtyard.ts`, atlas và prompt tại `public/assets/maps/`.
+
+Sau chương mở đầu, **Tiên Lộ** tiếp tục với 3 chương tu luyện và 10 duyên ngộ cũ: từ linh ngọc cổ, học đan đạo, nhận động phủ đến Trúc Cơ, ngự kiếm và cứu Bạch Vân Hạc. Có thể nhận chỉ dẫn trong bảng cốt truyện hoặc trò chuyện với Vân Hạc; các nhiệm vụ cần trả vẫn phải về gặp NPC được chỉ định.
+
+- **Hái dược:** đến gần Thanh Linh Thảo, Ngưng Lộ hoặc Linh Chi quanh sân viện, bìa rừng và động phủ; chạm dược liệu hoặc nhấn **E**. Mỗi điểm hồi lại sau 25 giây, thời gian được lưu qua lần tải lại. Yêu Đan có cơ hội rơi khi đánh quái ngoài phó bản.
+- **Đan Phòng:** luyện Hồi Xuân Đan, Tụ Linh Đan và Phá Cảnh Đan bằng nguyên liệu thực tế. Tụ Linh Đan dùng trong túi để tăng tu vi và linh khí. Đột phá đại cảnh giới cần thêm 1 Phá Cảnh Đan, bên cạnh điều kiện cấp, tu vi và tài nguyên cũ.
+- **Động phủ riêng:** mở sau khi trả nhiệm vụ Lò Đan Khai Hỏa. Đây là bản đồ riêng, không quái và không tham gia kênh multiplayer. Tọa thiền có hiệu suất ×2 đến ×5; dược điền thu hoạch mỗi 90 giây, nâng cấp phủ tối đa 3 lần.
+- **Ngự hành:** mở Thanh Vân Kiếm sau duyên Trúc Cơ, mở Bạch Vân Hạc sau duyên cứu hạc. Thú cưỡi hiển thị dưới nhân vật và tăng tốc di chuyển; tấn công hoặc trúng đòn sẽ hạ xuống, phó bản tạm dừng ngự hành. Vẫn dùng lưới va chạm của bản đồ.
+
+Tiến trình mới nằm trong trường tùy chọn `player.immortal` và dùng cùng hệ thống lưu local/cloud hiện có. Save cũ tiếp tục đọc được. Nhánh nhiệm vụ đã hoàn thành được giữ nguyên; nhánh đan đạo mới có thể nhận sau nhiệm vụ Tọa Thiền Ngộ Đạo.
+
+Canvas mobile dùng mật độ tối đa 2×, giảm hệ số trên màn hình lớn để hạn chế bộ nhớ GPU. Camera tính lại khi thay đổi kích thước; tọa độ chạm được quy đổi cả khi giao diện xoay ngang bằng CSS.
+
+## Phím điều khiển
 
 | Phím | Chức năng |
 | --- | --- |
@@ -57,8 +90,8 @@ Khách có thể vào **Cài đặt → Tài khoản** để nâng cấp thành 
 | J / Space | Tấn công thường (combo 3 đòn) |
 | 1 · 2 · 3 | Băng Tâm Trảm · Phi Kiếm · Hàn Băng Trận |
 | Shift | Thân Pháp (lướt, miễn sát thương ngắn) |
-| E | Trò chuyện với NPC |
-| F | Tọa thiền (nhanh hơn tại Linh Đài ×3, Linh Tuyền ×5) |
+| E | Trò chuyện với NPC / hái dược liệu khi đứng gần |
+| F | Tọa thiền (Linh Đài ×1, Linh Tuyền ×5, động phủ ×2–×5) |
 | Tab | Đổi mục tiêu |
 | Q | Dùng Hồi Xuân Đan |
 | T | Bật/tắt tự động chiến đấu |

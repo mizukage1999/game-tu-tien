@@ -209,6 +209,29 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
       ctx.fillRect(s * 0.62, s * 0.58, s * 0.1, s * 0.1);
       break;
     }
+    case 'tu_linh_dan':
+    case 'pha_canh_dan':
+    case 'yeu_dan': {
+      const color = ITEMS[id]?.color ?? '#b8a1f0';
+      fillEllipse(ctx, m, m, s * 0.33, s * 0.33, radial(ctx, m - s * .1, m - s * .12, s * .55, [[0, '#ffffff'], [.3, color], [1, '#213947']]));
+      ctx.strokeStyle = '#e8d898'; ctx.lineWidth = Math.max(1, s / 25);
+      ctx.beginPath(); ctx.arc(m, m, s * .22, .2, 4.2); ctx.stroke();
+      break;
+    }
+    case 'thanh_linh_thao':
+    case 'linh_chi': {
+      ctx.strokeStyle = '#c6d6a1'; ctx.lineWidth = s * .06;
+      ctx.beginPath(); ctx.moveTo(m, s * .85); ctx.lineTo(m, s * .22); ctx.stroke();
+      fillEllipse(ctx, s * .35, s * .5, s * .22, s * .1, ITEMS[id].color);
+      fillEllipse(ctx, s * .65, s * .35, s * .22, s * .12, ITEMS[id].color);
+      break;
+    }
+    case 'ngung_lo': {
+      ctx.fillStyle = '#81d9ef'; ctx.beginPath(); ctx.moveTo(m, s * .1);
+      ctx.bezierCurveTo(s * .02, s * .7, s * .3, s * .9, m, s * .9);
+      ctx.bezierCurveTo(s * .7, s * .9, s * .98, s * .7, m, s * .1); ctx.fill();
+      break;
+    }
     default:
       fillEllipse(ctx, m, m, m * 0.6, m * 0.6, '#cccccc');
   }
@@ -406,7 +429,7 @@ export function characterSpriteUrl(palette = 'player', s = 136) {
 
 export function buildLootTextures(spriteSources: Partial<Record<string, CanvasImageSource>> = {}): Record<string, HTMLCanvasElement> {
   const out: Record<string, HTMLCanvasElement> = {};
-  for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho']) {
+  for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho', 'yeu_dan']) {
     const [c, ctx] = makeCanvas(32, 32);
     const sprite = spriteSources[id];
     if (sprite) ctx.drawImage(sprite, 0, 0, 32, 32);

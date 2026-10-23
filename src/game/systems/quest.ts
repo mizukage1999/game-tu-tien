@@ -1,4 +1,5 @@
 import type { Objective, QuestDef } from '../../data';
+import type { ImmortalProgress } from './immortal';
 
 export type QuestStatus = 'active' | 'ready' | 'done';
 
@@ -17,13 +18,25 @@ export type GameEvent =
   | { type: 'enterZone'; zone: string }
   | { type: 'meditate'; zone: string | null; seconds: number }
   | { type: 'skillUpgrade'; skill: string }
-  | { type: 'dungeonClear'; dungeon: string };
+  | { type: 'dungeonClear'; dungeon: string }
+  | { type: 'gather'; item: string; qty: number }
+  | { type: 'craft'; item: string }
+  | { type: 'mount'; mount: 'sword' | 'crane' }
+  | { type: 'interact'; point: string };
 
 export interface QuestContext {
   level: number;
+  immortal?: ImmortalProgress;
+  mapId?: string;
+  interactions?: Record<string, number>;
 }
 
 function initialProgress(obj: Objective, ctx: QuestContext): number {
+  if (obj.type === 'interact') return Math.min(obj.count, ctx.interactions?.[obj.point] ?? 0);
+  if (obj.type === 'craft') return Math.min(obj.count, ctx.immortal?.crafted[obj.item] ?? 0);
+  if (obj.type === 'gather') return Math.min(obj.count, ctx.immortal?.gathered[obj.item] ?? 0);
+  if (obj.type === 'mount') return ctx.immortal?.mount === obj.mount ? 1 : 0;
+  if (obj.type === 'enterZone' && obj.zone === ctx.mapId) return 1;
   return obj.type === 'reachLevel' ? Math.min(obj.count, ctx.level) : 0;
 }
 
@@ -42,7 +55,7 @@ export function acceptQuest(
   ctx: QuestContext,
 ): QuestLog {
   const def = defs[id];
-  if (!def || log[id]) return log;
+  if (!def || log[id] || (def.requires && log[def.requires]?.status !== 'done')) return log;
   const progress = def.objectives.map((o) => initialProgress(o, ctx));
   const status: QuestStatus = allDone(def, progress) ? finishState(def) : 'active';
   return { ...log, [id]: { status, progress } };
@@ -66,6 +79,14 @@ function objectiveGain(obj: Objective, ev: GameEvent): number | 'set' | 0 {
       return ev.type === 'skillUpgrade' ? 1 : 0;
     case 'clearDungeon':
       return ev.type === 'dungeonClear' && ev.dungeon === obj.dungeon ? 1 : 0;
+    case 'gather':
+      return ev.type === 'gather' && ev.item === obj.item ? ev.qty : 0;
+    case 'craft':
+      return ev.type === 'craft' && ev.item === obj.item ? 1 : 0;
+    case 'mount':
+      return ev.type === 'mount' && ev.mount === obj.mount ? 1 : 0;
+    case 'interact':
+      return ev.type === 'interact' && ev.point === obj.point ? 1 : 0;
   }
 }
 
@@ -159,5 +180,13 @@ export function objectiveText(
       return 'Nâng cấp kỹ năng';
     case 'clearDungeon':
       return `Vượt phó bản ${names.zone(obj.dungeon)}`;
+    case 'gather':
+      return `Hái ${names.item(obj.item)}`;
+    case 'craft':
+      return `Luyện ${names.item(obj.item)}`;
+    case 'mount':
+      return obj.mount === 'sword' ? 'Ngự kiếm trên Thanh Vân Kiếm' : 'Cưỡi Bạch Vân Hạc';
+    case 'interact':
+      return `Tương tác: ${names.zone(obj.point)}`;
   }
 }
