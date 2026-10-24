@@ -31,6 +31,9 @@ import { ADMISSION_QUEST, PROLOGUE_ORDER } from '../data/world';
 import { isChildhood } from '../game/systems/origin';
 import { advanceLife, lifeProgress, performLifeAction, type LifeAction } from '../game/systems/life';
 import { startVillageChapter } from '../game/systems/storyStart';
+import { adventureAction, beastVictory, sectEvent, type AdventureAction } from '../game/systems/adventure';
+import { chooseSkill, skillUnlocked } from '../game/systems/skills';
+import { premiumStore } from '../net/premium';
 import {
   GARDEN_COOLDOWN_MS, HARVEST_COOLDOWN_MS, HOME_MAX_LEVEL, HOME_QUEST,
   homeUpgradeCost, immortalProgress, mountUnlocked, RECIPES, recipeCheck,
@@ -65,7 +68,7 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map';
 
 export interface DungeonHud {
   id: string;
@@ -118,6 +121,7 @@ export interface GameState {
   dungeonReturn: { mapId: string; pos: Vec2 } | null;
   /** Other humans on this map right now (online builds only). */
   online: number;
+  tribulation: {realm:number;strikes:number;remaining:number}|null;
 
   addLog(text: string, channel?: LogChannel): void;
   toast(text: string, kind?: ToastKind): void;
@@ -152,6 +156,12 @@ export interface GameState {
   tickGameTime(ms: number): void;
   lifeAction(action: LifeAction): void;
   salvageLegacy(id: string): void;
+  adventureAction(action:AdventureAction):void;
+  recordAdventure(event:string,qty?:number):void;
+  beastVictory(type:string):void;
+  chooseSkill(slot:number,id:SkillId):void;
+  finishTribulation(success:boolean):void;
+  syncPremium():void;
 }
 
 let uid = 1;
@@ -272,6 +282,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     dungeonResult: null,
     dungeonReturn: null,
     online: 0,
+    tribulation: null,
 
     addLog(text, channel = 'system') {
       set((s) => ({ logs: [...s.logs.slice(-(MAX_LOGS - 1)), { id: uid++, channel, text }] }));
@@ -290,17 +301,17 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const wasCapped = isBottleneck(p) && p.exp >= expToNext(p.level);
       const res = addExp(p, amount);
       set({ player: p });
-      if (!opts.silent) get().addLog(`Nhận ${Math.round(amount)} tu vi`);
+      if (!opts.silent) get().addLog(`Nhận ${Math.round(amount)} EXP`);
       if (res.levelsGained > 0) {
         const stats = playerStats(p);
         set({ stats, player: { ...p, hp: stats.maxHp, mp: stats.maxMp } });
-        get().toast(`Tu vi tinh tiến: ${realmNameAtLevel(p.level)}`, 'levelup');
-        get().addLog(`Tu vi đạt ${realmNameAtLevel(p.level)}!`);
+        get().toast(`EXP tinh tiến: ${realmNameAtLevel(p.level)}`, 'levelup');
+        get().addLog(`EXP đạt ${realmNameAtLevel(p.level)}!`);
         get().addLog('HP/MP đã được hồi đầy');
         get().questEvent({ type: 'level', level: p.level });
       }
       if (res.bottleneck && !wasCapped) {
-        get().toast('Tu vi đã đạt bình cảnh, hãy mở Tu Luyện để đột phá!', 'warn');
+        get().toast('EXP đã đạt bình cảnh, hãy mở Tu Luyện để đột phá!', 'warn');
       }
     },
 
@@ -385,6 +396,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const def = ITEMS[id];
       const s = get();
       if (!def?.slot || (s.player.inventory[id] ?? 0) <= 0) return;
+      if(id==='tien_phap_bao'&&!premiumStore.getState().items.includes(id))return s.toast('Tiên pháp bảo cần được xác thực trên tài khoản.','warn');
       const check = canEquip(id, s.player.level);
       if (!check.ok) {
         s.toast(check.reason, 'warn');
@@ -409,6 +421,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
 
     questEvent(ev) {
+      const event=ev.type==='dungeonClear'?'dungeon':ev.type;
+      get().recordAdventure(event,ev.type==='gather'?'qty' in ev?Number(ev.qty):1:1);
       const res = applyEvent(get().quests, QUESTS, ev);
       if (!res.changed) return;
       set({ quests: res.log });
@@ -441,6 +455,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
     tryBreakthrough() {
       const s = get();
       if (s.status !== 'alive') return;
+      if(s.tribulation)return s.toast('Thiên kiếp đang diễn ra.','warn');
+      if(!['dai_thua_vien','linh_son_tong'].includes(s.mapId))return s.toast('Hãy về Linh Đài trong tông môn để độ kiếp.','warn');
       const check = checkBreakthrough(s.player, s.player.linhKhi, s.player.inventory.linh_thach ?? 0);
       if (!check.ok) {
         s.toast(check.reason, 'warn');
@@ -451,15 +467,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
         return;
       }
       s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach, pha_canh_dan: 1 });
-      const p = { ...get().player };
-      applyBreakthrough(p);
-      const stats = playerStats(p);
-      set({ player: { ...p, hp: stats.maxHp, mp: stats.maxMp }, stats });
-      const realm = realmNameAtLevel(p.level);
-      s.toast(`Đột phá thành công: ${realm}!`, 'realm');
-      s.addLog(`Đột phá cảnh giới ${realm}, tu vi tinh tiến!`);
-      s.addLog(`Đạo hữu ${p.name} vừa đột phá ${realm}!`, 'world');
-      s.questEvent({ type: 'level', level: p.level });
+      set({tribulation:{realm:s.player.realmIndex,strikes:0,remaining:18000},auto:false,menu:null});
+      s.toast('Thiên kiếp giáng lâm! Né vùng sét và sống sót qua 4 đợt.','realm');
     },
 
     craftPill(id) {
@@ -545,6 +554,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
     upgradeSkill(id) {
       const s = get();
+      if(!skillUnlocked(s.player,id))return s.toast('Kỹ năng chưa được lĩnh ngộ.','warn');
       const p = s.player;
       const level = skillLevel(p.skills, id);
       const check = checkUpgrade(level, p.level, {
@@ -642,12 +652,40 @@ export const gameStore = createStore<GameState>()((set, get) => {
       get().toast(result.message,'quest');
       get().addLog(result.message);
       const fresh=get();saveGame({player:fresh.player,quests:fresh.quests,mapId:fresh.mapId,pos:fresh.spawnPos});
+      if(action.type==='harvest')get().recordAdventure('gather');
+      if(action.type==='forge')get().recordAdventure('craft');
     },
     salvageLegacy(id) {
       const s=get(), def=ITEMS[id];
       if(def?.slot==='weapon'||!def?.slot||!s.removeItems({[id]:1}))return;
       get().addItem('huyen_thiet',2);
       s.toast('Đã phân giải thành 2 Huyền Thiết.');
+    },
+    adventureAction(action){
+      const s=get();if(s.status!=='alive'||s.tribulation)return;
+      if(action.type==='bindSect'&&action.id!==s.mapId)return s.toast('Hãy tới đúng tông môn để ghi danh.','warn');
+      const result=adventureAction(s.player,action,['dai_thua_vien','linh_son_tong'].includes(s.mapId));
+      if(!result.ok)return s.toast(result.reason,'warn');
+      set({player:result.player,stats:playerStats(result.player)});if(result.exp)get().gainExp(result.exp);
+      s.toast(result.message,'quest');const fresh=get();saveGame({player:fresh.player,quests:fresh.quests,mapId:fresh.mapId,pos:fresh.spawnPos});
+    },
+    recordAdventure(event,qty=1){const p=get().player,next=sectEvent(p,event,qty);if(next!==p)set({player:next});},
+    beastVictory(type){set({player:beastVictory(get().player,type)});},
+    chooseSkill(slot,id){const p=chooseSkill(get().player,slot,id);if(!p)return get().toast('Kỹ năng chưa mở hoặc ô không hợp lệ.','warn');set({player:p});const s=get();saveGame({player:p,quests:s.quests,mapId:s.mapId,pos:s.minimap.player.x>0?s.minimap.player:s.spawnPos});},
+    finishTribulation(success){
+      const s=get(),trial=s.tribulation;if(!trial)return;
+      if(success&&(trial.remaining>0||trial.strikes<4))return;
+      set({tribulation:null});
+      if(!success)return s.toast('Độ kiếp thất bại. Hãy chuẩn bị lại đan dược và trang bị.','warn');
+      if(s.player.realmIndex!==trial.realm||s.status!=='alive')return;
+      const p={...s.player};applyBreakthrough(p);const stats=playerStats(p);set({player:{...p,hp:stats.maxHp,mp:stats.maxMp},stats});
+      s.addItem('thien_loi_tinh',1);s.toast(`Vượt thiên kiếp: ${realmNameAtLevel(p.level)}!`,'realm');s.questEvent({type:'level',level:p.level});
+    },
+    syncPremium(){
+      const s=get(),owned=premiumStore.getState().items.includes('tien_phap_bao'),p=s.player,inventory={...p.inventory},equipment={...p.equipment};
+      if(owned){if(!Object.values(equipment).includes('tien_phap_bao'))inventory.tien_phap_bao=1;}
+      else {delete inventory.tien_phap_bao;for(const slot of Object.keys(equipment) as EquipSlot[])if(equipment[slot]==='tien_phap_bao')delete equipment[slot];}
+      const next={...p,inventory,equipment};set({player:next,stats:playerStats(next)});
     },
   };
 });

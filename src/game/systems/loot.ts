@@ -1,4 +1,4 @@
-import { equipmentId, type LootEntry, type RarityId } from '../../data';
+import { EQUIP_SLOTS, equipmentId, type LootEntry, type RarityId } from '../../data';
 import type { Rng } from '../types';
 
 export interface LootRoll {
@@ -18,13 +18,13 @@ export function rollLoot(table: LootEntry[], rng: Rng = Math.random): LootRoll[]
 }
 
 /** Keep old loot tables compatible while the game now uses a single weapon slot. */
-export function materializeDrop(item: string): string {
+export function materializeDrop(item: string, rng:Rng=Math.random): string {
   if (!item.startsWith('gear:')) return item;
-  return equipmentId('weapon', item.slice(5) as RarityId);
+  return equipmentId(EQUIP_SLOTS[Math.floor(rng()*EQUIP_SLOTS.length)]?.id??'weapon', item.slice(5) as RarityId);
 }
 
 export function rollDungeonGear(table: LootEntry[], rng: Rng = Math.random): LootRoll[] {
-  return rollLoot(table, rng).map((d) => ({ item: materializeDrop(d.item), qty: d.qty }));
+  return rollLoot(table, rng).map((d) => ({ item: materializeDrop(d.item,rng), qty: d.qty }));
 }
 
 export const LOOT_LIFETIME_MS = 60000;

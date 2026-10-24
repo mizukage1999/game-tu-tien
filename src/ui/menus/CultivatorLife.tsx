@@ -13,6 +13,9 @@ import {
 } from '../../game/systems/life';
 import { itemIconUrl } from '../../game/art/icons';
 import './life.css';
+import { adventure } from '../../game/systems/adventure';
+const BEAST_SOURCES={snow_fox:'Linh Thú · Linh Thú Lâm',gold_tiger:'Thạch Linh Thú · Bí Cảnh Thạch Linh',white_crane:'Tinh anh · Hàn Băng Nguyên',jade_deer:'Thanh Mộc Thú · Rừng Linh Thú',shadow_wolf:'Tinh anh · U Minh Trạch',red_fox:'Hỏa Hồ · Linh Thú Lâm'};
+const BEAST_SKILLS={snow_fox:'Hàn tức: sát thương và làm chậm',gold_tiger:'Hổ khiếu: đòn công kích mạnh',white_crane:'Linh vũ: hồi sinh lực và MP',jade_deer:'Mộc giáp: tạo khiên hộ chủ',shadow_wolf:'Ảnh tập: công kích và giữ chân',red_fox:'Hồ hỏa: sát thương lan'};
 
 function Materials({ cost }: { cost: Record<string, number> }) {
   const inventory = useGame((s) => s.player.inventory);
@@ -132,7 +135,7 @@ export function HomeBoard() {
         <article className="immortal-card">
           <h4>Tĩnh thất · cấp {l.facilities.chamber}</h4>
           <p>
-            Tư chất {l.aptitude} · tụ linh trận cấp {l.facilities.array}. Tu vi thu được phụ thuộc
+            Tư chất {l.aptitude} · tụ linh trận cấp {l.facilities.array}. EXP thu được phụ thuộc
             thời gian bế quan và hiệu suất tu luyện.
           </p>
           {l.retreat ? (
@@ -147,7 +150,7 @@ export function HomeBoard() {
                 disabled={!atHome || l.retreat.readyDay > l.days}
                 onClick={() => act({ type: 'claimRetreat' })}
               >
-                Xuất quan · nhận tu vi
+                Xuất quan · nhận EXP
               </button>
               <button className="btn" onClick={() => act({ type: 'cancelRetreat' })}>
                 Dừng bế quan
@@ -168,8 +171,7 @@ export function HomeBoard() {
             </div>
           )}
           <p className="immortal-note">
-            Khi bế quan, nhân vật ở lại tĩnh thất. Tuổi vẫn tăng theo thời gian, không tự chuyển
-            thành tu vi.
+            Khi bế quan, nhân vật ở lại tĩnh thất. Xuất quan khi đủ thời gian để nhận EXP.
           </p>
         </article>
       )}
@@ -253,14 +255,15 @@ export function HomeBoard() {
 }
 
 export function CompanionPanel() {
+  const train=useGame(s=>s.adventureAction);
   const p = useGame((s) => s.player),
     act = useGame((s) => s.lifeAction),
     l = lifeProgress(p);
   return (
     <div>
       <p className="immortal-note">
-        Săn yêu thú để kiếm Yêu Đan rồi kết khế ước. Linh thú theo bạn qua các map, cộng chỉ số và
-        hỗ trợ mục tiêu bạn đang tấn công. Linh Thú Đan giúp tăng thân mật và bậc.
+        Tự đánh bại yêu thú tương ứng để tích lũy dấu ấn thu phục. Linh thú không bán trong cửa hàng.
+        Nuôi bằng Linh Thú Đan, tiến hóa bằng nguyên liệu săn được; mỗi loài có kỹ năng riêng.
       </p>
       <div className="life-pets">
         {COMPANIONS.map((c, i) => {
@@ -276,6 +279,7 @@ export function CompanionPanel() {
               />
               <h4>{c.name}</h4>
               <p>{c.desc}</p>
+              <p>{BEAST_SKILLS[c.id]} · Tiến hóa {adventure(p).evolution[c.id]??0}/2</p>
               <small>
                 Công {c.atk * (own?.rank ?? 1)} · Thủ {c.def * (own?.rank ?? 1)} · Sinh lực{' '}
                 {c.hp * (own?.rank ?? 1)}
@@ -283,7 +287,7 @@ export function CompanionPanel() {
               <p>
                 {own
                   ? `Bậc ${own.rank}/5 · Thân mật ${own.bond}/${own.rank * 2}`
-                  : `Kết khế ước: ${c.cost} Yêu Đan (có ${p.inventory.yeu_dan ?? 0})`}
+                  : `${BEAST_SOURCES[c.id]} · Dấu ấn ${adventure(p).beastSeals[c.id]??0}/${c.cost}`}
               </p>
               <div className="life-actions">
                 <button
@@ -307,6 +311,7 @@ export function CompanionPanel() {
                     Nuôi dưỡng
                   </button>
                 )}
+                {own&&<button className="btn" onClick={()=>train({type:'evolve',id:c.id})}>Tiến hóa</button>}
               </div>
             </article>
           );

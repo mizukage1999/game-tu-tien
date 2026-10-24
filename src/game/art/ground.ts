@@ -8,6 +8,13 @@ const WALL_H = 26;
 const AGED_COURTS = new Set(['ngoai_mon', 'linh_son_tong', 'dinh_ta', 'dai_thua_vien', 'dong_phu']);
 
 const WALL_FACE = { light: '#9aa1ac', mid: '#6c7480', dark: '#3d434f' };
+const DUNGEON_COLORS: Record<string, [string, string]> = {
+  pb_bang_tuyet: ['rgba(87,161,220,.22)', '#99ddff'],
+  pb_hoa_diem: ['rgba(138,41,18,.27)', '#f5a45f'],
+  pb_loi_dinh: ['rgba(77,60,140,.22)', '#ccb0ff'],
+  pb_u_minh: ['rgba(10,58,48,.34)', '#7dc6ad'],
+  pb_thien_kiep: ['rgba(77,96,134,.18)', '#efd29d'],
+};
 
 let cachedTileset: HTMLCanvasElement | null = null;
 
@@ -27,7 +34,8 @@ function tileIndex(map: MapDef, x: number, y: number) {
   const t = map.terrain[y][x];
   const cfg = TERRAIN[t];
   // Sect terraces use aged warm stone, with the same material treatment as the village.
-  if (t === 'platform' && AGED_COURTS.has(map.id)) return { index: TERRAIN.stone.base + hash(x,y)%3, terrain: t };
+  if (t === 'platform' && AGED_COURTS.has(map.id))
+    return { index: TERRAIN.stone.base + (hash(x, y) % 3), terrain: t };
   return { index: cfg.base + (hash(x, y) % cfg.variants), terrain: t };
 }
 
@@ -36,7 +44,13 @@ function tileIndex(map: MapDef, x: number, y: number) {
  * (x' = x - y, y' = (x + y) / 2), so the square tile art lands as a 48×24
  * diamond and every neighbour meets it exactly.
  */
-function paintTile(ctx: Ctx, centreX: number, centreY: number, index: number, tiles: HTMLCanvasElement) {
+function paintTile(
+  ctx: Ctx,
+  centreX: number,
+  centreY: number,
+  index: number,
+  tiles: HTMLCanvasElement,
+) {
   ctx.save();
   ctx.translate(centreX, centreY);
   ctx.transform(ISO_X, ISO_Y, -ISO_X, ISO_Y, 0, 0);
@@ -58,23 +72,39 @@ function courtyardInlay(ctx: Ctx) {
   const at = iso(24 * TILE, 18 * TILE);
   ctx.save();
   ctx.translate(at.x, at.y);
-  ctx.scale(1, .5);
+  ctx.scale(1, 0.5);
   const radius = 204;
   ctx.fillStyle = 'rgba(33, 66, 71, .3)';
-  ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fill();
   ctx.strokeStyle = 'rgba(218, 194, 134, .6)';
   ctx.lineWidth = 3;
   for (const r of [radius, radius - 12, 80, 68]) {
-    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
   }
   ctx.lineWidth = 1.5;
   for (let i = 0; i < 8; i++) {
-    ctx.save(); ctx.rotate(i * Math.PI / 4);
-    ctx.beginPath(); ctx.moveTo(90, 0); ctx.lineTo(174, -15); ctx.lineTo(190, 0);
-    ctx.lineTo(174, 15); ctx.closePath(); ctx.stroke();
+    ctx.save();
+    ctx.rotate((i * Math.PI) / 4);
+    ctx.beginPath();
+    ctx.moveTo(90, 0);
+    ctx.lineTo(174, -15);
+    ctx.lineTo(190, 0);
+    ctx.lineTo(174, 15);
+    ctx.closePath();
+    ctx.stroke();
     ctx.restore();
   }
-  ctx.beginPath(); ctx.moveTo(0, -54); ctx.lineTo(37, 0); ctx.lineTo(0, 54); ctx.lineTo(-37, 0); ctx.closePath(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -54);
+  ctx.lineTo(37, 0);
+  ctx.lineTo(0, 54);
+  ctx.lineTo(-37, 0);
+  ctx.closePath();
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -101,6 +131,11 @@ export function buildIsoGround(map: MapDef) {
       const { index, terrain } = tileIndex(map, x, y);
       const centre = iso(x * TILE + TILE / 2, y * TILE + TILE / 2);
       paintTile(ctx, centre.x, centre.y, index, tiles);
+      if (DUNGEON_COLORS[map.id] && terrain !== 'wall' && terrain !== 'water') {
+        ctx.fillStyle = DUNGEON_COLORS[map.id][0];
+        diamond(ctx, centre.x, centre.y, TILE, TILE / 2);
+        ctx.fill();
+      }
       if (terrain === 'water') {
         // Water sits a hair below the paving: cool rim on the far edge, shadow
         // on the near edge, which is what sells a sunken pond.
@@ -112,6 +147,33 @@ export function buildIsoGround(map: MapDef) {
   }
 
   if (map.id === 'dai_thua_vien') courtyardInlay(ctx);
+  if (map.arena && DUNGEON_COLORS[map.id]) {
+    const at = iso((map.arena.boss[0] + 0.5) * TILE, (map.arena.boss[1] + 0.5) * TILE);
+    ctx.save();
+    ctx.translate(at.x, at.y);
+    ctx.scale(1, 0.5);
+    ctx.strokeStyle = DUNGEON_COLORS[map.id][1];
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = 3;
+    for (const radius of [90, 176, 188]) {
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    for (let i = 0; i < 8; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 4);
+      ctx.beginPath();
+      ctx.moveTo(112, -16);
+      ctx.lineTo(146, 0);
+      ctx.lineTo(112, 16);
+      ctx.lineTo(123, 0);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
 
   // ---- raised walls ------------------------------------------------------
   const walls: [number, number][] = [];

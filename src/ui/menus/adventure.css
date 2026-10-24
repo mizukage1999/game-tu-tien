@@ -1,0 +1,191 @@
+.adventure-summary {
+  padding: 16px;
+  background: linear-gradient(120deg, #29444d, #15283a);
+  border: 1px solid #ae98645c;
+  border-radius: 7px;
+  color: #c4d6d9;
+  margin-bottom: 14px;
+}
+.adventure-summary h2 {
+  font: 24px var(--serif);
+  color: #e7ca8d;
+  margin: 0 0 8px;
+}
+.adventure-summary p,
+.adventure-panel .muted {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.adventure-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+.adventure-cards .immortal-card {
+  margin: 0;
+}
+.sect-ranks {
+  display: flex;
+  gap: 5px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+.sect-ranks > span {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #75878055;
+  color: #788f99;
+  background: #112733;
+  font-size: 11px;
+  text-align: center;
+}
+.sect-ranks small {
+  display: block;
+  font-size: 9px;
+}
+.sect-ranks .unlocked {
+  color: #e1c990;
+  border-color: #c2a866;
+}
+.premium-balance {
+  font-size: 23px;
+  color: #e5c1fa;
+}
+.premium-admin label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 8px 0;
+}
+.premium-admin input {
+  min-width: 0;
+  flex: 1;
+  background: #112532;
+  border: 1px solid #8d9d7f66;
+  color: #dce9e2;
+  padding: 8px;
+}
+.skill-loadout {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 15px;
+}
+.skill-loadout button {
+  flex: 1;
+  border: 1px solid #748c845c;
+  background: #122a37;
+  color: #c5d3d4;
+  border-radius: 5px;
+  padding: 8px;
+  min-width: 90px;
+  font-size: 11px;
+}
+.skill-loadout .active {
+  border-color: #ddba70;
+  color: #f6d898;
+}
+.skill-loadout img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  margin: auto auto 5px;
+}
+.gear-enhancement {
+  color: #f0cc83;
+  font-size: 11px;
+}
+.hud.phone .adventure-summary {
+  padding: 10px;
+}
+.hud.phone .adventure-summary h2 {
+  font-size: 18px;
+}
+.hud.phone .adventure-summary p {
+  font-size: 10px;
+}
+.hud.phone .adventure-cards {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.hud.phone .sect-ranks > span {
+  font-size: 9px;
+  padding: 5px;
+}
+.hud.phone .skill-loadout {
+  gap: 5px;
+}
+.hud.phone .skill-loadout button {
+  min-width: 70px;
+  font-size: 9px;
+  padding: 5px;
+}
+.tribulation-hud {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  z-index: 25;
+  color: #e4cf9b;
+  text-align: center;
+  pointer-events: none;
+}
+.tribulation-hud b {
+  font-size: 13px;
+  display: block;
+}
+.tribulation-hud span {
+  font-size: 10px;
+  display: block;
+}
+.hud.phone .tribulation-hud {
+  top: 90px;
+  padding: 5px 9px;
+}
+.hud.phone .tribulation-hud b {
+  font-size: 10px;
+}
+.hud.phone .tribulation-hud span {
+  font-size: 8px;
+}
+.hud.phone .toasts {
+  width: min(70%, 560px);
+  top: 24%;
+  gap: 4px;
+}
+.hud.phone .toast {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  font-size: 11px;
+  padding: 5px 12px;
+}
+.hud.phone .toast-realm,
+.hud.phone .toast-levelup {
+  font-size: 15px;
+}
+.hud.phone .top-menu {
+  position: relative;
+  flex-wrap: nowrap;
+}
+.menu-more-glyph {
+  display: grid;
+  place-items: center;
+  color: #e8ce8b;
+  font-size: 28px;
+}
+.top-menu-more {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: #0c2238f5;
+  border: 1px solid #b79857;
+  border-radius: 7px;
+  box-shadow: 0 8px 20px #0008;
+}

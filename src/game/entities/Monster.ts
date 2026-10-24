@@ -17,6 +17,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   hp: number;
   alive = true;
   playerContribution = false;
+  readonly hideStrength: boolean;
   slowTimer = 0;
 
   private ai: AIParams;
@@ -39,11 +40,12 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     x: number,
     y: number,
     /** Dungeon monsters hunt the player across the whole arena and never respawn. */
-    opts: { arena?: boolean } = {},
+    opts: { arena?: boolean; definition?:MonsterDef; hideStrength?:boolean } = {},
   ) {
-    const def = MONSTERS[type];
+    const def = opts.definition ?? MONSTERS[type];
     super(world, x, y, def.art);
     this.def = def;
+    this.hideStrength = !!opts.hideStrength;
     this.hp = def.hp;
     this.arena = !!opts.arena;
     this.ai = this.arena ? { ...def, aggroRadius: 1400, leashRadius: 99999 } : def;
@@ -56,7 +58,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.ctrl = new AnimationController(this.art, def.art);
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(34, 16);
-    body.setOffset(this.ctrl.rig.frameWidth / 2 - 17, this.ctrl.rig.frameHeight * this.ctrl.rig.originY - 14);
+    body.setOffset(this.width*this.originX-17,this.height*this.originY-8);
     this.brain = createBrain({ x, y });
     const scale = def.scale ?? (type === 'hoa_ho' ? 1.15 : 1);
     this.setScale(scale);
@@ -108,7 +110,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     if (boss && player && isHostile(this.brain) && !this.attacking) {
       this.slamTimer -= dt;
       if (this.slamTimer <= 0) {
-        this.slamTimer = boss.slamInterval;
+        this.slamTimer = boss.slamInterval*(this.hp<this.def.hp*.5?.65:1);
         this.startSlam();
       }
     }
@@ -138,7 +140,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.art.setPosition(spot.x, spot.y).setDepth(spot.y);
     this.syncLook();
     this.shadow.setPosition(spot.x, spot.y - 2);
-    const top = spot.y - 66 * this.scaleY;
+    const top = spot.y - (this.hideStrength||this.def.art.startsWith('dungeon_boss_')?116:66) * this.scaleY;
     const density = this.world.registry.get('render-density') as number || 1;
     const zoom = this.world.cameras.main.zoom / density;
     const compact = !!this.world.registry.get('phone-layout');
@@ -153,7 +155,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     const heroName = this.world.player?.nameplateBounds;
     const overlapsHero = !!heroName && Phaser.Geom.Intersects.RectangleToRectangle(this.label.getBounds(), heroName);
     this.label.setVisible(!overlapsHero);
-    this.bar.setVisible(!overlapsHero);
+    this.bar.setVisible(!overlapsHero && !this.hideStrength);
     if (this.barDirty || this.lastBarPos.x !== this.x || this.lastBarPos.y !== this.y) {
       this.barDirty = false;
       this.lastBarPos = { x: this.x, y: this.y };

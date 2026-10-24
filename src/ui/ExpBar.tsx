@@ -10,7 +10,7 @@ export function ExpBar() {
     <div className={`exp-bar ${capped ? 'capped' : ''}`}>
       <div className="exp-fill" style={{ width: `${pct}%` }} />
       <span>
-        Tu vi {player.exp} / {need} ({Math.floor(pct)}%){capped ? ' · Bình cảnh - cần đột phá' : ''}
+        EXP {player.exp} / {need} ({Math.floor(pct)}%){capped ? ' · Bình cảnh - cần đột phá' : ''}
       </span>
     </div>
   );

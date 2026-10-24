@@ -1,5 +1,12 @@
 import type { Duelist } from '../game/systems/duel';
 import type { FriendRef, Sex } from '../game/systems/save';
+import { SKILLS, type SkillId } from '../data';
+import {
+  validArenaInput,
+  validateArenaSnapshot,
+  type ArenaInput,
+  type ArenaSnapshot,
+} from '../game/systems/arena';
 
 /** The save file owns the shape; re-exported here so social code needs one import. */
 export type { FriendRef };
@@ -22,6 +29,10 @@ export interface SocialPresence extends PublicProfile {
 }
 
 export type SocialMessage =
+  | { t: 'arena:ready'; to: string; from: string; nonce: string }
+  | { t: 'arena:input'; to: string; from: string; nonce: string; input: ArenaInput }
+  | { t: 'arena:state'; to: string; from: string; nonce: string; snapshot: ArenaSnapshot }
+  | { t: 'arena:leave'; to: string; from: string; nonce: string }
   | { t: 'duel:ask'; to: string; from: FriendRef; nonce: string; duelist: Duelist }
   | { t: 'duel:ok'; to: string; from: FriendRef; nonce: string; duelist: Duelist }
   | { t: 'duel:no'; to: string; from: string }
@@ -49,7 +60,9 @@ function ref(value: unknown): FriendRef | null {
 }
 
 function number(value: unknown, fallback: number, max: number): number {
-  return typeof value === 'number' && Number.isFinite(value) ? Math.min(Math.max(value, 0), max) : fallback;
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.min(Math.max(value, 0), max)
+    : fallback;
 }
 
 function duelist(value: unknown): Duelist | null {
@@ -60,6 +73,29 @@ function duelist(value: unknown): Duelist | null {
   const maxHp = Math.round(number(raw.maxHp, 100, 10_000_000));
   return {
     userId,
+    sex: raw.sex === 'male' ? 'male' : 'female',
+    maxMp: number(raw.maxMp, 160, 100000),
+    loadout: Array.isArray(raw.loadout)
+      ? [...new Set(raw.loadout)]
+          .filter(
+            (id): id is SkillId =>
+              typeof id === 'string' && Object.prototype.hasOwnProperty.call(SKILLS, id),
+          )
+          .slice(0, 4)
+      : undefined,
+    skillLevels:
+      raw.skillLevels && typeof raw.skillLevels === 'object'
+        ? Object.fromEntries(
+            Object.entries(raw.skillLevels).filter(
+              ([id, v]) =>
+                Object.prototype.hasOwnProperty.call(SKILLS, id) &&
+                typeof v === 'number' &&
+                Number.isInteger(v) &&
+                v >= 1 &&
+                v <= 10,
+            ),
+          )
+        : undefined,
     name: text(raw.name, 16).trim() || 'Đạo hữu',
     level: Math.round(number(raw.level, 1, 999)),
     realm: text(raw.realm, 40),
@@ -83,12 +119,24 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
   const t = text(m.t, 20);
   const to = text(m.to, 64);
   if (!to) return null;
+  if (t.startsWith('arena:')) {
+    const from = text(m.from, 64),
+      nonce = text(m.nonce, 32);
+    if (!from || !nonce) return null;
+    if (t === 'arena:ready' || t === 'arena:leave') return { t, to, from, nonce };
+    if (t === 'arena:input' && validArenaInput(m.input))
+      return { t, to, from, nonce, input: m.input };
+    if (t === 'arena:state' && validateArenaSnapshot(m.snapshot, nonce))
+      return { t, to, from, nonce, snapshot: m.snapshot };
+    return null;
+  }
 
   if (t === 'duel:ask' || t === 'duel:ok') {
     const from = ref(m.from);
     const fighter = duelist(m.duelist);
     const nonce = text(m.nonce, 32);
-    if (!from || !fighter || !nonce) return null;
+    if (!from || !fighter || !nonce || fighter.userId !== from.userId || fighter.maxHp < 1)
+      return null;
     return { t, to, from, nonce, duelist: fighter };
   }
   if (t === 'party:invite' || t === 'party:join') {
@@ -174,11 +222,9 @@ export function removeFriend(friends: FriendRef[], userId: string): FriendRef[] 
 }
 
 /** Drops stale invitations and keeps only the newest one per sender + kind. */
-export function freshInvites<T extends { id: string; from: { userId: string }; kind: string; createdAt: number }>(
-  invites: T[],
-  now: number,
-  ttl = INVITE_TTL_MS,
-): T[] {
+export function freshInvites<
+  T extends { id: string; from: { userId: string }; kind: string; createdAt: number },
+>(invites: T[], now: number, ttl = INVITE_TTL_MS): T[] {
   const seen = new Set<string>();
   const out: T[] = [];
   for (const invite of [...invites].sort((a, b) => b.createdAt - a.createdAt)) {

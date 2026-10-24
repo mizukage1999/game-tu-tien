@@ -2,7 +2,7 @@ import { DUNGEONS, MONSTERS, NPCS, QUESTS, ZONE_NAMES } from '../../data';
 import type { Objective, QuestDef } from '../../data';
 import { getMap, MAP_IDS } from '../maps';
 import type { MapDef, PortalDef } from '../maps/MapBuilder';
-import { canEnterField, fieldForLevel } from './scale';
+import { canEnterField, fieldForLevel, FIELD_BANDS } from './scale';
 import { findPath, type Tile } from './path';
 import type { QuestLog, QuestProgress } from './quest';
 import { herbNodes } from './immortal';
@@ -53,7 +53,7 @@ function canVisit(mapId: string, level: number) {
 
 function lockedText(mapId: string) {
   const map = getMap(mapId);
-  if (map.level) return `Tu vi chưa phù hợp với ${map.name}.`;
+  if (map.level) return `EXP chưa phù hợp với ${map.name}.`;
   return 'Không tới được chỗ này.';
 }
 
@@ -203,7 +203,7 @@ export function portalToward(map: MapDef, destMap: string, level: number, contex
   while (queue.length) {
     const current = queue.shift()!;
     for (const p of getMap(current.id).portals) {
-      const next = p.levelBand ? fieldForLevel(level).id : p.to;
+      const next = p.levelBand ? FIELD_BANDS.some(b=>b.id===destMap)?destMap:fieldForLevel(level).id : p.to;
       if (!MAP_IDS.includes(next) || visited.has(next) || portalGateReason(p, context)) continue;
       const target = getMap(next);
       if (target.arena || target.private || mapGateReason(target, context) || !canVisit(next, level)) continue;

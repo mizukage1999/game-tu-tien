@@ -1,6 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import type { Duelist, DuelResult } from '../game/systems/duel';
+import type { Duelist } from '../game/systems/duel';
+import type { ArenaSnapshot } from '../game/systems/arena';
 import type { FriendRef, SocialPresence } from '../net/social';
 
 /** A pending invitation from another player. At most one per sender+kind is kept. */
@@ -18,13 +19,15 @@ export interface SocialInvite {
 
 /** A finished duel. Both sides compute it independently, so they always agree. */
 export interface DuelState {
-  result: DuelResult;
+  nonce:string;
+  snapshot:ArenaSnapshot;
+  localId:string;
+  practice:boolean;
   /** The two fighters, for rendering names/levels above the HP bars. */
   a: Duelist;
   b: Duelist;
   /** True when `a` is the local player. */
   aIsMe: boolean;
-  won: boolean;
 }
 
 export interface SocialState {

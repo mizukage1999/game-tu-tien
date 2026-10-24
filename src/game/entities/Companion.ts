@@ -15,6 +15,7 @@ export class Companion {
   private think = 0;
   private attack = 0;
   private active = '';
+  private skillTimer = 0;
   constructor(private world: WorldScene) {
     this.pos = { x: world.player.x, y: world.player.y };
     this.art = world.add.image(0, 0, 'fx_dot').setOrigin(0.5, 1).setVisible(false);
@@ -41,6 +42,7 @@ export class Companion {
     }
     this.think -= dt;
     this.attack -= dt;
+    this.skillTimer-=dt;
     const hero = this.world.player;
     if (Math.hypot(this.pos.x - hero.x, this.pos.y - hero.y) > 900) {
       this.pos = { x: hero.x, y: hero.y };
@@ -77,6 +79,19 @@ export class Companion {
       !Phaser.Geom.Intersects.RectangleToRectangle(this.label.getBounds(), hero.nameplateBounds),
     );
     const target = this.world.target;
+    const evolution=p.adventure?.evolution[l.companion!]??0;
+    if(this.skillTimer<=0&&gameStore.getState().status==='alive'&&!l.retreat){
+      const strength=1+evolution*.5,store=gameStore.getState();
+      if(l.companion==='white_crane'&&p.hp<store.stats.maxHp*.85){store.restore(Math.round(store.stats.maxHp*.12*strength),20);this.world.vfx.ascend(hero);this.skillTimer=12000;}
+      else if(l.companion==='jade_deer'&&this.world.time.now-hero.lastDamageAt<4000){hero.grantShield(Math.round(store.stats.maxHp*.12*strength),5000);this.skillTimer=12000;}
+      else if(target?.alive&&target.distanceTo(this.pos)<240){
+        const power=companionStats(p).atk*(l.companion==='gold_tiger'?3:2)*strength;
+        if(l.companion==='red_fox')for(const m of this.world.monsters.filter(m=>m.alive&&m.distanceTo(target)<125))m.hit(Math.round(power),false,this.pos);
+        else target.hit(Math.round(power),false,this.pos);
+        if(l.companion==='snow_fox'||l.companion==='shadow_wolf')target.slowTimer=Math.max(target.slowTimer,1800+evolution*500);
+        this.skillTimer=8000;
+      }
+    }
     if (
       target?.alive &&
       target.distanceTo(this.pos) < 170 &&

@@ -22,6 +22,7 @@ const COLORS: Record<Terrain, string> = {
 const SIZE = 132;
 
 export function Minimap() {
+  const setMenu=useGame(s=>s.setMenu);
   const mapId = useGame((s) => s.mapId);
   const mm = useGame((s) => s.minimap);
   const tile = useGame((s) => s.playerTile);
@@ -87,10 +88,11 @@ export function Minimap() {
           ({tile.x}, {tile.y})
         </span>
       </div>
-      <div className="minimap-map">
+      <div className="minimap-map" role="button" tabIndex={0} aria-label="Mở bản đồ hiện tại và thế giới" onClick={()=>setMenu('map')} onKeyDown={e=>e.key==='Enter'&&setMenu('map')}>
         <canvas ref={canvas} width={SIZE} height={SIZE} className="minimap-canvas" />
         <img className="minimap-frame" src="/assets/ui/frame-minimap.png" alt="" aria-hidden="true" />
       </div>
+      <div className="minimap-help">! NPC · ◇ Cổng · • Quái · Chạm xem map</div>
       {zone && <div className="minimap-zone">{zone.name} · linh khí x{zone.rate}</div>}
     </div>
   );

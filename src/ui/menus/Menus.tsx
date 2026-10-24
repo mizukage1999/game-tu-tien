@@ -28,10 +28,13 @@ import { AccountPanel } from '../AccountPanel';
 import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
 import { Journey } from './Journey';
-import { ageOf, lifespanOf } from '../../game/systems/life';
 import { heroName, isChildhood, originText } from '../../game/systems/origin';
+import { battlePower, enhanceCost } from '../../game/systems/adventure';
+import { skillLoadout, skillUnlocked } from '../../game/systems/skills';
+import { SectPanel, PremiumPanel } from './AdventurePanels';
+import { MapPanel } from './MapPanel';
 
-const WEAPON_SLOTS = EQUIP_SLOTS.filter(slot => slot.id === 'weapon');
+const GEAR_SLOTS = EQUIP_SLOTS;
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -45,6 +48,7 @@ const TITLES: Record<MenuTab, string> = {
   social: 'Xã Hội',
   settings: 'Cài Đặt',
   journey: 'Tiên Lộ · Hành Trình Tu Tiên',
+  sect:'Tông Môn & Danh Vọng',premium:'Tiên Ngọc Các',map:'Sơn Hà Đồ',
 };
 
 function rarityColor(id: string) {
@@ -69,7 +73,8 @@ function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: numb
 }
 
 function ItemLabel({ id }: { id: string }) {
-  return <b style={{ color: rarityColor(id) }}>{itemName(id)}</b>;
+  const enhancement=useGame(s=>s.player.adventure?.enhancements[id]??0);
+  return <b style={{ color: rarityColor(id) }}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
 }
 
 function Wardrobe() {
@@ -77,9 +82,9 @@ function Wardrobe() {
   const equip = useGame((s) => s.equip);
   return (
     <div className="wardrobe">
-      <h4>Vũ khí theo cảnh giới</h4>
+      <h4>Trang bị theo phẩm chất</h4>
       <p className="muted">
-        Tu vi hiện tại: <b>{realmNameAtLevel(player.level)}</b>. Vũ khí sáng màu là đã đủ điều kiện sử dụng.
+        Cấp hiện tại: <b>Lv.{player.level}</b>. Trang bị sáng màu là đã đủ điều kiện sử dụng.
       </p>
       {RARITIES.map((r) => {
         const unlocked = player.level >= r.reqLevel;
@@ -89,13 +94,13 @@ function Wardrobe() {
               <span className="rarity-name" style={{ color: r.color }}>
                 {r.name} · {r.label}
               </span>
-              <span className="muted">{realmNameAtLevel(r.reqLevel)}</span>
+              <span className="muted">Yêu cầu Lv.{r.reqLevel}</span>
               <span className={`wardrobe-badge ${unlocked ? 'ok' : 'no'}`}>
-                {unlocked ? 'Có thể cầm' : 'Cần tinh tiến tu vi'}
+                {unlocked ? 'Có thể trang bị' : 'Chưa đủ cấp'}
               </span>
             </div>
             <div className="wardrobe-items">
-              {WEAPON_SLOTS.map((slot) => {
+              {GEAR_SLOTS.map((slot) => {
                 const id = equipmentId(slot.id, r.id);
                 const owned = player.inventory[id] ?? 0;
                 const worn = player.equipment[slot.id] === id;
@@ -104,11 +109,11 @@ function Wardrobe() {
                     <ItemIcon id={id} size={36} />
                     <small>{slot.name}</small>
                     {worn ? (
-                      <em className="tag worn">Đang cầm</em>
+                      <em className="tag worn">Đang dùng</em>
                     ) : owned > 0 ? (
                       unlocked ? (
                         <button className="btn small" onClick={() => equip(id)}>
-                          Cầm
+                          Trang bị
                         </button>
                       ) : (
                         <em className="tag">Có x{owned}</em>
@@ -131,14 +136,15 @@ function Character() {
   const player = useGame((s) => s.player);
   const stats = useGame((s) => s.stats);
   const unequip = useGame((s) => s.unequip);
+  const act=useGame(s=>s.adventureAction);
   const expNeeded = expToNext(player.level);
   const hpPct = Math.max(0, Math.min(100, (player.hp / Math.max(1, stats.maxHp)) * 100));
   const mpPct = Math.max(0, Math.min(100, (player.mp / Math.max(1, stats.maxMp)) * 100));
   const expPct = Math.max(0, Math.min(100, (player.exp / Math.max(1, expNeeded)) * 100));
   const rows: [string, string | number][] = [
     ['Cảnh giới', isChildhood(player) ? 'Phàm Nhân' : realmNameAtLevel(player.level)],
-    ['Tuổi', `${ageOf(player)} tuổi`],
-    ['Thọ nguyên', `${lifespanOf(player)} năm`],
+    ['Cấp độ', player.level],
+    ['Lực chiến', battlePower(stats)],
     ['Sinh lực (HP)', stats.maxHp],
     ['Linh lực (MP)', stats.maxMp],
     ['Công kích', stats.atk],
@@ -157,9 +163,9 @@ function Character() {
         />
         <div className="character-hero-info">
           <div className="character-name">
-            {heroName(player)} <span>{ageOf(player)} tuổi</span>
+            {heroName(player)} <span>Lv.{player.level}</span>
           </div>
-          <div className="character-realm">{isChildhood(player) ? 'Phàm Nhân' : realmNameAtLevel(player.level)} · Thọ nguyên {lifespanOf(player)} năm</div>
+          <div className="character-realm">{isChildhood(player) ? 'Phàm Nhân' : realmNameAtLevel(player.level)}</div>
           <div className="bar bar-hp">
             <div className="bar-fill" style={{ width: `${hpPct}%` }} />
             <span className="bar-text">HP {Math.round(player.hp)} / {stats.maxHp}</span>
@@ -169,7 +175,7 @@ function Character() {
             <span className="bar-text">MP {Math.round(player.mp)} / {stats.maxMp}</span>
           </div>
           <div className="character-exp">
-            <span>Tu vi {player.exp} / {expNeeded}</span>
+            <span>EXP {player.exp} / {expNeeded}</span>
             <div className="character-exp-track">
               <span style={{ width: `${expPct}%` }} />
             </div>
@@ -190,7 +196,7 @@ function Character() {
         <div>
           <h4>Đang trang bị</h4>
           <div className="equip-list">
-            {WEAPON_SLOTS.map((slot) => {
+            {GEAR_SLOTS.map((slot) => {
               const id = player.equipment[slot.id];
               return (
                 <div key={slot.id} className="equip-slot">
@@ -205,6 +211,7 @@ function Character() {
                       <button className="btn small" onClick={() => unequip(slot.id)}>
                         Tháo
                       </button>
+                      <button className="btn small" title={Object.entries(enhanceCost(player.adventure?.enhancements[id]??0)).map(([item,n])=>`${itemName(item)} ×${n}`).join(', ')} onClick={()=>act({type:'enhance',id})}>Cường hóa +{(player.adventure?.enhancements[id]??0)+1}</button>
                     </>
                   ) : (
                     <i className="muted">Trống</i>
@@ -240,8 +247,7 @@ function Bag() {
         {entries.length === 0 && <div className="muted">Túi đồ trống.</div>}
         {entries.map(([id, qty]) => {
           const def = ITEMS[id];
-          const legacy = def?.kind === 'equipment' && def.slot !== 'weapon';
-          const usable = def?.kind === 'consumable' || (def?.kind === 'equipment' && !legacy);
+          const usable = def?.kind === 'consumable' || def?.kind === 'equipment';
           const locked = def?.kind === 'equipment' && !canEquip(id, level).ok;
           return (
             <div key={id} className="bag-item" title={def?.desc} style={{ borderColor: rarityColor(id) }}>
@@ -250,8 +256,8 @@ function Bag() {
               <div className="bag-name" style={{ color: rarityColor(id) }}>
                 {def?.name ?? id}
               </div>
-              {locked && !legacy && <small className="req-bad">Cần {realmNameAtLevel(def.reqLevel ?? 1)}</small>}
-              {legacy && <button className="btn small" onClick={() => salvageLegacy(id)}>Tái chế · 2 Huyền Thiết</button>}
+              {locked && <small className="req-bad">Cần Lv.{def.reqLevel ?? 1}</small>}
+              {def?.kind==='equipment'&&def.slot!=='weapon'&&<button className="btn small" onClick={() => salvageLegacy(id)}>Phân giải · 2 Huyền Thiết</button>}
               {usable && (
                 <button className="btn small" disabled={locked} onClick={() => consumeItem(id)}>
                   {def.kind === 'equipment' ? 'Trang bị' : 'Dùng'}
@@ -292,8 +298,8 @@ function Cultivate() {
       <div className="cultivate-hero">
         <img src="/assets/ui/cultivation-meditation.png" alt="" aria-hidden="true" />
         <div className="cultivate-progress">
-          <b>{realmNameAtLevel(player.level)} · {ageOf(player)} tuổi / {lifespanOf(player)} năm thọ nguyên</b>
-          <div className="cultivate-progress-track" role="progressbar" aria-label="Tu vi" aria-valuenow={player.exp} aria-valuemin={0} aria-valuemax={need}>
+          <b>{realmNameAtLevel(player.level)} · Lv.{player.level}</b>
+          <div className="cultivate-progress-track" role="progressbar" aria-label="EXP" aria-valuenow={player.exp} aria-valuemin={0} aria-valuemax={need}>
             <span style={{ width: `${expPct}%` }} />
           </div>
           <small>{player.exp} / {need}</small>
@@ -325,7 +331,7 @@ function Cultivate() {
       {next && cost ? (
         <div className="breakthrough">
           <div>
-            Đột phá lên <b>{realmNameAtLevel(next.minLevel)}</b> cần: đạt đại viên mãn, đầy tu vi, {cost.linhKhi} Linh Khí ({player.linhKhi}),{' '}
+            Đột phá lên <b>{realmNameAtLevel(next.minLevel)}</b> cần: đạt đại viên mãn, đầy EXP, {cost.linhKhi} Linh Khí ({player.linhKhi}),{' '}
             {cost.linhThach} Linh Thạch ({player.inventory.linh_thach ?? 0}) và 1 Phá Cảnh Đan ({player.inventory.pha_canh_dan ?? 0}).
           </div>
           <button className={`btn gold ${capped ? 'pulse' : ''}`} onClick={tryBreakthrough}>
@@ -366,6 +372,7 @@ function CostChip({ item, need, have }: { item: string; need: number; have: numb
 
 function Skills() {
   const player = useGame((s) => s.player);
+  const choose=useGame(s=>s.chooseSkill),[slot,setSlot]=useState(0),loadout=skillLoadout(player);
   const upgrade = useGame((s) => s.upgradeSkill);
   const wallet = {
     linhKhi: player.linhKhi,
@@ -374,6 +381,8 @@ function Skills() {
   };
   return (
     <div className="skill-list">
+      <p className="muted">Chọn một trong 4 ô, rồi gán kỹ năng bên dưới. Phím 1–4 theo đúng các ô đã chọn.</p>
+      <div className="skill-loadout">{loadout.map((id,i)=><button key={i} className={slot===i?'active':''} onClick={()=>setSlot(i)}><img src={skillSpriteUrl(id,player.sex)} alt=""/>Ô {i+1} · {SKILLS[id].name}</button>)}</div>
       <p className="muted">
         Nâng cấp tăng sát thương và giảm hồi chiêu. Cấp {SKILL_BONUS_LEVEL} lĩnh ngộ tuyệt kỹ. Từ cấp 4 cần thêm Kiếm Phổ Tàn Trang (rơi trong phó bản).
       </p>
@@ -416,6 +425,7 @@ function Skills() {
               </div>
             </div>
             <div className="skill-upgrade">
+              <button className="btn small" disabled={!skillUnlocked(player,id)} onClick={()=>choose(slot,id)}>{skillUnlocked(player,id)?`Gán ô ${slot+1}`:SKILLS[id].secret?'Học từ trưởng lão':`Mở Lv.${SKILLS[id].unlockLevel}`}</button>
               {cost ? (
                 <>
                   <div className="cost-row">
@@ -424,7 +434,7 @@ function Skills() {
                     <CostChip item="linh_thach" need={cost.linhThach} have={wallet.linhThach} />
                     <CostChip item="kiem_pho" need={cost.kiemPho} have={wallet.kiemPho} />
                   </div>
-                  <button className="btn gold small" disabled={!check.ok} title={check.ok ? '' : check.reason} onClick={() => upgrade(id)}>
+                  <button className="btn gold small" disabled={!check.ok||!skillUnlocked(player,id)} title={check.ok ? '' : check.reason} onClick={() => upgrade(id)}>
                     Nâng cấp
                   </button>
                 </>
@@ -444,6 +454,7 @@ function Skills() {
 
 function DungeonCard({ id }: { id: string }) {
   const player = useGame((s) => s.player);
+  const stats=useGame(s=>s.stats);
   const inDungeon = useGame((s) => s.dungeon);
   const def = DUNGEONS[id];
   const left = attemptsLeft(player.dungeons, id, def);
@@ -451,14 +462,15 @@ function DungeonCard({ id }: { id: string }) {
   const clears = player.dungeons?.clears[id] ?? 0;
   const boss = MONSTERS[def.boss];
   return (
-    <div className={`dungeon-card ${player.level < def.minLevel ? 'locked' : ''}`}>
+    <div className="dungeon-card">
       <div className="dungeon-card-head">
         <b>{def.name}</b>
         <span className="muted">
-          Yêu cầu {realmNameAtLevel(def.minLevel)} · Đã vượt {clears} lần
+          Đề nghị Lv.{def.minLevel} · Đã vượt {clears} lần
         </span>
       </div>
       <p className="muted">{def.desc}</p>
+      <p className={battlePower(stats)<(def.recommendedPower??0)?'req-bad':'muted'}>Lực chiến đề nghị {def.recommendedPower??'—'} · Bạn {battlePower(stats)}. Boss cuồng nộ dưới 50% HP; hãy né vùng báo chiêu.</p>
       <div className="dungeon-facts">
         <span>
           {def.waves.length} đợt quái + thủ lĩnh <b>{boss.name}</b> (Lv {boss.level})
@@ -509,18 +521,18 @@ function Dungeons() {
           </button>
         </div>
       )}
-      <p className="muted">Tinh tiến tu vi để mở phó bản. Trong đó chọn Dễ, Thường, Khó hoặc Địa Ngục.</p>
+      <p className="muted">Phó bản không khóa theo cấp. Mốc Lv chỉ là đề nghị; chọn độ khó phù hợp, boss mạnh cần chuẩn bị kỹ năng và trang bị.</p>
       {DUNGEON_TIERS.map((tier) => {
         const diff = picked[tier.level] ?? 'de';
         const id = dungeonId(tier.level, diff);
         const locked = player.level < tier.level;
         return (
-          <div key={tier.level} className={`dungeon-tier ${locked ? 'locked' : ''}`}>
+          <div key={tier.level} className="dungeon-tier">
             <div className="dungeon-card-head">
               <b>
                 {realmNameAtLevel(tier.level)} · {tier.name}
               </b>
-              {locked && <span className="req-bad">Mở khi đạt cấp {tier.level}</span>}
+              {locked && <span className="req-bad">Đề nghị Lv.{tier.level} · vẫn có thể thử</span>}
             </div>
             <div className="diff-row">
               {DIFFICULTIES.map((d) => (
@@ -579,7 +591,7 @@ function Quests() {
               </div>
             ))}
             <small>
-              Thưởng: {[r.exp && `${r.exp} Tu vi`, r.linhKhi && `${r.linhKhi} Linh Khí`, ...Object.entries(r.items ?? {}).map(([it, n]) => `${itemName(it)} x${n}`)]
+              Thưởng: {[r.exp && `${r.exp} EXP`, r.linhKhi && `${r.linhKhi} Linh Khí`, ...Object.entries(r.items ?? {}).map(([it, n]) => `${itemName(it)} x${n}`)]
                 .filter(Boolean)
                 .join(', ')}
               {def.turnIn && q.status !== 'done' ? ` · Trả cho ${npcName(def.turnIn)}` : ''}
@@ -624,7 +636,7 @@ function Shop() {
           {player.level >= rarityOf(tab).reqLevel ? (
             <span className="req-ok"> · Bạn có thể cầm</span>
           ) : (
-            <span className="req-bad"> · Cần tinh tiến tu vi (có thể mua trước)</span>
+            <span className="req-bad"> · Cần tinh tiến EXP (có thể mua trước)</span>
           )}
         </p>
       )}
@@ -688,6 +700,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
   social: SocialPanel,
   settings: Settings,
   journey: Journey,
+  sect:SectPanel,premium:PremiumPanel,map:MapPanel,
 };
 
 export function Menus() {
@@ -700,7 +713,7 @@ export function Menus() {
       <div className={`menu-window panel-ornate menu-${menu}`}>
         <div className="menu-header">
           <h3>
-            <img src={`/assets/ui/menu-${menu === 'journey' ? 'cultivate' : menu}.png`} alt="" aria-hidden="true" />
+            <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
             {TITLES[menu]}
           </h3>
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">

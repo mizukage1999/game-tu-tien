@@ -19,7 +19,7 @@ export interface DerivedStats {
 }
 
 export function expToNext(level: number): number {
-  return Math.round(60 + 28 * Math.pow(level, 1.35));
+  return Math.round(300 + 120 * Math.pow(level, 1.65) + 15 * level * level);
 }
 
 export function realmFor(index: number): RealmDef {
@@ -48,7 +48,7 @@ export interface ExpResult {
 export function addExp(s: ProgressState, amount: number): ExpResult {
   let levelsGained = 0;
   s.exp += Math.max(0, Math.round(amount));
-  while (s.exp >= expToNext(s.level)) {
+  while (s.level < 100 && s.exp >= expToNext(s.level)) {
     if (isBottleneck(s)) {
       s.exp = expToNext(s.level);
       return { levelsGained, bottleneck: true };
@@ -72,7 +72,7 @@ export function checkBreakthrough(
   const realm = realmFor(s.realmIndex);
   if (!realm.breakthrough) return { ok: false, reason: 'Đã đạt cảnh giới tối cao của bản demo.' };
   if (s.level < realm.maxLevel || s.exp < expToNext(s.level))
-    return { ok: false, reason: `Cần đạt ${realm.name} đại viên mãn và đầy tu vi.` };
+    return { ok: false, reason: `Cần đạt ${realm.name} đại viên mãn và đầy EXP.` };
   const cost = realm.breakthrough;
   if (linhKhi < cost.linhKhi) return { ok: false, reason: `Thiếu Linh Khí (${linhKhi}/${cost.linhKhi}).` };
   if (linhThach < cost.linhThach)
@@ -91,9 +91,9 @@ export type EquipCheck = { ok: true } | { ok: false; reason: string };
 
 export function canEquip(itemId: string, level: number): EquipCheck {
   const def = ITEMS[itemId];
-  if (def?.slot !== 'weapon') return { ok: false, reason: 'Chỉ có thể cầm vũ khí. Trang phục không dùng ô trang bị.' };
+  if (!def?.slot) return { ok: false, reason: 'Vật phẩm này không thể trang bị.' };
   const req = def.reqLevel ?? 1;
-  if (level < req) return { ok: false, reason: `Cần đạt ${realmNameAtLevel(req)} để cầm ${def.name}.` };
+  if (level < req) return { ok: false, reason: `Cần Lv.${req} để trang bị ${def.name}.` };
   return { ok: true };
 }
 
@@ -102,8 +102,7 @@ export function computeStats(
   realmIndex: number,
   equipment: Record<string, string | undefined>,
 ): DerivedStats {
-  const statRealmIndex = Math.min(realmIndex + (level > 0 && level % 10 === 0 ? 1 : 0), REALMS.length - 1);
-  const mul = realmFor(statRealmIndex).statMul;
+  const mul = realmFor(realmIndex).statMul;
   const stats: DerivedStats = {
     maxHp: Math.round((300 + 42 * level) * mul),
     maxMp: Math.round((120 + 12 * level) * mul),
@@ -113,7 +112,7 @@ export function computeStats(
     critMul: 1.8,
     speed: 190,
   };
-  for (const itemId of [equipment.weapon]) {
+  for (const itemId of Object.values(equipment)) {
     const bonus = itemId ? ITEMS[itemId]?.bonus : undefined;
     if (!bonus) continue;
     stats.atk += bonus.atk ?? 0;
@@ -127,5 +126,9 @@ export function playerStats(p: PlayerSave) {
   const stats=computeStats(p.level,p.realmIndex,p.equipment), pet=companionStats(p);
   stats.atk+=pet.atk;stats.def+=pet.def;stats.maxHp+=pet.hp;
   if(lifeProgress(p).artifact==='phap_bao_ngoc'){stats.def+=12;stats.maxHp+=100;}
+  for(const id of Object.values(p.equipment)){
+    if(!id)continue;const bonus=ITEMS[id]?.bonus,n=p.adventure?.enhancements[id]??0;
+    if(bonus&&n){stats.atk+=Math.round((bonus.atk??0)*n*.12);stats.def+=Math.round((bonus.def??0)*n*.12);stats.maxHp+=Math.round((bonus.hp??0)*n*.12);}
+  }
   return stats;
 }

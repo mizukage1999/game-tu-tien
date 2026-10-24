@@ -4,13 +4,16 @@ import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } fr
 import { buildIsoGround } from '../art/ground';
 import { iso, isoBounds, isoX, isoY } from '../art/iso';
 import { TERRAIN, TILE } from '../art/tiles';
-import { EventBus } from '../EventBus';
+import { EventBus, virtualInput } from '../EventBus';
 import { Player } from '../entities/Player';
 import { Monster } from '../entities/Monster';
 import { Wanderer } from '../entities/Wanderer';
 import { Companion } from '../entities/Companion';
 import { wandererRoster } from '../systems/wanderers';
 import { lifeProgress } from '../systems/life';
+import { adventure } from '../systems/adventure';
+import { SECT_RETURN_DELAY_MS } from '../systems/respawn';
+import { skillLoadout } from '../systems/skills';
 import { LootDrop } from '../entities/LootDrop';
 import { Npc } from '../entities/Npc';
 import { DamageText } from '../fx/DamageText';
@@ -23,7 +26,7 @@ import { meditateGain, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
 import { rollLoot } from '../systems/loot';
 import { questDestination, routeOnMap, trackedQuest, trackQuest, trackTravel, trackedTravel, type QuestStop } from '../systems/questNav';
-import { canEnterField, fieldForLevel, killExp } from '../systems/scale';
+import { canEnterField, fieldForLevel, FIELD_BANDS, killExp } from '../systems/scale';
 import { realmNameAtLevel } from '../systems/progression';
 import { saveGame } from '../systems/save';
 import { isTypingTarget } from '../systems/typing';
@@ -39,6 +42,7 @@ import { isChildhood, originText } from '../systems/origin';
 import { mapGateReason, portalGateReason } from '../systems/worldAccess';
 import { worldZoom } from '../systems/display';
 import { routeDots } from '../systems/routeDots';
+import { findPath } from '../systems/path';
 import { storyOrder } from '../systems/immortal';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
 
@@ -128,7 +132,12 @@ export class WorldScene extends Phaser.Scene {
   create() {
     const map = (this.map = getMap(this.mapId));
     const state = gameStore.getState();
-    const denied = mapGateReason(map, { childhood: isChildhood(state.player), quests: state.quests });
+    if(state.player.hp<=0||state.status==='downed'){
+      const refuge=isChildhood(state.player)?'vuong_gia_thon':adventure(state.player).boundSect;
+      state.restore(state.stats.maxHp,state.stats.maxMp);state.patch({status:'alive',downedRemaining:0,tribulation:null});
+      if(map.id!==refuge){this.scene.restart({mapId:refuge});return;}
+    }
+    const denied = mapGateReason(map, { childhood: isChildhood(state.player), quests: state.quests, reputation: adventure(state.player).reputation });
     if (denied) {
       state.toast(denied, 'warn');
       this.cancelQuestNav();
@@ -171,7 +180,7 @@ export class WorldScene extends Phaser.Scene {
     for(const person of wandererRoster(map,Date.now()%1000000)){
       let tile:{x:number;y:number}|null=null;
       for(let tries=0;tries<100;tries++){const x=2+Math.floor(Math.random()*(map.width-4)),y=2+Math.floor(Math.random()*(map.height-4));if(!map.blocked[y][x]&&Math.hypot(x-start.x/TILE,y-start.y/TILE)>4){tile={x,y};break;}}
-      if(tile)this.wanderers.push(new Wanderer(this,{x:(tile.x+.5)*TILE,y:(tile.y+.5)*TILE},person.name,person.cultivation,person.art));
+      if(tile){const npc=new Wanderer(this,{x:(tile.x+.5)*TILE,y:(tile.y+.5)*TILE},person.name,person.cultivation,person.art);this.wanderers.push(npc);this.monsters.push(npc);}
     }
     const onWandererTalk=(name:string)=>gameStore.getState().toast(`${name}: Sơn hà rộng lớn, đạo hữu hãy cẩn thận trên đường.`, 'info');
     this.game.events.on('wanderer-talk',onWandererTalk);
@@ -634,9 +643,10 @@ export class WorldScene extends Phaser.Scene {
     };
     on('J', () => this.player.attack());
     on('SPACE', () => this.player.attack());
-    on('ONE', () => this.player.castSkill('bang_tam_tram'));
-    on('TWO', () => this.player.castSkill('phi_kiem'));
-    on('THREE', () => this.player.castSkill('han_bang_tran'));
+    on('ONE', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[0]));
+    on('TWO', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[1]));
+    on('THREE', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[2]));
+    on('FOUR', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[3]));
     on('SHIFT', () => this.player.dash());
     on('E', () => this.interact());
     on('F', () => this.toggleMeditate());
@@ -664,6 +674,13 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
       EventBus.on('cmd:home', () => this.visitHome()),
       EventBus.on('cmd:travel', (id: string) => this.travelTo(id)),
+      EventBus.on('cmd:duelPause',(pause:boolean)=>{this.input.keyboard?.resetKeys();virtualInput.x=0;virtualInput.y=0;if(pause){this.player.clearRoute();this.player.setVelocity(0,0);this.scene.pause();}else this.scene.resume();}),
+      EventBus.on('cmd:mapWalk',(tile:{x:number;y:number})=>{
+        const s=gameStore.getState();if(s.status!=='alive'||s.tribulation||lifeProgress(s.player).retreat)return;
+        const path=findPath(this.map.blocked,Math.floor(this.player.x/TILE),Math.floor(this.player.y/TILE),tile.x,tile.y,0);
+        if(!path.reached)return s.toast('Không tìm thấy đường tới vị trí này.','warn');
+        this.cancelQuestNav();s.setAuto(false);s.setMenu(null);this.player.setRoute(path.tiles.map(t=>({x:(t.x+.5)*TILE,y:(t.y+.5)*TILE})));
+      }),
     );
   }
 
@@ -688,8 +705,8 @@ export class WorldScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     const dt = Math.min(delta, 50);
+    this.updateTribulation(dt);
     this.player.update(dt);
-    for(const person of this.wanderers)person.update(dt);
     this.companion.update(dt);
     if(this.gardenVisuals.length){const l=lifeProgress(gameStore.getState().player);this.gardenVisuals.forEach((visual,i)=>{const plot=l.plots[i];visual.art.setVisible(!!plot);visual.label.setVisible(i<l.plots.length);if(plot){visual.art.setTexture(`immortal-${plot.herb}`).setAlpha(plot.readyDay<=l.days?1:.5);visual.label.setText(plot.readyDay<=l.days?'Có thể thu hoạch':`Còn ${plot.readyDay-l.days} ngày`);}else visual.label.setText('Đất trống');});}
     this.routeGuide.setVisible(!gameStore.getState().menu && !gameStore.getState().dialogNpc);
@@ -726,12 +743,6 @@ export class WorldScene extends Phaser.Scene {
       this.secondTimer -= 1000;
       this.perSecond();
       gameStore.getState().tickGameTime(1000);
-      const cap = this.map.level;
-      const level = gameStore.getState().player.level;
-      if (cap && level > cap.max && !this.levelWarned) {
-        this.levelWarned = true;
-        gameStore.getState().toast(`Tu vi đã vượt ${this.map.name}. Hãy về Đại Thừa Viện để chọn vùng đất khác.`, 'warn');
-      }
     }
     this.saveTimer += dt;
     if (this.saveTimer >= 5000) {
@@ -768,7 +779,7 @@ export class WorldScene extends Phaser.Scene {
         stop.tile = { x: node.x, y: node.y };
       }
     }
-    const route = routeOnMap(this.map, from, stop, s.player.level, { childhood: isChildhood(s.player), quests: s.quests });
+    const route = routeOnMap(this.map, from, stop, s.player.level, { childhood: isChildhood(s.player), quests: s.quests, reputation: adventure(s.player).reputation });
     if (route.kind !== 'path') return;
     const points = [{ x: (from.x + .5) * TILE, y: (from.y + .5) * TILE }, ...route.tiles.map(t => ({ x: (t.x + .5) * TILE, y: (t.y + .5) * TILE }))];
     for (const dot of routeDots(points)) {
@@ -806,7 +817,7 @@ export class WorldScene extends Phaser.Scene {
 
     const t = this.target;
     const info: TargetInfo | null = t?.alive
-      ? { name: t.def.name, level: t.def.level, hp: Math.ceil(t.hp), maxHp: t.def.hp }
+      ? { name: t.def.name, level: t.hideStrength?0:t.def.level, hp: t.hideStrength?1:Math.ceil(t.hp), maxHp: t.hideStrength?1:t.def.hp }
       : null;
     if (JSON.stringify(info) !== JSON.stringify(s.target)) patch.target = info;
 
@@ -891,9 +902,36 @@ export class WorldScene extends Phaser.Scene {
       s.addItem('linh_khi', gain.linhKhi, { silent: true });
       s.gainExp(gain.exp, { silent: true });
       s.restore(Math.round(s.stats.maxHp * gain.hpPct), Math.round(s.stats.maxMp * gain.mpPct));
-      this.damageText.show(p.x, p.y - 96, `+${gain.linhKhi} Linh Khí  +${gain.exp} tu vi`, 'info');
+      this.damageText.show(p.x, p.y - 96, `+${gain.linhKhi} Linh Khí  +${gain.exp} EXP`, 'info');
       s.questEvent({ type: 'meditate', zone: zone?.id ?? null, seconds: 1 });
     }
+  }
+
+  private updateTribulation(dt:number){
+    const s=gameStore.getState(),trial=s.tribulation;if(!trial||s.status!=='alive')return;
+    const remaining=Math.max(0,trial.remaining-dt),strikes=Math.min(4,Math.floor((18000-remaining)/3500));
+    s.patch({tribulation:{...trial,remaining,strikes}});
+    if(strikes>trial.strikes){
+      const target={x:this.player.x,y:this.player.y},spot=iso(target.x,target.y),radius=88;
+      const warning=this.add.graphics().setDepth(spot.y-2).fillStyle(0xff5252,.2).fillEllipse(spot.x,spot.y,radius*3.4,radius*1.7).lineStyle(2,0xffdc78).strokeEllipse(spot.x,spot.y,radius*3.4,radius*1.7);
+      this.time.delayedCall(1050,()=>{
+        warning.destroy();if(!gameStore.getState().tribulation)return;
+        this.vfx.frostNova(target,radius);this.cameras.main.flash(100,190,205,255);
+        if(Math.hypot(this.player.x-target.x,this.player.y-target.y)<radius)this.player.takeHit(Math.round(s.stats.maxHp*.32),false,target);
+      });
+    }
+    if(!remaining)s.finishTribulation(true);
+  }
+
+  returnToSect(){
+    const s=gameStore.getState();s.finishTribulation(false);this.cancelQuestNav();s.setAuto(false);
+    if(this.run&&!runOver(this.run))s.finishDungeon(this.run.id,false,this.run.elapsed);
+    const mapId=isChildhood(s.player)?'vuong_gia_thon':adventure(s.player).boundSect;
+    this.time.delayedCall(SECT_RETURN_DELAY_MS,()=>{
+      const fresh=gameStore.getState();fresh.restore(fresh.stats.maxHp,fresh.stats.maxMp);
+      fresh.patch({status:'alive',downedRemaining:0,dungeon:null,dungeonReturn:null,menu:null,dialogNpc:null});
+      this.scene.restart({mapId,spawn:getMap(mapId).playerSpawn});
+    });
   }
 
   save() {
@@ -959,14 +997,16 @@ export class WorldScene extends Phaser.Scene {
     if (this.player.life.status !== 'alive') return;
     if (this.map.arena) return this.leaveDungeon();
     const s = gameStore.getState();
-    const reason = portalGateReason(p, { childhood: isChildhood(s.player), quests: s.quests });
+    const reason = portalGateReason(p, { childhood: isChildhood(s.player), quests: s.quests, reputation: adventure(s.player).reputation });
     if (reason) {
       if (!this.levelWarned) { s.toast(reason, 'warn'); this.levelWarned = true; this.time.delayedCall(2500, () => { this.levelWarned = false; }); }
       return;
     }
     if (p.levelBand) {
       const level = gameStore.getState().player.level;
-      const band = fieldForLevel(level);
+      const current=trackedQuest(),nav=current?questDestination(current,s.quests,level,this.map.id):null;
+      const desired=trackedTravel()??(nav?.kind==='go'?nav.stop.mapId:undefined);
+      const band = FIELD_BANDS.find(b=>b.id===desired)??fieldForLevel(level);
       const check = canEnterField(level, { min: band.minLevel, max: band.maxLevel });
       if (!check.ok) {
         gameStore.getState().toast(check.reason, 'warn');
@@ -980,7 +1020,9 @@ export class WorldScene extends Phaser.Scene {
 
   private goTo(data: WorldData) {
     if (this.transitioning) return;
+    if (this.player.life.status !== 'alive') return;
     if (lifeProgress(gameStore.getState().player).retreat) return gameStore.getState().toast('Hãy xuất quan trước khi rời động phủ.','info');
+    if (gameStore.getState().tribulation) return gameStore.getState().toast('Hãy hoàn thành thiên kiếp trước.','warn');
     this.transitioning = true;
     if (!this.map.arena) this.save();
     gameStore.getState().patch({ dialogNpc: null, menu: null });
@@ -993,6 +1035,7 @@ export class WorldScene extends Phaser.Scene {
     if (!def || this.transitioning || this.map.arena) return;
     if (this.player.life.status !== 'alive') return;
     const s = gameStore.getState();
+    if (s.tribulation) return s.toast('Hãy hoàn thành thiên kiếp trước.','warn');
     if (lifeProgress(s.player).retreat) return s.toast('Hãy xuất quan trước khi vào phó bản.','info');
     if (!s.beginDungeon(id)) return;
     this.cancelQuestNav();
@@ -1051,7 +1094,7 @@ export class WorldScene extends Phaser.Scene {
       this.goTo({ mapId: 'dai_thua_vien' });
       return;
     }
-    const route = routeOnMap(this.map, from, nav.stop, s.player.level, { childhood: isChildhood(s.player), quests: s.quests });
+    const route = routeOnMap(this.map, from, nav.stop, s.player.level, { childhood: isChildhood(s.player), quests: s.quests, reputation: adventure(s.player).reputation });
     if (route.kind === 'fail') {
       s.toast(route.text, 'warn');
       this.cancelQuestNav();
@@ -1155,7 +1198,7 @@ export class WorldScene extends Phaser.Scene {
     const s = gameStore.getState();
     const target = getMap(id);
     if (this.map.id === target.id) { this.cancelQuestNav(); s.toast(`Đã tới ${target.name}`); return; }
-    const route = routeOnMap(this.map, { x: Math.floor(this.player.x / TILE), y: Math.floor(this.player.y / TILE) }, { mapId: id, tile: { x: target.playerSpawn[0], y: target.playerSpawn[1] }, label: target.name }, s.player.level, { childhood: isChildhood(s.player), quests: s.quests });
+    const route = routeOnMap(this.map, { x: Math.floor(this.player.x / TILE), y: Math.floor(this.player.y / TILE) }, { mapId: id, tile: { x: target.playerSpawn[0], y: target.playerSpawn[1] }, label: target.name }, s.player.level, { childhood: isChildhood(s.player), quests: s.quests, reputation: adventure(s.player).reputation });
     if (route.kind === 'fail') { this.cancelQuestNav(); s.toast(route.text, 'warn'); return; }
     if (route.kind === 'path') this.player.setRoute(route.tiles.map((t) => ({ x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE / 2 })));
   }
@@ -1242,8 +1285,9 @@ export class WorldScene extends Phaser.Scene {
 
   /** Telegraphed area attack around a boss; damage lands after `windup` ms if the player is still inside. */
   bossSlam(m: Monster, radius: number, windup: number, mul: number) {
-    const cx = m.x;
-    const cy = m.y;
+    const aimed=m.def.boss?.pattern==='storm'||m.def.boss?.pattern==='celestial';
+    const cx = aimed?this.player.x:m.x;
+    const cy = aimed?this.player.y:m.y;
     // Warning circle: an ellipse on the ground, squashed by the isometric ratio.
     const show = iso(cx, cy);
     const rx = radius * 2;
@@ -1363,6 +1407,13 @@ export class WorldScene extends Phaser.Scene {
     const ang = Math.atan2(f.y, f.x);
     const liMuStyle = p.art.texture.key === 'player';
     const wangLinStyle = p.art.texture.key === 'player_male';
+    if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*.24),0);this.vfx.ascend(p);return;}
+    if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*.35),6000);return;}
+    if(id==='loi_kich'||id==='phong_nhan'||id==='hoa_lien'){
+      if(sk.kind==='nova')this.vfx.frostNova(p.feet,sk.range);else this.vfx.crescent(p.feet,ang,sk.range,false,false);
+      const hits=sk.kind==='nova'?this.monsters.filter(m=>m.alive&&m.distanceTo(p)<=sk.range):this.monstersInArc(sk.range,sk.kind==='projectile'?35:100);
+      for(const m of hits)this.damageMonster(m,sk.multiplier,id==='phong_nhan'?1200:0);return;
+    }
     switch (id) {
       case 'bang_tam_tram': {
         this.vfx.crescent(p.feet, ang, sk.range, liMuStyle, wangLinStyle);
@@ -1443,9 +1494,10 @@ export class WorldScene extends Phaser.Scene {
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
     if (m.def.boss) this.cameras.main.shake(500, 0.012);
     const exp = killExp(m.def);
-    this.damageText.show(m.x, m.y - 86, `+${exp} tu vi`, 'info');
+    this.damageText.show(m.x, m.y - 86, `+${exp} EXP`, 'info');
     s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
+    s.beastVictory(m.type);
     const drops = rollLoot(m.def.loot);
     if (!this.map.arena && Math.random() < (m.type === 'hoa_ho' ? 0.8 : 0.4)) drops.push({ item: 'yeu_dan', qty: 1 });
     if (!this.map.arena && Math.random() < .25) drops.push({ item: 'huyen_thiet', qty: 1 });

@@ -130,12 +130,6 @@ export function lifeProgress(p: PlayerSave): LifeProgress {
   };
   return { ...base, ...p.life, facilities: { ...base.facilities, ...p.life?.facilities } };
 }
-export function ageOf(p: PlayerSave) {
-  return 12 + Math.floor(lifeProgress(p).days / 360);
-}
-export function lifespanOf(p: PlayerSave) {
-  return 100 + Math.max(0, p.realmIndex) * 120;
-}
 export function gameDate(p: PlayerSave) {
   const d = lifeProgress(p).days;
   return `Năm ${Math.floor(d / 360) + 1} · ngày ${(d % 360) + 1}`;
@@ -152,8 +146,9 @@ export function companionStats(p: PlayerSave) {
   const l = lifeProgress(p),
     c = COMPANIONS.find((c) => c.id === l.companion),
     own = c && l.companions[c.id];
+  const evolution=c?p.adventure?.evolution[c.id]??0:0;
   return c && own
-    ? { atk: c.atk * own.rank, def: c.def * own.rank, hp: c.hp * own.rank }
+    ? { atk: Math.round(c.atk * own.rank*(1+.5*evolution)), def: Math.round(c.def * own.rank*(1+.5*evolution)), hp: Math.round(c.hp * own.rank*(1+.5*evolution)) }
     : { atk: 0, def: 0, hp: 0 };
 }
 export function facilityCost(level: number) {
@@ -202,6 +197,7 @@ export function performLifeAction(
   const gain = (id: string, n: number) => (inventory[id] = (inventory[id] ?? 0) + n);
   let exp = 0,
     message = '';
+  let nextAdventure=p.adventure;
   if (
     ['plant', 'harvest', 'facility', 'retreat', 'claimRetreat', 'forge'].includes(action.type) &&
     !atHome
@@ -259,12 +255,12 @@ export function performLifeAction(
           (1 + 0.25 * (life.facilities.chamber - 1) + 0.2 * (life.facilities.array - 1)),
       );
       life.retreat = null;
-      message = `Kết thúc bế quan, tích lũy ${exp} tu vi.`;
+      message = `Kết thúc bế quan, tích lũy ${exp} EXP.`;
       break;
     }
     case 'cancelRetreat':
       life.retreat = null;
-      message = 'Đã dừng bế quan, chưa nhận tu vi.';
+      message = 'Đã dừng bế quan, chưa nhận EXP.';
       break;
     case 'learn': {
       const recipe = WORKSHOP_RECIPES.find((r) => r.formula === action.formula);
@@ -296,7 +292,9 @@ export function performLifeAction(
     case 'tame': {
       const c = COMPANIONS.find((c) => c.id === action.id);
       if (!c || life.companions[c.id]) return fail('Linh thú không hợp lệ hoặc đã kết khế ước.');
-      if (!pay({ yeu_dan: c.cost })) return fail(`Cần ${c.cost} Yêu Đan để kết khế ước.`);
+      const seals=p.adventure?.beastSeals[c.id]??0;
+      if (seals<c.cost) return fail(`Cần tự đánh bại yêu thú tương ứng ${c.cost} lần để thu phục (${seals}/${c.cost}).`);
+      nextAdventure={...p.adventure!,beastSeals:{...p.adventure!.beastSeals,[c.id]:seals-c.cost}};
       life.companions[c.id] = { rank: 1, bond: 0 };
       life.companion = c.id;
       message = `${c.name} đã nhận chủ.`;
@@ -318,5 +316,5 @@ export function performLifeAction(
       break;
     }
   }
-  return { ok: true, player: { ...p, life, inventory }, exp, message };
+  return { ok: true, player: { ...p, life, inventory, adventure:nextAdventure }, exp, message };
 }

@@ -6,6 +6,8 @@ import type { SkillLevels } from './skills';
 import type { Vec2 } from '../types';
 import type { ImmortalProgress } from './immortal';
 import type { LifeProgress } from './life';
+import type { AdventureProgress } from './adventure';
+import type { SkillId } from '../../data';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
@@ -64,6 +66,8 @@ export interface PlayerSave {
   /** Optional so saves made before the story/alchemy update remain playable. */
   immortal?: ImmortalProgress;
   life?: LifeProgress;
+  adventure?: AdventureProgress;
+  skillLoadout?: SkillId[];
 }
 
 export interface SaveData {
@@ -110,7 +114,6 @@ export function deserialize(raw: string | null): SaveData | null {
     if (data.player.sex !== 'male' && data.player.sex !== 'female') data.player.sex = 'female';
     const realmIndex = REALMS.findIndex((realm) => data.player.level <= realm.maxLevel);
     data.player.realmIndex = realmIndex < 0 ? REALMS.length - 1 : realmIndex;
-    for(const [slot,id] of Object.entries(data.player.equipment??{}))if(slot!=='weapon'&&id){data.player.inventory[id]=(data.player.inventory[id]??0)+1;delete data.player.equipment[slot as EquipSlot];}
     return data;
   } catch {
     return null;

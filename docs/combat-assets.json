@@ -1,0 +1,17 @@
+{
+  "mode": "Built-in image_gen",
+  "assets": [
+    {
+      "file": "public/assets/maps/hero-wang-simple.png",
+      "prompt": "Use case: stylized-concept. Asset: transparent xianxia RPG character sprite sheet. Reference image is identity/color reference only. Redraw Wang Lin as a simple small full-body village-style game character, young adult man with long silver hair, dark charcoal hanfu and restrained red accents, clean soft painted shapes and readable silhouette, no aura, no weapon, no effects. Adult face but compact proportions matching a rural child-sized game sprite. Exactly four equal columns and two equal rows, eight poses. Top row four subtle idle poses, bottom row four restrained walking poses, all three-quarter side view facing right. Identical anatomy, size, clothes and grounded feet across all cells. Each figure fully inside its cell with generous transparent margins. Genuine transparent alpha, no backdrop, no shadows beyond feet, no labels, no panels, no text. No elaborate floating fabric or attack animation."
+    },
+    {
+      "file": "public/assets/maps/hero-li-simple.png",
+      "prompt": "Use case: stylized-concept. Asset: transparent xianxia RPG character sprite sheet. Reference is identity and costume color reference only. Redraw Li Mu Wan as a simple small full-body village-style game character, young adult woman with long dark hair and a small blue-white flower hairpin, ivory and pale lavender hanfu, restrained blue trim, clean soft painted shapes and readable silhouette, no aura, no weapon, no butterflies or effects. Adult face but compact proportions matching a rural child-sized game sprite. Exactly four equal columns and two equal rows, eight poses. Top row four subtle idle poses, bottom row four restrained walking poses, all three-quarter side view facing right. Identical anatomy, size, clothes and grounded feet across all cells. Each figure fully inside its cell with generous transparent margins. Genuine transparent alpha, no backdrop, no shadows beyond feet, no labels, no panels, no text. No elaborate floating fabric or attack animation."
+    },
+    {
+      "file": "public/assets/maps/dungeon-bosses-v3.png",
+      "prompt": "Use case: stylized-concept. Asset: transparent 3-column by 2-row monster boss atlas for a small painted Vietnamese xianxia RPG. Exactly five isolated full-body creatures, consistent compact game illustration style and three-quarter side view, readable at 136 pixels tall, feet grounded, no background and generous transparent margins. Top left: proud icy silver wolf king with restrained blue crystal armor. Top middle: powerful red-gold flame tiger emperor, sculpted fur rather than oversized flame effects. Top right: blue-violet thunder kirin with antlers, jade armor and a lightning horn. Bottom left: dark shadow wolf with pale violet markings and glowing eyes. Bottom middle: majestic celestial white-gold lion guardian with a small decorative sun halo on its mane, not filling the cell. Bottom right cell completely empty. No UI, no letters, no labels, no scenery, no shadows outside feet. All sprites stay inside equal grid cells, with no overlap. Genuine alpha transparency."
+    }
+  ]
+}

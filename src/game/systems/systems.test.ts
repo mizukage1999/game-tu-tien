@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { computeDamage, inAttackArc } from './combat';
 import { createBrain, provoke, stepMonsterAI, type AIParams } from './monsterAI';
-import { canAct, canBeHit, createLife, knockDown, tickLife, DOWNED_DURATION_MS } from './respawn';
+import { canAct, canBeHit, createLife, knockDown, tickLife } from './respawn';
 import { rollDungeonGear, rollLoot } from './loot';
 import { findPath } from './path';
 import { questDestination, routeOnMap } from './questNav';
@@ -107,17 +107,17 @@ describe('monster AI', () => {
 });
 
 describe('downed state', () => {
-  it('blocks actions for 2.5s, then revives with invulnerability', () => {
+  it('stays downed until a map transfer instead of reviving on the spot', () => {
     const life = createLife();
     knockDown(life);
     expect(canAct(life)).toBe(false);
     expect(canBeHit(life)).toBe(false);
-    expect(tickLife(life, DOWNED_DURATION_MS - 1)).toBe(false);
-    expect(tickLife(life, 1)).toBe(true);
-    expect(canAct(life)).toBe(true);
+    expect(tickLife(life, 3000)).toBe(false);
+    expect(tickLife(life, 1)).toBe(false);
+    expect(canAct(life)).toBe(false);
     expect(canBeHit(life)).toBe(false);
     tickLife(life, 5000);
-    expect(canBeHit(life)).toBe(true);
+    expect(canBeHit(life)).toBe(false);
   });
 });
 
@@ -204,8 +204,8 @@ describe('progression', () => {
   it('adds weapon bonuses and ignores legacy armor slots', () => {
     const base = computeStats(5, 0, {});
     const ringed = computeStats(5, 0, { ring: 'nhan_bac' });
-    expect(ringed).toEqual(base);
-    expect(computeStats(5, 0, {weapon:'moc_kiem',ring:'nhan_bac'}).atk).toBe(base.atk + 4);
+    expect(ringed.atk).toBe(base.atk+8);
+    expect(computeStats(5, 0, {weapon:'moc_kiem',ring:'nhan_bac'}).atk).toBe(base.atk + 12);
   });
 
   it('gates equipment by rarity level', () => {
@@ -223,7 +223,7 @@ describe('progression', () => {
     expect(canEquip('weapon_red', 100).ok).toBe(true);
     expect(canEquip('weapon_pink', 100).ok).toBe(true);
     expect(canEquip('armor_white', 9).ok).toBe(false);
-    expect(canEquip('armor_white', 100).ok).toBe(false);
+    expect(canEquip('armor_white', 100).ok).toBe(true);
     expect(canEquip('moc_kiem', 1).ok).toBe(true);
     expect(canEquip('hoi_xuan_dan', 99).ok).toBe(false);
   });
@@ -238,8 +238,8 @@ describe('progression', () => {
       prev = atk;
     }
     const equipment = NPCS.thuong_nhan.shop!.filter(o=>ITEMS[o.item]?.kind==='equipment');
-    expect(equipment).toHaveLength(RARITIES.length);
-    expect(equipment.every(o=>ITEMS[o.item].slot==='weapon')).toBe(true);
+    expect(equipment).toHaveLength(RARITIES.length*EQUIP_SLOTS.length);
+    expect(new Set(equipment.map(o=>ITEMS[o.item].slot)).size).toBe(EQUIP_SLOTS.length);
     expect(NPCS.thuong_nhan.shop!.some(o=>o.item==='hat_thanh_linh')).toBe(true);
   });
 });
@@ -252,8 +252,8 @@ describe('world scale', () => {
     expect(fieldForLevel(15).minLevel).toBe(11);
     expect(fieldForLevel(99).maxLevel).toBe(99);
     expect(canEnterField(15, { min: 11, max: 20 }).ok).toBe(true);
-    expect(canEnterField(15, { min: 1, max: 10 }).ok).toBe(false);
-    expect(canEnterField(9, { min: 11, max: 20 }).ok).toBe(false);
+    expect(canEnterField(15, { min: 1, max: 10 }).ok).toBe(true);
+    expect(canEnterField(9, { min: 11, max: 20 }).ok).toBe(true);
   });
 
   it('builds a map for every level band and a dungeon for every difficulty', () => {
@@ -315,7 +315,7 @@ describe('quest navigation', () => {
   it('refuses a field the player has outleveled', () => {
     const log = acceptQuest({}, QUESTS, 'side_3', { level: 20 });
     const nav = questDestination('side_3', log, 20, 'dai_thua_vien');
-    expect(nav.kind).toBe('toast');
+    expect(nav.kind).toBe('go');
   });
 });
 

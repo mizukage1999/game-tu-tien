@@ -49,7 +49,7 @@ describe('dungeon run', () => {
     expect(attemptsLeft(rec, 'bang_tuyet_dong', def, '2026-10-10')).toBe(0);
     expect(canEnter(rec, 'bang_tuyet_dong', def, 20, '2026-10-10').ok).toBe(false);
     expect(attemptsLeft(rec, 'bang_tuyet_dong', def, '2026-10-11')).toBe(def.attemptsPerDay);
-    expect(canEnter(undefined, 'bang_tuyet_dong', def, def.minLevel - 1).ok).toBe(false);
+    expect(canEnter(undefined, 'bang_tuyet_dong', def, def.minLevel - 1).ok).toBe(true);
   });
 
   it('flags only the first clear', () => {

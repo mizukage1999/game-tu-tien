@@ -58,9 +58,10 @@ export function fieldForLevel(level: number) {
 
 export type FieldCheck = { ok: true } | { ok: false; reason: string };
 
-export function canEnterField(level: number, range: LevelRange): FieldCheck {
-  if (level < range.min) return { ok: false, reason: 'Tu vi chưa đủ để vào khu vực này.' };
-  if (level > range.max) return { ok: false, reason: 'Tu vi đã vượt khu vực này. Hãy đến vùng đất phù hợp hơn.' };
+export function canEnterField(_level: number, _range: LevelRange): FieldCheck {
+  // Keep the travel API compatible with saves and callers; ranges are recommendations.
+  void _level;
+  void _range;
   return { ok: true };
 }
 
@@ -76,9 +77,9 @@ export type DifficultyId = (typeof DIFFICULTIES)[number]['id'];
 export const DUNGEON_TIERS = [
   { level: 10, name: 'Băng Tuyết Động', map: 'pb_bang_tuyet', art: 'beast_snow' as const, bossArt: 'beast_frost_king' as const },
   { level: 30, name: 'Hỏa Diễm Cốc', map: 'pb_hoa_diem', art: 'beast_fire' as const, bossArt: 'beast_fire_king' as const },
-  { level: 50, name: 'Lôi Đình Uyên', map: 'pb_bang_tuyet', art: 'beast_snow' as const, bossArt: 'beast_frost_king' as const },
-  { level: 70, name: 'U Minh Huyết Địa', map: 'pb_hoa_diem', art: 'beast_fire' as const, bossArt: 'beast_fire_king' as const },
-  { level: 90, name: 'Thiên Kiếp Điện', map: 'pb_bang_tuyet', art: 'beast_snow' as const, bossArt: 'beast_fire_king' as const },
+  { level: 50, name: 'Lôi Đình Cổ Điện', map: 'pb_loi_dinh', art: 'beast_snow' as const, bossArt: 'beast_frost_king' as const },
+  { level: 70, name: 'U Minh Lang Địa', map: 'pb_u_minh', art: 'beast_fire' as const, bossArt: 'beast_fire_king' as const },
+  { level: 90, name: 'Huyền Thiên Kiếp Đài', map: 'pb_thien_kiep', art: 'beast_snow' as const, bossArt: 'beast_fire_king' as const },
 ];
 
 export function dungeonId(level: number, diff: DifficultyId) {
@@ -157,21 +158,23 @@ export function buildScaledContent(): { monsters: Record<string, MonsterDef>; du
       const mobId = `dg_${tier.level}_${diff.id}`;
       const bossId = `dg_${tier.level}_${diff.id}_boss`;
       monsters[mobId] = makeMob(`${tier.name} Hộ Vệ`, level, tier.art, diff.stat, false);
-      const boss = makeMob(`${tier.name} Chủ`, level + 2, tier.bossArt, diff.stat * 1.15, true);
-      boss.scale = 2;
-      boss.hp = Math.round(boss.hp * 6);
+      const bossIndex=DUNGEON_TIERS.indexOf(tier);
+      const boss = makeMob(['Hàn Sương Lang Vương','Xích Diễm Hổ Hoàng','Lôi Dực Kỳ Lân','U Ảnh Ma Lang','Huyền Thiên Thủ Hộ'][bossIndex], level + 2, `dungeon_boss_${bossIndex}`, diff.stat * 1.35, true);
+      boss.scale = 1.7;
+      boss.hp = Math.round(boss.hp * (diff.id==='de'?8:12));
+      boss.atk = Math.round(boss.atk*1.2);
       boss.exp = expForMonsterLevel(level) * 6;
       boss.respawnMs = 0;
       boss.leashRadius = 99999;
       boss.aggroRadius = 900;
-      boss.boss = { slamInterval: 6000, slamWindup: 900, slamRadius: 140, slamMul: 1.6 + diff.levelAdd / 20, summon: { type: mobId, count: 2, atHpPct: 0.5 } };
+      boss.boss = { pattern:(['frost','fire','storm','shadow','celestial'] as const)[bossIndex],slamInterval: 5500, slamWindup: 1100, slamRadius: bossIndex===1?175:135, slamMul: 1.7 + diff.levelAdd / 20, summon: { type: mobId, count: diff.id==='dia_nguc'?4:2, atHpPct: 0.5 } };
       monsters[bossId] = boss;
 
       const reward = Math.round(diff.reward * 10) / 10;
       const rewards: QuestRewards = {
         exp: expForMonsterLevel(level) * 8,
         linhKhi: Math.round(tier.level * 40 * reward),
-        items: { linh_thach: Math.max(1, Math.round((tier.level / 10) * reward)), kiem_pho: diff.levelAdd >= 5 ? 2 : 1 },
+        items: { linh_thach: Math.max(2, Math.round((tier.level / 5) * reward)), kiem_pho: diff.levelAdd >= 5 ? 3 : 1,tinh_luyen_thach:diff.levelAdd>=5?2:1,huyen_thiet:3+bossIndex },
       };
       const counts = [3, 4, 5].map((n) => n + Math.floor(diff.levelAdd / 4));
       dungeons[dungeonId(tier.level, diff.id)] = {
@@ -179,12 +182,13 @@ export function buildScaledContent(): { monsters: Record<string, MonsterDef>; du
         map: tier.map,
         desc: `Phó bản thử luyện, độ khó ${diff.name}. Yêu thú hung hiểm, cần chuẩn bị hành trang.`,
         minLevel: tier.level,
+        recommendedPower:Math.round((600+tier.level*100)*diff.stat),
         attemptsPerDay: diff.attempts,
         timeLimitSec: diff.time,
         waves: counts.map((count) => [{ type: mobId, count }]),
         boss: bossId,
         rewards,
-        firstClear: { items: { hoi_xuan_dan: 2, kiem_pho: 1 } },
+        firstClear: { items: { hoi_xuan_dan: 3, kiem_pho: 2,tinh_luyen_thach:3 } },
         drops: gearDrops(diff.id),
         tier: tier.level,
         difficulty: diff.id,

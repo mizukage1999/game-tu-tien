@@ -9,6 +9,7 @@ import dungeonsJson from './dungeons.json';
 import { buildScaledContent, FIELD_BANDS } from '../game/systems/scale';
 import { NEW_MAPS, WORLD_NPCS, WORLD_QUESTS } from './world';
 import { EXPANSION_ITEMS, EXPANSION_OFFERS } from './expansion';
+import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 
 export interface LootEntry {
   item: string;
@@ -37,6 +38,7 @@ export interface MonsterDef {
 }
 
 export interface BossDef {
+  pattern?: 'frost'|'fire'|'storm'|'shadow'|'celestial';
   slamInterval: number;
   slamWindup: number;
   slamRadius: number;
@@ -79,9 +81,12 @@ export interface ItemDef {
   bonus?: StatBonus;
 }
 
-export type SkillId = 'basic' | 'bang_tam_tram' | 'phi_kiem' | 'han_bang_tran' | 'than_phap';
+export type SkillId = 'basic' | 'bang_tam_tram' | 'phi_kiem' | 'han_bang_tran' | 'than_phap' | 'loi_kich' | 'hoa_lien' | 'moc_linh' | 'kim_cang' | 'phong_nhan';
 
 export interface SkillDef {
+  kind?: 'melee'|'projectile'|'nova'|'heal'|'shield'|'dash';
+  unlockLevel?: number;
+  secret?: boolean;
   name: string;
   key: string;
   mpCost: number;
@@ -111,6 +116,7 @@ export interface WaveSpawn {
 }
 
 export interface DungeonDef {
+  recommendedPower?:number;
   name: string;
   map: string;
   desc: string;
@@ -252,19 +258,21 @@ export const MONSTERS: Record<string, MonsterDef> = {
   thanh_moc_thu: { name: 'Thanh Mộc Thú', level: 3, art: 'beast_snow', hp: 210, atk: 13, def: 5, speed: 100, aggroRadius: 165, attackRange: 55, attackInterval: 1700, attackWindup: 350, leashRadius: 230, exp: 65, respawnMs: 12000, loot: [{ item: 'linh_khi', qty: [4, 8], chance: 1 }, { item: 'linh_thach', qty: [1, 1], chance: .35 }, { item: 'linh_chi', qty: [1, 1], chance: .25 }] },
   thach_linh_thu: { name: 'Thạch Linh Thú', level: 5, art: 'beast_snow', hp: 330, atk: 19, def: 9, speed: 95, aggroRadius: 155, attackRange: 58, attackInterval: 1800, attackWindup: 400, leashRadius: 240, exp: 105, respawnMs: 16000, loot: [{ item: 'linh_khi', qty: [8, 15], chance: 1 }, { item: 'yeu_dan', qty: [1, 1], chance: .45 }, { item: 'linh_thach', qty: [1, 2], chance: .4 }] },
 };
-export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS };
-export const SKILLS = skillsJson as unknown as Record<SkillId, SkillDef>;
+export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS };
+export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS};
 export const REALMS = realmsJson as unknown as RealmDef[];
 export const QUESTS: Record<string, QuestDef> = { ...(questsJson as unknown as Record<string, QuestDef>), ...WORLD_QUESTS };
 export const NPCS: Record<string, NpcDef> = Object.fromEntries(
   Object.entries({ ...(npcsJson as unknown as Record<string, NpcDef>), ...WORLD_NPCS }).map(([id, n]) => [
     id,
-    n.equipmentShop ? { ...n, shop: [...(n.shop ?? []), ...equipmentOffers().filter(o=>ITEMS[o.item].slot==='weapon'), ...EXPANSION_OFFERS] } : n,
+    n.equipmentShop ? { ...n, shop: [...(n.shop ?? []), ...equipmentOffers(), ...EXPANSION_OFFERS] } : n,
   ]),
 );
 export const DUNGEONS: Record<string, DungeonDef> = {
   ...(dungeonsJson as unknown as Record<string, DungeonDef>),
   ...scaled.dungeons,
+  bang_tuyet_dong:{...scaled.dungeons.tier_10_de,name:'Băng Tuyết Lang Cung · Khởi hành',minLevel:5},
+  hoa_diem_coc:{...scaled.dungeons.tier_30_thuong,name:'Xích Diễm Hổ Cốc · Truyền thừa',minLevel:20},
 };
 
 export const ZONE_NAMES: Record<string, string> = {

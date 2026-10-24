@@ -1,0 +1,258 @@
+.duel-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 150;
+  background: #06121bea;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+}
+.duel-arena {
+  width: min(100% - 16px, 1000px);
+  max-height: calc(100% - 12px);
+  padding: 10px;
+  background: #0c2230;
+  overflow: auto;
+}
+.duel-arena > header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 4px 8px;
+}
+.duel-arena h3 {
+  margin: 0;
+  color: #edcf91;
+  font: 18px var(--serif);
+}
+.duel-arena header small {
+  font-size: 10px;
+  color: #9fb9c6;
+}
+.duel-arena header > b {
+  margin-left: auto;
+}
+.duel-stage {
+  width: min(100%, 720px);
+  aspect-ratio: 1.8;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  background:
+    repeating-linear-gradient(0deg, #28434533 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, #71848433 0 1px, transparent 1px 40px),
+    radial-gradient(ellipse, #47605a, #152f38);
+  border: 3px double #a78c53;
+  touch-action: none;
+  user-select: none;
+}
+.duel-floor-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #c1b57b20;
+  font: 32px var(--serif);
+  letter-spacing: 8px;
+  white-space: nowrap;
+}
+.duel-rock {
+  position: absolute;
+  width: 32px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(140deg, #a6afa4, #465951);
+  border: 1px solid #bbbc9455;
+  border-radius: 40% 30% 25% 35%;
+  box-shadow: 4px 5px 4px #0004;
+}
+.duel-fighter {
+  position: absolute;
+  width: 90px;
+  transform: translate(-50%, -82%);
+  text-align: center;
+  transition:
+    left 0.08s linear,
+    top 0.08s linear;
+  pointer-events: none;
+}
+.duel-body {
+  display: block;
+  width: 80px;
+  height: 80px;
+  margin: auto;
+  background-size: 400% 200%;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  filter: drop-shadow(0 3px 2px #0008);
+}
+.duel-body.wang {
+  background-image: url('/assets/maps/hero-wang-simple.png');
+}
+.duel-body.li {
+  background-image: url('/assets/maps/hero-li-simple.png');
+}
+.duel-fighter-name {
+  font-size: 10px;
+  color: #f3e3bc;
+  white-space: nowrap;
+  text-shadow: 1px 1px #000;
+}
+.duel-fighter small {
+  font-size: 8px;
+  color: #e7eceb;
+}
+.duel-hp {
+  height: 5px;
+  background: #190f14;
+  border: 1px solid #baab8877;
+}
+.duel-hp i {
+  display: block;
+  height: 100%;
+  background: #d97b6c;
+}
+.mine .duel-hp i {
+  background: #75bd9c;
+}
+.duel-effect {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid #f69a61;
+  background: #ff6b3829;
+  border-radius: 50%;
+  z-index: 4;
+}
+.duel-effect.line {
+  transform-origin: 0 50%;
+  border-radius: 4px;
+  background: #e79d4b44;
+}
+.duel-effect.cone {
+  border: none;
+}
+.duel-effect.landed {
+  background: #eee8ff99;
+  border-color: #fff;
+}
+.duel-countdown,
+.duel-finish {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #071a2877;
+  color: #f2d49d;
+  font: 38px var(--serif);
+  z-index: 8;
+}
+.duel-finish h2 {
+  font-size: 28px;
+  margin: 10px;
+}
+.duel-finish p {
+  font: 13px var(--font);
+}
+.duel-arena > footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+}
+.duel-directions {
+  display: flex;
+  gap: 3px;
+}
+.duel-directions button {
+  width: 34px;
+  height: 35px;
+  color: #ead8a5;
+  border: 1px solid #b29b6666;
+  background: #203f46;
+  border-radius: 6px;
+  touch-action: none;
+}
+.duel-mp {
+  font-size: 10px;
+  color: #a8cced;
+}
+.duel-mp small {
+  display: block;
+  color: #829ba3;
+  font-size: 9px;
+}
+.duel-abilities {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.duel-abilities button {
+  position: relative;
+  width: 64px;
+  min-height: 56px;
+  background: #162f40;
+  border: 1px solid #ac9869;
+  color: #e9d7a3;
+  border-radius: 6px;
+  touch-action: none;
+}
+.duel-abilities img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+.duel-abilities span {
+  font-size: 8px;
+  display: block;
+  line-height: 1.2;
+}
+.duel-abilities b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #07111dcc;
+  font-size: 17px;
+}
+.hud.phone .duel-arena {
+  padding: 6px;
+}
+.hud.phone .duel-stage {
+  width: min(100%, calc((100dvh - 138px) * 1.8));
+}
+.hud.phone.turned .duel-stage {
+  width: min(100%, calc((100dvw - 138px) * 1.8));
+}
+.hud.phone .duel-arena h3 {
+  font-size: 13px;
+}
+.hud.phone .duel-arena header small {
+  font-size: 8px;
+}
+.hud.phone .duel-fighter {
+  width: 70px;
+}
+.hud.phone .duel-body {
+  width: 58px;
+  height: 58px;
+}
+.hud.phone .duel-fighter-name {
+  font-size: 8px;
+}
+.hud.phone .duel-abilities button {
+  width: 49px;
+  min-height: 45px;
+}
+.hud.phone .duel-abilities img {
+  width: 25px;
+  height: 25px;
+}
+.hud.phone .duel-directions button {
+  width: 27px;
+  height: 30px;
+}
+.hud.phone .duel-mp small {
+  display: none;
+}

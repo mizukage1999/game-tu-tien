@@ -47,9 +47,11 @@ Khách có thể vào **Cài đặt → Tài khoản** để nâng cấp thành 
 
 - Chưa có khôi phục mật khẩu trên UI và chưa có bảng xếp hạng.
 - Guest xóa dữ liệu trình duyệt là mất đường vào nhân vật (dù save còn trên server).
-- Chưa có multiplayer: hai người chơi không nhìn thấy nhau trong map.
+- Có presence cùng map và tỷ võ điều khiển tay qua kênh social; chưa có máy chủ chiến đấu chuyên dụng hoặc phó bản chung nhiều người.
 
 ## Tiên Lộ · Thanh Vân Truyện
+
+Đợt cập nhật chiến đấu, EXP, cường hóa, tông môn, linh thú, thiên kiếp và hướng dẫn bật Tiên Ngọc: [docs/combat-rework.md](docs/combat-rework.md).
 
 ### Bảy bản đồ và tuổi thơ Vương Gia Thôn
 

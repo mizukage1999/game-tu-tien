@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceLife,
-  ageOf,
   companionStats,
   DAY_MS,
   lifeProgress,
-  lifespanOf,
   performLifeAction,
   type LifeAction,
 } from './life';
@@ -16,6 +14,7 @@ import { getMap, MAP_IDS } from '../maps';
 import { findPath } from './path';
 import { allowsWanderers, SETTLEMENTS, wandererRoster } from './wanderers';
 import { materializeDrop } from './loot';
+import { adventure } from './adventure';
 
 function player(): PlayerSave {
   return {
@@ -40,6 +39,7 @@ function player(): PlayerSave {
       thuc_an_linh_thu: 20,
     },
     equipment: {},
+    adventure:{...adventure({name:'test'} as PlayerSave),beastSeals:{snow_fox:2,gold_tiger:5}},
   };
 }
 function act(p: PlayerSave, action: LifeAction) {
@@ -48,34 +48,21 @@ function act(p: PlayerSave, action: LifeAction) {
   return result;
 }
 
-describe('age and independent cultivation', () => {
-  it('shows childhood identity and age for both choices', () => {
-    const child = { ...player(), admitted: false };
-    expect(ageOf(child)).toBe(12);
+describe('game calendar',()=>{
+  it('keeps identity choices and does not grant EXP for elapsed calendar time',()=>{
+    const p=player(),child={...p,admitted:false};
     expect(heroName(child)).toBe('Mộ Uyển');
-    expect(heroName({ ...child, sex: 'male' })).toBe('Thiết Trụ');
-    expect(originText('Thiết Trụ ở Vương Gia Thôn', child)).toBe('Mộ Uyển ở Vương Gia Thôn');
+    expect(heroName({...child,sex:'male'})).toBe('Thiết Trụ');
+    expect(originText('Thiết Trụ ở Vương Gia Thôn',child)).toBe('Mộ Uyển ở Vương Gia Thôn');
+    expect(playerStats(advanceLife(p,360*DAY_MS))).toEqual(playerStats(p));
+    expect(advanceLife(p,360*DAY_MS).exp).toBe(p.exp);
   });
-  it('advances age without awarding cultivation or changing stats', () => {
-    const p = player(),
-      aged = advanceLife(p, 360 * DAY_MS);
-    expect(ageOf(aged)).toBe(ageOf(p) + 1);
-    expect([aged.level, aged.exp, aged.realmIndex]).toEqual([p.level, p.exp, p.realmIndex]);
-    expect(playerStats(aged)).toEqual(playerStats(p));
-  });
-  it('carries partial days over successive updates and saves', () => {
-    let p = advanceLife(player(), DAY_MS - 1);
-    p = deserialize(serialize({ player: p, quests: {}, mapId: 'dong_phu', pos: null }))!.player;
-    expect(lifeProgress(advanceLife(p, 1)).days).toBe(lifeProgress(player()).days + 1);
-  });
-  it('increases lifespan through realm advancement independently of age', () => {
-    const p = player(),
-      advanced = { ...p, level: 11, realmIndex: 1 };
-    expect(lifespanOf(advanced)).toBeGreaterThan(lifespanOf(p));
-    expect(ageOf(advanced)).toBe(ageOf(p));
+  it('carries partial game days across save/reload',()=>{
+    let p=advanceLife(player(),DAY_MS-1);
+    p=deserialize(serialize({player:p,quests:{},mapId:'dong_phu',pos:null}))!.player;
+    expect(lifeProgress(advanceLife(p,1)).days).toBe(lifeProgress(player()).days+1);
   });
 });
-
 describe('private home resource loop', () => {
   it('requires a home, a living cultivator and a valid empty plot', () => {
     const p = player();
@@ -202,7 +189,7 @@ describe('wandering cultivators and companions', () => {
   it('charges once for each companion and swaps distinct stat bonuses', () => {
     const p = player(),
       fox = act(p, { type: 'tame', id: 'snow_fox' }).player;
-    expect(fox.inventory.yeu_dan).toBe(8);
+    expect(fox.inventory.yeu_dan).toBe(10);
     expect(companionStats(fox)).toEqual({ atk: 8, def: 2, hp: 40 });
     expect(performLifeAction(fox, { type: 'tame', id: 'snow_fox' }, true, true).ok).toBe(false);
     const tiger = act(fox, { type: 'tame', id: 'gold_tiger' }).player;
@@ -231,14 +218,14 @@ describe('weapon-only save compatibility', () => {
       equipment: { weapon: 'moc_kiem', armor: 'armor_white', ring: 'nhan_bac' },
     };
     const loaded = deserialize(serialize({ player: p, quests: {}, mapId: 'dong_phu', pos: null }))!;
-    expect(loaded.player.equipment).toEqual({ weapon: 'moc_kiem' });
-    expect(loaded.player.inventory.armor_white).toBe(1);
-    expect(loaded.player.inventory.nhan_bac).toBe(1);
+    expect(loaded.player.equipment).toEqual(p.equipment);
+    expect(loaded.player.inventory.armor_white).toBeUndefined();
+    expect(loaded.player.inventory.nhan_bac).toBeUndefined();
     const again = deserialize(serialize(loaded))!;
     expect(again.player.inventory).toEqual(loaded.player.inventory);
   });
   it('converts all generic gear drops into matching weapons', () => {
     for (const rarity of ['white', 'blue', 'green', 'purple', 'orange', 'red', 'pink'])
-      expect(materializeDrop(`gear:${rarity}`)).toBe(`weapon_${rarity}`);
+      expect(materializeDrop(`gear:${rarity}`,()=>0)).toBe(`weapon_${rarity}`);
   });
 });

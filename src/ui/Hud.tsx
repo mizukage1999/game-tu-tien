@@ -8,7 +8,7 @@ import { ExpBar } from './ExpBar';
 import { SkillBar } from './SkillBar';
 import { VirtualJoystick } from './VirtualJoystick';
 import { SwipeMove, usePhoneLayout, usePortrait } from './TouchPlay';
-import { ClockBar, DownedOverlay, InteractPrompt, TargetFrame, Toasts } from './Overlays';
+import { ClockBar, DownedOverlay, InteractPrompt, TargetFrame, Toasts, TribulationOverlay } from './Overlays';
 import { DialogBox } from './DialogBox';
 import { Menus } from './menus/Menus';
 import { PlayerCard } from './PlayerCard';
@@ -31,11 +31,12 @@ export function Hud() {
       <div className="hud-top-right">
         <div className="hud-top-stack">
           <CloudBadge />
-          <TopMenu />
+          <TopMenu phone={phone}/>
         </div>
         <Minimap />
       </div>
       <TargetFrame />
+      <TribulationOverlay/>
       <Toasts />
       <DownedOverlay />
       <div className="hud-bottom-left">

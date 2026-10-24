@@ -7,8 +7,9 @@ import { mapGateReason } from '../../game/systems/worldAccess';
 import { isChildhood } from '../../game/systems/origin';
 import { useGame } from '../../store/gameStore';
 import './world.css';
+import { FIELD_BANDS } from '../../game/systems/scale';
 
-const MAPS = [...NEW_MAPS, { id: 'dai_thua_vien', name: 'Đại Thừa Viện', group: 'Sơn môn', desc: 'Sân viện dành cho đệ tử mới, Linh Đài và dược viên của Vân Hạc.', color: '#e4c58d', icon: '院' }];
+const MAPS = [...NEW_MAPS, { id: 'dai_thua_vien', name: 'Đại Thừa Viện', group: 'Sơn môn', desc: 'Sân viện dành cho đệ tử mới, Linh Đài và dược viên của Vân Hạc.', color: '#e4c58d', icon: '院' },...FIELD_BANDS.map(b=>({id:b.id,name:b.name,group:'Vùng luyện công',desc:`Yêu thú đề nghị Lv.${b.minLevel}–${b.maxLevel}. Tự do ra vào, có thể trở lại vùng thấp.`,color:'#bdcbb0',icon:'山'})),{id:'sect_archive',name:'Tàng Kinh Các',group:'Tông môn',desc:'Mở ở 150 danh vọng · truyền thừa Nội Môn.',color:'#dec08a',icon:'卷'},{id:'sect_sacred',name:'Linh Địa Hậu Sơn',group:'Tông môn',desc:'Mở ở 350 danh vọng · linh khí dồi dào.',color:'#dec08a',icon:'府'}];
 const NODES: Record<string, [number, number]> = { vuong_gia_thon: [70, 180], ngoai_mon: [225, 180], dai_thua_vien: [380, 240], linh_son_tong: [550, 240], dinh_ta: [380, 85], rung_linh_thu: [550, 85], bi_canh_thach_linh: [710, 35], thac_ngoc: [710, 180] };
 const LINKS = [['vuong_gia_thon', 'ngoai_mon'], ['ngoai_mon', 'dai_thua_vien'], ['ngoai_mon', 'dinh_ta'], ['dai_thua_vien', 'linh_son_tong'], ['linh_son_tong', 'dinh_ta'], ['dinh_ta', 'rung_linh_thu'], ['dinh_ta', 'thac_ngoc'], ['rung_linh_thu', 'thac_ngoc'], ['rung_linh_thu', 'bi_canh_thach_linh']];
 function Preview({ id }: { id: string }) {
@@ -31,13 +32,13 @@ function Preview({ id }: { id: string }) {
 
 export function WorldAtlas() {
   const player = useGame((s) => s.player), quests = useGame((s) => s.quests), here = useGame((s) => s.mapId);
-  const context = { childhood: isChildhood(player), quests };
+  const context = { childhood: isChildhood(player), quests, reputation:player.adventure?.reputation??0 };
   const reason = (id: string) => mapGateReason(getMap(id), context) ?? (id !== here && !portalToward(getMap(here), id, player.level, context) ? 'Chưa mở đường đến khu vực này.' : null);
   return <div className="world-atlas">
     <div className="immortal-feature"><span className="immortal-feature-glyph">山</span><div><h3>Sơn Hà Đồ</h3><p>Chọn địa điểm để dẫn đường qua các cổng đã mở. Làng quê, sơn môn và sơn dã nối thành một hành trình.</p></div></div>
     <svg viewBox="0 0 790 300" className="world-route-map" aria-label="Đường nối các bản đồ">
       {LINKS.map(([a, b]) => <line key={`${a}-${b}`} x1={NODES[a][0]} y1={NODES[a][1]} x2={NODES[b][0]} y2={NODES[b][1]} stroke="#789185" strokeWidth="2" strokeDasharray="5 5" />)}
-      {MAPS.map((m) => { const locked = reason(m.id); const [x, y] = NODES[m.id]; return <g key={m.id} role="button" tabIndex={0} aria-label={`Dẫn đường tới ${m.name}`} aria-disabled={!!locked || m.id === here} onClick={() => !locked && EventBus.emit('cmd:travel', m.id)} onKeyDown={(e) => e.key === 'Enter' && !locked && EventBus.emit('cmd:travel', m.id)} opacity={locked ? .4 : 1}>
+      {MAPS.filter(m=>NODES[m.id]).map((m) => { const locked = reason(m.id); const [x, y] = NODES[m.id]; return <g key={m.id} role="button" tabIndex={0} aria-label={`Dẫn đường tới ${m.name}`} aria-disabled={!!locked || m.id === here} onClick={() => !locked && EventBus.emit('cmd:travel', m.id)} onKeyDown={(e) => e.key === 'Enter' && !locked && EventBus.emit('cmd:travel', m.id)} opacity={locked ? .4 : 1}>
         <circle cx={x} cy={y} r={m.id === here ? 23 : 19} fill="#1d3434" stroke={m.color} strokeWidth={m.id === here ? 3 : 1} /><text x={x} y={y + 6} textAnchor="middle" fill={m.color} fontSize="19">{m.icon}</text><text x={x} y={y + 39} textAnchor="middle" fill="#dce7dd" fontSize="12">{m.name.split(' · ')[0]}</text><title>{locked ?? m.desc}</title>
       </g>; })}
     </svg>

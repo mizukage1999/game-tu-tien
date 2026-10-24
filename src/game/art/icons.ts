@@ -110,31 +110,71 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
   }
   switch (id) {
     case 'moc_kiem': {
-      ctx.translate(m,m);ctx.rotate(Math.PI/4);
-      ctx.fillStyle=linear(ctx, -s*.05,0,s*.05,0,[[0,'#76512d'],[.5,'#d4b07a'],[1,'#926538']]);
-      ctx.beginPath();ctx.moveTo(0,-s*.45);ctx.lineTo(s*.055,-s*.32);ctx.lineTo(s*.055,s*.2);ctx.lineTo(-s*.055,s*.2);ctx.lineTo(-s*.055,-s*.32);ctx.closePath();ctx.fill();
-      ctx.fillStyle='#735035';ctx.fillRect(-s*.16,s*.18,s*.32,s*.065);ctx.fillRect(-s*.035,s*.22,s*.07,s*.22);
+      ctx.translate(m, m);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = linear(ctx, -s * 0.05, 0, s * 0.05, 0, [
+        [0, '#76512d'],
+        [0.5, '#d4b07a'],
+        [1, '#926538'],
+      ]);
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.45);
+      ctx.lineTo(s * 0.055, -s * 0.32);
+      ctx.lineTo(s * 0.055, s * 0.2);
+      ctx.lineTo(-s * 0.055, s * 0.2);
+      ctx.lineTo(-s * 0.055, -s * 0.32);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#735035';
+      ctx.fillRect(-s * 0.16, s * 0.18, s * 0.32, s * 0.065);
+      ctx.fillRect(-s * 0.035, s * 0.22, s * 0.07, s * 0.22);
       break;
     }
     case 'hat_thanh_linh':
     case 'hat_linh_chi':
     case 'hat_ngung_lo': {
-      fillEllipse(ctx,m,s*.6,s*.3,s*.27,'#876748');
-      ctx.fillStyle='#cfb47c';ctx.fillRect(s*.38,s*.23,s*.24,s*.15);
-      fillEllipse(ctx,s*.45,s*.55,s*.06,s*.09,ITEMS[id].color);
-      fillEllipse(ctx,s*.6,s*.65,s*.06,s*.09,ITEMS[id].color);
+      fillEllipse(ctx, m, s * 0.6, s * 0.3, s * 0.27, '#876748');
+      ctx.fillStyle = '#cfb47c';
+      ctx.fillRect(s * 0.38, s * 0.23, s * 0.24, s * 0.15);
+      fillEllipse(ctx, s * 0.45, s * 0.55, s * 0.06, s * 0.09, ITEMS[id].color);
+      fillEllipse(ctx, s * 0.6, s * 0.65, s * 0.06, s * 0.09, ITEMS[id].color);
       break;
     }
     case 'huyen_thiet': {
-      ctx.fillStyle=linear(ctx,0,0,s,s,[[0,'#d9e0e4'],[.5,'#607580'],[1,'#263b45']]);
-      ctx.beginPath();ctx.moveTo(s*.15,s*.7);ctx.lineTo(s*.3,s*.27);ctx.lineTo(s*.67,s*.18);ctx.lineTo(s*.87,s*.62);ctx.lineTo(s*.6,s*.85);ctx.closePath();ctx.fill();
-      ctx.strokeStyle='#b0bfc5';ctx.lineWidth=s*.025;ctx.beginPath();ctx.moveTo(s*.3,s*.27);ctx.lineTo(s*.5,s*.58);ctx.lineTo(s*.87,s*.62);ctx.stroke();
+      ctx.fillStyle = linear(ctx, 0, 0, s, s, [
+        [0, '#d9e0e4'],
+        [0.5, '#607580'],
+        [1, '#263b45'],
+      ]);
+      ctx.beginPath();
+      ctx.moveTo(s * 0.15, s * 0.7);
+      ctx.lineTo(s * 0.3, s * 0.27);
+      ctx.lineTo(s * 0.67, s * 0.18);
+      ctx.lineTo(s * 0.87, s * 0.62);
+      ctx.lineTo(s * 0.6, s * 0.85);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#b0bfc5';
+      ctx.lineWidth = s * 0.025;
+      ctx.beginPath();
+      ctx.moveTo(s * 0.3, s * 0.27);
+      ctx.lineTo(s * 0.5, s * 0.58);
+      ctx.lineTo(s * 0.87, s * 0.62);
+      ctx.stroke();
       break;
     }
     case 'phap_bao_ngoc': {
-      ctx.strokeStyle='#c9a963';ctx.lineWidth=s*.035;ctx.beginPath();ctx.moveTo(m,s*.1);ctx.lineTo(m,s*.35);ctx.stroke();
-      fillEllipse(ctx,m,s*.58,s*.29,s*.3,'#74bba3');fillEllipse(ctx,m,s*.58,s*.13,s*.14,'#243f40');
-      ctx.fillStyle='#e3c784';ctx.fillRect(m-s*.05,s*.84,s*.1,s*.1);break;
+      ctx.strokeStyle = '#c9a963';
+      ctx.lineWidth = s * 0.035;
+      ctx.beginPath();
+      ctx.moveTo(m, s * 0.1);
+      ctx.lineTo(m, s * 0.35);
+      ctx.stroke();
+      fillEllipse(ctx, m, s * 0.58, s * 0.29, s * 0.3, '#74bba3');
+      fillEllipse(ctx, m, s * 0.58, s * 0.13, s * 0.14, '#243f40');
+      ctx.fillStyle = '#e3c784';
+      ctx.fillRect(m - s * 0.05, s * 0.84, s * 0.1, s * 0.1);
+      break;
     }
     case 'linh_thach': {
       ctx.fillStyle = radial(ctx, m, m, m, [
@@ -182,10 +222,17 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
       break;
     }
     case 'hoi_xuan_dan': {
-      fillEllipse(ctx, m, s * 0.62, s * 0.3, s * 0.3, linear(ctx, 0, s * 0.3, 0, s, [
-        [0, '#a8ffb8'],
-        [1, '#1f9a45'],
-      ]));
+      fillEllipse(
+        ctx,
+        m,
+        s * 0.62,
+        s * 0.3,
+        s * 0.3,
+        linear(ctx, 0, s * 0.3, 0, s, [
+          [0, '#a8ffb8'],
+          [1, '#1f9a45'],
+        ]),
+      );
       ctx.fillStyle = '#8a5a2b';
       ctx.fillRect(m - s * 0.1, s * 0.12, s * 0.2, s * 0.22);
       ctx.fillStyle = '#d23a3a';
@@ -243,23 +290,44 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
     case 'pha_canh_dan':
     case 'yeu_dan': {
       const color = ITEMS[id]?.color ?? '#b8a1f0';
-      fillEllipse(ctx, m, m, s * 0.33, s * 0.33, radial(ctx, m - s * .1, m - s * .12, s * .55, [[0, '#ffffff'], [.3, color], [1, '#213947']]));
-      ctx.strokeStyle = '#e8d898'; ctx.lineWidth = Math.max(1, s / 25);
-      ctx.beginPath(); ctx.arc(m, m, s * .22, .2, 4.2); ctx.stroke();
+      fillEllipse(
+        ctx,
+        m,
+        m,
+        s * 0.33,
+        s * 0.33,
+        radial(ctx, m - s * 0.1, m - s * 0.12, s * 0.55, [
+          [0, '#ffffff'],
+          [0.3, color],
+          [1, '#213947'],
+        ]),
+      );
+      ctx.strokeStyle = '#e8d898';
+      ctx.lineWidth = Math.max(1, s / 25);
+      ctx.beginPath();
+      ctx.arc(m, m, s * 0.22, 0.2, 4.2);
+      ctx.stroke();
       break;
     }
     case 'thanh_linh_thao':
     case 'linh_chi': {
-      ctx.strokeStyle = '#c6d6a1'; ctx.lineWidth = s * .06;
-      ctx.beginPath(); ctx.moveTo(m, s * .85); ctx.lineTo(m, s * .22); ctx.stroke();
-      fillEllipse(ctx, s * .35, s * .5, s * .22, s * .1, ITEMS[id].color);
-      fillEllipse(ctx, s * .65, s * .35, s * .22, s * .12, ITEMS[id].color);
+      ctx.strokeStyle = '#c6d6a1';
+      ctx.lineWidth = s * 0.06;
+      ctx.beginPath();
+      ctx.moveTo(m, s * 0.85);
+      ctx.lineTo(m, s * 0.22);
+      ctx.stroke();
+      fillEllipse(ctx, s * 0.35, s * 0.5, s * 0.22, s * 0.1, ITEMS[id].color);
+      fillEllipse(ctx, s * 0.65, s * 0.35, s * 0.22, s * 0.12, ITEMS[id].color);
       break;
     }
     case 'ngung_lo': {
-      ctx.fillStyle = '#81d9ef'; ctx.beginPath(); ctx.moveTo(m, s * .1);
-      ctx.bezierCurveTo(s * .02, s * .7, s * .3, s * .9, m, s * .9);
-      ctx.bezierCurveTo(s * .7, s * .9, s * .98, s * .7, m, s * .1); ctx.fill();
+      ctx.fillStyle = '#81d9ef';
+      ctx.beginPath();
+      ctx.moveTo(m, s * 0.1);
+      ctx.bezierCurveTo(s * 0.02, s * 0.7, s * 0.3, s * 0.9, m, s * 0.9);
+      ctx.bezierCurveTo(s * 0.7, s * 0.9, s * 0.98, s * 0.7, m, s * 0.1);
+      ctx.fill();
       break;
     }
     default:
@@ -283,6 +351,58 @@ function drawSkill(ctx: Ctx, id: string, s: number) {
   ctx.lineCap = 'round';
   ctx.lineWidth = s / 14;
   switch (id) {
+    case 'loi_kich':
+      ctx.fillStyle = '#e9c9ff';
+      ctx.beginPath();
+      ctx.moveTo(s * 0.57, s * 0.12);
+      ctx.lineTo(s * 0.25, s * 0.54);
+      ctx.lineTo(s * 0.48, s * 0.54);
+      ctx.lineTo(s * 0.4, s * 0.88);
+      ctx.lineTo(s * 0.78, s * 0.4);
+      ctx.lineTo(s * 0.55, s * 0.4);
+      ctx.closePath();
+      ctx.fill();
+      break;
+    case 'hoa_lien':
+      ctx.fillStyle = '#ffb963';
+      for (let i = 0; i < 5; i++) {
+        ctx.save();
+        ctx.translate(m, m);
+        ctx.rotate((i * Math.PI * 2) / 5);
+        ctx.beginPath();
+        ctx.ellipse(0, -s * 0.19, s * 0.1, s * 0.22, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.fillStyle = '#fff3a2';
+      ctx.beginPath();
+      ctx.arc(m, m, s * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    case 'moc_linh':
+      ctx.fillStyle = '#91efb9';
+      ctx.fillRect(s * 0.42, s * 0.23, s * 0.16, s * 0.54);
+      ctx.fillRect(s * 0.23, s * 0.42, s * 0.54, s * 0.16);
+      break;
+    case 'kim_cang':
+      ctx.strokeStyle = '#ffdc8c';
+      ctx.beginPath();
+      ctx.moveTo(m, s * 0.16);
+      ctx.lineTo(s * 0.79, s * 0.3);
+      ctx.quadraticCurveTo(s * 0.79, s * 0.65, m, s * 0.85);
+      ctx.quadraticCurveTo(s * 0.21, s * 0.65, s * 0.21, s * 0.3);
+      ctx.closePath();
+      ctx.stroke();
+      break;
+    case 'phong_nhan':
+      ctx.strokeStyle = '#b4ffdc';
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(s * 0.23, s * (0.27 + i * 0.18));
+        ctx.quadraticCurveTo(s * 0.6, s * (0.05 + i * 0.18), s * 0.82, s * (0.27 + i * 0.18));
+        ctx.stroke();
+      }
+      break;
     case 'bang_tam_tram':
       ctx.beginPath();
       ctx.arc(m - s * 0.12, m, s * 0.34, -1.1, 1.1);
@@ -386,12 +506,15 @@ export function itemSpriteTextureKey(id: string) {
     item?.slot && ['armor', 'boots', 'ring', 'amulet'].includes(item.slot) && spriteRarity
       ? `${item.slot}_${spriteRarity}`
       : undefined;
-  const weaponAsset = item?.slot === 'weapon' && spriteRarity ? `weapon_${spriteRarity}` : undefined;
-  const assetId = ITEM_SPRITE_ASSETS[id] ? id : tieredGearAsset ?? weaponAsset ?? (item?.slot ? `equipment_${item.slot}` : undefined);
+  const weaponAsset =
+    item?.slot === 'weapon' && spriteRarity ? `weapon_${spriteRarity}` : undefined;
+  const assetId = ITEM_SPRITE_ASSETS[id]
+    ? id
+    : (tieredGearAsset ?? weaponAsset ?? (item?.slot ? `equipment_${item.slot}` : undefined));
   return assetId && ITEM_SPRITE_ASSETS[assetId] ? `item-sprite-${assetId}` : undefined;
 }
 
-const UI_SKILL_ICONS: Record<SkillId, string> = {
+const UI_SKILL_ICONS: Partial<Record<SkillId, string>> = {
   basic: '/assets/ui/skill-basic.png',
   phi_kiem: '/assets/ui/skill-phi-kiem.png',
   bang_tam_tram: '/assets/ui/skill-bang-tam-tram.png',
@@ -407,7 +530,7 @@ const LI_MU_SKILL_ICONS: Partial<Record<SkillId, string>> = {
   than_phap: '/assets/ui/skill-than-phap-li-mu.png',
 };
 
-const WANG_LIN_SKILL_ICONS: Record<SkillId, string> = {
+const WANG_LIN_SKILL_ICONS: Partial<Record<SkillId, string>> = {
   basic: '/assets/ui/skill-basic-wang-lin.png',
   bang_tam_tram: '/assets/ui/skill-bang-tam-tram-wang-lin.png',
   phi_kiem: '/assets/ui/skill-phi-kiem-wang-lin.png',
@@ -437,8 +560,11 @@ export function skillIconUrl(id: string, s = 64) {
 }
 
 export function skillSpriteUrl(id: SkillId, sex: 'female' | 'male' = 'male') {
-  if (sex === 'male') return WANG_LIN_SKILL_ICONS[id];
-  return LI_MU_SKILL_ICONS[id] ?? UI_SKILL_ICONS[id];
+  return (
+    (sex === 'male' ? WANG_LIN_SKILL_ICONS[id] : LI_MU_SKILL_ICONS[id]) ??
+    UI_SKILL_ICONS[id] ??
+    skillIconUrl(id)
+  );
 }
 
 export function portraitUrl(palette = 'player', s = 128) {
@@ -458,7 +584,9 @@ export function characterSpriteUrl(palette = 'player', s = 136) {
   });
 }
 
-export function buildLootTextures(spriteSources: Partial<Record<string, CanvasImageSource>> = {}): Record<string, HTMLCanvasElement> {
+export function buildLootTextures(
+  spriteSources: Partial<Record<string, CanvasImageSource>> = {},
+): Record<string, HTMLCanvasElement> {
   const out: Record<string, HTMLCanvasElement> = {};
   for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho', 'yeu_dan']) {
     const [c, ctx] = makeCanvas(32, 32);

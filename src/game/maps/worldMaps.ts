@@ -109,7 +109,7 @@ export function linhSonTong(): MapDef {
     id: 'linh_son_tong', name: 'Linh Sơn Tông', description: 'Nội tông · Chính điện truyền thừa', requiresAdmission: true,
     playerSpawn: [24, 31], ambient: 'petals', monsters: [], zones: [],
     npcs: [{ id: 'chap_su', x: 24, y: 15 }],
-    portals: [{ rect: [22, 33, 4, 1], to: 'dai_thua_vien', spawn: [36, 3], label: 'Đại Thừa Viện' }, { rect: [45, 16, 1, 3], to: 'dinh_ta', spawn: [31, 2], label: 'Đình Tạ' }],
+    portals: [{ rect: [22, 33, 4, 1], to: 'dai_thua_vien', spawn: [36, 3], label: 'Đại Thừa Viện' }, { rect: [45, 16, 1, 3], to: 'dinh_ta', spawn: [31, 2], label: 'Đình Tạ' },{rect:[0,16,1,2],to:'sect_archive',spawn:[22,13],label:'Tàng Kinh Các',reputation:150},{rect:[0,18,1,2],to:'sect_sacred',spawn:[22,13],label:'Linh Địa Hậu Sơn',reputation:350}],
     points: [point('sect_history', 'Bia truyền thừa', 18, 18, 'Bia ghi tên những người từng gìn giữ tông môn. Dưới mỗi cái tên là một đời người, chẳng thể gói trong đôi dòng chữ.')],
     landmarks: [{ name: 'LINH SƠN CHÍNH ĐIỆN', x: 24, y: 12 }, { name: 'HỒ BẠCH LIÊN', x: 36, y: 27 }],
   });

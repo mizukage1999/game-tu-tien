@@ -52,7 +52,8 @@ describe('immortal journey', () => {
     gameStore.setState({ player: { ...newPlayer(), inventory: { tu_linh_dan: 1 } } });
     gameStore.getState().consumeItem('tu_linh_dan');
     const after = gameStore.getState().player;
-    expect(after.level).toBe(2);
+    expect(after.level).toBe(1);
+    expect(after.exp).toBe(120);
     expect(after.linhKhi).toBe(80);
     expect(after.inventory.tu_linh_dan).toBeUndefined();
     gameStore.getState().consumeItem('tu_linh_dan');
@@ -66,7 +67,13 @@ describe('immortal journey', () => {
     expect(gameStore.getState().player.linhKhi).toBe(300);
     gameStore.getState().addItem('pha_canh_dan', 1);
     gameStore.getState().tryBreakthrough();
-    expect(gameStore.getState().player).toMatchObject({ level: 11, realmIndex: 1, linhKhi: 0 });
+    expect(gameStore.getState().tribulation).not.toBeNull();
+    expect(gameStore.getState().player).toMatchObject({ level: 10, realmIndex: 0, linhKhi: 0 });
+    gameStore.getState().finishTribulation(true);
+    expect(gameStore.getState().player.realmIndex).toBe(0);
+    gameStore.setState({tribulation:{realm:0,strikes:4,remaining:0}});
+    gameStore.getState().finishTribulation(true);
+    expect(gameStore.getState().player).toMatchObject({level:11,realmIndex:1});
     expect(gameStore.getState().player.inventory.pha_canh_dan).toBeUndefined();
   });
 

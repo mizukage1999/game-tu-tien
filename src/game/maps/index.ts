@@ -1,5 +1,6 @@
 import { FIELD_BANDS, type FieldBand } from '../systems/scale';
 import { MapBuilder, type MapDef } from './MapBuilder';
+import { dungeonMap, DUNGEON_MAPS } from './dungeonMaps';
 import { daiThuaVien } from './courtyard';
 import { vuongGiaThon, ngoaiMon, linhSonTong, dinhTa, rungLinhThu, biCanhThachLinh, thacNgoc } from './worldMaps';
 
@@ -210,6 +211,13 @@ function fieldMap(band: FieldBand): MapDef {
 }
 
 const cache = new Map<string, MapDef>();
+function sectInterior(sacred:boolean):MapDef{
+  const b=new MapBuilder(26,22,sacred?'flower':'marble',sacred?209:208);
+  b.border('wall',[[25,12],[25,13],[25,14]]);b.fill(11,8,15,7,'path');
+  b.place(sacred?'sect-pavilion':'sect-hall',12,7,{block:[[-1,0],[0,0],[1,0],[-1,-1],[0,-1],[1,-1]],fade:true});
+  for(const[x,y]of [[4,4],[21,4],[4,18],[21,18]])b.place('sect-cherry',x,y,{fade:true});
+  return b.build({id:sacred?'sect_sacred':'sect_archive',name:sacred?'Linh Địa Hậu Sơn':'Tàng Kinh Các',reputation:sacred?350:150,requiresAdmission:true,monsters:[],npcs:[],ambient:'petals',playerSpawn:[22,13],zones:[{id:sacred?'sacred_training':'archive_training',name:sacred?'Linh Địa':'Tàng Kinh',rect:[9,10,6,5],rate:sacred?5:3}],portals:[{rect:[25,12,1,3],to:'linh_son_tong',spawn:[2,17],label:'Linh Sơn Tông'}],points:[{id:sacred?'sect_sacred_stone':'sect_secret_book',name:sacred?'Bia Linh Địa':'Bí Thuật Trưởng Lão',x:12,y:11,text:'Tông môn ghi nhận công lao của đệ tử.',repeatable:true}]});
+}
 function dongPhu(): MapDef {
   const b = new MapBuilder(22, 20, 'grass', 71);
   b.border('wall', [[10, 19], [11, 19]]);
@@ -230,7 +238,7 @@ function dongPhu(): MapDef {
     landmarks: [{name:'Linh điền',x:10,y:14},{name:'Tĩnh thất',x:10,y:3},{name:'Đan phòng',x:16,y:7}],
     points: [
       {id:'home_field',name:'Chăm sóc linh điền',x:6,y:12,text:'Gieo hạt và thu hoạch linh thảo theo ngày game.',repeatable:true},
-      {id:'home_chamber',name:'Vào tĩnh thất',x:10,y:6,text:'Bế quan, tích lũy tu vi độc lập với tuổi.',repeatable:true},
+      {id:'home_chamber',name:'Vào tĩnh thất',x:10,y:6,text:'Bế quan, tích lũy EXP độc lập với tuổi.',repeatable:true},
       {id:'home_furnace',name:'Sử dụng lò đan',x:15,y:9,text:'Nâng lò, học công thức và chế tạo.',repeatable:true},
       {id:'home_array',name:'Tụ linh trận',x:7,y:7,text:'Nâng cấp trận pháp để tăng hiệu suất bế quan.',repeatable:true},
     ],
@@ -239,6 +247,7 @@ function dongPhu(): MapDef {
 }
 
 const builders: Record<string, () => MapDef> = {
+  sect_archive:()=>sectInterior(false),sect_sacred:()=>sectInterior(true),
   vuong_gia_thon: vuongGiaThon,
   ngoai_mon: ngoaiMon,
   linh_son_tong: linhSonTong,
@@ -256,6 +265,7 @@ const builders: Record<string, () => MapDef> = {
 for (const band of FIELD_BANDS) {
   if (band.generated) builders[band.id] = () => fieldMap(band);
 }
+for(const [index,id]of DUNGEON_MAPS.entries())builders[id]=()=>dungeonMap(index);
 
 export function getMap(id: string): MapDef {
   let m = cache.get(id);

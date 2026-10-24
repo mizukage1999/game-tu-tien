@@ -1,4 +1,18 @@
 import { SKILLS, type SkillBonus, type SkillDef, type SkillId } from '../../data';
+import type { PlayerSave } from './save';
+
+export const DEFAULT_LOADOUT:SkillId[]=['basic','bang_tam_tram','phi_kiem','than_phap'];
+export function skillLoadout(p:PlayerSave):SkillId[]{
+  const selected=(p.skillLoadout??DEFAULT_LOADOUT).filter((id,i,a)=>SKILLS[id]&&a.indexOf(id)===i&&skillUnlocked(p,id));
+  for(const id of DEFAULT_LOADOUT)if(selected.length<4&&!selected.includes(id))selected.push(id);
+  return selected.slice(0,4);
+}
+export function skillUnlocked(p:PlayerSave,id:SkillId){const sk=SKILLS[id];return !!sk&&p.level>=(sk.unlockLevel??1)&&(!sk.secret||!!p.adventure?.learnedSecrets.includes(id));}
+export function chooseSkill(p:PlayerSave,slot:number,id:SkillId):PlayerSave|null{
+  if(!Number.isInteger(slot)||slot<0||slot>3||!skillUnlocked(p,id))return null;
+  const slots=skillLoadout(p),old=slots.indexOf(id);if(old>=0)[slots[old],slots[slot]]=[slots[slot],slots[old]];else slots[slot]=id;
+  return {...p,skillLoadout:slots};
+}
 
 export const SKILL_MAX_LEVEL = 10;
 export const SKILL_BONUS_LEVEL = 5;
@@ -58,7 +72,7 @@ export type UpgradeCheck = { ok: true; cost: UpgradeCost } | { ok: false; reason
 export function checkUpgrade(level: number, playerLevel: number, wallet: Wallet): UpgradeCheck {
   const cost = upgradeCost(level);
   if (!cost) return { ok: false, reason: 'Kỹ năng đã đạt cấp tối đa.', cost };
-  if (playerLevel < cost.reqLevel) return { ok: false, reason: 'Cần tinh tiến tu vi trước khi nâng kỹ năng.', cost };
+  if (playerLevel < cost.reqLevel) return { ok: false, reason: `Cần Lv.${cost.reqLevel} trước khi nâng kỹ năng.`, cost };
   if (wallet.linhKhi < cost.linhKhi) return { ok: false, reason: 'Không đủ Linh Khí.', cost };
   if (wallet.linhThach < cost.linhThach) return { ok: false, reason: 'Không đủ Linh Thạch.', cost };
   if (wallet.kiemPho < cost.kiemPho) return { ok: false, reason: 'Không đủ Kiếm Phổ Tàn Trang.', cost };

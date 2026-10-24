@@ -1,6 +1,10 @@
 import { gameStore } from '../store/gameStore';
 import { socialStore, type SocialInvite, presenceFor } from '../store/socialStore';
-import { buildDuelist, simulateDuel, type Duelist } from '../game/systems/duel';
+import { buildDuelist, type Duelist } from '../game/systems/duel';
+import { ArenaEngine, type ArenaInput } from '../game/systems/arena';
+import { EventBus } from '../game/EventBus';
+import { isChildhood } from '../game/systems/origin';
+import { lifeProgress } from '../game/systems/life';
 import { realmNameAtLevel } from '../game/systems/progression';
 import { saveGame } from '../game/systems/save';
 import { getAccountState } from './session';
@@ -11,7 +15,156 @@ let channel: SocialChannel | null = null;
 let stopSocial: (() => void) | null = null;
 
 /** Our own stats snapshot, taken when a duel is proposed so it cannot drift mid-fight. */
-let pendingNonce: { nonce: string; duelist: Duelist } | null = null;
+let pendingNonce: { nonce: string; duelist: Duelist; peer: string } | null = null;
+let arenaEngine: ArenaEngine | null = null;
+let arenaTimer: ReturnType<typeof setInterval> | null = null;
+let arenaReady = new Set<string>();
+let lastPeerInput = 0;
+let practiceSeq = 0;
+let rewardedNonce = '';
+function canDuel() {
+  const s = gameStore.getState();
+  return (
+    s.status === 'alive' &&
+    !isChildhood(s.player) &&
+    !s.tribulation &&
+    !s.dungeon &&
+    !lifeProgress(s.player).retreat &&
+    !socialStore.getState().duel
+  );
+}
+
+function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practice = false) {
+  if (arenaTimer) clearInterval(arenaTimer);
+  arenaEngine = host ? new ArenaEngine(nonce, a, b) : null;
+  arenaReady = new Set();
+  lastPeerInput = Date.now();
+  const snapshot = (arenaEngine ?? new ArenaEngine(nonce, a, b)).snapshot();
+  socialStore
+    .getState()
+    .setDuel({
+      nonce,
+      snapshot,
+      a,
+      b,
+      aIsMe: a.userId === myRef().userId,
+      localId: myRef().userId,
+      practice,
+    });
+  gameStore.getState().setAuto(false);
+  gameStore.getState().setMenu(null);
+  EventBus.emit('cmd:duelPause', true);
+  if (!host) {
+    arenaTimer = setInterval(() => {
+      const live = socialStore.getState().duel;
+      if (!live || live.snapshot.phase === 'finished') {
+        if (arenaTimer) clearInterval(arenaTimer);
+        arenaTimer = null;
+        return;
+      }
+      if (Date.now() - lastPeerInput > 20000) {
+        socialStore
+          .getState()
+          .setDuel({
+            ...live,
+            snapshot: {
+              ...live.snapshot,
+              phase: 'finished',
+              winner: null,
+              reason: 'Mất kết nối với đối thủ',
+            },
+          });
+      }
+    }, 1000);
+    return;
+  }
+  arenaTimer = setInterval(() => {
+    const live = socialStore.getState().duel;
+    if (!arenaEngine || !live) return;
+    if (practice && arenaEngine.state.phase === 'fighting') {
+      const [hero, bot] = arenaEngine.state.fighters,
+        dx = hero.x - bot.x,
+        dy = hero.y - bot.y,
+        d = Math.hypot(dx, dy) || 1;
+      const danger = arenaEngine.state.effects.some(
+        (e) =>
+          e.owner !== bot.userId &&
+          !e.resolved &&
+          Math.hypot(e.x - bot.x, e.y - bot.y) < e.range + 20,
+      );
+      arenaEngine.input(bot.userId, {
+        seq: ++practiceSeq,
+        x: danger ? -dy / d : d > 65 ? dx / d : 0,
+        y: danger ? dx / d : d > 65 ? dy / d : 0,
+        cast: d < 90 ? 'basic' : null,
+      });
+    }
+    if (!practice && Date.now() - lastPeerInput > 20000)
+      arenaEngine.forfeit(b.userId, 'Đối thủ mất kết nối');
+    arenaEngine.step(50);
+    const snapshot = arenaEngine.snapshot();
+    socialStore.getState().setDuel({ ...live, snapshot });
+    if (!practice)
+      channel?.send({ t: 'arena:state', to: b.userId, from: a.userId, nonce, snapshot });
+    if (snapshot.phase === 'finished') {
+      if (rewardedNonce !== nonce) {
+        rewardedNonce = nonce;
+        gameStore.getState().recordAdventure('duel');
+      }
+      if (arenaTimer) clearInterval(arenaTimer);
+      arenaTimer = null;
+    }
+  }, 50);
+}
+export function readyArena() {
+  const live = socialStore.getState().duel;
+  if (!live) return;
+  if (live.aIsMe) {
+    arenaReady.add(live.localId);
+    if (live.practice || arenaReady.has(live.b.userId)) arenaEngine?.start();
+  } else
+    channel?.send({ t: 'arena:ready', to: live.a.userId, from: live.localId, nonce: live.nonce });
+}
+export function sendArenaInput(input: ArenaInput) {
+  const live = socialStore.getState().duel;
+  if (!live) return;
+  if (live.aIsMe) arenaEngine?.input(live.localId, input);
+  else
+    channel?.send({
+      t: 'arena:input',
+      to: live.a.userId,
+      from: live.localId,
+      nonce: live.nonce,
+      input,
+    });
+}
+export function closeArena() {
+  const live = socialStore.getState().duel;
+  if (live && !live.practice && live.snapshot.phase !== 'finished')
+    channel?.send({
+      t: 'arena:leave',
+      to: live.aIsMe ? live.b.userId : live.a.userId,
+      from: live.localId,
+      nonce: live.nonce,
+    });
+  if (arenaTimer) clearInterval(arenaTimer);
+  arenaTimer = null;
+  arenaEngine = null;
+  socialStore.getState().setDuel(null);
+  EventBus.emit('cmd:duelPause', false);
+}
+export function practiceDuel() {
+  if (!canDuel()) return;
+  const mine = myDuelist(),
+    bot = {
+      ...mine,
+      userId: 'practice',
+      name: 'Mộc Nhân Luận Kiếm',
+      atk: Math.round(mine.atk * 0.7),
+      loadout: ['basic'] as Duelist['loadout'],
+    };
+  openArena(mine, bot, crypto.randomUUID().slice(0, 24), true, true);
+}
 
 function myRef(): FriendRef {
   const s = gameStore.getState();
@@ -45,7 +198,7 @@ function persistFriends(friends: FriendRef[]) {
 }
 
 function acceptDuel(invite: SocialInvite) {
-  if (!invite.nonce || !invite.duelist || !channel) return;
+  if (!invite.nonce || !invite.duelist || !channel || !canDuel()) return;
   const mine = myDuelist();
   channel.send({
     t: 'duel:ok',
@@ -54,16 +207,58 @@ function acceptDuel(invite: SocialInvite) {
     nonce: invite.nonce,
     duelist: mine,
   });
-  const result = simulateDuel(invite.duelist, mine, invite.nonce);
-  socialStore.getState().setDuel({ result, a: invite.duelist, b: mine, aIsMe: false, won: result.winnerId === mine.userId });
+  openArena(invite.duelist, mine, invite.nonce, false);
   socialStore.getState().dismissInvite(invite.id);
 }
 
 function handleMessage(message: SocialMessage) {
   const social = socialStore.getState();
   const game = gameStore.getState();
+  if (message.t.startsWith('arena:')) {
+    const m = message as Extract<
+        SocialMessage,
+        { t: 'arena:ready' | 'arena:input' | 'arena:state' | 'arena:leave' }
+      >,
+      live = social.duel;
+    if (!live || m.nonce !== live.nonce || m.from !== (live.aIsMe ? live.b.userId : live.a.userId))
+      return;
+    lastPeerInput = Date.now();
+    if (m.t === 'arena:ready' && live.aIsMe) {
+      arenaReady.add(m.from);
+      if (arenaReady.has(live.localId)) arenaEngine?.start();
+    }
+    if (m.t === 'arena:input' && live.aIsMe) arenaEngine?.input(m.from, m.input);
+    if (
+      m.t === 'arena:state' &&
+      !live.aIsMe &&
+      m.snapshot.elapsed >= live.snapshot.elapsed &&
+      m.snapshot.fighters[0].userId === live.a.userId &&
+      m.snapshot.fighters[1].userId === live.b.userId
+    ) {
+      social.setDuel({ ...live, snapshot: m.snapshot });
+      if (m.snapshot.phase === 'finished' && rewardedNonce !== live.nonce) {
+        rewardedNonce = live.nonce;
+        game.recordAdventure('duel');
+      }
+    }
+    if (m.t === 'arena:leave') {
+      if (arenaEngine) arenaEngine.forfeit(m.from);
+      else
+        social.setDuel({
+          ...live,
+          snapshot: {
+            ...live.snapshot,
+            phase: 'finished',
+            winner: live.localId,
+            reason: 'Đối thủ rời trận',
+          },
+        });
+    }
+    return;
+  }
   switch (message.t) {
     case 'duel:ask': {
+      if (!canDuel()) return;
       social.pushInvite({
         id: `duel:${message.from.userId}:${message.nonce}`,
         kind: 'duel',
@@ -76,15 +271,21 @@ function handleMessage(message: SocialMessage) {
       break;
     }
     case 'duel:ok': {
-      // Same seed, same stats on both sides: the two clients agree without a server.
-      const mine = pendingNonce?.duelist ?? myDuelist();
-      const result = simulateDuel(mine, message.duelist, message.nonce);
-      social.setDuel({ result, a: mine, b: message.duelist, aIsMe: true, won: result.winnerId === mine.userId });
+      if (
+        !pendingNonce ||
+        pendingNonce.nonce !== message.nonce ||
+        pendingNonce.peer !== message.from.userId ||
+        !canDuel()
+      )
+        return;
+      const mine = pendingNonce.duelist;
+      openArena(mine, message.duelist, message.nonce, true);
       pendingNonce = null;
       break;
     }
     case 'duel:no': {
-      game.toast(`${message.from} từ chối tỉ võ.`, 'warn');
+      if (pendingNonce?.peer !== message.from) return;
+      game.toast('Đối thủ từ chối tỉ võ.', 'warn');
       pendingNonce = null;
       break;
     }
@@ -114,7 +315,12 @@ function handleMessage(message: SocialMessage) {
       break;
     }
     case 'friend:ask': {
-      social.pushInvite({ id: `friend:${message.from.userId}`, kind: 'friend', from: message.from, createdAt: Date.now() });
+      social.pushInvite({
+        id: `friend:${message.from.userId}`,
+        kind: 'friend',
+        from: message.from,
+        createdAt: Date.now(),
+      });
       game.toast(`${message.from.name} muốn kết hảo hữu.`, 'warn');
       break;
     }
@@ -161,12 +367,17 @@ export function startSocial(): () => void {
   const offMessage = channel.onMessage(handleMessage);
   // Re-track presence when the character grows or changes map, so cards stay accurate.
   const offLevel = gameStore.subscribe((s, prev) => {
-    if (s.player.level !== prev.player.level || s.player.realmIndex !== prev.player.realmIndex || s.mapId !== prev.mapId) {
+    if (
+      s.player.level !== prev.player.level ||
+      s.player.realmIndex !== prev.player.realmIndex ||
+      s.mapId !== prev.mapId
+    ) {
       channel?.update(myProfile());
     }
   });
 
   const cleanup = () => {
+    closeArena();
     offRoster();
     offMessage();
     offLevel();
@@ -192,9 +403,10 @@ export function stopSocialChannel() {
 /** Sends a duel challenge. The nonce is what both clients later replay. */
 export function challengeDuel(userId: string) {
   if (!channel) return;
+  if (!canDuel()) return;
   const nonce = Math.random().toString(36).slice(2, 10);
   const duelist = myDuelist();
-  pendingNonce = { nonce, duelist };
+  pendingNonce = { nonce, duelist, peer: userId };
   channel.send({ t: 'duel:ask', to: userId, from: myRef(), nonce, duelist });
   gameStore.getState().toast('Đã gửi lời mời tỉ võ.', 'info');
 }
@@ -234,7 +446,12 @@ export function leaveParty() {
   }
   social.setPartyId(null, null);
   channel.update({ party: null });
-  gameStore.getState().toast(social.partyLeaderId === myRef().userId ? 'Đã giải tán tổ đội.' : 'Đã rời tổ đội.', 'info');
+  gameStore
+    .getState()
+    .toast(
+      social.partyLeaderId === myRef().userId ? 'Đã giải tán tổ đội.' : 'Đã rời tổ đội.',
+      'info',
+    );
 }
 
 /** Answers a pending invitation. */
@@ -243,8 +460,10 @@ export function respondInvite(invite: SocialInvite, accept: boolean) {
   social.dismissInvite(invite.id);
   if (!accept) {
     if (!channel) return;
-    if (invite.kind === 'duel') channel.send({ t: 'duel:no', to: invite.from.userId, from: myRef().userId });
-    if (invite.kind === 'friend') channel.send({ t: 'friend:no', to: invite.from.userId, from: myRef().userId });
+    if (invite.kind === 'duel')
+      channel.send({ t: 'duel:no', to: invite.from.userId, from: myRef().userId });
+    if (invite.kind === 'friend')
+      channel.send({ t: 'friend:no', to: invite.from.userId, from: myRef().userId });
     return;
   }
   if (invite.kind === 'duel') {
@@ -255,7 +474,12 @@ export function respondInvite(invite: SocialInvite, accept: boolean) {
     if (!channel) return;
     social.setPartyId(invite.partyId, invite.from.userId);
     channel.update({ party: invite.partyId });
-    channel.send({ t: 'party:join', to: invite.from.userId, from: myRef(), partyId: invite.partyId });
+    channel.send({
+      t: 'party:join',
+      to: invite.from.userId,
+      from: myRef(),
+      partyId: invite.partyId,
+    });
     gameStore.getState().toast(`Đã vào tổ đội của ${invite.from.name}.`, 'info');
     return;
   }

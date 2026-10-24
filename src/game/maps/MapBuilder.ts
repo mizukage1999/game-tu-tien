@@ -16,6 +16,7 @@ export interface DecorPlacement {
 }
 
 export interface PortalDef {
+  reputation?:number;
   rect: [number, number, number, number];
   to: string;
   spawn: [number, number];
@@ -27,6 +28,7 @@ export interface PortalDef {
 }
 
 export interface MapDef {
+  reputation?:number;
   id: string;
   name: string;
   width: number;
@@ -39,7 +41,7 @@ export interface MapDef {
   zones: ZoneDef[];
   portals: PortalDef[];
   playerSpawn: [number, number];
-  /** When set, only players inside this level range may stay on the map. */
+  /** Recommended level range; does not restrict entry or revisits. */
   level?: { min: number; max: number };
   ambient: 'petals' | 'fireflies' | 'snow' | 'embers';
   private?: boolean;

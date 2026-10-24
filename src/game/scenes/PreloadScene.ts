@@ -40,6 +40,7 @@ export class PreloadScene extends Phaser.Scene {
       const manifest = (this.cache.json.get('sprite-manifest') ?? {}) as Record<string, AtlasEntry>;
       for (const [key, entry] of Object.entries(manifest)) {
         if (key.startsWith('_')) continue;
+        if(['player','player_male','li_mu_fx','wang_lin_fx'].includes(key))continue;
         this.load.atlas(key, `assets/sprites/${entry.atlas}`, `assets/sprites/${entry.json}`);
       }
     });

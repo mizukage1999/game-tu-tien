@@ -22,14 +22,14 @@ export function immortalProgress(player: PlayerSave): ImmortalProgress {
 
 export const RECIPES = [
   { id: 'hoi_xuan_dan', name: 'Hồi Xuân Đan', level: 1, desc: 'Hồi 45% sinh lực và linh lực.', cost: { thanh_linh_thao: 2, ngung_lo: 1, linh_khi: 5 } },
-  { id: 'tu_linh_dan', name: 'Tụ Linh Đan', level: 1, desc: 'Dùng trong túi: nhận 120 tu vi và 80 Linh Khí.', cost: { thanh_linh_thao: 3, linh_chi: 1, ngung_lo: 1, linh_khi: 10 } },
+  { id: 'tu_linh_dan', name: 'Tụ Linh Đan', level: 1, desc: 'Dùng trong túi: nhận 120 EXP và 80 Linh Khí.', cost: { thanh_linh_thao: 3, linh_chi: 1, ngung_lo: 1, linh_khi: 10 } },
   { id: 'pha_canh_dan', name: 'Phá Cảnh Đan', level: 5, desc: 'Tiêu hao 1 viên khi đột phá đại cảnh giới.', cost: { linh_chi: 3, yeu_dan: 2, ngung_lo: 2, linh_khi: 40 } },
 ] as const;
 
 export function recipeCheck(player: PlayerSave, id: string): string | null {
   const recipe = RECIPES.find((r) => r.id === id);
   if (!recipe) return 'Không có đan phương này.';
-  if (player.level < recipe.level) return 'Cần tinh tiến tu vi để lĩnh ngộ đan phương.';
+  if (player.level < recipe.level) return 'Cần tinh tiến EXP để lĩnh ngộ đan phương.';
   for (const [item, qty] of Object.entries(recipe.cost)) {
     if ((item === 'linh_khi' ? player.linhKhi : player.inventory[item] ?? 0) < qty) return 'Chưa đủ nguyên liệu.';
   }

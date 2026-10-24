@@ -10,9 +10,9 @@ export function TargetFrame() {
   return (
     <div className="target-frame panel-glass">
       <div className="target-name">
-        {t.name} <span>Lv.{t.level}</span>
+        {t.name} {t.level>0&&<span>Lv.{t.level}</span>}
       </div>
-      <div className="bar bar-hp small">
+      <div className="bar bar-hp small" style={t.level===0?{display:'none'}:undefined}>
         <div className="bar-fill" style={{ width: `${pct}%` }} />
         <span className="bar-text">
           {t.hp} / {t.maxHp}
@@ -42,16 +42,16 @@ export function Toasts() {
     </div>
   );
 }
+export function TribulationOverlay(){const trial=useGame(s=>s.tribulation);if(!trial)return null;return <div className="tribulation-hud panel-glass"><b>THIÊN KIẾP · {Math.ceil(trial.remaining/1000)}s</b><span>{trial.strikes}/4 đợt sét · Di chuyển khỏi vùng đỏ!</span></div>;}
 
 export function DownedOverlay() {
   const status = useGame((s) => s.status);
-  const rem = useGame((s) => s.downedRemaining);
   if (status !== 'downed') return null;
   return (
     <div className="downed">
       <div className="downed-title">Trọng Thương</div>
       <div className="downed-sub">Linh lực hao tổn, không thể chiến đấu</div>
-      <div className="downed-timer">Hồi sinh sau {(rem / 1000).toFixed(1)}s</div>
+      <div className="downed-timer">Đang đưa về tông môn…</div>
     </div>
   );
 }

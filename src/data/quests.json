@@ -89,7 +89,7 @@
   "main_4": {
     "kind": "main",
     "name": "Trúc Cơ Khai Đạo",
-    "desc": "Đạt Luyện Khí đại viên mãn và đầy tu vi, luyện 1 Phá Cảnh Đan và đột phá Trúc Cơ tại bảng Tu Luyện.",
+    "desc": "Đạt Luyện Khí đại viên mãn và đầy EXP, luyện 1 Phá Cảnh Đan và đột phá Trúc Cơ tại bảng Tu Luyện.",
     "giver": "truong_lao",
     "requires": "main_3",
     "objectives": [
@@ -129,7 +129,7 @@
   "side_2": {
     "kind": "side",
     "name": "Tăng Cảnh Giới",
-    "desc": "Không ngừng tu luyện để nâng cao tu vi.",
+    "desc": "Không ngừng tu luyện để nâng cao EXP.",
     "autoStart": true,
     "objectives": [
       {

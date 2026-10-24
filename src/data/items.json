@@ -4,7 +4,7 @@
   "ngung_lo": { "name": "Ngưng Lộ", "kind": "material", "color": "#81d9ef", "desc": "Sương sớm chứa linh lực, dùng để dung hòa dược tính." },
   "linh_chi": { "name": "Linh Chi", "kind": "material", "color": "#eeae86", "desc": "Linh dược dùng trong Tụ Linh Đan và Phá Cảnh Đan." },
   "yeu_dan": { "name": "Yêu Đan", "kind": "material", "color": "#b8a1f0", "desc": "Tinh hoa yêu thú. Có cơ hội rơi khi đánh quái ngoài phó bản; nguyên liệu Phá Cảnh Đan." },
-  "tu_linh_dan": { "name": "Tụ Linh Đan", "kind": "consumable", "color": "#8ee6e0", "cultivation": { "exp": 120, "linhKhi": 80 }, "desc": "Dùng để nhận 120 tu vi và 80 Linh Khí." },
+  "tu_linh_dan": { "name": "Tụ Linh Đan", "kind": "consumable", "color": "#8ee6e0", "cultivation": { "exp": 120, "linhKhi": 80 }, "desc": "Dùng để nhận 120 EXP và 80 Linh Khí." },
   "pha_canh_dan": { "name": "Phá Cảnh Đan", "kind": "material", "color": "#f1ce86", "desc": "Cần 1 viên cho mỗi lần đột phá đại cảnh giới. Luyện tại Đan Phòng trong Tiên Lộ." },
   "linh_khi": {
     "name": "Linh Khí",
