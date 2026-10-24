@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { getMap } from '../game/maps';
 import { TILE, type Terrain } from '../game/art/tiles';
 import { useGame } from '../store/gameStore';
+import { useMapPreview } from './useMapPreview';
+import { mapArtPoint, mapArtSize } from '../game/systems/mapProjection';
 
 const COLORS: Record<Terrain, string> = {
   grass: '#5f9a48',
@@ -29,6 +31,7 @@ export function Minimap() {
   const zone = useGame((s) => s.zone);
   const canvas = useRef<HTMLCanvasElement>(null);
   const map = useMemo(() => getMap(mapId), [mapId]);
+  const preview = useMapPreview(mapId);
 
   const background = useMemo(() => {
     const c = document.createElement('canvas');
@@ -54,19 +57,21 @@ export function Minimap() {
     const scale = SIZE / span;
     const ox = mm.player.x - span / 2;
     const oy = mm.player.y - span / 2;
+    const playerAt = mapArtPoint(map, mm.player.x, mm.player.y);
     ctx.clearRect(0, 0, SIZE, SIZE);
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2);
-    ctx.clip();
     ctx.fillStyle = '#10141f';
     ctx.fillRect(0, 0, SIZE, SIZE);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(background, 0, 0, map.width, map.height, -ox * scale, -oy * scale, worldW * scale, worldH * scale);
+    ctx.imageSmoothingEnabled = !!preview;
+    if (preview) {
+      const size = mapArtSize(map);
+      ctx.drawImage(preview, SIZE / 2 - playerAt.x * scale, SIZE / 2 - playerAt.y * scale, size.width * scale, size.height * scale);
+    } else ctx.drawImage(background, 0, 0, map.width, map.height, -ox * scale, -oy * scale, worldW * scale, worldH * scale);
     const dot = (x: number, y: number, color: string, r: number) => {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc((x - ox) * scale, (y - oy) * scale, r, 0, Math.PI * 2);
+      const p = mapArtPoint(map, x, y);
+      ctx.arc(preview ? SIZE / 2 + (p.x - playerAt.x) * scale : (x - ox) * scale, preview ? SIZE / 2 + (p.y - playerAt.y) * scale : (y - oy) * scale, r, 0, Math.PI * 2);
       ctx.fill();
     };
     for (const p of map.portals) {
@@ -78,21 +83,15 @@ export function Minimap() {
     mm.npcs.forEach((n) => dot(n.x, n.y, '#ffd84a', 3));
     dot(mm.player.x, mm.player.y, '#ffffff', 3.5);
     ctx.restore();
-  }, [mm, map, background]);
+  }, [mm, map, background, preview]);
 
   return (
     <div className="minimap">
-      <div className="minimap-title">
-        {map.name}
-        <span>
-          ({tile.x}, {tile.y})
-        </span>
-      </div>
-      <div className="minimap-map" role="button" tabIndex={0} aria-label="Mở bản đồ hiện tại và thế giới" onClick={()=>setMenu('map')} onKeyDown={e=>e.key==='Enter'&&setMenu('map')}>
+      <button className="minimap-map" aria-label="Mở bản đồ hiện tại và thế giới" onClick={()=>setMenu('map')}>
+        <span className="minimap-title">{map.name}</span>
         <canvas ref={canvas} width={SIZE} height={SIZE} className="minimap-canvas" />
-        <img className="minimap-frame" src="/assets/ui/frame-minimap.png" alt="" aria-hidden="true" />
-      </div>
-      <div className="minimap-help">! NPC · ◇ Cổng · • Quái · Chạm xem map</div>
+        <span className="minimap-coordinates"><span aria-hidden="true">⌖</span> {tile.x}, {tile.y}<b aria-hidden="true">⤢</b></span>
+      </button>
       {zone && <div className="minimap-zone">{zone.name} · linh khí x{zone.rate}</div>}
     </div>
   );

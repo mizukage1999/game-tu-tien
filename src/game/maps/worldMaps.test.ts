@@ -67,6 +67,29 @@ describe('seven authored world maps', () => {
 });
 
 describe('Thiet Tru prologue', () => {
+  it('keeps both village crossings usable in both directions and leaves the river impassable elsewhere', () => {
+    const map = getMap('vuong_gia_thon');
+    for (const y of [13, 14, 15, 16, 24, 25]) {
+      for (let x = 28; x <= 32; x++) expect(map.blocked[y][x], `bridge ${x},${y}`).toBe(false);
+      expect(findPath(map.blocked, 27, y, 33, y).reached).toBe(true);
+      expect(findPath(map.blocked, 33, y, 27, y).reached).toBe(true);
+    }
+    for (const y of [4, 9, 19, 22, 28]) for (let x = 29; x <= 31; x++) expect(map.blocked[y][x]).toBe(true);
+  });
+
+  it('keeps the second quest and later interaction routes clear from their preceding stops', () => {
+    const map = getMap('vuong_gia_thon');
+    const grid = map.blocked.map(row => row.slice());
+    for (const npc of map.npcs) grid[npc.y][npc.x] = true;
+    // Mother -> well -> carpenter -> herbs -> school -> river -> notice -> exit.
+    const stops = [[10, 12], [20, 18], [14, 12], [5, 19], [6, 20], [10, 25], [34, 22], [17, 25], [39, 15]];
+    for (let i = 1; i < stops.length; i++) {
+      const [sx, sy] = stops[i - 1], [gx, gy] = stops[i];
+      expect(grid[gy][gx], `stop ${gx},${gy}`).toBe(false);
+      expect(findPath(grid, sx, sy, gx, gy).reached, `${sx},${sy} -> ${gx},${gy}`).toBe(true);
+    }
+  });
+
   it('starts a fresh character in the village and progresses all ten quests into admission', () => {
     createCharacter('Vương Lâm', 'male');
     expect(gameStore.getState().mapId).toBe('vuong_gia_thon');

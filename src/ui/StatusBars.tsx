@@ -2,6 +2,8 @@ import { useGame } from '../store/gameStore';
 import { realmNameAtLevel } from '../game/systems/progression';
 import { itemIconUrl } from '../game/art/icons';
 import { heroName, isChildhood } from '../game/systems/origin';
+import { battlePower } from '../game/systems/adventure';
+import { HeroPortrait } from './HeroPortrait';
 
 function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'mp' }) {
   const pct = Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100));
@@ -24,11 +26,17 @@ export function StatusBars() {
   return (
     <div className="status panel-glass">
       <div className={`avatar ${status === 'downed' ? 'avatar-down' : ''}`}>
-        {childhood ? <span className={`child-portrait ${player.sex==='female'?'female':''}`} aria-label={heroName(player)}/> : <img
-          src={player.sex === 'male' ? '/assets/sprites/wang-lin-portrait.png' : '/assets/sprites/li-mu-uyen-portrait.png'}
-          alt=""
-        />}
-        <span className="avatar-level" title="Cấp độ">{player.level}</span>
+        {childhood ? (
+          <span
+            className={`child-portrait ${player.sex === 'female' ? 'female' : ''}`}
+            aria-label={heroName(player)}
+          />
+        ) : (
+          <HeroPortrait sex={player.sex ?? 'female'} />
+        )}
+        <span className="avatar-level" title="Cấp độ">
+          {player.level}
+        </span>
       </div>
       <div className="status-info">
         <div className="status-name">{heroName(player)}</div>
@@ -37,6 +45,11 @@ export function StatusBars() {
         </div>
         <Bar value={player.hp} max={stats.maxHp} kind="hp" />
         <Bar value={player.mp} max={stats.maxMp} kind="mp" />
+        <div className="status-power">
+          {childhood
+            ? 'Khởi duyên · Vương Gia Thôn'
+            : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
+        </div>
         <div className="status-res">
           <span title="Linh Khí">
             <img src={itemIconUrl('linh_khi', 32)} alt="" /> {player.linhKhi}

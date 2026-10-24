@@ -24,6 +24,7 @@ import { heroName, isChildhood } from '../systems/origin';
 import { immortalProgress, MOUNTS, mountUnlocked, flightProfile } from '../systems/immortal';
 import { lifeProgress } from '../systems/life';
 import { skillLoadout, skillUnlocked } from '../systems/skills';
+import { heroDirection, type HeroDirection } from '../art/heroDirections';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -54,6 +55,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   readonly art: Phaser.GameObjects.Sprite;
   readonly life: LifeState = createLife();
   dir: Dir = 'down';
+  private visualDir: HeroDirection = 'down';
   cooldowns: Partial<Record<SkillId, number>> = {};
   meditating = false;
   lastDamageAt = -99999;
@@ -89,7 +91,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   ) {
     const p = gameStore.getState().player;
     const childArt=p.sex==='female'?'mu_uyen_child':'thiet_tru';
-    const adultArt=p.sex==='male'?'hero_wang_simple':'hero_li_simple';
+    const adultArt=p.sex==='male'?'hero-wang-v5':'hero-li-v5';
     const art = isChildhood(p) && world.textures.exists(childArt) ? childArt : world.textures.exists(adultArt)?adultArt:playerArt(p.sex);
     super(world, x, y, art);
     world.add.existing(this);
@@ -116,9 +118,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         color: '#ffffff',
         stroke: '#1a2240',
         strokeThickness: 3,
+        resolution: 2,
       })
       .setOrigin(0.5, 1)
-      .setResolution(2)
       .setDepth(90000);
     this.bar = world.add.graphics().setDepth(90000);
 
@@ -181,6 +183,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   faceToward(p: Vec2) {
     this.dir = dirFromVector(p.x - this.x, p.y - this.y, this.dir);
+    const screen = isoVector(p.x - this.x, p.y - this.y);
+    this.visualDir = heroDirection(screen.x, screen.y, this.visualDir);
   }
 
   update(dt: number) {
@@ -226,9 +230,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (mag > 0.1) {
           const onScreen = isoVector(move.x, move.y);
           this.dir = dirFromVector(onScreen.x, onScreen.y, this.dir);
-          this.ctrl.play(this.activeMount ? 'idle' : 'run', this.dir);
+          this.visualDir = heroDirection(onScreen.x, onScreen.y, this.visualDir);
+          this.ctrl.play(this.activeMount ? 'idle' : 'run', this.visualDir);
         } else {
-          this.ctrl.play('idle', this.dir);
+          this.ctrl.play('idle', this.visualDir);
         }
       }
     }
@@ -246,7 +251,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setPosition(spot.x,spot.y-lift+3).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]).setDepth(spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.label.setPosition(spot.x, spot.y - 106 - lift);
+    this.label.setPosition(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 106) - lift);
     this.drawBar({x:spot.x,y:spot.y-lift});
   }
 
@@ -262,8 +267,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const { player, stats } = gameStore.getState();
     const w = 46;
     this.bar.clear();
-    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(spot.x - w / 2 - 1, spot.y - 104, w + 2, 6, 2);
-    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(spot.x - w / 2, spot.y - 103, (w * player.hp) / stats.maxHp, 4, 2);
+    const above = this.ctrl.rig.frameHeight === 160 ? 117 : 104;
+    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(spot.x - w / 2 - 1, spot.y - above, w + 2, 6, 2);
+    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(spot.x - w / 2, spot.y - above + 1, (w * player.hp) / stats.maxHp, 4, 2);
   }
 
   // ---- auto combat -------------------------------------------------------
@@ -448,7 +454,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.cooldowns.basic = basic.cooldownMs;
     this.autoFace(basic.range + 50);
     const combo = this.combo;
-    this.ctrl.play(`attack_${combo}`, this.dir, {
+    this.ctrl.play(`attack_${combo}`, this.visualDir, {
       lock: true,
       force: true,
       onHit: () => this.world.playerMeleeHit(combo),
@@ -496,7 +502,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           : undefined;
     // Compact character atlases only carry the shared cast/attack poses.
     const pose = animation && this.ctrl.rig.anims[animation] ? animation : SKILL_ANIM[id] ?? 'cast';
-    this.ctrl.play(pose, this.dir, {
+    this.ctrl.play(pose, this.visualDir, {
       lock: true,
       force: true,
       onHit: () => this.world.executeSkill(id, target),
@@ -518,12 +524,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const speed = 820;
     this.dashVec = { x: (v.x / l) * speed, y: (v.y / l) * speed };
     this.dir = dirFromVector(v.x, v.y, this.dir);
+    const screen = isoVector(v.x, v.y);
+    this.visualDir = heroDirection(screen.x, screen.y, this.visualDir);
     this.dashTime = 180;
     this.world.vfx.teleport(this.feet);
     this.cooldowns.than_phap = sk.cooldownMs;
     grantInvuln(this.life, sk.active?.invulnMs ?? 320);
     this.ctrl.unlock();
-    this.ctrl.play('run', this.dir, { force: true });
+    this.ctrl.play('run', this.visualDir, { force: true });
   }
 
   startMeditate() {
@@ -547,7 +555,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   stopMeditate() {
     if (!this.meditating) return;
     this.meditating = false;
-    this.ctrl.play('idle', this.dir, { force: true });
+    this.ctrl.play('idle', this.visualDir, { force: true });
     gameStore.getState().patch({ meditating: false });
   }
 

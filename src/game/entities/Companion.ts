@@ -20,9 +20,8 @@ export class Companion {
     this.pos = { x: world.player.x, y: world.player.y };
     this.art = world.add.image(0, 0, 'fx_dot').setOrigin(0.5, 1).setVisible(false);
     this.label = world.add
-      .text(0, 0, '', { fontSize: '9px', color: '#badbc4', stroke: '#173629', strokeThickness: 2 })
+      .text(0, 0, '', { fontSize: '9px', color: '#badbc4', stroke: '#173629', strokeThickness: 2, resolution: 2 })
       .setOrigin(0.5, 1)
-      .setResolution(2)
       .setDepth(87000)
       .setVisible(false);
   }

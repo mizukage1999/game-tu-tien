@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { NAME_MAX, normalizeName } from '../game/systems/character';
 import type { Sex } from '../game/systems/save';
 import { createCharacter } from '../store/gameStore';
+import { EntryScreen } from './EntryScreen';
+import { HeroPortrait } from './HeroPortrait';
 
-const CHOICES: { sex: Sex; label: string; portrait: string }[] = [
-  { sex: 'female', label: 'Lý Mộ Uyển', portrait: '/assets/sprites/li-mu-uyen-portrait.png' },
-  { sex: 'male', label: 'Vương Lâm', portrait: '/assets/sprites/wang-lin-portrait.png' },
+const CHOICES: { sex: Sex; label: string }[] = [
+  { sex: 'female', label: 'Lý Mộ Uyển' },
+  { sex: 'male', label: 'Vương Lâm' },
 ];
 
 export function CreateCharacter({ onDone }: { onDone: () => void }) {
@@ -24,26 +26,36 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <div className="create-screen">
+    <EntryScreen kind="create">
       <form
-        className="create-card panel-ornate"
+        className="entry-card create-card-v5"
         onSubmit={(e) => {
           e.preventDefault();
           submit();
         }}
       >
-        <h1>Tạo nhân vật</h1>
-        <p className="muted">{sex==='female'?'Theo tuổi thơ Mộ Uyển':'Theo tuổi thơ Thiết Trụ'} tại Vương Gia Thôn. Rời làng, vượt khảo hạch rồi bước lên tiên lộ.</p>
+        <h2>Chọn nhân vật</h2>
+        <p className="muted">
+          Theo tuổi thơ {sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ'} tại Vương Gia Thôn, viết tiếp
+          hành trình tu tiên.
+        </p>
         <div className="create-sexes">
           {CHOICES.map((c) => (
             <button
               key={c.sex}
               type="button"
+              aria-pressed={sex === c.sex}
               className={`create-sex${sex === c.sex ? ' on' : ''}`}
-              onClick={() => {setSex(c.sex);if(CHOICES.some(c=>c.label===name))setName(c.label);}}
+              onClick={() => {
+                setSex(c.sex);
+                if (CHOICES.some((c) => c.label === name)) setName(c.label);
+              }}
             >
-              <img src={c.portrait} alt="" />
-              <span>{c.sex === 'female' ? 'Nữ' : 'Nam'} · {c.label}</span>
+              <HeroPortrait sex={c.sex} />
+              <span>
+                {c.label}
+                <small>{c.sex === 'female' ? 'Mộ Uyển · Tuổi thơ' : 'Thiết Trụ · Tuổi thơ'}</small>
+              </span>
             </button>
           ))}
         </div>
@@ -52,7 +64,6 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
           <input
             value={name}
             maxLength={NAME_MAX}
-            autoFocus
             placeholder="Ví dụ: Tuyết Kỳ"
             onChange={(e) => {
               setName(e.target.value);
@@ -60,11 +71,16 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
             }}
           />
         </label>
-        {error ? <p className="create-error">{error}</p> : null}
-        <button className="btn gold" type="submit">
-          Trở về Vương Gia Thôn
+        {error ? (
+          <p className="create-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <button className="entry-start" type="submit">
+          <span>Bắt Đầu</span>
+          <b aria-hidden="true">→</b>
         </button>
       </form>
-    </div>
+    </EntryScreen>
   );
 }

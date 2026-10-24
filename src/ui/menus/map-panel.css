@@ -1,16 +1,34 @@
-.map-panel > canvas {
+.local-map-canvas-wrap canvas {
   display: block;
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  margin: auto;
-  max-height: 58vh;
-  object-fit: contain;
-  background: #142b36;
-  border: 1px solid #a78e5655;
-  border-radius: 5px;
+  margin: 0;
   cursor: crosshair;
 }
+.hud .menu-window.menu-map { width: min(1500px, calc(100% - 20px)); height: min(940px, calc(100% - 20px)); max-height: none; overflow: hidden; background: #07131f; border: 1px solid #b3945b; border-radius: 4px; }
+.hud .menu-map > .menu-header { flex-shrink: 0; min-height: 56px; padding: 6px 14px; background: linear-gradient(90deg, #10283c, #06121e); border-bottom: 3px double #bc94595e; }
+.hud .menu-map > .menu-header h3 { color: #f5d998; font: italic 700 27px Georgia, serif; }
+.hud .menu-map > .menu-header h3 img { width: 36px; height: 36px; }
+.hud .menu-map > .menu-header .close { width: 38px; height: 38px; font-size: 27px; }
+.hud .menu-map > .menu-content { padding: 0; display: flex; min-height: 0; overflow: hidden; flex: 1; }
+.map-panel { display: flex; flex-direction: column; width: 100%; min-width: 0; min-height: 0; height: 100%; }
+.map-mode-tabs { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid #b08e4b4f; flex-shrink: 0; }
+.map-mode-tabs button { min-width: 110px; min-height: 34px; border: 1px solid #917c5359; color: #b9c6d4; background: #102132; border-radius: 3px; cursor: pointer; }
+.map-mode-tabs button.active { color: #ffe6ac; border-color: #e4b862; background: linear-gradient(#956225, #4d371d); box-shadow: inset 0 0 8px #e3b1594f; }
+.map-mode-tabs > span { margin-left: auto; color: #c1b084; font: 14px Georgia, serif; }
+.local-map-view { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 205px; min-height: 0; }
+.local-map-canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: radial-gradient(ellipse, #294954, #071827 80%); }
+.local-map-name { position: absolute; left: 18px; top: 15px; display: grid; gap: 4px; pointer-events: none; text-shadow: 0 2px 4px #000; }
+.local-map-name small { font-size: 9px; color: #d0c09a; letter-spacing: 2px; }
+.local-map-name strong { font: 600 25px Georgia, serif; color: #ffe2a7; }
+.map-preview-loading { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 12px; color: #c1cfda; }
+.local-map-sidebar { display: flex; flex-direction: column; min-height: 0; padding: 12px; border-left: 1px solid #b4975c5c; background: #0a1827; }
+.local-map-sidebar h4 { margin: 0 0 8px; color: #ead09a; font: 16px Georgia, serif; }
+.local-map-sidebar .map-targets { flex: 1; overflow: auto; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 5px; min-height: 0; scrollbar-width: thin; }
+.map-targets button { display: flex; align-items: center; gap: 7px; min-height: 33px; padding: 7px 8px; text-align: left; flex-shrink: 0; border: 1px solid #a88c4c55; background: #13283a; border-radius: 3px; color: #f2d18d; cursor: pointer; }
+.map-targets button span { color: #cad7df; font-size: 11px; }
+.local-map-sidebar > p { color: #91a6b8; font-size: 10px; line-height: 1.5; margin: 8px 0 0; }
 .map-legend,
 .map-targets {
   display: flex;
@@ -29,12 +47,24 @@
 .map-legend span:nth-child(3) {
   color: #88c9f0;
 }
-.hud.phone .map-panel > canvas {
-  max-height: 52dvh;
-}
-.hud.phone.turned .map-panel > canvas {
-  max-height: 52dvw;
-}
+.hud.phone .menu-window.menu-map { width: calc(100% - 10px); height: calc(100% - 10px); }
+.hud.phone .menu-map > .menu-header { min-height: 35px; padding: 3px 9px; }
+.hud.phone .menu-map > .menu-header h3 { font-size: 18px; }
+.hud.phone .menu-map > .menu-header h3 img { width: 25px; height: 25px; }
+.hud.phone .menu-map > .menu-header .close { width: 30px; height: 30px; font-size: 24px; }
+.hud.phone .map-mode-tabs { padding: 4px 7px; gap: 4px; }
+.hud.phone .map-mode-tabs button { min-height: 28px; min-width: 80px; font-size: 10px; }
+.hud.phone .map-mode-tabs > span { font-size: 10px; }
+.hud.phone .local-map-view { grid-template-columns: minmax(0, 1fr) 143px; }
+.hud.phone .local-map-sidebar { padding: 7px; }
+.hud.phone .local-map-sidebar h4 { font-size: 12px; margin-bottom: 4px; }
+.hud.phone .local-map-sidebar .map-targets { margin: 3px 0; gap: 4px; }
+.hud.phone .map-targets button { min-height: 29px; padding: 5px; gap: 4px; }
+.hud.phone .map-targets button span { font-size: 9px; }
+.hud.phone .local-map-sidebar > p { font-size: 8px; }
+.hud.phone .local-map-name { left: 9px; top: 8px; }
+.hud.phone .local-map-name small { font-size: 7px; letter-spacing: 1px; }
+.hud.phone .local-map-name strong { font-size: 16px; }
 .hud.phone .map-legend {
   font-size: 9px;
   gap: 5px 10px;
@@ -48,3 +78,4 @@
   color: #bad2d5;
   margin-top: 3px;
 }
+.hud .menu-map > .menu-header h3, .map-mode-tabs > span, .local-map-name strong, .local-map-sidebar h4 { font-family: 'Times New Roman', serif; }

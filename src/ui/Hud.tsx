@@ -16,6 +16,7 @@ import { DuelOverlay } from './social/DuelOverlay';
 import { DungeonPanel, DungeonResultOverlay } from './DungeonPanel';
 import { useGame } from '../store/gameStore';
 import './mobile.css';
+import './presentation-v5.css';
 
 export function Hud() {
   const inDungeon = useGame((s) => s.dungeon !== null);
@@ -23,7 +24,7 @@ export function Hud() {
   const portrait = usePortrait();
   const turned = phone && portrait;
   return (
-    <div className={`hud${phone ? ' phone' : ''}${turned ? ' turned' : ''}`}>
+    <div className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}`}>
       <div className="hud-top-left">
         <StatusBars />
         {inDungeon ? <DungeonPanel /> : <QuestPanel />}

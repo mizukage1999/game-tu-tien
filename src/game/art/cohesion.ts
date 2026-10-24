@@ -44,8 +44,9 @@ export const COHESIVE_REGIONS: Record<string, Region[]> = {
 };
 
 /** Use the same texture treatment throughout the world; keep the village reference intact. */
-export function sceneryKey(key: string, village: boolean, ambient: string) {
+export function sceneryKey(key: string, village: boolean, ambient: string, mapId = '') {
   if (village) return key.startsWith('court-') ? `village-reference-${key}` : key;
+  if (['rung_linh_thu', 'linh_thu_lam'].includes(mapId) && (key === 'world-tree' || key.startsWith('tree_pine'))) return 'world-bamboo';
   if (key.startsWith('tree_cherry')) return 'sect-cherry';
   if (key.startsWith('tree_pine')) return ambient === 'embers' ? 'biome-autumn' : 'biome-pine';
   if (key === 'rock')

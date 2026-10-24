@@ -10,6 +10,7 @@ import { startSocial } from './net/socialBridge';
 import { usePhoneLayout, usePortrait, useTryLockLandscape } from './ui/TouchPlay';
 import { refreshPremium, resetPremium } from './net/premium';
 import { gameStore } from './store/gameStore';
+import { StartScreen } from './ui/EntryScreen';
 
 export function App() {
   const phone = usePhoneLayout();
@@ -18,6 +19,7 @@ export function App() {
   const account = useAccount();
   const accountId = account.user?.id;
   const [ready, setReady] = useState(() => loadGame() !== null);
+  const [entered, setEntered] = useState(false);
   useTryLockLandscape(phone);
   useEffect(() => {
     resetPremium();
@@ -42,9 +44,9 @@ export function App() {
   const needsLogin = onlineEnabled && !account.user;
   // The social channel outlives individual maps, so it lives here rather than in the scene.
   useEffect(() => {
-    if (needsLogin || !ready || !onlineEnabled) return;
+    if (needsLogin || !ready || !entered || !onlineEnabled) return;
     return startSocial();
-  }, [needsLogin, ready, account.user?.id]);
+  }, [needsLogin, ready, entered, account.user?.id]);
 
   return (
     <div className={`app${turned ? ' turned' : ''}`}>
@@ -52,6 +54,8 @@ export function App() {
         account.booting ? null : (
           <AuthScreen />
         )
+      ) : ready && !entered ? (
+        <StartScreen onStart={() => setEntered(true)} />
       ) : ready ? (
         <>
           <PhaserGame />
@@ -61,7 +65,7 @@ export function App() {
           <Hud />
         </>
       ) : (
-        <CreateCharacter onDone={() => setReady(true)} />
+        <CreateCharacter onDone={() => { setReady(true); setEntered(true); }} />
       )}
     </div>
   );

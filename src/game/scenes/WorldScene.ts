@@ -2,6 +2,11 @@ import Phaser from 'phaser';
 import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
+import { buildVillageGround } from '../art/villageGround';
+import { VillageAtmosphere } from '../art/VillageAtmosphere';
+import { buildWorldGround } from '../art/worldGround';
+import { worldTheme } from '../art/worldPalette';
+import { publishWorldPreview } from '../art/worldPreview';
 import { iso, isoBounds, isoX, isoY } from '../art/iso';
 import { TERRAIN, TILE } from '../art/tiles';
 import { EventBus, virtualInput } from '../EventBus';
@@ -103,6 +108,8 @@ export class WorldScene extends Phaser.Scene {
   private levelWarned = false;
   private herbs: { node: HerbNode; art: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text }[] = [];
   private foregroundDecor: Phaser.GameObjects.Image[] = [];
+  private villageAtmosphere: VillageAtmosphere | null = null;
+  private pointLabels: { point: WorldPoint; label: Phaser.GameObjects.Text }[] = [];
   private gardenVisuals: {art:Phaser.GameObjects.Image;label:Phaser.GameObjects.Text}[] = [];
   private pointCooldowns = new Map<string, number>();
 
@@ -124,6 +131,8 @@ export class WorldScene extends Phaser.Scene {
     this.channel = null;
     this.herbs = [];
     this.foregroundDecor = [];
+    this.villageAtmosphere = null;
+    this.pointLabels = [];
     this.gardenVisuals = [];
     this.pointCooldowns.clear();
     this.syncTimer = this.secondTimer = this.saveTimer = 0;
@@ -168,6 +177,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.buildTerrain(map);
     this.buildDecor(map);
+    publishWorldPreview(this, map);
 
     for (const n of map.npcs) {
       this.npcs.push(new Npc(this, n.id, n.x * TILE + TILE / 2, n.y * TILE + TILE - 6));
@@ -194,7 +204,7 @@ export class WorldScene extends Phaser.Scene {
     if(map.private) for(let i=0;i<5;i++) {
       const at=iso((7+i*2)*TILE+TILE/2,12*TILE+TILE/2);
       const art=this.add.image(at.x,at.y-7,'immortal-thanh_linh_thao').setDisplaySize(70,44).setDepth(at.y+1).setVisible(false);
-      const label=this.add.text(at.x,at.y+18,'',{fontSize:'9px',color:'#b9dfb0',stroke:'#1e3826',strokeThickness:2}).setOrigin(.5).setResolution(2).setDepth(at.y+2);
+      const label=this.add.text(at.x,at.y+18,'',{fontSize:'9px',color:'#b9dfb0',stroke:'#1e3826',strokeThickness:2,resolution:2}).setOrigin(.5).setDepth(at.y+2);
       this.gardenVisuals.push({art,label});
     }
     this.targetRing = this.add
@@ -219,9 +229,16 @@ export class WorldScene extends Phaser.Scene {
     // The camera follows a proxy: the player's physics body lives in map space,
     // the diamond it stands on lives on screen.
     this.camTarget = this.add.image(start.x, start.y, 'fx_dot').setVisible(false).setDepth(-10001);
-    cam.startFollow(this.camTarget, false, 0.12, 0.12);
+    // Frame the village slightly ahead of the hero so roofs and the road ahead
+    // remain visible above the mobile controls.
+    cam.startFollow(this.camTarget, false, 0.12, 0.12, 0, map.id === 'vuong_gia_thon' ? 72 : 0);
     cam.setRoundPixels(false);
     this.fitZoom();
+    if (map.id === 'vuong_gia_thon' && this.textures.exists('village-dawn-v3')) this.villageAtmosphere = new VillageAtmosphere(this);
+    else if (this.textures.exists('world-vistas-v4')) {
+      const theme = worldTheme(map);
+      this.villageAtmosphere = new VillageAtmosphere(this, 'world-vistas-v4', theme === 'ice' ? 'sect' : theme);
+    }
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitZoom, this);
     this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, this.fitZoom, this));
     cam.fadeIn(400);
@@ -272,7 +289,11 @@ export class WorldScene extends Phaser.Scene {
     // The visible ground is one pre-baked isometric canvas; the grid below stays
     // flat and invisible so collision, path-finding and AI never meet the
     // projection at all.
-    const ground = buildIsoGround(map);
+    const ground = this.textures.exists('world-materials-v4')
+      ? buildWorldGround(map, this.textures.get('world-materials-v4').getSourceImage() as HTMLImageElement)
+      : map.id === 'vuong_gia_thon' && this.textures.exists('village-materials-v3')
+      ? buildVillageGround(map, this.textures.get('village-materials-v3').getSourceImage() as HTMLImageElement)
+      : buildIsoGround(map);
     const key = 'ground:active';
     if (this.textures.exists(key)) this.textures.remove(key);
     this.textures.addCanvas(key, ground.canvas);
@@ -291,11 +312,14 @@ export class WorldScene extends Phaser.Scene {
 
   private buildDecor(map: MapDef) {
     for (const landmark of map.landmarks ?? []) {
+      // The village name is already in the minimap; large ground captions
+      // overlap the family and the first quest route on narrow screens.
+      if (map.id === 'vuong_gia_thon') continue;
       const at = iso(landmark.x * TILE + TILE / 2, landmark.y * TILE + TILE / 2);
       this.add.text(at.x, at.y, originText(landmark.name,gameStore.getState().player), {
         fontFamily: 'Georgia, serif', fontSize: '15px', letterSpacing: 3,
-        color: '#e1d3ab', stroke: '#263c3b', strokeThickness: 3,
-      }).setOrigin(.5).setAlpha(.8).setResolution(2).setDepth(-8000);
+        color: '#e1d3ab', stroke: '#263c3b', strokeThickness: 3, resolution: 2,
+      }).setOrigin(.5).setAlpha(.8).setDepth(-8000);
     }
     for (const d of map.decor) {
       const anchor = iso(d.x * TILE + TILE / 2, d.y * TILE + TILE - 2);
@@ -334,14 +358,15 @@ export class WorldScene extends Phaser.Scene {
         continue;
       }
       const py = anchor.y;
-      const artKey = sceneryKey(d.key, map.id === 'vuong_gia_thon', map.ambient);
+      const artKey = sceneryKey(d.key, map.id === 'vuong_gia_thon', map.ambient, map.id);
       const prop = WORLD_PROPS[artKey];
       const hasAtlas = prop && this.textures.exists(prop.atlas);
       const img = this.add.image(px, py, hasAtlas ? prop.atlas : prop?.fallback ?? d.key, hasAtlas ? artKey : undefined)
-        .setOrigin(hasAtlas ? prop.originX ?? .5 : .5, hasAtlas ? prop.originY : 1).setDepth(py).setFlipX(d.flipX ?? false);
+        .setOrigin(hasAtlas ? prop.originX ?? .5 : .5, hasAtlas ? prop.originY : 1).setDepth(prop?.ground ? -8500 : py).setFlipX(d.flipX ?? false);
       if (hasAtlas) img.setScale(prop.height / img.height * (d.scale ?? 1));
+      if (prop?.tint) img.setTint(prop.tint);
       if (d.fade || prop?.fade) this.foregroundDecor.push(img);
-      if (d.key.startsWith('tree') || ['world-tree', 'sect-cherry', 'village-willow'].includes(d.key)) {
+      if (d.key.startsWith('tree') || ['world-tree', 'sect-cherry', 'village-willow', 'village25d-willow', 'village25d-peach'].includes(d.key)) {
         this.tweens.add({
           targets: img,
           scaleX: img.scaleX * 1.025,
@@ -481,17 +506,22 @@ export class WorldScene extends Phaser.Scene {
     this.registry.set('phone-layout', window.matchMedia('(pointer: coarse), (hover: none) and (max-width: 900px)').matches);
     const density = (this.registry.get('render-density') as number | undefined) ?? 1;
     this.cameras.main.setZoom(worldZoom(this.scale.width / density, this.scale.height / density) * density);
+    this.villageAtmosphere?.fit();
   }
 
   private buildHerbs() {
     for (const node of herbNodes(this.mapId)) {
       if (this.map.blocked[node.y]?.[node.x]) continue;
       const at = iso(node.x * TILE + TILE / 2, node.y * TILE + TILE / 2);
-      const art = this.add.image(at.x, at.y - 8, `immortal-${node.item}`).setDisplaySize(160, 100).setDepth(at.y + 1);
+      const village = this.mapId === 'vuong_gia_thon';
+      const painted = village && this.textures.exists('village-nature-v3') && this.textures.get('village-nature-v3').has('village25d-herbs');
+      const art = this.add.image(at.x, at.y - (painted ? 0 : 8), painted ? 'village-nature-v3' : `immortal-${node.item}`, painted ? 'village25d-herbs' : undefined)
+        .setDisplaySize(village ? 78 : 160, village ? 58 : 100).setDepth(at.y + 1);
+      if (painted) art.setOrigin(.5, .88);
       const label = this.add.text(at.x, at.y + 12, itemName(node.item), {
-        fontFamily: 'Segoe UI, sans-serif', fontSize: '13px', color: '#c6f1cf', stroke: '#102b25', strokeThickness: 3,
-      }).setOrigin(0.5).setDepth(at.y + 2).setResolution(2);
-      art.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+        fontFamily: 'Segoe UI, sans-serif', fontSize: village ? '12px' : '13px', color: '#c6f1cf', stroke: '#102b25', strokeThickness: 3, resolution: 2,
+      }).setOrigin(0.5).setDepth(at.y + 2);
+      art.setInteractive({ useHandCursor: true, hitArea: painted ? new Phaser.Geom.Rectangle(0, 0, art.width, art.height) : new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
       art.on('pointerdown', () => this.harvest(node));
       this.herbs.push({ node, art, label });
     }
@@ -510,7 +540,8 @@ export class WorldScene extends Phaser.Scene {
     for (const point of this.map.points ?? []) {
       const at = iso(point.x * TILE + TILE / 2, point.y * TILE + TILE / 2);
       this.add.ellipse(at.x, at.y, 28, 12, 0xe6cf85, .18).setStrokeStyle(1, 0xe6cf85, .65).setDepth(at.y - 1);
-      this.add.text(at.x, at.y + 14, point.name, { fontFamily: 'Segoe UI', fontSize: '12px', color: '#f1ddb0', stroke: '#26352e', strokeThickness: 3 }).setOrigin(.5).setResolution(2).setDepth(at.y + 2);
+      const label = this.add.text(at.x, at.y + 14, point.name, { fontFamily: 'Segoe UI', fontSize: '12px', color: '#f1ddb0', stroke: '#26352e', strokeThickness: 3, resolution: 2 }).setOrigin(.5).setDepth(at.y + 2);
+      this.pointLabels.push({ point, label });
       this.add.zone(at.x, at.y - 15, 86, 68).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.interactPoint(point));
     }
   }
@@ -728,6 +759,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.camTarget.setPosition(isoX(this.player.x, this.player.y), isoY(this.player.x, this.player.y));
+    this.villageAtmosphere?.update();
 
     if (this.target?.alive) {
       const ring = iso(this.target.x, this.target.y);
@@ -863,6 +895,10 @@ export class WorldScene extends Phaser.Scene {
       if (!remaining && distance < herbDistance) { nearbyHerb = node; herbDistance = distance; }
     }
     if (nearbyHerb?.id !== s.nearbyHerb?.id) patch.nearbyHerb = nearbyHerb ? { id: nearbyHerb.id, name: itemName(nearbyHerb.item) } : null;
+    if (this.mapId === 'vuong_gia_thon') {
+      for (const { node, label } of this.herbs) label.setVisible(node.id === nearbyHerb?.id);
+      for (const { point, label } of this.pointLabels) label.setVisible(Math.hypot(p.x - (point.x + .5) * TILE, p.y - (point.y + .5) * TILE) < 180);
+    }
     const nearestPoint = (this.map.points ?? []).filter((point) => Math.hypot(p.x - point.x * TILE - TILE / 2, p.y - point.y * TILE - TILE / 2) <= 110)
       .sort((a, b) => Math.hypot(p.x - a.x * TILE, p.y - a.y * TILE) - Math.hypot(p.x - b.x * TILE, p.y - b.y * TILE))[0];
     if (nearestPoint?.id !== s.nearbyPoint?.id) patch.nearbyPoint = nearestPoint ? { id: nearestPoint.id, name: nearestPoint.name } : null;

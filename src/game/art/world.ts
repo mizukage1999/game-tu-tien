@@ -5,7 +5,7 @@ import { CHARACTERS, RIGS } from './generate';
 
 export const WORLD_ATLASES = ['world-sect', 'world-nature', 'world-village', 'world-people'] as const;
 export const worldNpcPortraits: Record<string, string> = {};
-type Prop = { atlas: string; region: [number, number, number, number]; height: number; originY: number; originX?: number; fade?: boolean; fallback: string; glowY?: number };
+type Prop = { atlas: string; region: [number, number, number, number]; height: number; originY: number; originX?: number; fade?: boolean; fallback: string; glowY?: number; ground?: boolean; tint?: number };
 const prop = (atlas: string, region: Prop['region'], height: number, fallback = 'rock', originY = .97): Prop => ({ atlas, region, height, fallback, originY });
 export const WORLD_PROPS: Record<string, Prop> = {
   ...Object.fromEntries(Object.entries(COURTYARD_PROPS).map(([key, p]) => [key, { ...p, atlas: COURTYARD_ATLAS }])),
@@ -43,7 +43,7 @@ export function registerWorldArt(scene: Phaser.Scene) {
     }
   }
   for (const [key, p] of Object.entries(WORLD_PROPS)) {
-    if (p.atlas === COURTYARD_ATLAS || !scene.textures.exists(p.atlas)) continue;
+    if (key.startsWith('village25d-') || p.atlas === COURTYARD_ATLAS || !scene.textures.exists(p.atlas)) continue;
     const texture = scene.textures.get(p.atlas);
     const source = texture.getSourceImage() as HTMLImageElement;
     const [x, y, w, h] = p.region;

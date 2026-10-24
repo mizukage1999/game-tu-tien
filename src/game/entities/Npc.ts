@@ -56,6 +56,8 @@ export class Npc extends Phaser.GameObjects.Sprite {
     const markerY = labelY - 34;
 
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
+    // Set resolution at construction: Canvas uses the source pixel ratio,
+    // which Phaser does not update when setResolution is called afterwards.
     this.label = world.add
       .text(spot.x, labelY, `${def.name}\n《${def.title}》`, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
@@ -65,9 +67,9 @@ export class Npc extends Phaser.GameObjects.Sprite {
         align: 'center',
         stroke: '#2a1a05',
         strokeThickness: 3,
+        resolution: 2,
       })
       .setOrigin(0.5, 1)
-      .setResolution(2)
       .setDepth(90000);
     this.marker = world.add
       .text(spot.x, markerY, '', {
@@ -77,9 +79,9 @@ export class Npc extends Phaser.GameObjects.Sprite {
         color: '#ffd84a',
         stroke: '#4a2a00',
         strokeThickness: 4,
+        resolution: 2,
       })
       .setOrigin(0.5, 1)
-      .setResolution(2)
       .setDepth(90001);
     world.tweens.add({ targets: this.marker, y: markerY - 6, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
   }

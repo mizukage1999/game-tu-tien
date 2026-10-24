@@ -38,10 +38,13 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
   const menu = useGame((s) => s.menu);
   const setMenu = useGame((s) => s.setMenu);
   const childhood = useGame((s) => isChildhood(s.player));
-  const common: MenuTab[] = ['character', 'bag', 'journey', 'skills'];
+  const common: MenuTab[] = phone
+    ? ['character', 'bag', 'journey', 'skills']
+    : ['character', 'bag', 'skills', 'journey', 'sect'];
   const button = (it: (typeof ITEMS)[number]) => (
     <button
       key={it.id}
+      aria-label={it.label}
       disabled={childhood && ['character', 'cultivate', 'skills'].includes(it.id)}
       title={
         childhood && ['character', 'cultivate', 'skills'].includes(it.id)
@@ -72,19 +75,17 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
   );
   return (
     <nav className="top-menu">
-      {ITEMS.filter((it) => !phone || common.includes(it.id)).map(button)}
-      {phone && (
-        <button
-          className={`menu-btn ${more ? 'active' : ''}`}
-          aria-label="Thêm tính năng"
-          aria-expanded={more}
-          onClick={() => setMore(!more)}
-        >
-          <span className="menu-glyph menu-more-glyph">⋯</span>
-          <span className="menu-label">Thêm</span>
-        </button>
-      )}
-      {phone && more && (
+      {ITEMS.filter((it) => common.includes(it.id)).map(button)}
+      <button
+        className={`menu-btn ${more ? 'active' : ''}`}
+        aria-label="Thêm tính năng"
+        aria-expanded={more}
+        onClick={() => setMore(!more)}
+      >
+        <span className="menu-glyph menu-more-glyph">⋯</span>
+        <span className="menu-label">Thêm</span>
+      </button>
+      {more && (
         <div className="top-menu-more">
           {ITEMS.filter((it) => !common.includes(it.id)).map(button)}
         </div>

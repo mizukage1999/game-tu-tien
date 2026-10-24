@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { NEW_MAPS } from '../../data/world';
+import { useEffect, useRef, useState } from 'react';
+import { ATLAS_PLACES } from '../../data/worldAtlas';
 import { getMap } from '../../game/maps';
 import { EventBus } from '../../game/EventBus';
 import { portalToward } from '../../game/systems/questNav';
@@ -7,43 +7,70 @@ import { mapGateReason } from '../../game/systems/worldAccess';
 import { isChildhood } from '../../game/systems/origin';
 import { useGame } from '../../store/gameStore';
 import './world.css';
-import { FIELD_BANDS } from '../../game/systems/scale';
-
-const MAPS = [...NEW_MAPS, { id: 'dai_thua_vien', name: 'Đại Thừa Viện', group: 'Sơn môn', desc: 'Sân viện dành cho đệ tử mới, Linh Đài và dược viên của Vân Hạc.', color: '#e4c58d', icon: '院' },...FIELD_BANDS.map(b=>({id:b.id,name:b.name,group:'Vùng luyện công',desc:`Yêu thú đề nghị Lv.${b.minLevel}–${b.maxLevel}. Tự do ra vào, có thể trở lại vùng thấp.`,color:'#bdcbb0',icon:'山'})),{id:'sect_archive',name:'Tàng Kinh Các',group:'Tông môn',desc:'Mở ở 150 danh vọng · truyền thừa Nội Môn.',color:'#dec08a',icon:'卷'},{id:'sect_sacred',name:'Linh Địa Hậu Sơn',group:'Tông môn',desc:'Mở ở 350 danh vọng · linh khí dồi dào.',color:'#dec08a',icon:'府'}];
-const NODES: Record<string, [number, number]> = { vuong_gia_thon: [70, 180], ngoai_mon: [225, 180], dai_thua_vien: [380, 240], linh_son_tong: [550, 240], dinh_ta: [380, 85], rung_linh_thu: [550, 85], bi_canh_thach_linh: [710, 35], thac_ngoc: [710, 180] };
-const LINKS = [['vuong_gia_thon', 'ngoai_mon'], ['ngoai_mon', 'dai_thua_vien'], ['ngoai_mon', 'dinh_ta'], ['dai_thua_vien', 'linh_son_tong'], ['linh_son_tong', 'dinh_ta'], ['dinh_ta', 'rung_linh_thu'], ['dinh_ta', 'thac_ngoc'], ['rung_linh_thu', 'thac_ngoc'], ['rung_linh_thu', 'bi_canh_thach_linh']];
-function Preview({ id }: { id: string }) {
-  const canvas = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const ctx = canvas.current?.getContext('2d'); if (!ctx) return;
-    const map = getMap(id);
-    const colors: Record<string, string> = { grass: '#637d4b', flower: '#8c9e64', darkgrass: '#345443', dirt: '#a08a65', path: '#c6b58a', marble: '#c0d0d8', stone: '#a3aaa5', wall: '#485664', platform: '#d2dfdf', water: '#397c91', bridge: '#aa8557', cave: '#273b5d', farmland: '#938556' };
-    ctx.clearRect(0, 0, 160, 100);
-    const size = 140 / (map.width + map.height);
-    for (let y = 0; y < map.height; y++) for (let x = 0; x < map.width; x++) {
-      const px = 10 + (map.height + x - y) * size, py = 12 + (x + y) * size / 2;
-      ctx.fillStyle = colors[map.terrain[y][x]] ?? '#607468';
-      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + size, py + size / 2); ctx.lineTo(px, py + size); ctx.lineTo(px - size, py + size / 2); ctx.fill();
-    }
-    for (const p of map.npcs) { ctx.fillStyle = '#ffe6a0'; ctx.beginPath(); ctx.arc(10 + (map.height + p.x - p.y) * size, 12 + (p.x + p.y) * size / 2, 2, 0, Math.PI * 2); ctx.fill(); }
-  }, [id]);
-  return <canvas ref={canvas} width={160} height={100} aria-label={`Địa hình ${getMap(id).name}`} />;
-}
+import './world-atlas-v4.css';
+import { MapCompass } from '../MapCompass';
 
 export function WorldAtlas() {
-  const player = useGame((s) => s.player), quests = useGame((s) => s.quests), here = useGame((s) => s.mapId);
-  const context = { childhood: isChildhood(player), quests, reputation:player.adventure?.reputation??0 };
-  const reason = (id: string) => mapGateReason(getMap(id), context) ?? (id !== here && !portalToward(getMap(here), id, player.level, context) ? 'Chưa mở đường đến khu vực này.' : null);
-  return <div className="world-atlas">
-    <div className="immortal-feature"><span className="immortal-feature-glyph">山</span><div><h3>Sơn Hà Đồ</h3><p>Chọn địa điểm để dẫn đường qua các cổng đã mở. Làng quê, sơn môn và sơn dã nối thành một hành trình.</p></div></div>
-    <svg viewBox="0 0 790 300" className="world-route-map" aria-label="Đường nối các bản đồ">
-      {LINKS.map(([a, b]) => <line key={`${a}-${b}`} x1={NODES[a][0]} y1={NODES[a][1]} x2={NODES[b][0]} y2={NODES[b][1]} stroke="#789185" strokeWidth="2" strokeDasharray="5 5" />)}
-      {MAPS.filter(m=>NODES[m.id]).map((m) => { const locked = reason(m.id); const [x, y] = NODES[m.id]; return <g key={m.id} role="button" tabIndex={0} aria-label={`Dẫn đường tới ${m.name}`} aria-disabled={!!locked || m.id === here} onClick={() => !locked && EventBus.emit('cmd:travel', m.id)} onKeyDown={(e) => e.key === 'Enter' && !locked && EventBus.emit('cmd:travel', m.id)} opacity={locked ? .4 : 1}>
-        <circle cx={x} cy={y} r={m.id === here ? 23 : 19} fill="#1d3434" stroke={m.color} strokeWidth={m.id === here ? 3 : 1} /><text x={x} y={y + 6} textAnchor="middle" fill={m.color} fontSize="19">{m.icon}</text><text x={x} y={y + 39} textAnchor="middle" fill="#dce7dd" fontSize="12">{m.name.split(' · ')[0]}</text><title>{locked ?? m.desc}</title>
-      </g>; })}
-    </svg>
-    <div className="world-map-cards">{MAPS.map((m) => { const locked = reason(m.id); return <article key={m.id} className={`world-map-card ${here === m.id ? 'current' : ''}`}>
-      <Preview id={m.id}/><div><small>{m.group} · {here === m.id ? 'Đang ở đây' : player.world?.discovered.includes(m.id) ? 'Đã khám phá' : 'Chưa đặt chân tới'}</small><h4>{m.name}</h4><p>{m.desc}</p><button className="btn" disabled={!!locked || here === m.id} onClick={() => EventBus.emit('cmd:travel', m.id)}>{here === m.id ? 'Đang ở đây' : locked ?? 'Dẫn đường tới đây'}</button></div>
-    </article>; })}</div>
-  </div>;
+  const player = useGame(s => s.player), quests = useGame(s => s.quests), here = useGame(s => s.mapId);
+  const [selected, setSelected] = useState(ATLAS_PLACES.some(m => m.id === here) ? here : 'dai_thua_vien');
+  const [group, setGroup] = useState('Tất cả'), [zoom, setZoom] = useState(1);
+  const viewport = useRef<HTMLDivElement>(null), [fitWidth, setFitWidth] = useState(900);
+  useEffect(() => {
+    const el = viewport.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const fit = () => setFitWidth(Math.max(1, Math.floor(Math.min(el.clientWidth, el.clientHeight * 1.5))));
+    fit(); const observer = new ResizeObserver(fit); observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    const pin = viewport.current?.querySelector<HTMLButtonElement>(`[data-pin="${selected}"]`);
+    pin?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [selected, zoom, fitWidth]);
+  const place = ATLAS_PLACES.find(m => m.id === selected)!;
+  const context = { childhood: isChildhood(player), quests, reputation: player.adventure?.reputation ?? 0 };
+  const reason = (id: string) => mapGateReason(getMap(id), context)
+    ?? (id !== here && !portalToward(getMap(here), id, player.level, context) ? 'Chưa mở đường đến khu vực này.' : null);
+  const locked = reason(place.id);
+  const visible = ATLAS_PLACES.filter(m => group === 'Tất cả' || m.group === group);
+  const discovered = player.world?.discovered ?? [];
+  const go = () => { if (!locked && selected !== here) EventBus.emit('cmd:travel', selected); };
+
+  return <section className="world-atlas" aria-label="Sơn Hà Đồ">
+    <aside className="atlas-sidebar">
+      <label className="atlas-filter">Khu vực<select aria-label="Lọc khu vực" value={group} onChange={e => setGroup(e.target.value)}>
+        {['Tất cả', ...new Set(ATLAS_PLACES.map(m => m.group))].map(g => <option key={g}>{g}</option>)}
+      </select></label>
+      <nav className="atlas-places" aria-label="Địa điểm thế giới">
+        {visible.map(m => <button key={m.id} data-map={m.id} className={`${selected === m.id ? 'selected' : ''} ${here === m.id ? 'current' : ''}`} onClick={() => setSelected(m.id)} aria-pressed={selected === m.id}>
+          <span className="atlas-place-icon" aria-hidden="true">{m.icon}</span>
+          <span><strong>{m.name}</strong><small>{here === m.id ? 'Đang ở đây' : reason(m.id) ? 'Chưa mở' : discovered.includes(m.id) ? 'Đã khám phá' : m.group}</small></span>
+        </button>)}
+      </nav>
+    </aside>
+    <div className="atlas-main">
+      <div className="atlas-map-viewport" ref={viewport} tabIndex={0} aria-label="Bản đồ thế giới, cuộn để xem các vùng">
+        <div className="atlas-painted-map" style={{ width: `${zoom * fitWidth}px` }}>
+          <img src="/assets/maps/world-chart-v4.png" alt="Sơn hà, thành trấn, tông môn, rừng trúc, thác nước và bí cảnh" draggable={false} />
+          <div className="atlas-map-title" aria-hidden="true"><small>CỬU HUYỀN</small><span>Sơn Hà Đồ</span></div>
+          <MapCompass />
+          {ATLAS_PLACES.map(m => <button key={m.id} className={`atlas-pin ${m.primary ? 'atlas-primary' : ''} ${m.id === here ? 'here' : ''} ${m.id === selected ? 'selected' : ''} ${reason(m.id) ? 'locked' : ''}`}
+            style={{ left: `${m.x}%`, top: `${m.y}%` }} data-pin={m.id} aria-label={`Chọn ${m.name}`} aria-pressed={m.id === selected} onClick={() => setSelected(m.id)}>
+            <span aria-hidden="true">{m.icon}</span><strong>{m.name}</strong>{m.id === here && <i>Bạn đang ở đây</i>}
+          </button>)}
+        </div>
+      </div>
+      <div className="atlas-tools">
+        <span><b>▲</b> Vị trí hiện tại <b>◇</b> Địa điểm <b>✦</b> Bí cảnh</span>
+        <div role="group" aria-label="Thu phóng bản đồ">
+          <button onClick={() => setZoom(Math.max(1, zoom - .25))} disabled={zoom === 1} aria-label="Thu nhỏ">−</button>
+          <button onClick={() => setZoom(1)} aria-label="Khôi phục kích thước">{Math.round(zoom * 100)}%</button>
+          <button onClick={() => setZoom(Math.min(2, zoom + .25))} disabled={zoom === 2} aria-label="Phóng to">+</button>
+        </div>
+      </div>
+      <footer className="atlas-detail" data-selected-map={place.id}>
+        <div><small>{place.group} · {place.id === here ? 'Đang ở đây' : discovered.includes(place.id) ? 'Đã khám phá' : 'Chưa đặt chân tới'}</small><h3>{place.name}</h3><p>{locked ?? place.desc}</p></div>
+        <button className="btn gold" disabled={!!locked || place.id === here} onClick={go}>{place.id === here ? 'Đang ở đây' : locked ? 'Chưa mở đường' : 'Dẫn đường'}</button>
+      </footer>
+    </div>
+  </section>;
 }

@@ -12,6 +12,9 @@ import { WANG_EFFECT_ART } from '../../data/wangSkills';
 import { buildWangSheet, WANG_CELL } from '../art/wangEffects';
 import { registerCultivationIcons, registerChildProfile } from '../art/skillIcons';
 import { registerInventoryIcons } from '../art/inventoryIcons';
+import { VILLAGE_ATLASES, registerVillageArt } from '../art/village';
+import { WORLD_STYLE_ATLASES, registerWorldStyle } from '../art/worldStyle';
+import { HERO_SHEETS, registerHeroes } from '../art/heroes';
 
 interface AtlasEntry {
   atlas: string;
@@ -30,12 +33,15 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    for (const key of HERO_SHEETS) this.load.image(`${key}-source`, `assets/sprites/${key}.png`);
     this.load.image('inventory-item-icons','/assets/ui/cultivation/bag-items-v1.png');
     this.load.image('cult-skill-icons','/assets/ui/cultivation/skill-icons-alpha-v2.png');
     for (const art of Object.values(WANG_EFFECT_ART)) this.load.image(`${art.texture}-source`, art.url);
     for (const key of WORLD_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for (const key of COHESION_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for(const key of EXPANSION_ATLASES)this.load.image(key,`assets/maps/${key}.png`);
+    for (const key of VILLAGE_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
+    for (const key of WORLD_STYLE_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     this.load.image('child-source', 'assets/maps/thiet-tru.png');
     this.load.image(COURTYARD_ATLAS, 'assets/maps/courtyard-architecture.png');
     this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => this.game.events.emit('assets-progress', progress));
@@ -69,6 +75,9 @@ export class PreloadScene extends Phaser.Scene {
     registerWorldArt(this);
     registerCohesiveArt(this);
     registerExpansionArt(this);
+    registerHeroes(this);
+    registerVillageArt(this);
+    registerWorldStyle(this);
     if(this.textures.exists('cult-skill-icons'))registerCultivationIcons(this.textures.get('cult-skill-icons').getSourceImage() as HTMLImageElement);
     for(const [sex,key] of [['male','thiet_tru'],['female','mu_uyen_child']]) {
       if(!this.textures.exists(key))continue;

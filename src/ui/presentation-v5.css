@@ -1,0 +1,700 @@
+/* Compact, gold-trimmed game chrome. Native labels remain crisp at every density. */
+.hud-v5
+  :is(
+    .status-name,
+    .status-power,
+    .quest-tabs button,
+    .quest-title,
+    .menu-label,
+    .minimap-title,
+    .childhood-actions .btn
+  ) {
+  font-family: 'Times New Roman', serif;
+}
+.hud-v5 {
+  --hud-gold: #d9b777;
+  --hud-glass: #061725d9;
+}
+.hud-v5 .avatar .hero-portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.hud-v5 .avatar-down .hero-portrait {
+  filter: grayscale(1) brightness(0.6);
+}
+.hud-v5 .hud-top-left {
+  top: 16px;
+  left: 18px;
+  width: 255px;
+  gap: 12px;
+}
+.hud-v5 .status.panel-glass {
+  gap: 10px;
+  padding: 6px 9px 7px 5px;
+  border-radius: 3px;
+  border: 0;
+  background: linear-gradient(90deg, #07131de8 65%, #07131d36);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.hud-v5 .status:after {
+  box-shadow: none;
+  border-bottom: 1px solid #c5a36570;
+}
+.hud-v5 .avatar {
+  width: 64px;
+  height: 70px;
+  padding: 2px;
+  border: 1px solid #dfb879;
+  border-radius: 42% 42% 36% 36%;
+  box-shadow: 0 0 0 3px #061723b8;
+  background: #0e2434;
+  overflow: visible;
+}
+.hud-v5 .avatar img,
+.hud-v5 .avatar .child-portrait {
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  box-shadow: none;
+}
+.hud-v5 .avatar-level {
+  bottom: -4px;
+  right: -5px;
+  min-width: 22px;
+  height: 20px;
+  font-size: 11px;
+  border-radius: 3px 7px;
+}
+.hud-v5 .status-info {
+  gap: 4px;
+  padding-top: 1px;
+}
+.hud-v5 .status-name {
+  font:
+    600 17px Georgia,
+    serif;
+  color: #f5e9cd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-v5 .status-realm {
+  font-size: 9px;
+  white-space: nowrap;
+}
+.hud-v5 .status-realm span {
+  color: #c7b793;
+}
+.hud-v5 .status .bar {
+  height: 12px;
+  border-radius: 2px;
+}
+.hud-v5 .status .bar-fill {
+  border-radius: 1px;
+}
+.hud-v5 .status .bar-text {
+  font-size: 9px;
+  line-height: 10px;
+  font-weight: 500;
+}
+.hud-v5 .status-res {
+  display: none;
+}
+.hud-v5 .status-power {
+  color: #f3d58b;
+  font:
+    italic 11px Georgia,
+    serif;
+  letter-spacing: 0.3px;
+}
+.hud-v5 .quest-panel.panel-glass {
+  border-radius: 2px 9px 2px 2px;
+  border: 1px solid #c5a36555;
+  background: linear-gradient(90deg, #061520d9, #061520a3);
+  box-shadow: 0 5px 12px #0002;
+  backdrop-filter: none;
+}
+.hud-v5 .quest-tabs {
+  border-bottom: 1px solid #b28b4f55;
+}
+.hud-v5 .quest-tabs button {
+  font:
+    12px Georgia,
+    serif;
+  min-height: 31px;
+  padding: 6px 5px;
+}
+.hud-v5 .quest-tabs button.active {
+  color: #ffe7b0;
+  background: linear-gradient(#9c6a28c9, #563916b8);
+  border-radius: 0;
+  box-shadow: inset 0 1px #f5d28c90;
+}
+.hud-v5 .quest-tabs .quest-toggle {
+  font-size: 22px;
+  flex-basis: 30px;
+}
+.hud-v5 .story-tracker {
+  background: #0b1d2b61;
+  padding: 8px;
+}
+.hud-v5 .quest-title {
+  font-size: 12px;
+}
+.hud-v5 .quest-obj {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.hud-v5 .quest-list {
+  max-height: 170px;
+  padding: 3px 9px;
+}
+.hud-v5 .hud-top-right {
+  right: 18px;
+  top: 16px;
+  gap: 15px;
+  flex-direction: row;
+  width: auto;
+}
+.hud-v5 .hud-top-stack {
+  gap: 7px;
+}
+.hud-v5 .cloud-badge {
+  font-size: 9px;
+  max-width: 180px;
+  border-color: #a68d5c55;
+  background: #071824a8;
+  padding: 1px 7px;
+}
+.hud-v5 .top-menu {
+  position: relative;
+  width: auto;
+  max-width: none;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+.hud-v5 .menu-btn {
+  width: 50px;
+  min-height: 57px;
+}
+.hud-v5 .menu-glyph {
+  width: 43px;
+  height: 43px;
+  border: 1px solid #c7a36670;
+  border-radius: 14px 4px;
+  background: linear-gradient(145deg, #253743c9, #061725df);
+  box-shadow: inset 0 0 0 2px #0003;
+}
+.hud-v5 .menu-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.hud-v5 .menu-label {
+  font:
+    11px Georgia,
+    serif;
+  color: #ead4a6;
+}
+.hud-v5 .menu-btn:disabled {
+  opacity: 0.52;
+}
+.hud-v5 .menu-more-glyph {
+  font-size: 28px;
+}
+.hud-v5 .top-menu-more {
+  right: 0;
+  top: 65px;
+  grid-template-columns: repeat(3, 50px);
+  gap: 10px;
+  border-radius: 2px 12px;
+  background: #071b2af5;
+  z-index: 60;
+}
+.hud-v5 .minimap,
+.hud-v5.phone.turned .minimap {
+  width: 141px;
+  padding: 0;
+  border-radius: 0;
+}
+.hud-v5 .minimap-map {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  border: 1px solid #c5a365ab;
+  border-radius: 2px 10px;
+  overflow: hidden;
+  background: #07131ee8;
+  box-shadow: 0 4px 15px #0005;
+  cursor: pointer;
+}
+.hud-v5 .minimap-title,
+.hud-v5.phone.turned .minimap-title {
+  display: block;
+  width: 100%;
+  padding: 5px 3px;
+  font:
+    12px Georgia,
+    serif;
+  color: #edd39a;
+  background: #07121b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-v5 .minimap-canvas,
+.hud-v5.phone.turned .minimap-canvas {
+  display: block;
+  width: 100%;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+  border: 0;
+  opacity: 0.95;
+}
+.hud-v5 .minimap-coordinates {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 7px;
+  border-top: 1px solid #b3945b55;
+  color: #c3c9c5;
+  font-size: 9px;
+}
+.hud-v5 .minimap-coordinates > span {
+  color: #ddbf81;
+  font-size: 13px;
+}
+.hud-v5 .minimap-coordinates b {
+  margin-left: auto;
+  font-size: 13px;
+  color: #ddbf81;
+  font-weight: 400;
+}
+.hud-v5 .minimap-zone {
+  color: #bbc8bb;
+  font-size: 9px;
+}
+.hud-v5 .hud-bottom-center {
+  width: min(420px, 35%);
+  bottom: 29px;
+}
+.hud-v5 .chat.panel-glass {
+  border-radius: 2px;
+  border-color: #a9895155;
+  background: #061722b0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.hud-v5 .chat-tabs {
+  border-bottom: 1px solid #a9895133;
+}
+.hud-v5 .chat-tabs button {
+  font-size: 10px;
+  padding: 4px 8px;
+  color: #afc1ca;
+}
+.hud-v5 .chat-tabs button.active {
+  color: #edce89;
+  background: #96734530;
+}
+.hud-v5 .chat-list {
+  font-size: 10px;
+  height: 47px;
+  line-height: 15px;
+  padding: 3px 8px;
+}
+.hud-v5 .chat-tag {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #77cbb2;
+  font-size: 9px;
+}
+.hud-v5 .skill-bar {
+  right: 24px;
+  bottom: 25px;
+  width: 285px;
+  height: 238px;
+  transform: none;
+  pointer-events: none;
+}
+.hud-v5 .skill-bar > button {
+  pointer-events: auto;
+}
+.hud-v5 .skill-bar .skill-btn {
+  border: 1px solid #bd995cbd;
+  box-shadow:
+    0 0 0 2px #0617239e,
+    0 3px 9px #0004;
+  background: transparent;
+}
+.hud-v5 .skill-bar .skill-btn > img {
+  object-fit: contain;
+}
+.hud-v5 .pos-main {
+  width: 92px;
+  height: 92px;
+  right: 0;
+  bottom: 12px;
+}
+.hud-v5 .pos-s1 {
+  width: 58px;
+  height: 58px;
+  right: 107px;
+  bottom: 14px;
+}
+.hud-v5 .pos-s2 {
+  width: 58px;
+  height: 58px;
+  right: 102px;
+  bottom: 86px;
+}
+.hud-v5 .pos-s3 {
+  width: 58px;
+  height: 58px;
+  right: 34px;
+  bottom: 127px;
+}
+.hud-v5 .pos-dash {
+  width: 46px;
+  height: 46px;
+  right: 177px;
+  bottom: 64px;
+}
+.hud-v5 .pos-potion {
+  width: 43px;
+  height: 43px;
+  right: 179px;
+  bottom: 0;
+}
+.hud-v5 .auto-btn {
+  width: 40px;
+  height: 40px;
+  right: 0;
+  bottom: 190px;
+}
+.hud-v5 .flight-btn {
+  width: 40px;
+  height: 40px;
+  right: 49px;
+  bottom: 190px;
+}
+.hud-v5 .target-btn {
+  right: 181px;
+  bottom: 127px;
+  width: 37px;
+  height: 37px;
+}
+.hud-v5 .round-btn {
+  border: 1px solid #c5a365bd;
+  background: #091e2bc4;
+  box-shadow: 0 0 0 2px #0617239e;
+}
+.hud-v5 .auto-label {
+  font-size: 9px;
+  padding-top: 18px;
+}
+.hud-v5 .skill-key {
+  font-size: 9px;
+}
+.hud-v5 .flight-label {
+  font-size: 9px;
+}
+.hud-v5 .childhood-actions {
+  right: 24px;
+  bottom: 32px;
+  border-radius: 2px 11px;
+  border-color: #c5a36577;
+  background: #061722bd;
+}
+.hud-v5 .childhood-actions .btn {
+  font:
+    12px Georgia,
+    serif;
+  border-radius: 2px;
+}
+.hud-v5 .exp-bar {
+  height: 9px;
+  border: 1px solid #bd995c80;
+  border-radius: 2px;
+  box-shadow: none;
+  bottom: 7px;
+}
+.hud-v5 .exp-bar span {
+  font-size: 8px;
+  line-height: 7px;
+}
+.hud-v5 button:focus-visible {
+  outline: 2px solid #f4d590;
+  outline-offset: 3px;
+}
+.hud-v5.phone .hud-top-left {
+  width: 182px;
+  max-width: 31%;
+  left: calc(9px + var(--hud-safe-left));
+  top: 9px;
+  gap: 8px;
+}
+.hud-v5.phone .status {
+  padding: 3px 5px 5px 2px;
+  gap: 6px;
+}
+.hud-v5.phone .avatar {
+  width: 39px;
+  height: 44px;
+}
+.hud-v5.phone .avatar-level {
+  min-width: 16px;
+  height: 16px;
+  font-size: 8px;
+  bottom: -3px;
+  right: -4px;
+}
+.hud-v5.phone .status-name {
+  font-size: 13px;
+}
+.hud-v5.phone .status-realm {
+  font-size: 8px;
+}
+.hud-v5.phone .status-info {
+  gap: 3px;
+}
+.hud-v5.phone .status .bar {
+  height: 9px;
+}
+.hud-v5.phone .status .bar-text {
+  font-size: 7px;
+  line-height: 7px;
+}
+.hud-v5.phone .status-power {
+  font-size: 9px;
+  white-space: nowrap;
+}
+.hud-v5.phone .quest-tabs button {
+  min-height: 27px;
+  padding: 4px;
+  font-size: 10px;
+}
+.hud-v5.phone .quest-tabs .quest-toggle {
+  font-size: 18px;
+}
+.hud-v5.phone .quest-list {
+  max-height: 52px;
+  padding: 3px 7px;
+}
+.hud-v5.phone .quest-title {
+  font:
+    10px/1.4 'Segoe UI',
+    sans-serif;
+}
+.hud-v5.phone .quest-obj {
+  font-size: 9px;
+}
+.hud-v5.phone .quest-details {
+  font-size: 8px;
+  min-height: 23px;
+  color: #d2b67b;
+}
+.hud-v5.phone .quest-panel.collapsed {
+  width: 126px;
+}
+.hud-v5.phone .hud-top-right,
+.hud-v5.phone.turned .hud-top-right {
+  top: 9px;
+  right: calc(9px + var(--hud-safe-right));
+  gap: 8px;
+  width: auto;
+  flex-direction: row;
+}
+.hud-v5.phone .hud-top-stack {
+  gap: 4px;
+}
+.hud-v5.phone .top-menu {
+  gap: 4px;
+  max-width: none;
+}
+.hud-v5.phone .menu-btn {
+  width: 38px;
+  min-height: 45px;
+}
+.hud-v5.phone .menu-glyph {
+  width: 33px;
+  height: 33px;
+  border-radius: 10px 3px;
+}
+.hud-v5.phone .menu-icon {
+  width: 32px;
+  height: 32px;
+}
+.hud-v5.phone .menu-label {
+  font-size: 9px;
+}
+.hud-v5.phone .cloud-badge {
+  font-size: 7px;
+  padding: 0 6px;
+  max-width: 160px;
+}
+.hud-v5.phone .top-menu-more {
+  top: 52px;
+  grid-template-columns: repeat(3, 43px);
+  padding: 8px;
+  gap: 8px;
+}
+.hud-v5.phone .top-menu-more .menu-btn {
+  width: 43px;
+}
+.hud-v5.phone .minimap,
+.hud-v5.phone.turned .minimap {
+  width: 99px;
+}
+.hud-v5.phone .minimap-title,
+.hud-v5.phone.turned .minimap-title {
+  width: 100%;
+  font-size: 10px;
+  padding: 4px 2px;
+}
+.hud-v5.phone .minimap-map {
+  width: 100%;
+  height: auto;
+}
+.hud-v5.phone .minimap-canvas,
+.hud-v5.phone.turned .minimap-canvas {
+  width: 100%;
+  height: 62px;
+}
+.hud-v5.phone .minimap-coordinates {
+  font-size: 8px;
+  padding: 2px 5px;
+}
+.hud-v5.phone .minimap-zone {
+  display: none;
+}
+.hud-v5.phone .skill-bar {
+  right: calc(12px + var(--hud-safe-right));
+  bottom: calc(21px + var(--hud-safe-bottom));
+  width: 230px;
+  height: 196px;
+  transform: none;
+}
+.hud-v5.phone .pos-main {
+  width: 76px;
+  height: 76px;
+  right: 0;
+  bottom: 6px;
+}
+.hud-v5.phone .pos-s1 {
+  width: 47px;
+  height: 47px;
+  right: 89px;
+  bottom: 9px;
+}
+.hud-v5.phone .pos-s2 {
+  width: 47px;
+  height: 47px;
+  right: 83px;
+  bottom: 68px;
+}
+.hud-v5.phone .pos-s3 {
+  width: 47px;
+  height: 47px;
+  right: 26px;
+  bottom: 103px;
+}
+.hud-v5.phone .pos-dash {
+  width: 40px;
+  height: 40px;
+  right: 145px;
+  bottom: 51px;
+}
+.hud-v5.phone .pos-potion {
+  width: 36px;
+  height: 36px;
+  right: 147px;
+  bottom: 0;
+}
+.hud-v5.phone .auto-btn {
+  width: 35px;
+  height: 35px;
+  right: 0;
+  bottom: 155px;
+}
+.hud-v5.phone .flight-btn {
+  width: 35px;
+  height: 35px;
+  right: 43px;
+  bottom: 155px;
+}
+.hud-v5.phone .target-btn {
+  width: 32px;
+  height: 32px;
+  right: 143px;
+  bottom: 105px;
+}
+.hud-v5.phone .skill-key,
+.hud-v5.phone .flight-label {
+  font-size: 8px;
+}
+.hud-v5.phone .auto-label {
+  font-size: 8px;
+}
+.hud-v5.phone .skill-count {
+  font-size: 9px;
+}
+.hud-v5.phone .skill-cd {
+  font-size: 13px;
+}
+.hud-v5.phone .hud-bottom-center,
+.hud-v5.phone.turned .hud-bottom-center {
+  width: min(265px, 34%);
+  bottom: calc(25px + var(--hud-safe-bottom));
+  left: 47%;
+  transform: translateX(-50%);
+}
+.hud-v5.phone .chat-list,
+.hud-v5.phone.turned .chat-list {
+  height: 29px;
+  font-size: 8px;
+  line-height: 13px;
+}
+.hud-v5.phone .chat-tabs button {
+  font-size: 8px;
+  min-height: 23px;
+  padding: 3px 5px;
+}
+.hud-v5.phone .chat-tag {
+  font-size: 8px;
+}
+.hud-v5.phone .chat.expanded .chat-list {
+  height: 81px;
+}
+.hud-v5.phone .childhood-actions {
+  right: calc(12px + var(--hud-safe-right));
+  bottom: calc(26px + var(--hud-safe-bottom));
+  width: 143px;
+}
+.hud-v5.phone .childhood-actions .btn {
+  font-size: 10px;
+  min-height: 31px;
+}
+@media (max-height: 350px) {
+  .hud-v5.phone .skill-bar {
+    transform: scale(0.85);
+    transform-origin: bottom right;
+  }
+  .hud-v5.phone .quest-details {
+    display: none;
+  }
+  .hud-v5.phone .minimap-canvas {
+    height: 49px;
+  }
+}

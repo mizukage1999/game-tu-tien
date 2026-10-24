@@ -14,6 +14,9 @@ function finish(b: MapBuilder, meta: Omit<MapDef, 'width' | 'height' | 'terrain'
     for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) b.reserve([{ x: x + dx, y: y + dy }]);
   }
   const forest = meta.id === 'rung_linh_thu', cave = meta.id === 'bi_canh_thach_linh';
+  // The opening village is composed by hand. Random tall trees used to obscure
+  // the well/workbench routes and mix several unrelated art styles.
+  if (meta.id === 'vuong_gia_thon') return b.build(meta);
   const tree = ['linh_son_tong', 'dinh_ta', 'ngoai_mon'].includes(meta.id) ? 'sect-cherry' : 'world-tree';
   if (cave) b.sprinkle(['world-crystal'], 10, ['cave'], [[6, 3, 26, 24]]);
   else {
@@ -28,28 +31,31 @@ export function vuongGiaThon(): MapDef {
   const b = new MapBuilder(42, 32, 'grass', 101);
   b.scatter('flower', 'grass', .08).border('wall');
   b.fill(29, 1, 3, 30, 'water');
-  b.fill(2, 13, 40, 4, 'dirt');
-  b.fill(8, 7, 4, 22, 'dirt'); b.fill(8, 21, 20, 3, 'dirt');
-  b.fill(18, 7, 4, 21, 'dirt'); b.fill(33, 14, 4, 13, 'dirt');
+  b.fill(2, 13, 40, 4, 'stone');
+  b.fill(8, 7, 4, 22, 'stone'); b.fill(8, 21, 20, 3, 'dirt');
+  b.fill(18, 7, 4, 21, 'stone'); b.fill(33, 14, 4, 13, 'dirt');
+  b.fill(11, 10, 6, 3, 'dirt'); // carpenter's yard
+  b.fill(17, 16, 6, 4, 'stone'); // shared well square
+  b.fill(8, 24, 11, 3, 'stone'); // school and notice board
   b.fill(28, 13, 5, 4, 'bridge'); b.fill(28, 24, 5, 2, 'bridge');
   b.fill(3, 2, 11, 5, 'farmland'); b.fill(19, 3, 7, 4, 'farmland');
   b.fill(3, 18, 5, 5, 'flower');
-  building(b, 'village-house', 10, 8, 5, 4);
-  building(b, 'village-house', 23, 9, 5, 3);
-  building(b, 'village-house', 9, 24, 5, 3);
-  building(b, 'village-house', 36, 11, 5, 3);
-  b.place('village-well', 20, 17);
-  b.place('village-workbench', 14, 11);
-  b.place('village-shrine', 19, 26, { block: block(3, 2) });
+  building(b, 'village25d-home', 10, 8, 5, 4);
+  building(b, 'village25d-apothecary', 23, 9, 5, 3);
+  building(b, 'village25d-school', 9, 24, 5, 3);
+  building(b, 'village25d-home', 36, 11, 5, 3);
+  b.place('village25d-well', 20, 17);
+  b.place('village25d-workbench', 14, 11);
+  b.place('village25d-shrine', 19, 26, { block: block(3, 2), fade: true });
   b.place('court-notice', 17, 24, { fade: true });
-  b.place('sect-bridge', 30, 15, { block: [] });
-  b.place('sect-bridge', 30, 25, { block: [], scale: .7 });
-  b.place('village-willow', 36, 23, { fade: true });
-  for (const [x, y] of [[5, 5], [11, 5], [22, 5]]) b.place('village-farm', x, y, { block: [] });
-  for (const [x, y] of [[4, 8], [17, 9], [26, 7], [16, 26], [26, 26]]) b.place('world-fence', x, y);
-  trees(b, [[3, 12], [26, 3], [4, 26], [25, 29], [39, 27], [34, 3], [15, 28]]);
-  lamps(b, [[16, 15], [25, 16], [34, 16]]);
-  b.place('world-rock', 27, 21); b.place('court-planter', 12, 10);
+  b.place('village25d-bridge', 30, 14, { block: [] });
+  b.place('village25d-bridge', 30, 24, { block: [], scale: .83 });
+  b.place('village25d-willow', 36, 23, { fade: true });
+  for (const [x, y] of [[5, 5], [11, 5], [22, 5], [4, 20], [7, 22], [26, 20], [37, 26]]) b.place('village25d-herbs', x, y, { block: [] });
+  for (const [x, y] of [[4, 8], [17, 9], [26, 7], [16, 26], [26, 26]]) b.place('village25d-fence', x, y);
+  trees(b, [[3, 12], [26, 3], [4, 26], [25, 29], [39, 27], [34, 3], [15, 28]], 'village25d-peach');
+  trees(b, [[3, 3], [16, 3], [38, 4], [4, 29]], 'village25d-willow');
+  for (const [x, y] of [[16, 15], [25, 16], [34, 16], [12, 10]]) b.place('village25d-lantern', x, y, { glow: 'warm' });
   return finish(b, {
     id: 'vuong_gia_thon', name: 'Vương Gia Thôn', description: 'Quê nhà Thiết Trụ · Chương mở đầu',
     playerSpawn: [11, 14], ambient: 'petals', monsters: [],

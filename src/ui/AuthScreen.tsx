@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { register, signIn, signInGuest, type AuthResult } from '../net/auth';
 import type { RegisterMode } from '../net/identity';
+import { EntryScreen } from './EntryScreen';
 
 type Tab = 'guest' | 'login' | 'register';
 
@@ -42,10 +43,10 @@ export function AuthScreen() {
     run(() => register({ username, mode, email, password }));
 
   return (
-    <div className="create-screen">
-      <div className="create-card panel-ornate">
-        <h1>Tu Tiên</h1>
-        <p className="muted">Nhập vai tu luyện — tiến trình lưu trên cloud.</p>
+    <EntryScreen kind="auth">
+      <div className="entry-card auth-card">
+        <h2>Bước vào tiên lộ</h2>
+        <p className="muted">Đăng nhập để tiếp nối hành trình của bạn.</p>
 
         <div className="auth-tabs" role="tablist">
           {TABS.map((t) => (
@@ -190,8 +191,8 @@ export function AuthScreen() {
         ) : null}
 
         {/* Shared so the guest tab reports failures too, not just the forms. */}
-        {error ? <p className="create-error auth-error">{error}</p> : null}
+        {error ? <p className="create-error auth-error" role="alert">{error}</p> : null}
       </div>
-    </div>
+    </EntryScreen>
   );
 }

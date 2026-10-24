@@ -62,6 +62,8 @@ export function daiThuaVien(): MapDef {
   }
   for (const [x, y] of [[9, 16], [39, 16], [44, 15], [44, 19]]) b.place('court-lantern', x, y, { glow: 'warm' });
   b.place('court-notice', 15, 19, { fade: true });
+  b.place('world-market-house', 9, 16, { block: [[-1, -1], [0, -1], [1, -1], [-1, -2], [0, -2], [1, -2]], fade: true });
+  b.place('world-market-stall', 38, 17, { block: [[0, -1]], fade: true });
   b.place('court-banner', 8, 23, { fade: true });
   b.place('court-banner', 40, 23, { fade: true, flipX: true });
   b.place('court-burner', 20, 7);

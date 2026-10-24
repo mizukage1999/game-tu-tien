@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { animKey, CHARACTERS, RIGS, type RigDef } from '../art/generate';
-import type { Dir } from '../types';
+import { cardinalDirection, type HeroDirection } from '../art/heroDirections';
 
 interface PlayOptions {
   onHit?: () => void;
@@ -34,16 +34,18 @@ export class AnimationController {
     return this.current?.anim ?? null;
   }
 
-  private resolve(anim: string, dir: Dir): { key: string; flip: boolean | null } {
+  private resolve(anim: string, dir: HeroDirection): { key: string; flip: boolean | null } {
     const dirs = this.rig.anims[anim]?.dirs ?? this.rig.dirs;
-    const horizontal = dir === 'left' || dir === 'right';
     if (dirs.includes(dir)) return { key: animKey(this.art, anim, dir), flip: false };
-    if (dirs.includes('side') && horizontal) return { key: animKey(this.art, anim, 'side'), flip: dir === 'left' };
+    const cardinal = cardinalDirection(dir);
+    const horizontal = cardinal === 'left' || cardinal === 'right';
+    if (dirs.includes(cardinal)) return { key: animKey(this.art, anim, cardinal), flip: false };
+    if (dirs.includes('side') && horizontal) return { key: animKey(this.art, anim, 'side'), flip: cardinal === 'left' };
     if (dirs.includes('side')) return { key: animKey(this.art, anim, 'side'), flip: null };
     return { key: animKey(this.art, anim, dirs[0]), flip: false };
   }
 
-  play(anim: string, dir: Dir, opts: PlayOptions = {}) {
+  play(anim: string, dir: HeroDirection, opts: PlayOptions = {}) {
     if (this.lockedFlag && !opts.force) return false;
     const { key, flip } = this.resolve(anim, dir);
     if (!this.sprite.scene.anims.exists(key)) return false;
