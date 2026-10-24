@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import {
-  bonusText,
   DUNGEONS,
-  EQUIP_SLOTS,
   ITEMS,
   MONSTERS,
   NPCS,
@@ -10,36 +8,28 @@ import {
   RARITIES,
   REALMS,
   rarityOf,
-  SKILLS,
   type RarityId,
-  type SkillId,
 } from '../../data';
 import { EventBus } from '../../game/EventBus';
-import { itemIconUrl, skillSpriteUrl } from '../../game/art/icons';
+import { itemIconUrl } from '../../game/art/icons';
 import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
 import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
 import { canEquip, expToNext, isBottleneck, realmFor, realmNameAtLevel } from '../../game/systems/progression';
 import { objectiveText } from '../../game/systems/quest';
-import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, SKILL_MAX_LEVEL } from '../../game/systems/skills';
 import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
 import { useAccount } from '../../net/session';
 import { AccountPanel } from '../AccountPanel';
 import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
 import { Journey } from './Journey';
-import { heroName, isChildhood, originText } from '../../game/systems/origin';
-import { battlePower, enhanceCost, enhanceChance, MAX_ENHANCEMENT } from '../../game/systems/adventure';
-import { enhancementLevel, ENHANCEMENT_STONE } from '../../game/systems/enhancement';
-import { skillLoadout, skillUnlocked, skillLockReason } from '../../game/systems/skills';
+import { originText } from '../../game/systems/origin';
+import { battlePower } from '../../game/systems/adventure';
 import { SectPanel, PremiumPanel } from './AdventurePanels';
 import { MapPanel } from './MapPanel';
-
-const GEAR_SLOTS = EQUIP_SLOTS;
-function EnhanceButton({id}:{id:string}) {
-  const p=useGame(s=>s.player),act=useGame(s=>s.adventureAction),n=enhancementLevel(p.adventure?.enhancements[id]),qty=enhanceCost(n)[ENHANCEMENT_STONE]??0;
-  const capped=n>=MAX_ENHANCEMENT,chance=Math.round(enhanceChance(n)*100);
-  return <div className="gear-enhance"><button className="btn small" disabled={capped||(p.inventory[ENHANCEMENT_STONE]??0)<qty} title={capped?'Đã đạt tối đa +12':`Đá Cường Hóa ×${qty} · Thành công ${chance}%. Thất bại mất đá, giữ cấp đồ.`} onClick={()=>act({type:'enhance',id})}>{capped?'Tối đa +12':`Đập +${n+1} · ${chance}%`}</button>{!capped&&<small>Đá ×{qty} · có {p.inventory[ENHANCEMENT_STONE]??0}</small>}</div>;
-}
+import { Skills } from './SkillPanel';
+export { Skills } from './SkillPanel';
+import { CharacterPanel } from './CharacterPanel';
+import { CultivationWallet, CultivationCorners } from './CultivationUI';
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -77,103 +67,9 @@ function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: numb
   );
 }
 
-function ItemLabel({ id }: { id: string }) {
+function ItemLabel({id}:{id:string}) {
   const enhancement=useGame(s=>s.player.adventure?.enhancements[id]??0);
-  return <b style={{ color: rarityColor(id) }}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
-}
-
-function Character() {
-  const player = useGame((s) => s.player);
-  const stats = useGame((s) => s.stats);
-  const unequip = useGame((s) => s.unequip);
-  const expNeeded = expToNext(player.level);
-  const hpPct = Math.max(0, Math.min(100, (player.hp / Math.max(1, stats.maxHp)) * 100));
-  const mpPct = Math.max(0, Math.min(100, (player.mp / Math.max(1, stats.maxMp)) * 100));
-  const expPct = Math.max(0, Math.min(100, (player.exp / Math.max(1, expNeeded)) * 100));
-  const rows: [string, string | number][] = [
-    ['Cảnh giới', isChildhood(player) ? 'Phàm Nhân' : realmNameAtLevel(player.level)],
-    ['Cấp độ', player.level],
-    ['Lực chiến', battlePower(stats)],
-    ['Sinh lực (HP)', stats.maxHp],
-    ['Linh lực (MP)', stats.maxMp],
-    ['Công kích', stats.atk],
-    ['Phòng ngự', stats.def],
-    ['Bạo kích', `${Math.round(stats.critRate * 100)}% (x${stats.critMul})`],
-    ['Tốc độ', stats.speed],
-  ];
-  return (
-    <>
-      <div className="character-hero">
-        <img
-          className="character-portrait"
-          src={player.sex === 'male' ? '/assets/sprites/wang-lin-portrait.png' : '/assets/sprites/li-mu-uyen-portrait.png'}
-          alt=""
-          aria-hidden="true"
-        />
-        <div className="character-hero-info">
-          <div className="character-name">
-            {heroName(player)} <span>Lv.{player.level}</span>
-          </div>
-          <div className="character-realm">{isChildhood(player) ? 'Phàm Nhân' : realmNameAtLevel(player.level)}</div>
-          <div className="bar bar-hp">
-            <div className="bar-fill" style={{ width: `${hpPct}%` }} />
-            <span className="bar-text">HP {Math.round(player.hp)} / {stats.maxHp}</span>
-          </div>
-          <div className="bar bar-mp">
-            <div className="bar-fill" style={{ width: `${mpPct}%` }} />
-            <span className="bar-text">MP {Math.round(player.mp)} / {stats.maxMp}</span>
-          </div>
-          <div className="character-exp">
-            <span>EXP {player.exp} / {expNeeded}</span>
-            <div className="character-exp-track">
-              <span style={{ width: `${expPct}%` }} />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="menu-grid two">
-        <table className="stat-table">
-          <tbody>
-            {rows.map(([k, v]) => (
-              <tr key={k}>
-                <td>{k}</td>
-                <td>{v}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div>
-          <h4>Đang trang bị</h4>
-          <p className="muted enhancement-note">Cường hóa tối đa +12 bằng Đá Cường Hóa. Thất bại mất đá, giữ cấp đồ.</p>
-          <div className="equip-list">
-            {GEAR_SLOTS.map((slot) => {
-              const id = player.equipment[slot.id];
-              return (
-                <div key={slot.id} className="equip-slot">
-                  <span className="equip-slot-name">{slot.name}</span>
-                  {id ? (
-                    <>
-                      <ItemIcon id={id} size={32} rotatingBorder />
-                      <div className="equip-info">
-                        <ItemLabel id={id} />
-                        <small className="muted">{bonusText(ITEMS[id]?.bonus)}</small>
-                      </div>
-                      <button className="btn small" onClick={() => unequip(slot.id)}>
-                        Tháo
-                      </button>
-                      <EnhanceButton id={id}/>
-                    </>
-                  ) : (
-                    <i className="muted">Trống</i>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </>
-  );
+  return <b style={{color:rarityColor(id)}}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
 }
 
 function Bag() {
@@ -290,119 +186,6 @@ function Cultivate() {
       ) : (
         <p>Đã đạt cảnh giới cao nhất của bản demo.</p>
       )}
-    </div>
-  );
-}
-
-function Delta({ cur, next, suffix = '' }: { cur: number | string; next?: number | string; suffix?: string }) {
-  return (
-    <>
-      {cur}
-      {suffix}
-      {next !== undefined && next !== cur && (
-        <span className="delta">
-          {' '}
-          → {next}
-          {suffix}
-        </span>
-      )}
-    </>
-  );
-}
-
-function CostChip({ item, need, have }: { item: string; need: number; have: number }) {
-  if (need <= 0) return null;
-  return (
-    <span className={`cost-chip ${have < need ? 'short' : ''}`} title={itemName(item)}>
-      <img src={itemIconUrl(item, 20)} alt="" /> {need}
-    </span>
-  );
-}
-
-export function Skills() {
-  const player = useGame((s) => s.player);
-  const maxMp = useGame(s=>s.stats.maxMp);
-  const choose=useGame(s=>s.chooseSkill),[slot,setSlot]=useState(1),loadout=skillLoadout(player);
-  const [assigned, setAssigned] = useState('');
-  const upgrade = useGame((s) => s.upgradeSkill);
-  const wallet = {
-    linhKhi: player.linhKhi,
-    linhThach: player.inventory.linh_thach ?? 0,
-    kiemPho: player.inventory.kiem_pho ?? 0,
-  };
-  return (
-    <div className="skill-list">
-      <p className="muted">Đánh thường cố định ở ô 1. Chọn ô 2–4 để đổi chiêu; Lướt có nút riêng và phím Shift.</p>
-      <div className="skill-loadout" role="group" aria-label="Chọn ô để thay chiêu">{loadout.map((id,i)=><button type="button" key={i} disabled={i===0} aria-pressed={slot===i} className={slot===i?'active':''} onClick={()=>{setSlot(i);setAssigned('');}}><img src={skillSpriteUrl(id,player.sex)} alt=""/>Ô {i+1} · {SKILLS[id].name}</button>)}</div>
-      <p className="skill-assignment" role="status">{assigned || `Đang chọn ô ${slot+1}. Nhấn “Dùng ở ô ${slot+1}” tại chiêu muốn thay.`}</p>
-      <p className="muted">
-        Nâng cấp tăng sát thương và giảm hồi chiêu. Cấp {SKILL_BONUS_LEVEL} lĩnh ngộ tuyệt kỹ. Từ cấp 4 cần thêm Kiếm Phổ Tàn Trang (rơi trong phó bản).
-      </p>
-      {(Object.keys(SKILLS) as SkillId[]).filter(id=>!SKILLS[id].character||SKILLS[id].character===(player.sex??'female')).map((id) => {
-        const lv = skillLevel(player.skills, id);
-        const cur = effectiveSkill(id, lv);
-        const next = lv < SKILL_MAX_LEVEL ? effectiveSkill(id, lv + 1) : null;
-        const check = checkUpgrade(lv, player.level, wallet);
-        const cost = check.cost;
-        const locked = skillLockReason(player,id);
-        return (
-          <div key={id} data-skill={id} className={`skill-row upgrade ${loadout[slot]===id?'selected-skill':''}`}>
-            <div className="skill-icon">
-              <img src={skillSpriteUrl(id, player.sex)} alt="" />
-              <span className="skill-lv">{lv}</span>
-            </div>
-            <div className="skill-info">
-              <b>{cur.name}</b> <kbd>{id==='than_phap'?'Shift':loadout.includes(id)?loadout.indexOf(id)+1:'—'}</kbd>{' '}
-              <span className="skill-level">
-                Cấp {lv}/{SKILL_MAX_LEVEL}
-              </span>
-              <div className="muted">{cur.desc}</div>
-              {locked && <small className="req-bad">{locked}</small>}
-              {cur.mpCost>player.mp && <small className="skill-mp-note">Cần {cur.mpCost} MP để thi triển · Hiện có {Math.floor(player.mp)}/{maxMp}</small>}
-              <small>
-                MP {cur.mpCost} · Hồi chiêu <Delta cur={(cur.cooldownMs / 1000).toFixed(1)} next={next ? (next.cooldownMs / 1000).toFixed(1) : undefined} suffix="s" />
-                {cur.multiplier ? (
-                  <>
-                    {' '}
-                    · Sát thương x<Delta cur={cur.multiplier} next={next?.multiplier} />
-                  </>
-                ) : null}
-                {next && next.range !== cur.range ? (
-                  <>
-                    {' '}
-                    · Tầm <Delta cur={cur.range} next={next.range} />
-                  </>
-                ) : null}
-              </small>
-              <div className={`skill-bonus ${cur.active ? 'on' : ''}`}>
-                {cur.active ? '✦ ' : `Cấp ${SKILL_BONUS_LEVEL}: `}
-                {cur.bonus.desc}
-              </div>
-            </div>
-            <div className="skill-upgrade">
-              <button type="button" className="btn small" disabled={id==='basic'||id==='than_phap'||!!locked||loadout[slot]===id} onClick={()=>{choose(slot,id);setAssigned(`Đã đặt ${cur.name} vào ô ${slot+1}. Thanh chiêu ngoài map và sân tỷ võ đã cập nhật.`);}}>{id==='basic'?'Đánh thường cố định':id==='than_phap'?'Nút lướt riêng':locked?'Chưa mở':loadout[slot]===id?`Đang ở ô ${slot+1}`:`Dùng ở ô ${slot+1}`}</button>
-              {cost ? (
-                <>
-                  <div className="cost-row">
-                    <span className={`cost-chip ${player.level < cost.reqLevel ? 'short' : ''}`}>{realmNameAtLevel(cost.reqLevel)}</span>
-                    <CostChip item="linh_khi" need={cost.linhKhi} have={wallet.linhKhi} />
-                    <CostChip item="linh_thach" need={cost.linhThach} have={wallet.linhThach} />
-                    <CostChip item="kiem_pho" need={cost.kiemPho} have={wallet.kiemPho} />
-                  </div>
-                  <button className="btn gold small" disabled={!check.ok||!skillUnlocked(player,id)} title={check.ok ? '' : check.reason} onClick={() => upgrade(id)}>
-                    Nâng cấp
-                  </button>
-                </>
-              ) : (
-                <span className="skill-max">Tối đa</span>
-              )}
-            </div>
-          </div>
-        );
-      })}
-      <div className="controls-help">
-        Di chuyển: WASD / phím mũi tên / joystick · Tương tác: E · Tọa thiền: F · Đổi mục tiêu: Tab · Tự động: T · Đan dược: Q
-      </div>
     </div>
   );
 }
@@ -644,7 +427,7 @@ function Settings() {
 }
 
 const CONTENT: Record<MenuTab, () => JSX.Element> = {
-  character: Character,
+  character: CharacterPanel,
   bag: Bag,
   cultivate: Cultivate,
   skills: Skills,
@@ -666,11 +449,13 @@ export function Menus() {
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
       <div className={`menu-window panel-ornate menu-${menu}`}>
+        {(menu==='skills'||menu==='character')&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
             <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
             {TITLES[menu]}
           </h3>
+          {(menu==='skills'||menu==='character')&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>

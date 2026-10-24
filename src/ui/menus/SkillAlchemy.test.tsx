@@ -38,7 +38,7 @@ describe('skill selection and in-panel crafting', () => {
       expect(slots[0].disabled).toBe(true);
       act(() => slots[2].click());
       const assign = host.querySelector<HTMLButtonElement>(
-        '.skill-row[data-skill="hoa_ma_chi"] .skill-upgrade button',
+        '.cult-skill-detail[data-skill="hoa_ma_chi"] [data-action="assign"]',
       )!;
       expect(assign.disabled).toBe(false);
       act(() => assign.click());
@@ -48,7 +48,7 @@ describe('skill selection and in-panel crafting', () => {
       expect(host.querySelectorAll('.skill-bar [data-skill]')).toHaveLength(5);
       act(() => slots[1].click());
       const swap = host.querySelector<HTMLButtonElement>(
-        '.skill-row[data-skill="hoa_ma_chi"] .skill-upgrade button',
+        '.cult-skill-detail[data-skill="hoa_ma_chi"] [data-action="assign"]',
       )!;
       act(() => swap.click());
       expect(skillLoadout(gameStore.getState().player)[1]).toBe('hoa_ma_chi');

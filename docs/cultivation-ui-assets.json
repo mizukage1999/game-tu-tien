@@ -1,0 +1,30 @@
+[
+  {
+    "asset": "public/assets/ui/cultivation/ui-night-v1.png",
+    "provider": "built-in imagegen",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-cdaa28d2-e6ba-44e7-ba87-131328b73ad4.png",
+    "prompt": "Use case: stylized-concept. Asset type: background artwork for interactive Vietnamese xianxia RPG Skills and Character menus. The two attached images are STYLE REFERENCES only. Generate ONLY the painted environment art, NO interface, NO panels, NO text, NO icons, NO people. Wide landscape 3:2. A dark midnight-blue Chinese cultivation sect in misty mountains, distant pagoda roofs above clouds, moonlight, sparse maple branches framing the far corners, restrained cyan spiritual embers. Detailed painterly premium fantasy RPG illustration, ink navy shadows, subtle aged gold architectural accents. Center and right two thirds extremely dark low-contrast negative space so real UI cards and readable text can be overlaid; atmosphere at left edge, top and bottom. Avoid bright center, avoid busy texture behind UI, avoid text or borders.",
+    "reference": "User-supplied skill and character menu references"
+  },
+  {
+    "asset": "public/assets/ui/cultivation/skill-icons-v1.png",
+    "provider": "built-in imagegen",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-badb3ffb-bf80-4cc1-b338-80df8cda2545.png",
+    "prompt": "Use case: stylized-concept. Asset type: production-ready RPG skill ICON SPRITE ATLAS. Attached image 1 is the icon style reference, image 2 is only supporting palette. Output one precisely aligned RECTANGULAR ATLAS, EXACTLY FIVE equal-width columns and THREE equal-height rows, all 15 cells identical square size; landscape aspect ratio 5:3. NO TEXT, letters, numbers, labels or UI outside the cells. Each cell has a single bright detailed circular magical skill icon against a solid very dark navy square. Circles centered, same diameter 82% of each cell, 9% empty margin on every side. Metallic thin gold ring, painted high-contrast energy, clear recognizable silhouettes at 48px. Read cells left-to-right top-to-bottom: Row1: red demonic pointing finger and lightning beam; purple underworld vortex with ghostly silhouettes; icy blue upright finger with luminous binding chains; red-black scythe crescent slash; golden open palm glowing seal. Row2: silver sword basic slash with icy blue trail; icy blue broad crescent sword wave; three flying blue swords; large blue frost lotus/ice crystal eruption; cyan swift dash silhouette with blue wind. Row3: blue lightning bolt striking earth; orange fire lotus explosion; emerald healing leaves wrapping a pearl; golden diamond shield with protective halo; turquoise sharp wind blades. Exactly 15 independent complete icons, clean equal grid, do not combine or overlap adjacent icons. Preserve matching xianxia game illustration style from reference.",
+    "reference": "User-supplied skill and character menu references"
+  },
+  {
+    "asset": "public/assets/ui/cultivation/wang-full-v1.png",
+    "provider": "built-in imagegen",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-f31e7b92-04a9-4de6-ada1-57503622d2a5.png",
+    "prompt": "Use case: identity-preserve. Asset type: large character paper-doll portrait for interactive RPG profile menu. The attached local portrait is the character identity reference. Redraw as refined, detailed painted fantasy game illustration, close to a high-end Chinese cultivation RPG character selection screen. A tall, slender young adult Chinese male immortal cultivator Wang Lin. Preserve the reference face identity, flowing silver-white hair and crimson/black spiritual aura, refine the rendering to premium xianxia key art. Long flowing ivory robes, charcoal inner garments, subtle silver armor and restrained red embroidered details. Calm determined expression, handsome angular face, three-quarter front view facing slightly right, full body head to feet standing at ease, open hands at sides, robe and hair flowing gently. Dark red energy ribbon behind him, no oversized aura ring. Composition: one single character centered in a tall 2:3 canvas, entire silhouette and feet inside frame with 8% margin. Actual transparent alpha background. Sharp face, readable cloth folds, elegant silhouette. No scenery, no platform, NO weapon held in hand, no UI, no borders, no writing, no watermark. Keep the original character identity but make the art polished and anatomically coherent.",
+    "reference": "public/assets/sprites/wang-lin-portrait.png"
+  },
+  {
+    "asset": "public/assets/ui/cultivation/li-full-v1.png",
+    "provider": "built-in imagegen",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-2066c2ab-6e0d-46f7-8585-42b53e5dbb56.png",
+    "prompt": "Use case: identity-preserve. Asset type: large character paper-doll portrait for interactive RPG profile menu. The attached local portrait is the character identity reference. Redraw as refined, detailed painted fantasy game illustration, close to a high-end Chinese cultivation RPG character selection screen. A tall, slender young adult Chinese female immortal cultivator Li Mu Wan. Preserve the reference face identity, long black hair, floral hairpin, elegant ivory and icy-blue robes with gold and lavender details, luminous blue butterflies. Gentle composed expression. Three-quarter front view facing slightly left. Full body head to feet standing at ease, hands softly posed, cloth and hair flowing gently. Restrained ethereal blue ribbons and sparse butterflies. Composition: one single character centered in a tall 2:3 canvas, entire silhouette and feet inside frame with 8% margin. Actual transparent alpha background. Sharp face, readable cloth folds, elegant silhouette. No scenery, no platform, NO weapon held in hand, no UI, no borders, no writing, no watermark. Keep the original character identity but make the art polished and anatomically coherent.",
+    "reference": "public/assets/sprites/li-mu-uyen-portrait.png"
+  }
+]

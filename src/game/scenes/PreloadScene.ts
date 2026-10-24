@@ -10,6 +10,7 @@ import { COHESION_ATLASES, registerCohesiveArt } from '../art/cohesion';
 import { EXPANSION_ATLASES, registerExpansionArt } from '../art/expansionArt';
 import { WANG_EFFECT_ART } from '../../data/wangSkills';
 import { buildWangSheet, WANG_CELL } from '../art/wangEffects';
+import { registerCultivationIcons, registerChildProfile } from '../art/skillIcons';
 
 interface AtlasEntry {
   atlas: string;
@@ -28,6 +29,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('cult-skill-icons','/assets/ui/cultivation/skill-icons-v1.png');
     for (const art of Object.values(WANG_EFFECT_ART)) this.load.image(`${art.texture}-source`, art.url);
     for (const key of WORLD_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for (const key of COHESION_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
@@ -64,6 +66,12 @@ export class PreloadScene extends Phaser.Scene {
     registerWorldArt(this);
     registerCohesiveArt(this);
     registerExpansionArt(this);
+    if(this.textures.exists('cult-skill-icons'))registerCultivationIcons(this.textures.get('cult-skill-icons').getSourceImage() as HTMLImageElement);
+    for(const [sex,key] of [['male','thiet_tru'],['female','mu_uyen_child']]) {
+      if(!this.textures.exists(key))continue;
+      const frame=this.textures.get(key).get('idle_side_0');
+      registerChildProfile(sex,frame.source.image as CanvasImageSource,frame.cutX,frame.cutY,frame.cutWidth,frame.cutHeight);
+    }
     generateArt(this);
     buildImmortalArt(this);
     const s = gameStore.getState();
