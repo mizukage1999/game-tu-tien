@@ -1,6 +1,8 @@
 import { SKILLS, type SkillId } from '../../data';
 import { effectiveSkill, DEFAULT_LOADOUT } from './skills';
 import type { Duelist } from './duel';
+import { wangEffect } from '../../data/wangSkills';
+import { signatureHit } from './skillHit';
 export const ARENA_W = 720,
   ARENA_H = 400;
 export const ARENA_ROCKS = [
@@ -23,6 +25,9 @@ export interface ArenaFighter extends Duelist {
   shield: number;
   shieldUntil: number;
   invulnUntil: number;
+  rootUntil: number;
+  weakenUntil: number;
+  slowUntil: number;
   cooldowns: Partial<Record<SkillId, number>>;
 }
 export interface ArenaEffect {
@@ -40,6 +45,8 @@ export interface ArenaEffect {
   damage: number;
   resolved: boolean;
   skill: SkillId;
+  nextTick?: number;
+  tickEnd?: number;
 }
 export interface ArenaSnapshot {
   nonce: string;
@@ -134,7 +141,10 @@ export function validateArenaSnapshot(raw: unknown, nonce: string): raw is Arena
         f.y >= 0 &&
         f.y <= ARENA_H &&
         f.hp >= 0 &&
-        f.hp <= f.maxHp,
+        f.hp <= f.maxHp &&
+        [f.rootUntil, f.weakenUntil, f.slowUntil].every(
+          (v) => v === undefined || (Number.isFinite(v) && v >= 0 && v <= 130000),
+        ),
     ) &&
     s.fighters[0].userId !== s.fighters[1].userId &&
     (s.winner === null || s.fighters.some((f) => f.userId === s.winner)) &&
@@ -152,11 +162,15 @@ export function validateArenaSnapshot(raw: unknown, nonce: string): raw is Arena
         typeof e.skill === 'string' &&
         Object.prototype.hasOwnProperty.call(SKILLS, e.skill) &&
         typeof e.resolved === 'boolean' &&
+        [e.nextTick, e.tickEnd].every(
+          (v) => v === undefined || (Number.isFinite(v) && v >= 0 && v <= 130000),
+        ) &&
         s.fighters.some((f) => f.userId === e.owner),
     )
   );
 }
 function hit(e: ArenaEffect, p: ArenaFighter) {
+  if (wangEffect(e.skill)) return signatureHit(e.skill, e, { x: e.dx, y: e.dy }, e.range, p);
   const x = p.x - e.x,
     y = p.y - e.y,
     d = Math.hypot(x, y);
@@ -187,6 +201,9 @@ export class ArenaEngine {
       shield: 0,
       shieldUntil: 0,
       invulnUntil: 0,
+      rootUntil: 0,
+      weakenUntil: 0,
+      slowUntil: 0,
       cooldowns: {},
     });
     this.state = {
@@ -238,7 +255,9 @@ export class ArenaEngine {
       f.mp = Math.min(f.maxMp, f.mp + dt * 0.006);
       if (move) {
         const length = Math.hypot(move.x, move.y),
-          speed = clamp(f.speed, 120, 240),
+          speed =
+            (f.rootUntil > s.elapsed ? 0 : f.slowUntil > s.elapsed ? 0.55 : 1) *
+            clamp(f.speed, 120, 240),
           dx = length ? move.x / Math.max(1, length) : 0,
           dy = length ? move.y / Math.max(1, length) : 0;
         if (length > 0.1) {
@@ -247,9 +266,14 @@ export class ArenaEngine {
         }
         const nx = clamp(f.x + (dx * speed * dt) / 1000, 28, ARENA_W - 28),
           ny = clamp(f.y + (dy * speed * dt) / 1000, 28, ARENA_H - 28);
-        if (!ARENA_ROCKS.some((r) => Math.hypot(nx - r.x, ny - r.y) < r.r + 14)) {
+        const open = (x: number, y: number) =>
+          !ARENA_ROCKS.some((r) => Math.hypot(x - r.x, y - r.y) < r.r + 14);
+        if (open(nx, ny)) {
           f.x = nx;
           f.y = ny;
+        } else {
+          if (open(nx, f.y)) f.x = nx;
+          if (open(f.x, ny)) f.y = ny;
         }
         if (move.cast) {
           this.cast(f, move.cast);
@@ -258,11 +282,27 @@ export class ArenaEngine {
       }
     }
     for (const e of s.effects) {
-      if (e.resolved || e.ready > s.elapsed) continue;
-      e.resolved = true;
+      if (e.resolved || (e.nextTick ?? e.ready) > s.elapsed) continue;
+      if (e.tickEnd) {
+        e.nextTick = (e.nextTick ?? e.ready) + 500;
+        e.resolved = e.nextTick >= e.tickEnd;
+      } else e.resolved = true;
       const target = s.fighters.find((f) => f.userId !== e.owner)!;
       if (hit(e, target) && target.invulnUntil <= s.elapsed) {
-        const damage = Math.max(1, Math.round(e.damage - target.def * 0.55)),
+        if (e.skill === 'dinh_than_thuat') {
+          target.rootUntil = s.elapsed + 1000;
+          continue;
+        }
+        if (e.skill === 'dich_linh_an')
+          target.rootUntil = Math.max(target.rootUntil, s.elapsed + 350);
+        if (e.skill === 'dao_hoa_hoang_tuyen') {
+          target.weakenUntil = s.elapsed + 800;
+          target.slowUntil = s.elapsed + 800;
+        }
+        const damage = Math.max(
+            1,
+            Math.round(e.damage - target.def * (target.weakenUntil > s.elapsed ? 0.8 : 1) * 0.55),
+          ),
           absorbed = Math.min(target.shield, damage);
         target.shield -= absorbed;
         target.hp = Math.max(0, target.hp - damage + absorbed);
@@ -287,6 +327,7 @@ export class ArenaEngine {
   private cast(f: ArenaFighter, id: SkillId) {
     const s = this.state,
       allowed = f.loadout ?? DEFAULT_LOADOUT;
+    if (f.rootUntil > s.elapsed) return;
     if ((id !== 'than_phap' && !allowed.includes(id)) || (f.cooldowns[id] ?? 0) > s.elapsed) return;
     const sk = effectiveSkill(id, f.skillLevels?.[id] ?? 1);
     if (f.mp < sk.mpCost) return;
@@ -315,6 +356,7 @@ export class ArenaEngine {
       f.shieldUntil = s.elapsed + 6000;
       return;
     }
+    const painted = wangEffect(id);
     const circle = id === 'han_bang_tran' || sk.kind === 'nova',
       line = id === 'phi_kiem' || sk.kind === 'projectile',
       windup = id === 'basic' ? 150 : line ? 400 : 600;
@@ -329,10 +371,15 @@ export class ArenaEngine {
       arc: sk.arc || 100,
       kind: circle ? 'circle' : line ? 'line' : 'cone',
       ready: s.elapsed + windup,
-      expires: s.elapsed + windup + 220,
+      expires:
+        s.elapsed +
+        Math.max(windup + 220, (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
       damage: f.atk * sk.multiplier,
       skill: id,
       resolved: false,
+      ...(id === 'dao_hoa_hoang_tuyen'
+        ? { nextTick: s.elapsed + 500, tickEnd: s.elapsed + 4500, expires: s.elapsed + 4500 }
+        : {}),
     });
   }
   snapshot(): ArenaSnapshot {

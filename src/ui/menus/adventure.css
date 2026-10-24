@@ -66,11 +66,23 @@
   padding: 8px;
 }
 .skill-loadout {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #0d2332;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   margin: 8px 0 15px;
 }
+.skill-assignment { color: #eed399; font-size: 12px; }
+.skill-mp-note { display: block; color: #c9b480; }
+.skill-row.selected-skill { border-color: #ddba70; background: #ddba7009; }
+.craft-availability, .craft-feedback { font-size: 12px; line-height: 1.4; margin: 8px 0; }
+.craft-availability.short, .craft-feedback.short { color: #f2a49b; }
+.craft-availability.enough, .craft-feedback.enough { color: #95d9b2; }
+.craft-feedback { border-left: 2px solid currentColor; padding-left: 8px; }
+.hud.phone .skill-assignment, .hud.phone .craft-availability, .hud.phone .craft-feedback { font-size: 10px; }
 .skill-loadout button {
   flex: 1;
   border: 1px solid #748c845c;

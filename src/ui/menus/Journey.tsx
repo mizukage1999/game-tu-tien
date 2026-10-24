@@ -39,6 +39,7 @@ export function Journey() {
   const status = useGame((s) => s.status);
 
   const craftPill = useGame((s) => s.craftPill);
+  const feedback = useGame(s=>s.craftFeedback);
 
 
   const selectMount = useGame((s) => s.selectMount);
@@ -75,7 +76,9 @@ export function Journey() {
           return <article key={recipe.id} className="immortal-card">
             <div className="immortal-card-heading"><img className="journey-pill-icon" src={itemIconUrl(recipe.id)} alt=""/><div><h4>{recipe.name}</h4><small>Đã có {player.inventory[recipe.id] ?? 0} · Đã luyện {progress.crafted[recipe.id] ?? 0}</small></div><span className="immortal-tag">{realmNameAtLevel(recipe.level)}</span></div>
             <p>{recipe.desc}</p><Costs cost={recipe.cost}/>
-            <button className="btn gold" disabled={!!reason || status !== 'alive'} onClick={() => craftPill(recipe.id)}>{reason ?? 'Khai lò luyện đan'}</button>
+            <p className={`craft-availability ${reason?'short':'enough'}`}>{reason ?? 'Đủ nguyên liệu · Có thể khai lò.'}</p>
+            {feedback?.id===recipe.id && <p className={`craft-feedback ${feedback.ok?'enough':'short'}`} role="status">{feedback.text}</p>}
+            <button className="btn gold" disabled={!!reason || status !== 'alive'} onClick={() => craftPill(recipe.id)}>Khai lò luyện đan</button>
           </article>;
         })}</div>
         <button className="btn" onClick={() => setMenu('bag')}>Mở túi dùng đan dược</button>

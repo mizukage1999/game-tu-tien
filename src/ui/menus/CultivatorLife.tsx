@@ -6,6 +6,7 @@ import {
   FACILITIES,
   COMPANIONS,
   WORKSHOP_RECIPES,
+  workshopCheck,
   facilityCost,
   gameDate,
   lifeProgress,
@@ -31,6 +32,7 @@ function Materials({ cost }: { cost: Record<string, number> }) {
 }
 
 export function HomeBoard() {
+  const feedback = useGame(s=>s.craftFeedback);
   const p = useGame((s) => s.player),
     atHome = useGame((s) => s.mapId === 'dong_phu'),
     act = useGame((s) => s.lifeAction);
@@ -191,6 +193,8 @@ export function HomeBoard() {
                   {r.formula ? ' · cần học công thức' : ''}
                 </small>
                 <Materials cost={r.cost} />
+                <p className={`craft-availability ${workshopCheck(p,r.id)?'short':'enough'}`}>{!atHome?'Về động phủ để chế tạo.':workshopCheck(p,r.id)??'Đủ nguyên liệu · Có thể chế tạo.'}</p>
+                {(feedback?.id===r.id||feedback?.id===r.formula) && <p role="status" className={`craft-feedback ${feedback?.ok?'enough':'short'}`}>{feedback?.text}</p>}
               </div>
               {r.formula && !l.knownRecipes.includes(r.id) ? (
                 <button className="btn" onClick={() => act({ type: 'learn', formula: r.formula! })}>
@@ -199,7 +203,7 @@ export function HomeBoard() {
               ) : (
                 <button
                   className="btn gold"
-                  disabled={!atHome || l.facilities.furnace < r.furnace}
+                  disabled={!atHome || !!workshopCheck(p,r.id)}
                   onClick={() => act({ type: 'forge', recipe: r.id })}
                 >
                   Chế tạo

@@ -10,6 +10,7 @@ import { buildScaledContent, FIELD_BANDS } from '../game/systems/scale';
 import { NEW_MAPS, WORLD_NPCS, WORLD_QUESTS } from './world';
 import { EXPANSION_ITEMS, EXPANSION_OFFERS } from './expansion';
 import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
+import { WANG_SKILLS } from './wangSkills';
 
 export interface LootEntry {
   item: string;
@@ -81,9 +82,10 @@ export interface ItemDef {
   bonus?: StatBonus;
 }
 
-export type SkillId = 'basic' | 'bang_tam_tram' | 'phi_kiem' | 'han_bang_tran' | 'than_phap' | 'loi_kich' | 'hoa_lien' | 'moc_linh' | 'kim_cang' | 'phong_nhan';
+export type SkillId = 'basic' | 'bang_tam_tram' | 'phi_kiem' | 'han_bang_tran' | 'than_phap' | 'loi_kich' | 'hoa_lien' | 'moc_linh' | 'kim_cang' | 'phong_nhan' | keyof typeof WANG_SKILLS;
 
 export interface SkillDef {
+  character?: 'male' | 'female';
   kind?: 'melee'|'projectile'|'nova'|'heal'|'shield'|'dash';
   unlockLevel?: number;
   secret?: boolean;
@@ -259,7 +261,7 @@ export const MONSTERS: Record<string, MonsterDef> = {
   thach_linh_thu: { name: 'Thạch Linh Thú', level: 5, art: 'beast_snow', hp: 330, atk: 19, def: 9, speed: 95, aggroRadius: 155, attackRange: 58, attackInterval: 1800, attackWindup: 400, leashRadius: 240, exp: 105, respawnMs: 16000, loot: [{ item: 'linh_khi', qty: [8, 15], chance: 1 }, { item: 'yeu_dan', qty: [1, 1], chance: .45 }, { item: 'linh_thach', qty: [1, 2], chance: .4 }] },
 };
 export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS };
-export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS};
+export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS,...WANG_SKILLS};
 export const REALMS = realmsJson as unknown as RealmDef[];
 export const QUESTS: Record<string, QuestDef> = { ...(questsJson as unknown as Record<string, QuestDef>), ...WORLD_QUESTS };
 export const NPCS: Record<string, NpcDef> = Object.fromEntries(

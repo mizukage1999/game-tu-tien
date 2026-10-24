@@ -1,6 +1,8 @@
 import { ITEMS, rarityOf, type EquipSlot, type SkillId } from '../../data';
 import { fillEllipse, linear, makeCanvas, radial, rgba, shade, type Ctx } from './canvas';
 import { BASE_POSE, drawHuman, drawPortrait, PALETTES } from './character';
+import { wangEffect } from '../../data/wangSkills';
+import { wangIconUrl } from './wangEffects';
 
 function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
   const m = s / 2;
@@ -561,6 +563,8 @@ export function skillIconUrl(id: string, s = 64) {
 }
 
 export function skillSpriteUrl(id: SkillId, sex: 'female' | 'male' = 'male') {
+  const art = wangEffect(id);
+  if (art && wangIconUrl(art)) return wangIconUrl(art)!;
   return (
     (sex === 'male' ? WANG_LIN_SKILL_ICONS[id] : LI_MU_SKILL_ICONS[id]) ??
     UI_SKILL_ICONS[id] ??

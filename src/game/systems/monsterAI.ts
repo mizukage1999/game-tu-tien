@@ -25,6 +25,7 @@ export interface AIInput {
   player: Vec2 | null;
   dt: number;
   rng?: Rng;
+  lineClear?: boolean;
 }
 
 export interface AIOutput {
@@ -113,7 +114,7 @@ export function stepMonsterAI(brain: MonsterBrain, p: AIParams, input: AIInput):
         setState(brain, 'return');
         return still;
       }
-      if (playerDist <= p.attackRange) {
+      if (playerDist <= p.attackRange && input.lineClear !== false) {
         setState(brain, 'attack');
         return still;
       }
@@ -121,7 +122,7 @@ export function stepMonsterAI(brain: MonsterBrain, p: AIParams, input: AIInput):
     }
     case 'attack': {
       if (!player) return still;
-      if (playerDist > p.attackRange * 1.25) {
+      if (playerDist > p.attackRange * 1.25 || input.lineClear === false) {
         setState(brain, 'chase');
         return { velocity: toward(pos, player, p.speed), attack: false };
       }

@@ -103,6 +103,7 @@ export interface GameState {
   quests: QuestLog;
   logs: LogEntry[];
   toasts: Toast[];
+  craftFeedback: {id:string;ok:boolean;text:string} | null;
   dialogNpc: string | null;
   nearbyNpc: string | null;
   nearbyHerb: { id: string; name: string } | null;
@@ -266,6 +267,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     quests: save?.quests ?? initialQuests(true),
     logs: [],
     toasts: [],
+    craftFeedback: null,
     dialogNpc: null,
     nearbyNpc: null,
     nearbyHerb: null,
@@ -473,10 +475,9 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
     craftPill(id) {
       const s = get();
-      if (isChildhood(s.player)) return s.toast('Đan đạo sẽ mở sau khi nhập môn.', 'info');
-      if (s.status !== 'alive') return;
-      const reason = recipeCheck(s.player, id);
-      if (reason) return s.toast(reason, 'warn');
+      const reason = isChildhood(s.player) ? 'Đan đạo sẽ mở sau khi nhập môn.' :
+        s.status !== 'alive' ? 'Cần hồi phục trước khi luyện đan.' : recipeCheck(s.player,id);
+      if (reason) { set({craftFeedback:{id,ok:false,text:reason}}); return s.toast(reason,'warn'); }
       const recipe = RECIPES.find((r) => r.id === id)!;
       if (!s.removeItems(recipe.cost)) return;
       const p = get().player;
@@ -484,6 +485,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       set({ player: { ...p, immortal: { ...progress, crafted: { ...progress.crafted, [id]: (progress.crafted[id] ?? 0) + 1 } } } });
       get().addItem(id, 1);
       get().questEvent({ type: 'craft', item: id });
+      set({craftFeedback:{id,ok:true,text:`Luyện thành ${recipe.name} ×1. Đã cất vào túi đồ.`}});
       get().toast(`Luyện thành ${recipe.name}!`, 'quest');
     },
 
@@ -644,9 +646,14 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
     lifeAction(action) {
       const s=get();
-      if (s.mapId === 'dong_phu' && s.quests[HOME_QUEST]?.status !== 'done') return s.toast('Chưa nhận động phủ riêng.','warn');
+      const feedbackId = action.type==='forge'?action.recipe:action.type==='learn'?action.formula:null;
+      if (s.mapId === 'dong_phu' && s.quests[HOME_QUEST]?.status !== 'done') {
+        if(feedbackId)set({craftFeedback:{id:feedbackId,ok:false,text:'Chưa nhận động phủ riêng.'}});
+        return s.toast('Chưa nhận động phủ riêng.','warn');
+      }
       const result=performLifeAction(s.player,action,s.mapId==='dong_phu',s.status==='alive');
-      if(!result.ok)return s.toast(result.reason,'warn');
+      if(!result.ok){if(feedbackId)set({craftFeedback:{id:feedbackId,ok:false,text:result.reason}});return s.toast(result.reason,'warn');}
+      if(feedbackId)set({craftFeedback:{id:feedbackId,ok:true,text:result.message}});
       const stats=playerStats(result.player);
       set({player:{...result.player,hp:Math.min(result.player.hp,stats.maxHp),mp:Math.min(result.player.mp,stats.maxMp)},stats,...(action.type==='retreat'?{auto:false}: {})});
       if(result.exp)get().gainExp(result.exp);
@@ -704,6 +711,7 @@ export function createCharacter(name: string, sex: Sex) {
     spawnPos: null,
     logs: [],
     toasts: [],
+    craftFeedback: null,
     dialogNpc: null,
     menu: null,
     status: 'alive',

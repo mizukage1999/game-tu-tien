@@ -2,6 +2,7 @@ import type { PlayerSave } from './save';
 import type { QuestLog } from './quest';
 import { EXPLORATION_ORDER, PROLOGUE_ORDER, WORLD_QUESTS } from '../../data/world';
 import { REALMS } from '../../data';
+import { missingMaterials } from './crafting';
 
 export type MountId = 'sword' | 'crane';
 export interface ImmortalProgress {
@@ -53,12 +54,8 @@ export const RECIPES = [
 export function recipeCheck(player: PlayerSave, id: string): string | null {
   const recipe = RECIPES.find((r) => r.id === id);
   if (!recipe) return 'Không có đan phương này.';
-  if (player.level < recipe.level) return 'Cần tinh tiến EXP để lĩnh ngộ đan phương.';
-  for (const [item, qty] of Object.entries(recipe.cost)) {
-    if ((item === 'linh_khi' ? player.linhKhi : (player.inventory[item] ?? 0)) < qty)
-      return 'Chưa đủ nguyên liệu.';
-  }
-  return null;
+  if (player.level < recipe.level) return `Cần Lv.${recipe.level} để lĩnh ngộ đan phương.`;
+  return missingMaterials(player, recipe.cost);
 }
 
 export const MOUNTS = [

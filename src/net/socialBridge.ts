@@ -2,6 +2,7 @@ import { gameStore } from '../store/gameStore';
 import { socialStore, type SocialInvite, presenceFor } from '../store/socialStore';
 import { buildDuelist, type Duelist } from '../game/systems/duel';
 import { ArenaEngine, type ArenaInput } from '../game/systems/arena';
+import { arenaSteer, arenaLineClear } from '../game/systems/arenaNavigation';
 import { EventBus } from '../game/EventBus';
 import { isChildhood } from '../game/systems/origin';
 import { lifeProgress } from '../game/systems/life';
@@ -92,11 +93,14 @@ function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practic
           !e.resolved &&
           Math.hypot(e.x - bot.x, e.y - bot.y) < e.range + 20,
       );
+      const goal = danger ? { x: Math.max(30, Math.min(690, bot.x - dy / d * 90)),
+        y: Math.max(30, Math.min(370, bot.y + dx / d * 90)) } : hero;
+      const steering = arenaSteer(bot, goal);
       arenaEngine.input(bot.userId, {
         seq: ++practiceSeq,
-        x: danger ? -dy / d : d > 65 ? dx / d : 0,
-        y: danger ? dx / d : d > 65 ? dy / d : 0,
-        cast: d < 90 ? 'basic' : null,
+        x: danger || d > 65 ? steering.x : 0,
+        y: danger || d > 65 ? steering.y : 0,
+        cast: d < 90 && arenaLineClear(bot, hero) ? 'basic' : null,
       });
     }
     if (!practice && Date.now() - lastPeerInput > 20000)

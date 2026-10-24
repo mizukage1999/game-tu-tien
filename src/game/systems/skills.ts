@@ -20,12 +20,15 @@ export function skillLoadout(p: PlayerSave): SkillId[] {
   return selected.slice(0, 4);
 }
 export function skillUnlocked(p: PlayerSave, id: SkillId) {
+  return skillLockReason(p, id) === null;
+}
+export function skillLockReason(p: PlayerSave, id: SkillId): string | null {
   const sk = SKILLS[id];
-  return (
-    !!sk &&
-    p.level >= (sk.unlockLevel ?? 1) &&
-    (!sk.secret || !!p.adventure?.learnedSecrets.includes(id))
-  );
+  if (!sk) return 'Không có kỹ năng này.';
+  if (sk.character && sk.character !== (p.sex ?? 'female')) return 'Tuyệt kỹ riêng của Vương Lâm.';
+  if (p.level < (sk.unlockLevel ?? 1)) return `Mở ở Lv.${sk.unlockLevel}`;
+  if (sk.secret && !p.adventure?.learnedSecrets.includes(id)) return 'Học bí thuật từ trưởng lão trong mục Tông Môn.';
+  return null;
 }
 export function chooseSkill(p: PlayerSave, slot: number, id: SkillId): PlayerSave | null {
   if (

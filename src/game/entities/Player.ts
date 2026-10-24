@@ -489,12 +489,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.meditating) this.stopMeditate();
     this.cooldowns[id] = sk.cooldownMs;
     const animation =
-      this.art.texture.key === 'player'
+      store.player.sex !== 'male'
         ? LI_MU_SKILL_ANIM[id]
-        : this.art.texture.key === 'player_male'
+        : store.player.sex === 'male'
           ? WANG_LIN_SKILL_ANIM[id]
           : undefined;
-    this.ctrl.play(animation ?? SKILL_ANIM[id] ?? 'cast', this.dir, {
+    // Compact character atlases only carry the shared cast/attack poses.
+    const pose = animation && this.ctrl.rig.anims[animation] ? animation : SKILL_ANIM[id] ?? 'cast';
+    this.ctrl.play(pose, this.dir, {
       lock: true,
       force: true,
       onHit: () => this.world.executeSkill(id, target),

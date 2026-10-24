@@ -6,6 +6,8 @@ import { flash, impact, knockback } from '../fx/HitEffect';
 import { createBrain, isHostile, provoke, stepMonsterAI, type AIParams, type MonsterBrain } from '../systems/monsterAI';
 import type { Vec2 } from '../types';
 import type { WorldScene } from '../scenes/WorldScene';
+import { GridNavigator, gridLineClear } from '../systems/gridNavigation';
+import { TILE } from '../art/tiles';
 
 export class Monster extends Phaser.Physics.Arcade.Sprite {
   readonly def: MonsterDef;
@@ -19,6 +21,9 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   playerContribution = false;
   readonly hideStrength: boolean;
   slowTimer = 0;
+  rootTimer = 0;
+  weakenTimer = 0;
+  private navigator = new GridNavigator();
 
   private ai: AIParams;
   private slamTimer = 0;
@@ -94,11 +99,15 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     if (!this.alive) return;
     this.hurtTimer = Math.max(0, this.hurtTimer - dt);
     this.slowTimer = Math.max(0, this.slowTimer - dt);
+    this.rootTimer = Math.max(0, this.rootTimer - dt);
+    this.weakenTimer = Math.max(0, this.weakenTimer - dt);
     const body = this.body as Phaser.Physics.Arcade.Body;
+    if (this.rootTimer > 0) { body.setVelocity(0, 0); this.syncDecor(); return; }
     const out = stepMonsterAI(this.brain, this.ai, {
       pos: { x: this.x, y: this.y },
       player,
       dt,
+      lineClear: !player || gridLineClear(this.world.map.blocked, TILE, this, player, 0, 0),
     });
 
     if (this.brain.state === 'return' && this.hp < this.def.hp) {
@@ -120,9 +129,13 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       if (this.hurtTimer <= 0) body.setVelocity(0, 0);
     } else {
       const slow = this.slowTimer > 0 ? 0.45 : 1;
-      body.setVelocity(out.velocity.x * slow, out.velocity.y * slow);
-      const moving = Math.hypot(out.velocity.x, out.velocity.y) > 5;
-      if (Math.abs(out.velocity.x) > 3) this.setFlipX(out.velocity.x < 0);
+      const goal = this.brain.state === 'return' ? this.brain.home :
+        this.brain.state === 'wander' ? this.brain.wanderTarget : player;
+      const velocity = goal && Math.hypot(out.velocity.x, out.velocity.y) > 0 ?
+        this.navigator.steer(this.world.map.blocked, TILE, this, goal, Math.hypot(out.velocity.x,out.velocity.y), dt) : out.velocity;
+      body.setVelocity(velocity.x * slow, velocity.y * slow);
+      const moving = Math.hypot(velocity.x, velocity.y) > 5;
+      if (Math.abs(velocity.x) > 3) this.setFlipX(velocity.x < 0);
       else if (player && isHostile(this.brain)) this.setFlipX(player.x < this.x);
       this.ctrl.play(moving ? 'run' : 'idle', this.flipX ? 'left' : 'right');
     }
@@ -190,7 +203,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.setTintFill(0xff9a7a);
     this.world.time.delayedCall(70, () => this.alive && this.clearTint());
     this.world.time.delayedCall(this.def.attackWindup, () => {
-      if (!this.alive) return;
+      if (!this.alive || this.rootTimer > 0) return;
       this.world.monsterHitPlayer(this);
     });
   }
@@ -269,6 +282,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.setPosition(home.x, home.y);
     Object.assign(this.brain, createBrain(home));
     this.hp = this.def.hp;
+    this.rootTimer = this.weakenTimer = this.slowTimer = 0;
     this.alive = true;
     this.playerContribution=false;
     this.barDirty = true;

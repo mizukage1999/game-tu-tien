@@ -6,6 +6,8 @@ import { DEFAULT_LOADOUT } from '../../game/systems/skills';
 import { SKILLS, type SkillId } from '../../data';
 import { skillSpriteUrl } from '../../game/art/icons';
 import './duel.css';
+import { wangEffect } from '../../data/wangSkills';
+import { PaintedArenaEffect } from './PaintedArenaEffect';
 
 export function DuelOverlay() {
   const duel = useSocial((s) => s.duel),
@@ -144,30 +146,39 @@ export function DuelOverlay() {
               style={{ left: `${(r.x / ARENA_W) * 100}%`, top: `${(r.y / ARENA_H) * 100}%` }}
             />
           ))}
-          {s.effects.map((e) => (
-            <span
-              key={e.id}
-              className={`duel-effect ${e.kind} ${e.resolved ? 'landed' : ''}`}
-              style={{
-                left: `${(e.x / ARENA_W) * 100}%`,
-                top: `${(e.y / ARENA_H) * 100}%`,
-                width: `${((e.kind === 'line' ? e.range : e.range * 2) / ARENA_W) * 100}%`,
-                height: e.kind === 'line' ? '12%' : `${((e.range * 2) / ARENA_H) * 100}%`,
-                ...(e.kind === 'cone'
-                  ? {
-                      background: `conic-gradient(from ${(Math.atan2(e.dy, e.dx) * 180) / Math.PI + 90 - e.arc / 2}deg, ${e.resolved ? '#eee8ff99' : '#ff6b3855'} 0deg ${e.arc}deg, transparent ${e.arc}deg 360deg)`,
-                    }
-                  : {}),
-                transform:
-                  e.kind === 'line'
-                    ? `translateY(-50%) rotate(${Math.atan2(e.dy, e.dx)}rad)`
-                    : 'translate(-50%,-50%)',
-              }}
-            />
-          ))}
+          {s.effects.map((e) =>
+            wangEffect(e.skill) ? (
+              <PaintedArenaEffect
+                key={e.id}
+                effect={e}
+                elapsed={s.elapsed}
+                target={s.fighters.find((f) => f.userId !== e.owner)!}
+              />
+            ) : (
+              <span
+                key={e.id}
+                className={`duel-effect ${e.kind} ${e.resolved ? 'landed' : ''}`}
+                style={{
+                  left: `${(e.x / ARENA_W) * 100}%`,
+                  top: `${(e.y / ARENA_H) * 100}%`,
+                  width: `${((e.kind === 'line' ? e.range : e.range * 2) / ARENA_W) * 100}%`,
+                  height: e.kind === 'line' ? '12%' : `${((e.range * 2) / ARENA_H) * 100}%`,
+                  ...(e.kind === 'cone'
+                    ? {
+                        background: `conic-gradient(from ${(Math.atan2(e.dy, e.dx) * 180) / Math.PI + 90 - e.arc / 2}deg, ${e.resolved ? '#eee8ff99' : '#ff6b3855'} 0deg ${e.arc}deg, transparent ${e.arc}deg 360deg)`,
+                      }
+                    : {}),
+                  transform:
+                    e.kind === 'line'
+                      ? `translateY(-50%) rotate(${Math.atan2(e.dy, e.dx)}rad)`
+                      : 'translate(-50%,-50%)',
+                }}
+              />
+            ),
+          )}
           {s.fighters.map((p) => (
             <div
-              className={`duel-fighter ${p.userId === duel.localId ? 'mine' : 'enemy'}`}
+              className={`duel-fighter ${p.userId === duel.localId ? 'mine' : 'enemy'} ${p.rootUntil > s.elapsed ? 'rooted' : ''}`}
               key={p.userId}
               style={{ left: `${(p.x / ARENA_W) * 100}%`, top: `${(p.y / ARENA_H) * 100}%` }}
             >

@@ -8,6 +8,8 @@ import { COURTYARD_ATLAS, registerCourtyardFrames } from '../art/courtyard';
 import { WORLD_ATLASES, registerWorldArt } from '../art/world';
 import { COHESION_ATLASES, registerCohesiveArt } from '../art/cohesion';
 import { EXPANSION_ATLASES, registerExpansionArt } from '../art/expansionArt';
+import { WANG_EFFECT_ART } from '../../data/wangSkills';
+import { buildWangSheet, WANG_CELL } from '../art/wangEffects';
 
 interface AtlasEntry {
   atlas: string;
@@ -26,6 +28,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    for (const art of Object.values(WANG_EFFECT_ART)) this.load.image(`${art.texture}-source`, art.url);
     for (const key of WORLD_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for (const key of COHESION_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for(const key of EXPANSION_ATLASES)this.load.image(key,`assets/maps/${key}.png`);
@@ -50,6 +53,13 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    for (const art of Object.values(WANG_EFFECT_ART)) {
+      if (!this.textures.exists(`${art.texture}-source`)) continue;
+      const source = this.textures.get(`${art.texture}-source`).getSourceImage() as HTMLImageElement;
+      const sheet = buildWangSheet(art, source);
+      const texture = this.textures.addCanvas(art.texture, sheet)!;
+      for (let i = 0; i < 6; i++) texture.add(i, 0, i * WANG_CELL, 0, WANG_CELL, WANG_CELL);
+    }
     registerCourtyardFrames(this);
     registerWorldArt(this);
     registerCohesiveArt(this);

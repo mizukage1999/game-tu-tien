@@ -44,6 +44,9 @@ import { worldZoom } from '../systems/display';
 import { routeDots } from '../systems/routeDots';
 import { findPath } from '../systems/path';
 import { storyOrder } from '../systems/immortal';
+import { wangEffect } from '../../data/wangSkills';
+import { signatureHit } from '../systems/skillHit';
+import { gridLineClear } from '../systems/gridNavigation';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
 
 interface WorldData {
@@ -1372,7 +1375,7 @@ export class WorldScene extends Phaser.Scene {
     const { stats } = gameStore.getState();
     const r = computeDamage({
       atk: stats.atk,
-      def: m.def.def,
+      def: m.def.def * (m.weakenTimer > 0 ? .8 : 1),
       multiplier,
       critRate: stats.critRate,
       critMul: stats.critMul,
@@ -1393,7 +1396,7 @@ export class WorldScene extends Phaser.Scene {
     const sk = playerSkill('basic');
     const p = this.player;
     const f = p.facing;
-    this.vfx.swing(p.feet, Math.atan2(f.y, f.x), combo, p.art.texture.key === 'player_male');
+    this.vfx.swing(p.feet, Math.atan2(f.y, f.x), combo, gameStore.getState().player.sex === 'male');
     const finisher = combo === 3;
     const hits = this.monstersInArc(sk.range + (finisher ? 16 : 0), finisher ? 80 : sk.arc);
     const finisherMul = sk.active?.finisherMul ?? 1.5;
@@ -1405,8 +1408,31 @@ export class WorldScene extends Phaser.Scene {
     const p = this.player;
     const f = p.facing;
     const ang = Math.atan2(f.y, f.x);
-    const liMuStyle = p.art.texture.key === 'player';
-    const wangLinStyle = p.art.texture.key === 'player_male';
+    const wangLinStyle = gameStore.getState().player.sex === 'male';
+    const liMuStyle = !wangLinStyle;
+    if (wangEffect(id)) {
+      const from = {x:p.x,y:p.y}, facing = {...f};
+      const hits = () => this.monsters.filter(m => m.alive && signatureHit(id,from,facing,sk.range,m))
+        .sort((a,b) => Math.hypot(a.x-from.x,a.y-from.y)-Math.hypot(b.x-from.x,b.y-from.y));
+      if (id !== 'dinh_than_thuat') this.vfx.signature(id,from,facing,sk.range);
+      if (id === 'dao_hoa_hoang_tuyen') {
+        for (let tick = 1; tick <= 8; tick++) this.time.delayedCall(tick * 500, () => {
+          if (p.life.status !== 'alive') return;
+          for (const m of hits()) { m.weakenTimer = 800; this.damageMonster(m,sk.multiplier,800); }
+        });
+      } else this.time.delayedCall(id === 'dich_linh_an' ? 450 : 400, () => {
+        if (p.life.status !== 'alive') return;
+        if (id === 'dinh_than_thuat') {
+          const m = hits()[0];
+          if (m) { m.rootTimer = 2000; this.vfx.signature(id,m,facing,sk.range); }
+          else this.vfx.signature(id,{x:from.x+facing.x*sk.range,y:from.y+facing.y*sk.range},facing,sk.range);
+        } else for (const m of hits()) {
+          this.damageMonster(m,sk.multiplier);
+          if (id === 'dich_linh_an' && m.alive) m.rootTimer = m.def.boss ? 350 : 600;
+        }
+      });
+      return;
+    }
     if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*.24),0);this.vfx.ascend(p);return;}
     if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*.35),6000);return;}
     if(id==='loi_kich'||id==='phong_nhan'||id==='hoa_lien'){
@@ -1478,7 +1504,8 @@ export class WorldScene extends Phaser.Scene {
 
   monsterHitPlayer(m: Monster) {
     const p = this.player;
-    if (!m.alive || p.life.status !== 'alive') return;
+    if (!m.alive || m.rootTimer > 0 || p.life.status !== 'alive') return;
+    if (!gridLineClear(this.map.blocked,TILE,m,p,0,0)) return;
     if (m.distanceTo(p) > m.def.attackRange * 1.35) {
       this.damageText.show(p.x, p.y - 70, 'Né tránh', 'info');
       return;

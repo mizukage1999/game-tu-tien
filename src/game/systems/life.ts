@@ -1,4 +1,5 @@
 import type { PlayerSave } from './save';
+import { missingMaterials } from './crafting';
 
 export const DAY_MS = 30_000;
 export type Facility = 'field' | 'chamber' | 'furnace' | 'array';
@@ -113,6 +114,15 @@ export const WORKSHOP_RECIPES = [
     formula: 'cong_thuc_pha_canh',
   },
 ] as const;
+
+export function workshopCheck(p: PlayerSave, id: string): string | null {
+  const recipe = WORKSHOP_RECIPES.find(r=>r.id===id);
+  if (!recipe) return 'Không có công thức này.';
+  const life = lifeProgress(p);
+  if (life.facilities.furnace < recipe.furnace) return `Cần lò đan cấp ${recipe.furnace}.`;
+  if (recipe.formula && !life.knownRecipes.includes(recipe.id)) return 'Cần học công thức trước.';
+  return missingMaterials(p,recipe.cost);
+}
 
 export function lifeProgress(p: PlayerSave): LifeProgress {
   const seed = Array.from(p.name).reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -274,10 +284,8 @@ export function performLifeAction(
     case 'forge': {
       const recipe = WORKSHOP_RECIPES.find((r) => r.id === action.recipe);
       if (!recipe) return fail('Không có công thức này.');
-      if (life.facilities.furnace < recipe.furnace)
-        return fail(`Cần lò đan cấp ${recipe.furnace}.`);
-      if (recipe.formula && !life.knownRecipes.includes(recipe.id))
-        return fail('Cần học công thức trước.');
+      const reason = workshopCheck(p,action.recipe);
+      if (reason) return fail(reason);
       if (!pay(recipe.cost)) return fail('Chưa đủ nguyên liệu chế tạo.');
       gain(recipe.id, 1);
       message = `Chế tạo thành công ${recipe.name}.`;

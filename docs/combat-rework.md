@@ -14,7 +14,7 @@
 - Có thêm Lôi Kích, Hỏa Liên, Mộc Linh Hồi Xuân, Kim Cang Hộ Thể và Phong Nhận. Lôi Kích/Phong Nhận học từ trưởng lão, yêu cầu danh vọng và cống hiến.
 - Bốn ô chiến đấu gồm đánh thường cố định ở ô 1 và ba chiêu tự chọn ở ô 2–4. Mở **Kỹ năng**, chọn ô 2–4 rồi gán chiêu; gán chiêu đã có sẽ đổi chỗ. Lướt là nút thứ năm độc lập, dùng Shift, không chiếm ô chiến đấu. HUD và tỷ võ dùng cùng bộ chiêu, MP và hồi chiêu riêng.
 - Mobile giữ bốn menu thường dùng và nút **Thêm**; Tông Môn, Tiên Ngọc và các bảng còn lại nằm trong **Thêm**, tránh che phần trên sân chiến đấu.
-- Nhân vật trưởng thành dùng atlas 4×2 nhỏ, ít khung hình. NPC thành được thu về chiều cao 112 đơn vị, tương đương phần hình nhân vật. Ẩn hoàn toàn vũ khí cầm tay; trang bị và chỉ số vẫn giữ nguyên. Nút ngự kiếm nhanh cạnh Auto: chân ở trên kiếm, kiếm ở trên bóng mặt đất. Từ Vấn Đỉnh chỉ ẩn kiếm, vẫn bay. Tốc độ ngự kiếm = 1,45 + 0,01 × chỉ số đại cảnh giới (Trúc Cơ 1,46; Vấn Đỉnh 1,51; Toái Niết 1,56).
+- Nhân vật trưởng thành dùng atlas 4×2 nhỏ, ít khung hình. NPC thành được thu về chiều cao 118 đơn vị, tương đương phần hình nhân vật. Ẩn hoàn toàn vũ khí cầm tay; trang bị và chỉ số vẫn giữ nguyên. Nút ngự kiếm nhanh cạnh Auto: chân ở trên kiếm, kiếm ở trên bóng mặt đất. Từ Vấn Đỉnh chỉ ẩn kiếm, vẫn bay. Tốc độ ngự kiếm = 1,45 + 0,01 × chỉ số đại cảnh giới (Trúc Cơ 1,46; Vấn Đỉnh 1,51; Toái Niết 1,56).
 
 ## Tỷ võ bằng tay
 

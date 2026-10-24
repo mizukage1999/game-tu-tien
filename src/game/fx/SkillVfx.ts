@@ -1,11 +1,38 @@
 import Phaser from 'phaser';
 import { iso, isoVector } from '../art/iso';
 import type { Vec2 } from '../types';
+import { wangEffect } from '../../data/wangSkills';
+import type { SkillId } from '../../data';
 
 const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
 
 export class SkillVfx {
   constructor(private scene: Phaser.Scene) {}
+
+  signature(id: SkillId, from: Vec2, facing: Vec2, range: number) {
+    const art = wangEffect(id);
+    if (!art || !this.scene.textures.exists(art.texture)) return;
+    const circle = id === 'dao_hoa_hoang_tuyen';
+    const palm = id === 'dich_linh_an';
+    const bind = id === 'dinh_than_thuat';
+    const center = circle || bind ? from : {
+      x: from.x + facing.x * range * (palm ? .65 : .5),
+      y: from.y + facing.y * range * (palm ? .65 : .5),
+    };
+    const spot = iso(center.x, center.y);
+    const vector = isoVector(facing.x, facing.y);
+    const sprite = this.scene.add.sprite(spot.x, spot.y - (bind ? 48 : 22), art.texture, 0)
+      .setDepth(spot.y + 180).setAlpha(.95);
+    if (circle) sprite.setDisplaySize(range * 4, range * 2.6);
+    else if (palm || bind) sprite.setDisplaySize(palm ? 220 : 150, palm ? 200 : 180);
+    else sprite.setDisplaySize(range * 1.6, id === 'tram_la_quyet' ? 185 : 115)
+      .setRotation(Math.atan2(vector.y, vector.x));
+    const cycles = circle ? 4 : 1;
+    this.scene.tweens.addCounter({ from: 0, to: 5.99, duration: art.duration / cycles,
+      repeat: cycles - 1, onUpdate: tween => sprite.setFrame(Math.min(5, Math.floor(tween.getValue() ?? 0))),
+      onComplete: () => sprite.destroy(),
+    });
+  }
 
   private liMuFxImage(name: string, x: number, y: number, depth: number) {
     if (!this.scene.textures.exists('li_mu_fx') || !this.scene.textures.get('li_mu_fx').has(name)) return null;

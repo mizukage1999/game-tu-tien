@@ -123,6 +123,16 @@
   border-radius: 50%;
   z-index: 4;
 }
+.duel-painted-effect {
+  position: absolute;
+  pointer-events: none;
+  background-size: 600% 100%;
+  background-repeat: no-repeat;
+  z-index: 5;
+  opacity: .95;
+  filter: drop-shadow(0 0 5px #bca0ff55);
+}
+.duel-fighter.rooted .duel-body { filter: drop-shadow(0 0 7px #76d7ff); }
 .duel-effect.line {
   transform-origin: 0 50%;
   border-radius: 4px;

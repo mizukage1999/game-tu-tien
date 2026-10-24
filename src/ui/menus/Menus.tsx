@@ -3,7 +3,6 @@ import {
   bonusText,
   DUNGEONS,
   EQUIP_SLOTS,
-  equipmentId,
   ITEMS,
   MONSTERS,
   NPCS,
@@ -31,7 +30,7 @@ import { Journey } from './Journey';
 import { heroName, isChildhood, originText } from '../../game/systems/origin';
 import { battlePower, enhanceCost, enhanceChance, MAX_ENHANCEMENT } from '../../game/systems/adventure';
 import { enhancementLevel, ENHANCEMENT_STONE } from '../../game/systems/enhancement';
-import { skillLoadout, skillUnlocked } from '../../game/systems/skills';
+import { skillLoadout, skillUnlocked, skillLockReason } from '../../game/systems/skills';
 import { SectPanel, PremiumPanel } from './AdventurePanels';
 import { MapPanel } from './MapPanel';
 
@@ -81,61 +80,6 @@ function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: numb
 function ItemLabel({ id }: { id: string }) {
   const enhancement=useGame(s=>s.player.adventure?.enhancements[id]??0);
   return <b style={{ color: rarityColor(id) }}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
-}
-
-function Wardrobe() {
-  const player = useGame((s) => s.player);
-  const equip = useGame((s) => s.equip);
-  return (
-    <div className="wardrobe">
-      <h4>Trang bị theo phẩm chất</h4>
-      <p className="muted">
-        Cấp hiện tại: <b>Lv.{player.level}</b>. Trang bị sáng màu là đã đủ điều kiện sử dụng.
-      </p>
-      {RARITIES.map((r) => {
-        const unlocked = player.level >= r.reqLevel;
-        return (
-          <div key={r.id} className={`wardrobe-tier ${unlocked ? 'unlocked' : 'locked'}`} style={{ borderColor: r.color }}>
-            <div className="wardrobe-head">
-              <span className="rarity-name" style={{ color: r.color }}>
-                {r.name} · {r.label}
-              </span>
-              <span className="muted">Yêu cầu Lv.{r.reqLevel}</span>
-              <span className={`wardrobe-badge ${unlocked ? 'ok' : 'no'}`}>
-                {unlocked ? 'Có thể trang bị' : 'Chưa đủ cấp'}
-              </span>
-            </div>
-            <div className="wardrobe-items">
-              {GEAR_SLOTS.map((slot) => {
-                const id = equipmentId(slot.id, r.id);
-                const owned = player.inventory[id] ?? 0;
-                const worn = player.equipment[slot.id] === id;
-                return (
-                  <div key={id} className="wardrobe-item" title={`${itemName(id)} — ${bonusText(ITEMS[id].bonus)}`}>
-                    <ItemIcon id={id} size={36} />
-                    <small>{slot.name}</small>
-                    {worn ? (
-                      <em className="tag worn">Đang dùng</em>
-                    ) : owned > 0 ? (
-                      unlocked ? (
-                        <button className="btn small" onClick={() => equip(id)}>
-                          Trang bị
-                        </button>
-                      ) : (
-                        <em className="tag">Có x{owned}</em>
-                      )
-                    ) : (
-                      <em className="tag muted">Chưa có</em>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
 }
 
 function Character() {
@@ -228,7 +172,6 @@ function Character() {
           </div>
         </div>
       </div>
-      <Wardrobe />
     </>
   );
 }
@@ -376,9 +319,11 @@ function CostChip({ item, need, have }: { item: string; need: number; have: numb
   );
 }
 
-function Skills() {
+export function Skills() {
   const player = useGame((s) => s.player);
+  const maxMp = useGame(s=>s.stats.maxMp);
   const choose=useGame(s=>s.chooseSkill),[slot,setSlot]=useState(1),loadout=skillLoadout(player);
+  const [assigned, setAssigned] = useState('');
   const upgrade = useGame((s) => s.upgradeSkill);
   const wallet = {
     linhKhi: player.linhKhi,
@@ -388,18 +333,20 @@ function Skills() {
   return (
     <div className="skill-list">
       <p className="muted">Đánh thường cố định ở ô 1. Chọn ô 2–4 để đổi chiêu; Lướt có nút riêng và phím Shift.</p>
-      <div className="skill-loadout">{loadout.map((id,i)=><button key={i} disabled={i===0} className={slot===i?'active':''} onClick={()=>setSlot(i)}><img src={skillSpriteUrl(id,player.sex)} alt=""/>Ô {i+1} · {SKILLS[id].name}</button>)}</div>
+      <div className="skill-loadout" role="group" aria-label="Chọn ô để thay chiêu">{loadout.map((id,i)=><button type="button" key={i} disabled={i===0} aria-pressed={slot===i} className={slot===i?'active':''} onClick={()=>{setSlot(i);setAssigned('');}}><img src={skillSpriteUrl(id,player.sex)} alt=""/>Ô {i+1} · {SKILLS[id].name}</button>)}</div>
+      <p className="skill-assignment" role="status">{assigned || `Đang chọn ô ${slot+1}. Nhấn “Dùng ở ô ${slot+1}” tại chiêu muốn thay.`}</p>
       <p className="muted">
         Nâng cấp tăng sát thương và giảm hồi chiêu. Cấp {SKILL_BONUS_LEVEL} lĩnh ngộ tuyệt kỹ. Từ cấp 4 cần thêm Kiếm Phổ Tàn Trang (rơi trong phó bản).
       </p>
-      {(Object.keys(SKILLS) as SkillId[]).map((id) => {
+      {(Object.keys(SKILLS) as SkillId[]).filter(id=>!SKILLS[id].character||SKILLS[id].character===(player.sex??'female')).map((id) => {
         const lv = skillLevel(player.skills, id);
         const cur = effectiveSkill(id, lv);
         const next = lv < SKILL_MAX_LEVEL ? effectiveSkill(id, lv + 1) : null;
         const check = checkUpgrade(lv, player.level, wallet);
         const cost = check.cost;
+        const locked = skillLockReason(player,id);
         return (
-          <div key={id} className="skill-row upgrade">
+          <div key={id} data-skill={id} className={`skill-row upgrade ${loadout[slot]===id?'selected-skill':''}`}>
             <div className="skill-icon">
               <img src={skillSpriteUrl(id, player.sex)} alt="" />
               <span className="skill-lv">{lv}</span>
@@ -410,6 +357,8 @@ function Skills() {
                 Cấp {lv}/{SKILL_MAX_LEVEL}
               </span>
               <div className="muted">{cur.desc}</div>
+              {locked && <small className="req-bad">{locked}</small>}
+              {cur.mpCost>player.mp && <small className="skill-mp-note">Cần {cur.mpCost} MP để thi triển · Hiện có {Math.floor(player.mp)}/{maxMp}</small>}
               <small>
                 MP {cur.mpCost} · Hồi chiêu <Delta cur={(cur.cooldownMs / 1000).toFixed(1)} next={next ? (next.cooldownMs / 1000).toFixed(1) : undefined} suffix="s" />
                 {cur.multiplier ? (
@@ -431,7 +380,7 @@ function Skills() {
               </div>
             </div>
             <div className="skill-upgrade">
-              <button className="btn small" disabled={id==='basic'||id==='than_phap'||!skillUnlocked(player,id)} onClick={()=>choose(slot,id)}>{id==='basic'?'Đánh thường cố định':id==='than_phap'?'Nút lướt riêng':skillUnlocked(player,id)?`Gán ô ${slot+1}`:SKILLS[id].secret?'Học từ trưởng lão':`Mở Lv.${SKILLS[id].unlockLevel}`}</button>
+              <button type="button" className="btn small" disabled={id==='basic'||id==='than_phap'||!!locked||loadout[slot]===id} onClick={()=>{choose(slot,id);setAssigned(`Đã đặt ${cur.name} vào ô ${slot+1}. Thanh chiêu ngoài map và sân tỷ võ đã cập nhật.`);}}>{id==='basic'?'Đánh thường cố định':id==='than_phap'?'Nút lướt riêng':locked?'Chưa mở':loadout[slot]===id?`Đang ở ô ${slot+1}`:`Dùng ở ô ${slot+1}`}</button>
               {cost ? (
                 <>
                   <div className="cost-row">
