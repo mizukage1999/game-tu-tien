@@ -1,6 +1,8 @@
 import { ITEMS, REALMS, type RealmDef } from '../../data';
 import type { PlayerSave } from './save';
 import { companionStats, lifeProgress } from './life';
+import { enhancementLevel } from './enhancement';
+export const MAX_LEVEL = REALMS[REALMS.length - 1].maxLevel;
 
 export interface ProgressState {
   level: number;
@@ -48,7 +50,7 @@ export interface ExpResult {
 export function addExp(s: ProgressState, amount: number): ExpResult {
   let levelsGained = 0;
   s.exp += Math.max(0, Math.round(amount));
-  while (s.level < 100 && s.exp >= expToNext(s.level)) {
+  while (s.level < MAX_LEVEL && s.exp >= expToNext(s.level)) {
     if (isBottleneck(s)) {
       s.exp = expToNext(s.level);
       return { levelsGained, bottleneck: true };
@@ -57,12 +59,12 @@ export function addExp(s: ProgressState, amount: number): ExpResult {
     s.level += 1;
     levelsGained += 1;
   }
+  if (s.level >= MAX_LEVEL) s.exp = Math.min(s.exp, expToNext(MAX_LEVEL));
   return { levelsGained, bottleneck: false };
 }
 
 export type BreakthroughCheck =
-  | { ok: true; cost: { linhKhi: number; linhThach: number } }
-  | { ok: false; reason: string };
+  { ok: true; cost: { linhKhi: number; linhThach: number } } | { ok: false; reason: string };
 
 export function checkBreakthrough(
   s: ProgressState,
@@ -74,7 +76,8 @@ export function checkBreakthrough(
   if (s.level < realm.maxLevel || s.exp < expToNext(s.level))
     return { ok: false, reason: `Cần đạt ${realm.name} đại viên mãn và đầy EXP.` };
   const cost = realm.breakthrough;
-  if (linhKhi < cost.linhKhi) return { ok: false, reason: `Thiếu Linh Khí (${linhKhi}/${cost.linhKhi}).` };
+  if (linhKhi < cost.linhKhi)
+    return { ok: false, reason: `Thiếu Linh Khí (${linhKhi}/${cost.linhKhi}).` };
   if (linhThach < cost.linhThach)
     return { ok: false, reason: `Thiếu Linh Thạch (${linhThach}/${cost.linhThach}).` };
   return { ok: true, cost };
@@ -123,12 +126,24 @@ export function computeStats(
 }
 
 export function playerStats(p: PlayerSave) {
-  const stats=computeStats(p.level,p.realmIndex,p.equipment), pet=companionStats(p);
-  stats.atk+=pet.atk;stats.def+=pet.def;stats.maxHp+=pet.hp;
-  if(lifeProgress(p).artifact==='phap_bao_ngoc'){stats.def+=12;stats.maxHp+=100;}
-  for(const id of Object.values(p.equipment)){
-    if(!id)continue;const bonus=ITEMS[id]?.bonus,n=p.adventure?.enhancements[id]??0;
-    if(bonus&&n){stats.atk+=Math.round((bonus.atk??0)*n*.12);stats.def+=Math.round((bonus.def??0)*n*.12);stats.maxHp+=Math.round((bonus.hp??0)*n*.12);}
+  const stats = computeStats(p.level, p.realmIndex, p.equipment),
+    pet = companionStats(p);
+  stats.atk += pet.atk;
+  stats.def += pet.def;
+  stats.maxHp += pet.hp;
+  if (lifeProgress(p).artifact === 'phap_bao_ngoc') {
+    stats.def += 12;
+    stats.maxHp += 100;
+  }
+  for (const id of Object.values(p.equipment)) {
+    if (!id) continue;
+    const bonus = ITEMS[id]?.bonus,
+      n = enhancementLevel(p.adventure?.enhancements[id]);
+    if (bonus && n) {
+      stats.atk += Math.round((bonus.atk ?? 0) * n * 0.12);
+      stats.def += Math.round((bonus.def ?? 0) * n * 0.12);
+      stats.maxHp += Math.round((bonus.hp ?? 0) * n * 0.12);
+    }
   }
   return stats;
 }

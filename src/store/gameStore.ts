@@ -535,10 +535,11 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const s = get();
       if (isChildhood(s.player)) return;
       if (s.status !== 'alive') return;
-      if (id && !mountUnlocked(id, s.quests)) return s.toast('Hãy hoàn thành tiên duyên để mở khóa.', 'warn');
+      if (id && (s.dungeon || s.tribulation || lifeProgress(s.player).retreat)) return s.toast('Chưa thể ngự hành lúc này.','warn');
+      if (id && !mountUnlocked(id, s.quests,s.player)) return s.toast('Đạt Trúc Cơ hoặc hoàn thành tiên duyên để mở khóa.', 'warn');
       set({ player: { ...s.player, immortal: { ...immortalProgress(s.player), mount: id } } });
       if (id) get().questEvent({ type: 'mount', mount: id });
-      s.toast(id === 'sword' ? 'Ngự kiếm Thanh Vân' : id === 'crane' ? 'Bạch Vân Hạc đã nhận lệnh' : 'Đã xuống thú cưỡi');
+      s.toast(id === 'sword' ? s.player.realmIndex>=6?'Đạp không phi hành':'Ngự kiếm Thanh Vân' : id === 'crane' ? 'Bạch Vân Hạc đã nhận lệnh' : 'Đã hạ xuống');
     },
 
     buy(npcId, index) {
@@ -667,7 +668,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const result=adventureAction(s.player,action,['dai_thua_vien','linh_son_tong'].includes(s.mapId));
       if(!result.ok)return s.toast(result.reason,'warn');
       set({player:result.player,stats:playerStats(result.player)});if(result.exp)get().gainExp(result.exp);
-      s.toast(result.message,'quest');const fresh=get();saveGame({player:fresh.player,quests:fresh.quests,mapId:fresh.mapId,pos:fresh.spawnPos});
+      s.toast(result.message,result.enhanced===false?'warn':'quest');const fresh=get();saveGame({player:fresh.player,quests:fresh.quests,mapId:fresh.mapId,pos:fresh.spawnPos});
     },
     recordAdventure(event,qty=1){const p=get().player,next=sectEvent(p,event,qty);if(next!==p)set({player:next});},
     beastVictory(type){set({player:beastVictory(get().player,type)});},

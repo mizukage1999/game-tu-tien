@@ -1,6 +1,8 @@
 import { ITEMS, type SkillId } from '../../data';
 import type { PlayerSave } from './save';
 import { lifeProgress, type CompanionId } from './life';
+import { enhanceCost, enhanceChance, enhancementLevel, MAX_ENHANCEMENT } from './enhancement';
+export { enhanceCost, enhanceChance, MAX_ENHANCEMENT } from './enhancement';
 
 export interface SectMission {
   id: string;
@@ -82,11 +84,13 @@ export function adventure(p: PlayerSave): AdventureProgress {
     missionDay: -1,
     completedMissions: [],
     learnedSecrets: [],
-    enhancements: {},
     beastSeals: {},
     evolution: {},
     boundSect: 'dai_thua_vien',
     ...p.adventure,
+    enhancements: Object.fromEntries(
+      Object.entries(p.adventure?.enhancements ?? {}).map(([id, n]) => [id, enhancementLevel(n)]),
+    ),
   };
 }
 export function sectRank(p: PlayerSave) {
@@ -117,7 +121,10 @@ export function adventureAction(
   p: PlayerSave,
   action: AdventureAction,
   atSect: boolean,
-): { ok: false; reason: string } | { ok: true; player: PlayerSave; message: string; exp?: number } {
+  rng = Math.random,
+):
+  | { ok: false; reason: string }
+  | { ok: true; player: PlayerSave; message: string; exp?: number; enhanced?: boolean } {
   if (p.origin && !p.admitted) return { ok: false, reason: 'Hoàn thành chương mở đầu trước.' };
   const a = adventure(p),
     inventory = { ...p.inventory };
@@ -129,6 +136,7 @@ export function adventureAction(
   };
   let message = '',
     exp = 0;
+  let enhanced: boolean | undefined;
   switch (action.type) {
     case 'mission': {
       if (!atSect) return fail('Hãy gặp Chấp Sự tại tông môn để nhận nhiệm vụ.');
@@ -174,11 +182,14 @@ export function adventureAction(
         n = a.enhancements[action.id] ?? 0;
       if (!def?.slot || !Object.values(p.equipment).includes(action.id))
         return fail('Hãy trang bị món đồ cần cường hóa.');
-      if (n >= 15) return fail('Trang bị đã đạt +15.');
+      if (n >= MAX_ENHANCEMENT) return fail('Trang bị đã đạt tối đa +12.');
       const cost = enhanceCost(n);
-      if (!pay(cost)) return fail('Chưa đủ Linh Thạch và nguyên liệu cường hóa.');
-      a.enhancements = { ...a.enhancements, [action.id]: n + 1 };
-      message = `${def.name} đạt +${n + 1}.`;
+      if (!pay(cost)) return fail('Chưa đủ Đá Cường Hóa. Có thể nhận đá khi vượt phó bản.');
+      enhanced = rng() < enhanceChance(n);
+      a.enhancements = { ...a.enhancements, [action.id]: enhanced ? n + 1 : n };
+      message = enhanced
+        ? `${def.name} đạt +${n + 1}!`
+        : `Cường hóa thất bại. ${def.name} giữ +${n}; đã tiêu hao đá.`;
       break;
     }
     case 'evolve': {
@@ -198,14 +209,7 @@ export function adventureAction(
       message = 'Đã ghi danh tông môn, điểm hồi sinh được cập nhật.';
       break;
   }
-  return { ok: true, player: { ...p, inventory, adventure: a }, message, exp };
-}
-export function enhanceCost(level: number): Record<string, number> {
-  return {
-    linh_thach: 5 + level * level,
-    huyen_thiet: level + 1,
-    ...(level >= 5 ? { tinh_luyen_thach: 1 + Math.floor(level / 5) } : {}),
-  };
+  return { ok: true, player: { ...p, inventory, adventure: a }, message, exp, enhanced };
 }
 export function battlePower(stats: {
   maxHp: number;

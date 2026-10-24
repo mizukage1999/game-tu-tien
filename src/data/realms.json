@@ -8,5 +8,7 @@
   { "name": "Vấn Đỉnh", "minLevel": 61, "maxLevel": 70, "statMul": 2.6, "breakthrough": { "linhKhi": 16000, "linhThach": 85 } },
   { "name": "Âm Hư", "minLevel": 71, "maxLevel": 80, "statMul": 2.6, "breakthrough": { "linhKhi": 23000, "linhThach": 115 } },
   { "name": "Dương Thực", "minLevel": 81, "maxLevel": 90, "statMul": 2.6, "breakthrough": { "linhKhi": 32000, "linhThach": 150 } },
-  { "name": "Khuy Niết", "minLevel": 91, "maxLevel": 100, "statMul": 2.6, "breakthrough": null }
+  { "name": "Khuy Niết", "minLevel": 91, "maxLevel": 100, "statMul": 2.6, "breakthrough": { "linhKhi": 45000, "linhThach": 200 } },
+  { "name": "Tịnh Niết", "minLevel": 101, "maxLevel": 110, "statMul": 3.2, "breakthrough": { "linhKhi": 60000, "linhThach": 260 } },
+  { "name": "Toái Niết", "minLevel": 111, "maxLevel": 120, "statMul": 3.9, "breakthrough": null }
 ]

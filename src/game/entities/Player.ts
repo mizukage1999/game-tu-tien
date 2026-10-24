@@ -21,9 +21,8 @@ import { findPath } from '../systems/path';
 import type { WorldScene } from '../scenes/WorldScene';
 import type { Monster } from './Monster';
 import { heroName, isChildhood } from '../systems/origin';
-import { immortalProgress, MOUNTS, mountUnlocked } from '../systems/immortal';
+import { immortalProgress, MOUNTS, mountUnlocked, flightProfile } from '../systems/immortal';
 import { lifeProgress } from '../systems/life';
-import { itemSpriteTextureKey } from '../art/icons';
 import { skillLoadout, skillUnlocked } from '../systems/skills';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
@@ -67,7 +66,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private dashVec: Vec2 = { x: 0, y: 0 };
   private shadow: Phaser.GameObjects.Image;
   private mountArt: Phaser.GameObjects.Image;
-  private heldWeapon: Phaser.GameObjects.Image;
   private realmAura: Phaser.GameObjects.Image;
   private label: Phaser.GameObjects.Text;
   private bar: Phaser.GameObjects.Graphics;
@@ -109,7 +107,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setDepth(-100);
     this.mountArt = world.add.image(spot.x, spot.y, 'immortal-sword').setVisible(false);
-    this.heldWeapon=world.add.image(spot.x,spot.y,'fx_dot').setVisible(false);
     this.realmAura=world.add.image(spot.x,spot.y,'circle_gold').setVisible(false).setAlpha(.35).setBlendMode(Phaser.BlendModes.ADD);
     this.label = world.add
       .text(spot.x, spot.y, heroName(p), {
@@ -158,8 +155,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private get activeMount() {
     const s = gameStore.getState();
     const id = immortalProgress(s.player).mount;
-    if (!id || !mountUnlocked(id, s.quests) || this.world.map.arena || this.meditating || lifeProgress(s.player).retreat || !canAct(this.life)) return null;
-    return MOUNTS.find((m) => m.id === id) ?? null;
+    if (!id || !mountUnlocked(id, s.quests,s.player) || this.world.map.arena || this.meditating || lifeProgress(s.player).retreat || !canAct(this.life)) return null;
+    const mount=MOUNTS.find((m)=>m.id===id);
+    return mount?{...mount,...flightProfile(s.player,id)}:null;
   }
 
   private dismount() {
@@ -240,12 +238,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.art.texture.key === 'player' ? (this.art.flipX ? LI_MU_ART_FOOT_OFFSET_X : -LI_MU_ART_FOOT_OFFSET_X) : 0;
     const mount = this.activeMount;
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
-    this.mountArt.setVisible(!!mount);
-    if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(this.dir === 'left').setPosition(spot.x, spot.y - lift + (mount.id==='sword'?8:20)).setDepth(spot.y - 0.1);
+    this.mountArt.setVisible(!!mount?.showMount);
+    if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(this.dir === 'left').setPosition(spot.x, spot.y - lift + (mount.id==='sword'?-1:20)).setDepth(spot.y - 0.1);
     this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
-    const p=gameStore.getState().player,weapon=p.equipment.weapon,key=weapon==='moc_kiem'?'held-moc-kiem':weapon?itemSpriteTextureKey(weapon):undefined;
-    this.heldWeapon.setVisible(!!key&&!isChildhood(p)&&!this.meditating&&!mount&&!lifeProgress(p).retreat&&canAct(this.life));
-    if(key){const left=this.art.flipX;this.heldWeapon.setTexture(key).setOrigin(left?.88:.12,.88).setDisplaySize(42,42).setPosition(spot.x+centerOffset+(left?-18:18),spot.y-42).setFlipX(left).setRotation(this.ctrl.currentAnim?.startsWith('attack')?-.5:0).setDepth(spot.y+.1);}
+    const p=gameStore.getState().player;
     this.syncLook();
     this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setPosition(spot.x,spot.y-lift+3).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]).setDepth(spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
@@ -468,7 +464,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   castSkill(id: SkillId) {
     if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
-    if(!skillLoadout(gameStore.getState().player).includes(id)||!skillUnlocked(gameStore.getState().player,id))return;
+    if((id!=='than_phap'&&!skillLoadout(gameStore.getState().player).includes(id))||!skillUnlocked(gameStore.getState().player,id))return;
     if (id === 'basic') return this.attack();
     if (id === 'than_phap') return this.dash();
     const store = gameStore.getState();
@@ -511,7 +507,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!canAct(this.life) || this.dashTime > 0) return;
     if ((this.cooldowns.than_phap ?? 0) > 0) return;
     const store = gameStore.getState();
-    if(!skillLoadout(store.player).includes('than_phap'))return;
     const sk = playerSkill('than_phap');
     if (!store.spendMp(sk.mpCost)) return;
     if (this.meditating) this.stopMeditate();
@@ -596,7 +591,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   grantShield(amount:number,ms:number){this.shield=amount;this.shieldMs=ms;this.world.vfx.ascend(this);}
 
   destroy(fromScene?: boolean) {
-    this.heldWeapon?.destroy();
     this.realmAura?.destroy();
     this.art?.destroy();
     this.shadow?.destroy();

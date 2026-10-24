@@ -2,7 +2,7 @@
 import { ITEMS, QUESTS } from '../../data';
 import {
   HOME_QUEST,
-  immortalProgress, MOUNTS, mountUnlocked, RECIPES, recipeCheck, storyOrder,
+  immortalProgress, MOUNTS, mountUnlocked, flightProfile, RECIPES, recipeCheck, storyOrder,
 } from '../../game/systems/immortal';
 import { StoryChapters } from './StoryChapters';
 import { JourneyFeatureHeader } from './JourneyFeatureHeader';
@@ -83,10 +83,10 @@ export function Journey() {
       {tab === 'home' && <><JourneyFeatureHeader type="home" detail={homeOpen ? 'Linh điền · Tĩnh thất · Lò đan · Tụ linh trận' : `Mở sau: ${QUESTS[HOME_QUEST].name}`}/>{homeOpen?<HomeBoard/>:<p className="immortal-note">Hoàn thành Lò Đan Khai Hỏa để nhận động phủ riêng.</p>}</>}
       {tab === 'companions' && <CompanionPanel/>}
       {tab === 'mounts' && <>
-        <JourneyFeatureHeader type="mounts" detail={`${MOUNTS.filter(m => mountUnlocked(m.id, quests)).length}/${MOUNTS.length} duyên ngự hành · ${progress.mount ? MOUNTS.find(m => m.id === progress.mount)?.name : 'Chưa chọn tọa kỵ'}`}/>
+        <JourneyFeatureHeader type="mounts" detail={`${MOUNTS.filter(m => mountUnlocked(m.id, quests,player)).length}/${MOUNTS.length} duyên ngự hành · ${progress.mount ? MOUNTS.find(m => m.id === progress.mount)?.name : 'Chưa chọn tọa kỵ'}`}/>
         <div className="immortal-home-grid">{MOUNTS.map((mount) => {
-          const open = mountUnlocked(mount.id, quests);
-          return <article className="immortal-card" key={mount.id}><div className={`journey-mount-art mount-${mount.id}`}><img src="/assets/journey/mounts.png" alt=""/></div><h4>{mount.name}</h4><p>{mount.desc}</p><p className="immortal-note">{open ? `Tốc độ di chuyển ×${mount.speed}` : `Mở sau: ${QUESTS[mount.quest].name}`}</p><button className="btn gold" disabled={!open || status !== 'alive'} onClick={() => selectMount(progress.mount === mount.id ? null : mount.id)}>{progress.mount === mount.id ? 'Hạ xuống' : open ? mount.id === 'sword' ? 'Ngự kiếm' : 'Cưỡi hạc' : 'Chưa kết duyên'}</button></article>;
+          const open = mountUnlocked(mount.id, quests,player);
+          return <article className="immortal-card" key={mount.id}><div className={`journey-mount-art mount-${mount.id}`}><img src="/assets/journey/mounts.png" alt=""/></div><h4>{mount.name}</h4><p>{mount.desc}</p><p className="immortal-note">{open ? `Tốc độ di chuyển ×${flightProfile(player,mount.id).speed.toFixed(2)}` : `Mở sau: ${QUESTS[mount.quest].name}`}</p><button className="btn gold" disabled={!open || status !== 'alive'} onClick={() => selectMount(progress.mount === mount.id ? null : mount.id)}>{progress.mount === mount.id ? 'Hạ xuống' : open ? mount.id === 'sword' ? 'Ngự kiếm' : 'Cưỡi hạc' : 'Chưa kết duyên'}</button></article>;
         })}</div>
       </>}
     </div>

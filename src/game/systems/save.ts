@@ -8,6 +8,7 @@ import type { ImmortalProgress } from './immortal';
 import type { LifeProgress } from './life';
 import type { AdventureProgress } from './adventure';
 import type { SkillId } from '../../data';
+import { enhancementLevel } from './enhancement';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
@@ -110,10 +111,18 @@ export function deserialize(raw: string | null): SaveData | null {
   if (!raw) return null;
   try {
     const data = JSON.parse(raw) as SaveData;
-    if (data.v !== SAVE_VERSION || !data.player || typeof data.player.level !== 'number') return null;
+    if (data.v !== SAVE_VERSION || !data.player || typeof data.player.level !== 'number')
+      return null;
     if (data.player.sex !== 'male' && data.player.sex !== 'female') data.player.sex = 'female';
     const realmIndex = REALMS.findIndex((realm) => data.player.level <= realm.maxLevel);
     data.player.realmIndex = realmIndex < 0 ? REALMS.length - 1 : realmIndex;
+    if (data.player.adventure)
+      data.player.adventure.enhancements = Object.fromEntries(
+        Object.entries(data.player.adventure.enhancements ?? {}).map(([id, n]) => [
+          id,
+          enhancementLevel(n),
+        ]),
+      );
     return data;
   } catch {
     return null;
@@ -131,7 +140,10 @@ export function disableSaving() {
   savingDisabled = true;
 }
 
-export function saveGame(data: Omit<SaveData, 'v' | 'savedAt'>, store: StorageLike | null = storage()) {
+export function saveGame(
+  data: Omit<SaveData, 'v' | 'savedAt'>,
+  store: StorageLike | null = storage(),
+) {
   if (savingDisabled) return;
   const snapshot = snapshotOf(data);
   store?.setItem(saveKey(), JSON.stringify(snapshot));

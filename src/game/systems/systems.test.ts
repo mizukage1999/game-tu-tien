@@ -192,6 +192,8 @@ describe('progression', () => {
       ['Âm Hư', 71, 80],
       ['Dương Thực', 81, 90],
       ['Khuy Niết', 91, 100],
+      ['Tịnh Niết', 101, 110],
+      ['Toái Niết', 111, 120],
     ]);
     expect(realmNameAtLevel(1)).toBe('Luyện Khí Sơ Kỳ');
     expect(realmNameAtLevel(4)).toBe('Luyện Khí Trung Kỳ');
@@ -201,7 +203,7 @@ describe('progression', () => {
     expect(realmNameAtLevel(88)).toBe('Dương Thực Hậu Kỳ');
   });
 
-  it('adds weapon bonuses and ignores legacy armor slots', () => {
+  it('adds bonuses from every equipment slot', () => {
     const base = computeStats(5, 0, {});
     const ringed = computeStats(5, 0, { ring: 'nhan_bac' });
     expect(ringed.atk).toBe(base.atk+8);

@@ -32,7 +32,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
     const spot = iso(x, y);
     this.setPosition(spot.x, spot.y);
     if (useAtlasArt) {
-      this.setOrigin(0.5, 1).setScale(art?.startsWith('npc-village-') || art?.startsWith('npc-painted-') ? (npcId === 'a_moc' ? 116 : 152) / this.height : 1.1);
+      this.setOrigin(0.5, 1).setScale(112 / this.height);
     } else {
       const ctrl = new AnimationController(this, def.art);
       ctrl.play('idle', 'down');

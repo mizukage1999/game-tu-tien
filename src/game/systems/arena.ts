@@ -287,7 +287,7 @@ export class ArenaEngine {
   private cast(f: ArenaFighter, id: SkillId) {
     const s = this.state,
       allowed = f.loadout ?? DEFAULT_LOADOUT;
-    if (!allowed.includes(id) || (f.cooldowns[id] ?? 0) > s.elapsed) return;
+    if ((id !== 'than_phap' && !allowed.includes(id)) || (f.cooldowns[id] ?? 0) > s.elapsed) return;
     const sk = effectiveSkill(id, f.skillLevels?.[id] ?? 1);
     if (f.mp < sk.mpCost) return;
     f.mp -= sk.mpCost;

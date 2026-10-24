@@ -188,6 +188,10 @@
   gap: 6px;
   margin-left: auto;
 }
+.duel-leave { font-size: 10px; padding: 6px 8px; flex-shrink: 0; min-height:32px; }
+.hud.phone .duel-abilities span { font-size: 7px; }
+.hud.phone .duel-abilities b { font-size: 12px; }
+.hud.phone .duel-leave { font-size: 9px; padding: 5px; }
 .duel-abilities button {
   position: relative;
   width: 64px;

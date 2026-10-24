@@ -176,6 +176,7 @@ export function drawItem(ctx: Ctx, id: string, s: number) {
       ctx.fillRect(m - s * 0.05, s * 0.84, s * 0.1, s * 0.1);
       break;
     }
+    case 'tinh_luyen_thach':
     case 'linh_thach': {
       ctx.fillStyle = radial(ctx, m, m, m, [
         [0, 'rgba(120,160,255,0.45)'],

@@ -55,7 +55,9 @@ describe('equipment, EXP and loadouts', () => {
     if (!up.ok) return;
     expect(playerStats(up.player).def).toBeGreaterThan(base.def);
     expect(battlePower(playerStats(up.player))).toBeGreaterThan(battlePower(base));
-    expect(up.player.inventory.linh_thach).toBe(p.inventory.linh_thach - 5);
+    expect(up.player.inventory.linh_thach).toBe(p.inventory.linh_thach);
+    expect(up.player.inventory.huyen_thiet).toBe(p.inventory.huyen_thiet);
+    expect(up.player.inventory.tinh_luyen_thach).toBe(p.inventory.tinh_luyen_thach - 1);
     expect(p.inventory.linh_thach).toBe(200);
     expect(
       adventureAction({ ...p, inventory: {} }, { type: 'enhance', id: 'armor_white' }, false).ok,
@@ -73,7 +75,10 @@ describe('equipment, EXP and loadouts', () => {
     expect(skillLoadout(loaded.player)).toEqual(skillLoadout(chosen));
     expect(chooseSkill(hero(), 1, 'loi_kich')).toBeNull();
     expect(chooseSkill(hero(), 4, 'basic')).toBeNull();
-    expect(new Set(skillLoadout(chooseSkill(chosen, 0, 'moc_linh')!)).size).toBe(4);
+    expect(chooseSkill(chosen, 0, 'moc_linh')).toBeNull();
+    expect(chooseSkill(chosen, 1, 'than_phap')).toBeNull();
+    expect(chooseSkill(chosen, 1, 'basic')).toBeNull();
+    expect(new Set(skillLoadout(chooseSkill(chosen, 2, 'moc_linh')!)).size).toBe(4);
   });
 });
 describe('sect missions and reputation gates', () => {

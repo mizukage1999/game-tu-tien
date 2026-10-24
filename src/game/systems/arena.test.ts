@@ -4,9 +4,18 @@ import { buildDuelist } from './duel';
 import { newPlayer } from '../../store/gameStore';
 import { playerStats } from './progression';
 import type { SkillId } from '../../data';
+import { adventure } from './adventure';
 
 function match(loadout: SkillId[] = ['basic', 'phi_kiem', 'kim_cang', 'than_phap']) {
-  const p = { ...newPlayer(), level: 10, skillLoadout: loadout },
+  const p = {
+      ...newPlayer(),
+      level: 10,
+      skillLoadout: loadout,
+      adventure: {
+        ...adventure(newPlayer()),
+        learnedSecrets: ['loi_kich', 'phong_nhan'] as SkillId[],
+      },
+    },
     a = buildDuelist(p, playerStats(p), 'Luyện Khí', 'a'),
     b = { ...a, userId: 'b', name: 'B' };
   const e = new ArenaEngine('test', a, b);
@@ -52,6 +61,8 @@ describe('manual PK arena', () => {
     const before = b.hp;
     e.input('a', { seq: 1, x: 0, y: 0, cast: 'loi_kich' });
     e.input('b', { seq: 1, x: 0, y: -1, cast: null });
+    e.step(50);
+    expect(e.state.effects.some((e) => e.skill === 'loi_kich')).toBe(true);
     step(e, 550);
     expect(b.y).toBeLessThan(150);
     expect(b.hp).toBe(before);

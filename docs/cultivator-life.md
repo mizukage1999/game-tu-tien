@@ -19,7 +19,7 @@ Hai nhân vật bắt đầu tại Vương Gia Thôn: Thiết Trụ (Vương Lâ
 - Ngự hành: Thanh Vân Kiếm tăng tốc 45%, Bạch Vân Hạc tăng 70%; mở theo nhiệm vụ tương ứng.
 - Linh thú: sáu loài, chỉ số riêng. Đánh bại loài tương ứng để tích lũy dấu ấn thu phục; Yêu Đan không mua được linh thú. Nuôi bằng Linh Thú Đan, tiến hóa bằng nguyên liệu và chọn một loài đồng hành. Mỗi loài có kỹ năng hỗ trợ riêng.
 - Tán tu: xuất hiện ngẫu nhiên ở vùng có quái, có tên và tấn công khi người chơi tới gần. Sức mạnh dùng nội bộ, không hiện trên nhãn. Không xuất hiện trong làng, thành, tông môn, động phủ hoặc phó bản.
-- Trang bị: đủ sáu ô vũ khí, y phục, đầu, giày, nhẫn, ngọc bội; cường hóa tối đa +15. Vũ khí đang cầm đổi theo vật phẩm đã trang bị. Giữ nguyên đồ đang mặc khi tải save cũ.
+- Trang bị: đủ sáu ô vũ khí, y phục, đầu, giày, nhẫn, ngọc bội; cường hóa xác suất bằng Đá Cường Hóa, tối đa +12. Vũ khí cầm tay được ẩn; vật phẩm và chỉ số trang bị vẫn giữ nguyên khi tải save.
 
 ## Tài nguyên hình ảnh
 

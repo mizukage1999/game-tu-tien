@@ -80,10 +80,10 @@ export const COMBAT_SKILLS = {
 } satisfies Record<string, SkillDef>;
 export const COMBAT_ITEMS: Record<string, ItemDef> = {
   tinh_luyen_thach: {
-    name: 'Tinh Luyện Thạch',
+    name: 'Đá Cường Hóa',
     kind: 'material',
     color: '#bba5f0',
-    desc: 'Nguyên liệu cường hóa trang bị từ +5; rơi ở phó bản.',
+    desc: 'Đá đập đồ chuyên dụng, nhận khi vượt phó bản. Cường hóa tối đa +12; thất bại mất đá, giữ cấp đồ.',
   },
   thien_loi_tinh: {
     name: 'Thiên Lôi Tinh',

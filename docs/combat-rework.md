@@ -3,23 +3,23 @@
 ## Tiến trình và di chuyển
 
 - Hai nhân vật vẫn xuất phát từ Vương Gia Thôn, trải qua tuổi thơ và nhập môn theo cốt truyện. Không còn chỉ số tuổi/thọ nguyên trên giao diện.
-- Dùng Lv và EXP. EXP cần cho một cấp: `round(300 + 120 × Lv^1.65 + 15 × Lv²)`. Cấp tối đa 100; bình cảnh cần đột phá.
+- Dùng Lv và EXP. EXP cần cho một cấp: `round(300 + 120 × Lv^1.65 + 15 × Lv²)`. Cấp tối đa 120; bình cảnh cần đột phá. Khuy Niết (91–100) → Tịnh Niết (101–110) → Toái Niết (111–120).
 - Bỏ giới hạn cấp khi vào sơn dã và phó bản. Cấp đề nghị chỉ hướng dẫn độ khó; người cấp cao có thể chọn lại vùng cấp thấp trong Sơn Hà Đồ.
 - Cổng cốt truyện thời thơ ấu, quyền sở hữu động phủ và danh vọng tông môn vẫn có ý nghĩa. Tàng Kinh Các cần 150 danh vọng; Linh Địa Hậu Sơn cần 350.
 - Chạm minimap để mở bản đồ hiện tại/thế giới. Ký hiệu: ▲ nhân vật, ! NPC, ◇ cổng, • đối thủ, ♧ dược liệu, ◆ tương tác. Chạm ô trống trên bản đồ để dẫn đường; tuyến đường có chấm trắng nhỏ.
 
 ## Trang bị và kỹ năng
 
-- Sáu ô trang bị được tính đầy đủ vào chỉ số, đồ rơi và cửa hàng. Cường hóa từng mẫu trang bị tối đa +15 bằng Linh Thạch, Huyền Thiết; từ +5 cần thêm Tinh Luyện Thạch. Mỗi bậc cộng 12% chỉ số gốc của món đồ. Chỉ số cường hóa lưu theo mã vật phẩm vì túi đồ hiện dùng các chồng vật phẩm cùng loại.
+- Sáu ô trang bị được tính đầy đủ vào chỉ số, đồ rơi và cửa hàng. Cường hóa tối đa +12, chỉ dùng Đá Cường Hóa (mã vật phẩm `tinh_luyen_thach`, nhận từ phó bản). Số đá mỗi lần: 1/2/3/4 cho các khoảng +0–2/+3–5/+6–8/+9–11. Tỷ lệ lên +1 đến +12: 100%, 95%, 90%, 85%, 75%, 65%, 55%, 45%, 35%, 25%, 18%, 12%. Thất bại trừ đá, giữ cấp đồ, không vỡ đồ. Mỗi bậc cộng 12% chỉ số gốc; save cũ trên +12 được đưa về +12. Chỉ số cường hóa lưu theo mã vật phẩm vì túi đồ hiện dùng các chồng vật phẩm cùng loại.
 - Có thêm Lôi Kích, Hỏa Liên, Mộc Linh Hồi Xuân, Kim Cang Hộ Thể và Phong Nhận. Lôi Kích/Phong Nhận học từ trưởng lão, yêu cầu danh vọng và cống hiến.
-- Mở **Kỹ năng**, chọn một trong bốn ô rồi gán kỹ năng. Gán chiêu đã có sẽ đổi chỗ hai ô. Bộ chiêu lưu theo nhân vật; HUD và tỷ võ cùng dùng bộ đó. Phím 1–4 tương ứng bốn ô.
+- Bốn ô chiến đấu gồm đánh thường cố định ở ô 1 và ba chiêu tự chọn ở ô 2–4. Mở **Kỹ năng**, chọn ô 2–4 rồi gán chiêu; gán chiêu đã có sẽ đổi chỗ. Lướt là nút thứ năm độc lập, dùng Shift, không chiếm ô chiến đấu. HUD và tỷ võ dùng cùng bộ chiêu, MP và hồi chiêu riêng.
 - Mobile giữ bốn menu thường dùng và nút **Thêm**; Tông Môn, Tiên Ngọc và các bảng còn lại nằm trong **Thêm**, tránh che phần trên sân chiến đấu.
-- Nhân vật trưởng thành dùng atlas 4×2 nhỏ, đứng/đi chậm hơn và ít khung hình. Vũ khí đang trang bị vẫn hiện ở tay. Khi ngự kiếm, chân nhân vật ở trên kiếm, kiếm ở trên bóng mặt đất.
+- Nhân vật trưởng thành dùng atlas 4×2 nhỏ, ít khung hình. NPC thành được thu về chiều cao 112 đơn vị, tương đương phần hình nhân vật. Ẩn hoàn toàn vũ khí cầm tay; trang bị và chỉ số vẫn giữ nguyên. Nút ngự kiếm nhanh cạnh Auto: chân ở trên kiếm, kiếm ở trên bóng mặt đất. Từ Vấn Đỉnh chỉ ẩn kiếm, vẫn bay. Tốc độ ngự kiếm = 1,45 + 0,01 × chỉ số đại cảnh giới (Trúc Cơ 1,46; Vấn Đỉnh 1,51; Toái Niết 1,56).
 
 ## Tỷ võ bằng tay
 
 - **Tông Môn → Luyện tay với Mộc Nhân** hoạt động offline. **Mời người chơi tỷ võ** dùng tài khoản và kênh social đã cấu hình.
-- Đếm ngược 3 giây, trận tối đa 120 giây. Di chuyển WASD/mũi tên, kéo trên sân hoặc bấm nút hướng trên điện thoại. Bốn nút chiêu có MP và hồi chiêu riêng. Không tự đánh thay người chơi.
+- Đếm ngược 3 giây, trận tối đa 120 giây. Di chuyển WASD/mũi tên, kéo sân hoặc bấm nút hướng. Bốn chiêu chiến đấu và nút lướt riêng; không tự đánh thay người chơi. Nút **Trở về** luôn có ở thanh dưới; nút kết quả nhận thao tác chạm riêng, không bị sân đấu bắt giữ con trỏ.
 - Chiêu báo vùng trước khi trúng; có thể di chuyển né, lướt, hồi phục, tạo khiên. Hai vật cản chặn di chuyển và lướt. Hết giờ so tỷ lệ HP, bằng nhau hòa. Rời trận tính bỏ cuộc; mất kết nối kết thúc trận.
 - Thế giới Phaser tạm dừng khi tỷ võ và tiếp tục sau khi đóng kết quả. Không mở tỷ võ khi chết, đang bế quan, trong phó bản hoặc đang độ kiếp.
 - Đồng bộ hiện dùng trình duyệt người gửi lời mời làm chủ trận qua Supabase Broadcast. Đây chưa phải máy chủ chiến đấu chuyên dụng; các kiểm tra offline không xác nhận trải nghiệm mạng giữa hai tài khoản thật.

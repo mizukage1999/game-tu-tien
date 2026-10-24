@@ -29,12 +29,18 @@ import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
 import { Journey } from './Journey';
 import { heroName, isChildhood, originText } from '../../game/systems/origin';
-import { battlePower, enhanceCost } from '../../game/systems/adventure';
+import { battlePower, enhanceCost, enhanceChance, MAX_ENHANCEMENT } from '../../game/systems/adventure';
+import { enhancementLevel, ENHANCEMENT_STONE } from '../../game/systems/enhancement';
 import { skillLoadout, skillUnlocked } from '../../game/systems/skills';
 import { SectPanel, PremiumPanel } from './AdventurePanels';
 import { MapPanel } from './MapPanel';
 
 const GEAR_SLOTS = EQUIP_SLOTS;
+function EnhanceButton({id}:{id:string}) {
+  const p=useGame(s=>s.player),act=useGame(s=>s.adventureAction),n=enhancementLevel(p.adventure?.enhancements[id]),qty=enhanceCost(n)[ENHANCEMENT_STONE]??0;
+  const capped=n>=MAX_ENHANCEMENT,chance=Math.round(enhanceChance(n)*100);
+  return <div className="gear-enhance"><button className="btn small" disabled={capped||(p.inventory[ENHANCEMENT_STONE]??0)<qty} title={capped?'Đã đạt tối đa +12':`Đá Cường Hóa ×${qty} · Thành công ${chance}%. Thất bại mất đá, giữ cấp đồ.`} onClick={()=>act({type:'enhance',id})}>{capped?'Tối đa +12':`Đập +${n+1} · ${chance}%`}</button>{!capped&&<small>Đá ×{qty} · có {p.inventory[ENHANCEMENT_STONE]??0}</small>}</div>;
+}
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -136,7 +142,6 @@ function Character() {
   const player = useGame((s) => s.player);
   const stats = useGame((s) => s.stats);
   const unequip = useGame((s) => s.unequip);
-  const act=useGame(s=>s.adventureAction);
   const expNeeded = expToNext(player.level);
   const hpPct = Math.max(0, Math.min(100, (player.hp / Math.max(1, stats.maxHp)) * 100));
   const mpPct = Math.max(0, Math.min(100, (player.mp / Math.max(1, stats.maxMp)) * 100));
@@ -195,6 +200,7 @@ function Character() {
         </table>
         <div>
           <h4>Đang trang bị</h4>
+          <p className="muted enhancement-note">Cường hóa tối đa +12 bằng Đá Cường Hóa. Thất bại mất đá, giữ cấp đồ.</p>
           <div className="equip-list">
             {GEAR_SLOTS.map((slot) => {
               const id = player.equipment[slot.id];
@@ -211,7 +217,7 @@ function Character() {
                       <button className="btn small" onClick={() => unequip(slot.id)}>
                         Tháo
                       </button>
-                      <button className="btn small" title={Object.entries(enhanceCost(player.adventure?.enhancements[id]??0)).map(([item,n])=>`${itemName(item)} ×${n}`).join(', ')} onClick={()=>act({type:'enhance',id})}>Cường hóa +{(player.adventure?.enhancements[id]??0)+1}</button>
+                      <EnhanceButton id={id}/>
                     </>
                   ) : (
                     <i className="muted">Trống</i>
@@ -372,7 +378,7 @@ function CostChip({ item, need, have }: { item: string; need: number; have: numb
 
 function Skills() {
   const player = useGame((s) => s.player);
-  const choose=useGame(s=>s.chooseSkill),[slot,setSlot]=useState(0),loadout=skillLoadout(player);
+  const choose=useGame(s=>s.chooseSkill),[slot,setSlot]=useState(1),loadout=skillLoadout(player);
   const upgrade = useGame((s) => s.upgradeSkill);
   const wallet = {
     linhKhi: player.linhKhi,
@@ -381,8 +387,8 @@ function Skills() {
   };
   return (
     <div className="skill-list">
-      <p className="muted">Chọn một trong 4 ô, rồi gán kỹ năng bên dưới. Phím 1–4 theo đúng các ô đã chọn.</p>
-      <div className="skill-loadout">{loadout.map((id,i)=><button key={i} className={slot===i?'active':''} onClick={()=>setSlot(i)}><img src={skillSpriteUrl(id,player.sex)} alt=""/>Ô {i+1} · {SKILLS[id].name}</button>)}</div>
+      <p className="muted">Đánh thường cố định ở ô 1. Chọn ô 2–4 để đổi chiêu; Lướt có nút riêng và phím Shift.</p>
+      <div className="skill-loadout">{loadout.map((id,i)=><button key={i} disabled={i===0} className={slot===i?'active':''} onClick={()=>setSlot(i)}><img src={skillSpriteUrl(id,player.sex)} alt=""/>Ô {i+1} · {SKILLS[id].name}</button>)}</div>
       <p className="muted">
         Nâng cấp tăng sát thương và giảm hồi chiêu. Cấp {SKILL_BONUS_LEVEL} lĩnh ngộ tuyệt kỹ. Từ cấp 4 cần thêm Kiếm Phổ Tàn Trang (rơi trong phó bản).
       </p>
@@ -399,7 +405,7 @@ function Skills() {
               <span className="skill-lv">{lv}</span>
             </div>
             <div className="skill-info">
-              <b>{cur.name}</b> <kbd>{cur.key}</kbd>{' '}
+              <b>{cur.name}</b> <kbd>{id==='than_phap'?'Shift':loadout.includes(id)?loadout.indexOf(id)+1:'—'}</kbd>{' '}
               <span className="skill-level">
                 Cấp {lv}/{SKILL_MAX_LEVEL}
               </span>
@@ -425,7 +431,7 @@ function Skills() {
               </div>
             </div>
             <div className="skill-upgrade">
-              <button className="btn small" disabled={!skillUnlocked(player,id)} onClick={()=>choose(slot,id)}>{skillUnlocked(player,id)?`Gán ô ${slot+1}`:SKILLS[id].secret?'Học từ trưởng lão':`Mở Lv.${SKILLS[id].unlockLevel}`}</button>
+              <button className="btn small" disabled={id==='basic'||id==='than_phap'||!skillUnlocked(player,id)} onClick={()=>choose(slot,id)}>{id==='basic'?'Đánh thường cố định':id==='than_phap'?'Nút lướt riêng':skillUnlocked(player,id)?`Gán ô ${slot+1}`:SKILLS[id].secret?'Học từ trưởng lão':`Mở Lv.${SKILLS[id].unlockLevel}`}</button>
               {cost ? (
                 <>
                   <div className="cost-row">

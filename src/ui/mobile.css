@@ -1,4 +1,24 @@
 /* Phone rules use the HUD marker, including the rotated portrait layout. */
+.flight-btn { right: 66px; bottom: 190px; width: 48px; height: 48px; border: 2px solid #b69e68; }
+.flight-btn.on { box-shadow: 0 0 10px #97e2ef; border-color: #b5f0ff; }
+.flight-btn .flight-label { position: absolute; bottom: 3px; font-size: 9px; text-shadow: 0 1px 3px #000; }
+.flight-btn:disabled { opacity: .45; filter: grayscale(.65); }
+.gear-enhance { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.gear-enhance small { color:#afbecb; font-size:9px; }
+.hud.phone .menu-skills .menu-content { padding: 8px 10px; font-size: 11px; }
+.hud.phone .skill-row.upgrade { grid-template-columns: 36px minmax(0,1fr) 108px; padding: 6px; gap: 7px; }
+.hud.phone .skill-info b { font-size: 11px; }
+.hud.phone .skill-info .muted, .hud.phone .skill-bonus { font-size: 9px; line-height: 1.4; }
+.hud.phone .skill-info small, .hud.phone .skill-level, .hud.phone .cost-chip { font-size: 8px; }
+.hud.phone .skill-icon, .hud.phone .menu-skills .skill-icon img { width: 34px; height: 34px; }
+.hud.phone .skill-upgrade { gap: 4px; }
+.hud.phone .skill-upgrade .btn { font-size: 9px; padding: 4px 6px; min-height: 26px; }
+.hud.phone .skill-loadout img { width: 25px; height: 25px; }
+.hud.phone .skill-cd { font-size: 12px; }
+.hud.phone .skill-badge { font-size: 8px; min-width: 13px; line-height: 11px; }
+.hud.phone .skill-key, .hud.phone .flight-label { font-size: 8px; }
+.hud.phone .enhancement-note { font-size: 10px; line-height: 1.45; }
+.hud.phone .gear-enhance .btn { font-size: 9px; padding:4px 6px; }
 .hud.phone { --hud-safe-bottom: env(safe-area-inset-bottom, 0px); --hud-safe-left: env(safe-area-inset-left, 0px); --hud-safe-right: env(safe-area-inset-right, 0px); }
 .hud.phone.turned { --hud-safe-bottom: env(safe-area-inset-left, 0px); --hud-safe-left: env(safe-area-inset-top, 0px); --hud-safe-right: env(safe-area-inset-bottom, 0px); }
 .hud.phone .exp-bar, .hud.phone.turned .exp-bar { height: 9px; width: min(360px, 48%); bottom: calc(9px + var(--hud-safe-bottom)); left: calc(50% + (var(--hud-safe-left) - var(--hud-safe-right)) / 2); border-radius: 4px; pointer-events: none; }

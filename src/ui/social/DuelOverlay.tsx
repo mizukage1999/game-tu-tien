@@ -55,6 +55,8 @@ export function DuelOverlay() {
           '2',
           '3',
           '4',
+          'shift',
+          '5',
           ' ',
           'escape',
         ].includes(k)
@@ -68,6 +70,7 @@ export function DuelOverlay() {
         const me = live.current?.snapshot.fighters.find((p) => p.userId === live.current?.localId),
           loadout = me?.loadout ?? DEFAULT_LOADOUT;
         if ('1234'.includes(k)) cast.current = loadout[Number(k) - 1];
+        if (k === 'shift' || k === '5') cast.current = 'than_phap';
         if (k === ' ' && loadout.includes('basic')) cast.current = 'basic';
         if (k === 'escape') closeArena();
       }
@@ -97,7 +100,7 @@ export function DuelOverlay() {
         <header>
           <div>
             <h3>{duel.practice ? 'Luận kiếm · Mộc Nhân' : 'Tỷ Võ · Điều Khiển Tay'}</h3>
-            <small>Di chuyển để né đòn · 4 ô chiêu theo bộ kỹ năng của bạn</small>
+            <small>4 chiêu chiến đấu · Lướt riêng để né đòn</small>
           </div>
           <b>
             {Math.ceil(
@@ -112,6 +115,7 @@ export function DuelOverlay() {
         <div
           className="duel-stage"
           onPointerDown={(e) => {
+            if (s.phase === 'finished' || (e.target as Element).closest('button,a,input')) return;
             drag.current = { x: e.clientX, y: e.clientY };
             e.currentTarget.setPointerCapture(e.pointerId);
           }}
@@ -201,6 +205,9 @@ export function DuelOverlay() {
           )}
         </div>
         <footer>
+          <button className="btn duel-leave" onClick={closeArena} aria-label="Rời sân luyện võ">
+            Trở về
+          </button>
           <div className="duel-directions">
             {[
               ['↑', 0, -1],
@@ -226,7 +233,7 @@ export function DuelOverlay() {
             <small>Kéo sân để di chuyển · WASD / 1–4</small>
           </span>
           <div className="duel-abilities">
-            {loadout.map((id, i) => {
+            {[...loadout, 'than_phap' as const].map((id, i) => {
               const cooldown = Math.max(0, (me.cooldowns[id] ?? 0) - s.elapsed);
               return (
                 <button
@@ -237,7 +244,7 @@ export function DuelOverlay() {
                 >
                   <img src={skillSpriteUrl(id, me.sex)} alt="" />
                   <span>
-                    {i + 1} · {SKILLS[id].name}
+                    {id === 'than_phap' ? 'Lướt · Shift' : `${i + 1} · ${SKILLS[id].name}`}
                   </span>
                   {cooldown > 0 && <b>{(cooldown / 1000).toFixed(1)}</b>}
                 </button>
