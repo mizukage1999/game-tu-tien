@@ -6,6 +6,7 @@ import { npcName, questNames, useGame } from '../store/gameStore';
 import { storyOrder, storyChapter } from '../game/systems/immortal';
 import { usePhoneLayout } from './TouchPlay';
 import { originText } from '../game/systems/origin';
+import { useTrackedQuest } from './useTrackedQuest';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
@@ -13,11 +14,13 @@ export function QuestPanel() {
   const setMenu = useGame((s) => s.setMenu);
   const player = useGame((s) => s.player);
   const nextStory = storyOrder(player).find((id) => quests[id]?.status !== 'done');
+  const tracked = useTrackedQuest();
   const [open, setOpen] = useState(true);
   const [tab, setTab] = useState<'quest' | 'team'>('quest');
   const active = Object.entries(quests)
     .filter(([, q]) => q.status !== 'done')
-    .sort(([a], [b]) => a === nextStory ? -1 : b === nextStory ? 1 : (QUESTS[a].kind === QUESTS[b].kind ? a.localeCompare(b) : QUESTS[a].kind === 'main' ? -1 : 1));
+    .filter(([id]) => !!QUESTS[id])
+    .sort(([a], [b]) => a === tracked ? -1 : b === tracked ? 1 : a === nextStory ? -1 : b === nextStory ? 1 : (QUESTS[a].kind === QUESTS[b].kind ? a.localeCompare(b) : QUESTS[a].kind === 'main' ? -1 : 1));
 
   return (
     <div className={`quest-panel panel-glass ${open ? '' : 'collapsed'}`}>

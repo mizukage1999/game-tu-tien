@@ -21,6 +21,8 @@ export interface PublicProfile {
   mapId: string;
   /** Party id shared by every member, or null when solo. */
   party: string | null;
+  /** Registered sect, when supplied by newer clients. Never infer it from the current map. */
+  sect?: 'dai_thua_vien' | 'linh_son_tong';
 }
 
 export interface SocialPresence extends PublicProfile {
@@ -178,6 +180,7 @@ export function parseProfile(key: string, raw: unknown, now: number): SocialPres
     realm: text(p.realm, 40),
     mapId: text(p.map_id, 40) || 'dai_thua_vien',
     party: party || null,
+    ...(p.sect === 'dai_thua_vien' || p.sect === 'linh_son_tong' ? { sect: p.sect } : {}),
     updatedAt: now,
   };
 }

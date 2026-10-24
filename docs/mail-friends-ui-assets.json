@@ -1,0 +1,10 @@
+[
+  {
+    "asset": "public/assets/ui/cultivation/mail-parchment-v1.png",
+    "provider": "built-in imagegen",
+    "intent": "generate",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-26a4d5cc-3920-47d9-837d-129e352976c8.png",
+    "prompt": "Use case: stylized-concept.\nAsset type: production parchment background for the mailbox of a Vietnamese xianxia cultivation RPG, landscape 3:2.\nPrimary request: a beautifully painted antique ivory letter sheet with restrained gold ornamental borders, inspired by ornate Chinese immortal cultivation game UI. This is only the parchment artwork, all readable UI text will be rendered in code later.\nComposition: the entire rectangular image is warm pale parchment, with delicate worn edges and fine double gold border safely inset. Keep the left two thirds and lower middle very clean, light and empty for dark text. In the top right quarter only, paint a soft ink-wash portrait of a dignified elderly white-haired immortal teacher wearing dark charcoal robes with subtle gold embroidery, blended into misty temple roofs and distant karst peaks. The portrait occupies only the upper right, never the center. Lower right has a small rolled-paper corner with a crimson wax seal and a few tiny pink plum blossoms. Fine translucent ink-wash scenery along the upper edge, almost invisible in text areas. Palette aged cream, desaturated warm gold, charcoal gray, crimson accents. High quality hand painted fantasy game illustration with crisp ornamental detail. Flat front view, no perspective.\nConstraints: NO words, NO letters, NO numbers, NO signatures, NO interface controls, NO fake text, NO logos, NO watermark. No black background, no floating buttons. This is an actual UI background asset and must leave ample blank space for live content.",
+    "reference": "User's mailbox UI illustration; friends uses the existing ui-night-v1 / wang-full-v1 / li-full-v1 assets from docs/cultivation-ui-assets.json."
+  }
+]

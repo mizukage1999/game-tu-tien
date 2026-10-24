@@ -5,7 +5,8 @@ import { WorldScene } from './scenes/WorldScene';
 import { gameStore } from '../store/gameStore';
 import { socialStore } from '../store/socialStore';
 import { screenToTurnedGame } from '../ui/TouchPlay';
-import { renderDensity } from './systems/display';
+import { preferredDensity } from './systems/display';
+import { settingsStore, useSettings } from '../store/settingsStore';
 
 let game: Phaser.Game | null = null;
 
@@ -59,7 +60,7 @@ function fitTurnedCanvas(game: Phaser.Game) {
     if (!scale.parent) return;
     const w = Math.max(1, parent.clientWidth);
     const h = Math.max(1, parent.clientHeight);
-    const density = renderDensity(w, h, window.devicePixelRatio);
+    const density = preferredDensity(w, h, window.devicePixelRatio, settingsStore.getState().preferences.quality);
     const width = Math.round(w * density);
     const height = Math.round(h * density);
     if (scale.width === width && scale.height === height && game.registry.get('render-density') === density) return;
@@ -70,6 +71,9 @@ function fitTurnedCanvas(game: Phaser.Game) {
     scale.setZoom(1 / density);
   };
   const observer = new ResizeObserver(apply);
+  const stopPreferences = settingsStore.subscribe((next, prev) => {
+    if (next.preferences.quality !== prev.preferences.quality) apply();
+  });
   observer.observe(parent);
   window.addEventListener('resize', apply);
   apply();
@@ -77,6 +81,7 @@ function fitTurnedCanvas(game: Phaser.Game) {
   const raf = requestAnimationFrame(apply);
   return () => {
     observer.disconnect();
+    stopPreferences();
     window.removeEventListener('resize', apply);
     cancelAnimationFrame(raf);
   };
@@ -88,6 +93,7 @@ export function saveNow() {
 }
 
 export function PhaserGame() {
+  const brightness = useSettings((s) => s.preferences.brightness);
   const host = useRef<HTMLDivElement>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -125,7 +131,7 @@ export function PhaserGame() {
 
   return (
     <>
-      <div ref={host} className="game-host" />
+      <div ref={host} className="game-host" style={{ filter: brightness === 100 ? undefined : `brightness(${brightness / 100})` }} />
       {loading && (
         <div className="loading-overlay" role="status" aria-live="polite">
           <img src="/assets/ui/ui-loading-orb.png" alt="" className="loading-orb" />

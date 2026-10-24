@@ -1,0 +1,1351 @@
+.cult-quest-journal,
+.cult-sect {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+  font:
+    14px/1.45 Cambria,
+    'Times New Roman',
+    serif;
+}
+.cult-quest-journal {
+  grid-template-columns: 154px minmax(240px, 0.9fr) minmax(0, 1.2fr);
+}
+.cult-sect {
+  grid-template-columns: 154px minmax(0, 1fr);
+}
+.cult-quest-journal > *,
+.cult-sect > * {
+  min-width: 0;
+  min-height: 0;
+}
+.sect-glyph {
+  width: 30px;
+  height: 30px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.chronicle-side {
+  border-right: 1px solid var(--cult-line);
+  padding-right: 8px;
+  background: linear-gradient(180deg, #04121ddd, #03101bc7);
+}
+.chronicle-side > button {
+  gap: 9px;
+  min-height: 64px;
+}
+.chronicle-side > button > span {
+  flex: 1;
+}
+.chronicle-side > button > small {
+  font:
+    12px Cambria,
+    serif;
+}
+.chronicle-side-poem {
+  margin-top: auto;
+  padding: 25px 10px;
+  color: #bca67e;
+  font-style: italic;
+  line-height: 1.8;
+}
+.chronicle-side-poem small {
+  display: block;
+  font:
+    9px Cambria,
+    serif;
+  letter-spacing: 3px;
+  margin-bottom: 9px;
+  color: #d5b77b;
+}
+.quest-scenery {
+  display: block;
+  background-image: url('/assets/ui/cultivation/quest-scenes-v1.png');
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+}
+.quest-journal-list,
+.quest-journal-detail,
+.sect-main {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--cult-line);
+  background: linear-gradient(130deg, #071724ed, #030d18eb);
+  overflow: hidden;
+}
+.chronicle-list-heading {
+  flex-shrink: 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--cult-line);
+  background: linear-gradient(110deg, #49391e40, #06172450);
+}
+.chronicle-list-heading select {
+  min-width: 0;
+  background: #0a1824;
+  border: 1px solid #ab86485f;
+  color: #e9d2a1;
+  font:
+    14px Cambria,
+    serif;
+  padding: 7px 12px;
+}
+.chronicle-list-heading > span {
+  font-size: 11px;
+  color: #bdac89;
+  white-space: nowrap;
+}
+.quest-journal-scroll,
+.quest-journal-detail-scroll,
+.sect-content-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a2844366 transparent;
+}
+.quest-journal-scroll {
+  padding: 9px;
+}
+.quest-journal-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 7px;
+  text-align: left;
+  margin-bottom: 9px;
+  border: 1px solid #ad925845;
+  border-radius: 3px;
+  color: #dae1ec;
+  background: linear-gradient(120deg, #122a3b90, #06111b70);
+  position: relative;
+}
+.quest-journal-card:hover {
+  border-color: #e0bc75a8;
+  background-color: #31402f55;
+}
+.quest-journal-card.selected {
+  border-color: #f7cd7d;
+  background: linear-gradient(110deg, #5443227a, #0b1e2bc9);
+  box-shadow:
+    inset 0 0 12px #f4ba4c22,
+    0 0 7px #f4ba4c55;
+}
+.quest-journal-card.selected::after {
+  content: '◆';
+  position: absolute;
+  right: -5px;
+  color: #ffe1a0;
+  text-shadow: 0 0 6px #ffb344;
+}
+.quest-journal-card > .quest-scenery {
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+  border: 1px solid #a3874a99;
+  border-radius: 2px;
+}
+.quest-journal-card-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.quest-journal-card-copy > b {
+  font:
+    italic 700 21px/1.2 Cambria,
+    serif;
+  color: #f0d8a6;
+  overflow-wrap: anywhere;
+}
+.quest-journal-card-copy > span:not(.chronicle-tag) {
+  font-size: 12px;
+  color: #b1c2d6;
+}
+.quest-journal-card-copy > small {
+  font-size: 11px;
+  color: #c5b78e;
+}
+.quest-card-chevron {
+  color: #eec57a;
+  font:
+    26px Cambria,
+    serif;
+}
+.chronicle-tag {
+  display: inline-block;
+  font:
+    11px/1.3 Cambria,
+    serif;
+  color: #d8d0b8;
+  padding: 3px 8px;
+  border: 1px solid #b58e5180;
+  border-radius: 3px;
+  background: #71522366;
+}
+.chronicle-tag.main {
+  border-color: #b8594d;
+  background: linear-gradient(#7d352c, #3b2024);
+  color: #ffe4cc;
+}
+.chronicle-tag.side {
+  border-color: #4e94ba;
+  background: #174a6866;
+  color: #c1e4fd;
+}
+.chronicle-list-footer {
+  flex-shrink: 0;
+  color: #b3ac97;
+  border-top: 1px solid var(--cult-line);
+  padding: 9px 12px;
+  font-size: 11px;
+}
+.chronicle-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  min-height: 170px;
+  padding: 25px;
+  color: #a9b8cc;
+}
+.chronicle-empty > .sect-glyph {
+  width: 60px;
+  height: 60px;
+  color: #bc9e64;
+  opacity: 0.7;
+  margin-bottom: 15px;
+}
+.chronicle-empty h2,
+.chronicle-empty h3 {
+  font:
+    24px Cambria,
+    serif;
+  color: #e0c895;
+  margin: 0 0 10px;
+}
+.chronicle-empty p {
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 300px;
+  margin: 0;
+}
+.quest-journal-hero {
+  position: relative;
+  min-height: 230px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--cult-line);
+}
+.quest-journal-hero > .quest-scenery {
+  position: absolute;
+  width: 100%;
+  aspect-ratio: 1;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+.quest-journal-hero > div {
+  position: relative;
+  min-height: 230px;
+  padding: 25px 25px 28px;
+  background:
+    linear-gradient(90deg, #03101bef, #03101b88 70%, #03101b22),
+    linear-gradient(0deg, #03101b, transparent 60%);
+}
+.quest-journal-hero h2 {
+  font:
+    italic 700 32px/1.2 Cambria,
+    serif;
+  color: #ffdc99;
+  margin: 12px 0;
+  text-shadow: 0 2px 4px #000;
+}
+.quest-journal-hero p {
+  max-width: 92%;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #e1e1d8;
+  margin: 0;
+}
+.quest-journal-objectives,
+.quest-journal-guidance,
+.quest-journal-rewards {
+  padding: 17px 22px;
+  border-bottom: 1px solid var(--cult-line);
+}
+.quest-journal-objective {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  color: #bdcbe0;
+  font-size: 14px;
+}
+.quest-journal-objective > span:nth-child(2) {
+  flex: 1;
+}
+.quest-objective-check {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #a8a08788;
+  border-radius: 3px;
+  color: #53e6ae;
+  flex-shrink: 0;
+}
+.quest-journal-objective.complete .quest-objective-check {
+  border-color: #45d1a4;
+  box-shadow: 0 0 6px #3dd29725;
+}
+.quest-journal-objective > b {
+  font:
+    12px Cambria,
+    serif;
+  color: #e6dfcb;
+  white-space: nowrap;
+}
+.quest-journal-guidance p {
+  color: #c1cbdc;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 12px 0 0;
+}
+.quest-journal-guidance .quest-return-ready {
+  color: #71d8ac;
+}
+.chronicle-muted {
+  color: #a4b3c8;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+.chronicle-rewards {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.chronicle-reward {
+  position: relative;
+  width: 67px;
+  height: 72px;
+  border: 1px solid #9c88557a;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #29435770, #030b14);
+}
+.chronicle-reward > img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  margin-bottom: 7px;
+}
+.chronicle-reward > small {
+  position: absolute;
+  bottom: 3px;
+  left: 2px;
+  right: 2px;
+  font:
+    12px Cambria,
+    serif;
+  color: #fff1d1;
+  text-align: center;
+  text-shadow: 0 1px 3px #000;
+}
+.chronicle-reward.exp {
+  border-color: #3e9d75;
+  background: radial-gradient(circle at 50% 35%, #1a765559, #071b18);
+}
+.chronicle-reward.exp > b {
+  border: 1px solid #8fe4b8;
+  border-radius: 50%;
+  color: #aaf6c9;
+  font:
+    17px/43px Cambria,
+    serif;
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  margin-bottom: 12px;
+  box-shadow:
+    inset 0 0 12px #42db9299,
+    0 0 8px #42db9244;
+}
+.quest-journal-actions {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  flex-shrink: 0;
+  background: #0c2030ed;
+  border-top: 1px solid var(--cult-line);
+}
+.quest-journal-actions .cult-btn {
+  min-height: 42px;
+  font-size: 17px;
+}
+.cult-sect .cult-btn {
+  min-height: 33px;
+  font:
+    13px Cambria,
+    serif;
+  padding: 7px 11px;
+}
+.sect-main {
+  border: 0;
+  background: transparent;
+}
+.sect-content-scroll {
+  padding: 0 3px 0 0;
+}
+.sect-framed {
+  padding: 17px;
+  border: 1px solid var(--cult-line);
+  background: linear-gradient(120deg, #0a1b29ed, #030e18eb);
+  min-width: 0;
+}
+.sect-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.sect-hero {
+  position: relative;
+  min-height: 320px;
+  overflow: hidden;
+  border: 1px solid #af8d5088;
+  background: url('/assets/ui/cultivation/sect-mountain-v1.png') center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.sect-hero-caption {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  position: relative;
+  padding: 20px;
+  background:
+    linear-gradient(90deg, #061321e6, #0613219c 60%, #06132122),
+    linear-gradient(180deg, #06132188, transparent);
+}
+.sect-crest {
+  width: 75px;
+  height: 85px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px double #e2b86a;
+  border-radius: 50% 50% 10px 10px;
+  background: radial-gradient(circle, #296295b5, #0a1c31);
+  box-shadow: 0 0 14px #06121b;
+  flex-shrink: 0;
+}
+.sect-crest > .sect-glyph {
+  width: 48px;
+  height: 48px;
+  color: #d4e5ff;
+}
+.sect-hero-caption small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #d3b888;
+}
+.sect-hero h2,
+.sect-register-copy h2 {
+  font:
+    italic 700 32px/1.2 Cambria,
+    serif;
+  color: #ffe6ad;
+  text-shadow: 0 2px 4px #000;
+  margin: 5px 0;
+}
+.sect-hero p {
+  color: #e5dfcc;
+  font-size: 13px;
+  margin: 6px 0 9px;
+}
+.sect-hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 13px 12px;
+  background: linear-gradient(0deg, #03121bef, #0a1829c7);
+  border-top: 1px solid #b08b5177;
+}
+.sect-hero-stats span {
+  font-size: 12px;
+  color: #a6b6cc;
+}
+.sect-hero-stats b {
+  font:
+    17px Cambria,
+    serif;
+  color: #f4d595;
+  margin-left: 7px;
+}
+.sect-personal-rank {
+  display: block;
+  font:
+    30px Cambria,
+    serif;
+  color: #ffdfa1;
+  margin: 15px 0 13px;
+}
+.sect-rank-meter {
+  width: 100%;
+  height: 7px;
+  background: #020914;
+  border: 1px solid #7d835e70;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.sect-rank-meter i {
+  height: 100%;
+  display: block;
+  background: linear-gradient(90deg, #2a7bce, #7fdaff);
+}
+.sect-rank-numbers {
+  text-align: right;
+  color: #d9d1bb;
+  font-size: 11px;
+  margin: 5px 0 12px;
+}
+.sect-benefits {
+  padding: 12px 0 0;
+  margin: 14px 0 0;
+  list-style: none;
+  border-top: 1px solid var(--cult-line);
+}
+.sect-benefits li {
+  font-size: 12px;
+  color: #b7c3d4;
+  padding: 5px 0;
+}
+.sect-benefits li::before {
+  content: '◆';
+  color: #d6b56d;
+  margin-right: 7px;
+  font-size: 8px;
+}
+.sect-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sect-section-heading .cult-heading {
+  margin-bottom: 0;
+}
+.sect-section-heading > button {
+  font:
+    12px Cambria,
+    serif;
+  color: #d5c394;
+  border: 0;
+  background: transparent;
+  padding: 5px;
+  white-space: nowrap;
+}
+.sect-section-heading > span {
+  font-size: 11px;
+  color: #c7b286;
+  white-space: nowrap;
+}
+.sect-mission-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #8e804738;
+  background: #11263870;
+  margin-top: 8px;
+  border-radius: 3px;
+}
+.sect-mission-card.active {
+  border-color: #c8a5588c;
+  background: #4c3f273a;
+}
+.sect-mission-card > .quest-scenery {
+  width: 70px;
+  height: 70px;
+  border: 1px solid #9175427c;
+  flex-shrink: 0;
+}
+.sect-mission-copy {
+  min-width: 0;
+  flex: 1;
+}
+.sect-mission-copy h4 {
+  color: #e8d3a5;
+  font:
+    16px Cambria,
+    serif;
+  margin: 0 0 4px;
+}
+.sect-mission-copy p {
+  color: #b8c6d9;
+  font-size: 12px;
+  margin: 0 0 4px;
+}
+.sect-mission-rewards {
+  color: #d7b774;
+  font-size: 11px;
+  display: block;
+}
+.sect-mission-copy > small {
+  color: #91b7be;
+  font-size: 11px;
+  display: block;
+  margin-top: 4px;
+}
+.sect-mission-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.sect-mission-buttons .cult-btn {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sect-overview-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.sect-overview-side .sect-framed {
+  flex: 1;
+}
+.sect-contribution-amount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #a5d6ff;
+  padding: 10px 0 2px;
+}
+.sect-contribution-amount b {
+  color: #f4d797;
+  font:
+    30px Cambria,
+    serif;
+}
+.sect-overview-side .cult-btn {
+  width: 100%;
+  margin-top: 5px;
+}
+.sect-member {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid #a383452c;
+}
+.sect-member > div {
+  min-width: 0;
+  flex: 1;
+}
+.sect-member b {
+  display: block;
+  font:
+    17px Cambria,
+    serif;
+  color: #e6d3ad;
+  overflow-wrap: anywhere;
+}
+.sect-member div > span {
+  display: block;
+  font-size: 12px;
+  color: #a3b5cc;
+  margin-top: 4px;
+}
+.sect-member-avatar {
+  width: 43px;
+  height: 49px;
+  flex-shrink: 0;
+  border: 1px solid #c4a162;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: #183044;
+}
+.sect-member-avatar img {
+  position: absolute;
+  width: 280%;
+  max-width: none;
+  height: auto;
+  left: -130%;
+  top: 0;
+}
+.sect-member-state {
+  color: #64d4a6;
+  font-size: 11px;
+}
+.sect-members-note {
+  margin: 18px 0 0;
+  font-size: 11px;
+  color: #8c9db6;
+}
+.sect-bottom-bar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--cult-line);
+  margin-top: 9px;
+  padding: 10px 14px;
+  background: #091a29ee;
+}
+.sect-bottom-bar > p {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: #d3c298;
+  margin: 0;
+}
+.sect-bottom-bar .cult-btn {
+  flex: 0;
+  white-space: nowrap;
+}
+.sect-register-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 10px;
+  min-height: 100%;
+}
+.sect-register-art {
+  min-height: 420px;
+  padding: 0;
+  background: url('/assets/ui/cultivation/sect-mountain-v1.png') center/cover;
+  display: flex;
+  align-items: flex-end;
+}
+.sect-register-copy {
+  padding: 30px;
+  width: 100%;
+  background: linear-gradient(0deg, #04121cf5, #04121caa, transparent);
+}
+.sect-register-copy p {
+  color: #d7e0e9;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 10px 0 0;
+}
+.sect-register-details {
+  padding: 24px;
+}
+.sect-registration-options {
+  display: grid;
+  gap: 9px;
+  margin: 16px 0 26px;
+}
+.sect-registration-options button {
+  display: flex;
+  text-align: left;
+  gap: 13px;
+  align-items: center;
+  border: 1px solid #8e80564a;
+  background: #12314770;
+  padding: 16px 14px;
+  color: #b6c6dc;
+}
+.sect-registration-options button.selected {
+  border-color: #d8b46b;
+  background: linear-gradient(110deg, #6a502c6b, #152a3d);
+  box-shadow: inset 0 0 10px #e4b4571f;
+}
+.sect-registration-options button span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sect-registration-options b {
+  color: #ebd2a0;
+  font:
+    18px Cambria,
+    serif;
+}
+.sect-registration-options small {
+  font-size: 11px;
+  color: #9fb5cb;
+}
+.sect-registration-checks {
+  list-style: none;
+  margin: 15px 0;
+  padding: 0;
+}
+.sect-registration-checks li {
+  color: #9baec8;
+  padding: 7px 0;
+  font-size: 14px;
+}
+.sect-registration-checks .complete {
+  color: #7cdfb1;
+}
+.sect-registration-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+}
+.sect-location-note {
+  color: #e6c088;
+  font-size: 12px;
+  padding: 9px 12px;
+  border-left: 2px solid #bd934a;
+  background: #75522b26;
+}
+.sect-quest-board .sect-mission-card {
+  padding: 13px;
+  margin-top: 10px;
+}
+.sect-practice-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.sect-contribution-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 10px;
+}
+.sect-contribution-balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #bfcee1;
+  margin: 15px 0;
+}
+.sect-contribution-balance b {
+  font:
+    24px Cambria,
+    serif;
+  color: #f5d99e;
+}
+.sect-secret {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+  border-top: 1px solid var(--cult-line);
+}
+.sect-secret .cult-skill-glyph {
+  width: 65px;
+  height: 65px;
+  flex-shrink: 0;
+}
+.sect-secret > div {
+  min-width: 0;
+  flex: 1;
+}
+.sect-secret h3 {
+  color: #e8d2a4;
+  font:
+    20px Cambria,
+    serif;
+  margin: 0 0 5px;
+}
+.sect-secret p {
+  font-size: 12px;
+  color: #b5c6dc;
+  margin: 0 0 7px;
+}
+.sect-secret small {
+  color: #81c8b1;
+  font-size: 11px;
+}
+.sect-secret small.short {
+  color: #d79e8f;
+}
+.sect-secret .cult-btn {
+  flex: 0;
+  white-space: nowrap;
+}
+.sect-rank-ladder {
+  grid-column: 1 / -1;
+}
+.sect-rank-ladder > div {
+  display: flex;
+  gap: 8px;
+  padding: 10px 0;
+  flex-wrap: wrap;
+}
+.sect-rank-ladder > div > span {
+  flex: 1 1 100px;
+  border: 1px solid #6977804f;
+  padding: 12px;
+  text-align: center;
+  color: #8393a8;
+  background: #06111b;
+}
+.sect-rank-ladder .unlocked {
+  color: #efd39a;
+  border-color: #d7b36a9c;
+  background: #42382150;
+}
+.sect-rank-ladder b {
+  display: block;
+  font:
+    15px Cambria,
+    serif;
+}
+.sect-rank-ladder small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+.cult-quest-journal button:focus-visible,
+.cult-sect button:focus-visible,
+.cult-quest-journal select:focus-visible {
+  outline: 2px solid #e9bd6b;
+  outline-offset: -2px;
+}
+
+.hud.phone .cult-quest-journal {
+  grid-template-columns: 80px minmax(205px, 0.95fr) minmax(0, 1.15fr);
+  gap: 5px;
+  font-size: 11px;
+}
+.hud.phone .cult-sect {
+  grid-template-columns: 89px minmax(0, 1fr);
+  gap: 5px;
+  font-size: 11px;
+}
+.hud.phone .chronicle-side {
+  padding-right: 4px;
+}
+.hud.phone .chronicle-side > button {
+  min-height: 42px;
+  gap: 4px;
+  font-size: 10px;
+  padding: 7px 4px;
+  white-space: nowrap;
+}
+.hud.phone .chronicle-side .sect-glyph {
+  width: 18px;
+  height: 18px;
+}
+.hud.phone .chronicle-side > button small {
+  font-size: 9px;
+}
+.hud.phone .chronicle-side-poem {
+  padding: 14px 4px;
+  font-size: 9px;
+}
+.hud.phone .chronicle-side-poem small {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.hud.phone .chronicle-list-heading {
+  padding: 5px 6px;
+  gap: 4px;
+}
+.hud.phone .chronicle-list-heading select {
+  font-size: 10px;
+  padding: 5px;
+}
+.hud.phone .chronicle-list-heading > span {
+  font-size: 9px;
+}
+.hud.phone .quest-journal-scroll {
+  padding: 5px;
+}
+.hud.phone .quest-journal-card {
+  padding: 5px;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+.hud.phone .quest-journal-card > .quest-scenery {
+  width: 58px;
+  height: 65px;
+}
+.hud.phone .quest-journal-card-copy {
+  gap: 3px;
+}
+.hud.phone .quest-journal-card-copy > b {
+  font-size: 15px;
+}
+.hud.phone .quest-journal-card-copy > span:not(.chronicle-tag) {
+  font-size: 10px;
+}
+.hud.phone .quest-journal-card-copy > small {
+  font-size: 8px;
+}
+.hud.phone .chronicle-tag {
+  font-size: 9px;
+  padding: 2px 5px;
+}
+.hud.phone .quest-card-chevron {
+  font-size: 20px;
+}
+.hud.phone .chronicle-list-footer {
+  font-size: 9px;
+  padding: 6px 8px;
+}
+.hud.phone .chronicle-empty {
+  min-height: 140px;
+  padding: 15px;
+}
+.hud.phone .chronicle-empty > .sect-glyph {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+}
+.hud.phone .chronicle-empty h2,
+.hud.phone .chronicle-empty h3 {
+  font-size: 17px;
+}
+.hud.phone .chronicle-empty p {
+  font-size: 10px;
+}
+.hud.phone .quest-journal-hero,
+.hud.phone .quest-journal-hero > div {
+  min-height: 160px;
+}
+.hud.phone .quest-journal-hero > div {
+  padding: 13px 14px 17px;
+}
+.hud.phone .quest-journal-hero h2 {
+  font-size: 24px;
+  margin: 7px 0;
+}
+.hud.phone .quest-journal-hero p {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.hud.phone .quest-journal-objectives,
+.hud.phone .quest-journal-guidance,
+.hud.phone .quest-journal-rewards {
+  padding: 11px 13px;
+}
+.hud.phone .cult-quest-journal .cult-heading,
+.hud.phone .cult-sect .cult-heading {
+  font-size: 12px;
+}
+.hud.phone .quest-journal-objective {
+  gap: 7px;
+  padding: 6px 0;
+  font-size: 11px;
+}
+.hud.phone .quest-objective-check {
+  width: 13px;
+  height: 13px;
+}
+.hud.phone .quest-journal-objective > b {
+  font-size: 10px;
+}
+.hud.phone .quest-journal-guidance p {
+  font-size: 11px;
+  margin-top: 8px;
+}
+.hud.phone .chronicle-muted {
+  font-size: 10px;
+  margin: 7px 0;
+}
+.hud.phone .chronicle-rewards {
+  gap: 6px;
+  margin-top: 9px;
+}
+.hud.phone .chronicle-reward {
+  width: 45px;
+  height: 49px;
+}
+.hud.phone .chronicle-reward > img {
+  width: 38px;
+  height: 38px;
+}
+.hud.phone .chronicle-reward > small {
+  font-size: 9px;
+}
+.hud.phone .chronicle-reward.exp > b {
+  font-size: 11px;
+  width: 29px;
+  height: 29px;
+  line-height: 27px;
+  margin-bottom: 9px;
+}
+.hud.phone .quest-journal-actions {
+  padding: 7px 10px;
+  gap: 7px;
+}
+.hud.phone .quest-journal-actions .cult-btn {
+  font-size: 12px;
+  min-height: 31px;
+  padding: 5px;
+}
+.hud.phone .cult-sect .cult-btn {
+  font-size: 11px;
+  min-height: 30px;
+  padding: 5px 8px;
+}
+.hud.phone .sect-overview-grid {
+  gap: 6px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+.hud.phone .sect-framed {
+  padding: 11px;
+}
+.hud.phone .sect-hero {
+  min-height: 208px;
+}
+.hud.phone .sect-hero-caption {
+  padding: 12px;
+  gap: 10px;
+}
+.hud.phone .sect-crest {
+  width: 47px;
+  height: 56px;
+  border-width: 2px;
+}
+.hud.phone .sect-crest .sect-glyph {
+  width: 29px;
+  height: 29px;
+}
+.hud.phone .sect-hero-caption small {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.hud.phone .sect-hero h2,
+.hud.phone .sect-register-copy h2 {
+  font-size: 24px;
+}
+.hud.phone .sect-hero p {
+  font-size: 10px;
+  margin: 4px 0 6px;
+}
+.hud.phone .sect-hero-stats {
+  padding: 7px 8px;
+  gap: 5px;
+}
+.hud.phone .sect-hero-stats span {
+  font-size: 9px;
+}
+.hud.phone .sect-hero-stats b {
+  font-size: 12px;
+  margin-left: 4px;
+}
+.hud.phone .sect-personal-rank {
+  font-size: 22px;
+  margin: 10px 0;
+}
+.hud.phone .sect-rank-numbers {
+  font-size: 9px;
+  margin-bottom: 8px;
+}
+.hud.phone .sect-benefits {
+  padding-top: 7px;
+  margin-top: 9px;
+}
+.hud.phone .sect-benefits li {
+  font-size: 10px;
+  padding: 3px 0;
+}
+.hud.phone .sect-section-heading {
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.hud.phone .sect-section-heading > button,
+.hud.phone .sect-section-heading > span {
+  font-size: 9px;
+}
+.hud.phone .sect-mission-card {
+  padding: 7px;
+  gap: 7px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.hud.phone .sect-mission-card > .quest-scenery {
+  width: 43px;
+  height: 48px;
+}
+.hud.phone .sect-mission-copy h4 {
+  font-size: 13px;
+}
+.hud.phone .sect-mission-copy p {
+  font-size: 10px;
+}
+.hud.phone .sect-mission-rewards,
+.hud.phone .sect-mission-copy > small {
+  font-size: 9px;
+}
+.hud.phone .sect-mission-buttons {
+  margin-left: auto;
+}
+.hud.phone .sect-mission-buttons .cult-btn {
+  font-size: 10px;
+  min-height: 27px;
+}
+.hud.phone .sect-overview-side {
+  gap: 6px;
+}
+.hud.phone .sect-contribution-amount {
+  padding: 6px 0 0;
+  gap: 7px;
+}
+.hud.phone .sect-contribution-amount .sect-glyph {
+  width: 22px;
+  height: 22px;
+}
+.hud.phone .sect-contribution-amount b {
+  font-size: 23px;
+}
+.hud.phone .sect-member {
+  gap: 8px;
+  padding: 8px 0;
+}
+.hud.phone .sect-member-avatar {
+  width: 31px;
+  height: 35px;
+}
+.hud.phone .sect-member b {
+  font-size: 13px;
+}
+.hud.phone .sect-member div > span {
+  font-size: 10px;
+  margin-top: 2px;
+}
+.hud.phone .sect-member-state {
+  font-size: 9px;
+}
+.hud.phone .sect-members-note {
+  font-size: 9px;
+  margin-top: 12px;
+}
+.hud.phone .sect-bottom-bar {
+  padding: 6px 9px;
+  margin-top: 5px;
+  gap: 8px;
+}
+.hud.phone .sect-bottom-bar > p {
+  font-size: 9px;
+}
+.hud.phone .sect-register-layout {
+  gap: 6px;
+}
+.hud.phone .sect-register-art {
+  min-height: 310px;
+}
+.hud.phone .sect-register-copy {
+  padding: 16px;
+}
+.hud.phone .sect-register-copy p {
+  font-size: 11px;
+}
+.hud.phone .sect-register-details {
+  padding: 14px;
+}
+.hud.phone .sect-registration-options {
+  gap: 6px;
+  margin: 11px 0 17px;
+}
+.hud.phone .sect-registration-options button {
+  gap: 8px;
+  padding: 11px 9px;
+}
+.hud.phone .sect-registration-options .sect-glyph {
+  width: 23px;
+  height: 23px;
+}
+.hud.phone .sect-registration-options b {
+  font-size: 14px;
+}
+.hud.phone .sect-registration-options small {
+  font-size: 9px;
+}
+.hud.phone .sect-registration-checks {
+  margin: 10px 0;
+}
+.hud.phone .sect-registration-checks li {
+  font-size: 11px;
+  padding: 5px 0;
+}
+.hud.phone .sect-registration-actions {
+  gap: 6px;
+  margin-top: 15px;
+}
+.hud.phone .sect-location-note {
+  font-size: 10px;
+  padding: 7px 9px;
+}
+.hud.phone .sect-quest-board .sect-mission-card {
+  padding: 9px;
+  margin-top: 8px;
+  flex-wrap: nowrap;
+}
+.hud.phone .sect-practice-actions {
+  gap: 7px;
+  margin-top: 14px;
+}
+.hud.phone .sect-contribution-layout {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 6px;
+}
+.hud.phone .sect-contribution-balance {
+  font-size: 11px;
+  margin: 10px 0;
+}
+.hud.phone .sect-contribution-balance b {
+  font-size: 20px;
+}
+.hud.phone .sect-secret {
+  gap: 8px;
+  padding: 11px 0;
+  flex-wrap: wrap;
+}
+.hud.phone .sect-secret .cult-skill-glyph {
+  width: 43px;
+  height: 43px;
+}
+.hud.phone .sect-secret h3 {
+  font-size: 16px;
+}
+.hud.phone .sect-secret p {
+  font-size: 10px;
+}
+.hud.phone .sect-secret small {
+  font-size: 9px;
+}
+.hud.phone .sect-secret .cult-btn {
+  margin-left: auto;
+}
+.hud.phone .sect-rank-ladder > div {
+  gap: 5px;
+  padding: 6px 0;
+}
+.hud.phone .sect-rank-ladder > div > span {
+  flex-basis: 75px;
+  padding: 8px;
+}
+.hud.phone .sect-rank-ladder b {
+  font-size: 12px;
+}
+.hud.phone .sect-rank-ladder small {
+  font-size: 9px;
+}
+@media (max-height: 340px) {
+  .hud.phone .chronicle-side-poem {
+    display: none;
+  }
+  .hud.phone .chronicle-side > button {
+    min-height: 35px;
+    padding: 5px 4px;
+  }
+}

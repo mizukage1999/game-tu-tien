@@ -91,6 +91,7 @@ export function joinSocialChannel(
     realm: current.realm,
     map_id: current.mapId,
     party: current.party,
+    sect: current.sect ?? null,
   });
   channel.subscribe((status) => {
     if (status === 'SUBSCRIBED') {

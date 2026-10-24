@@ -1,0 +1,930 @@
+.cult-correspondence {
+  display: grid;
+  grid-template-columns: 154px minmax(260px, 0.9fr) minmax(0, 1.35fr);
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+  font:
+    14px/1.45 Cambria,
+    'Times New Roman',
+    serif;
+}
+.cult-correspondence > * {
+  min-width: 0;
+  min-height: 0;
+}
+.correspondence-icon {
+  width: 30px;
+  height: 30px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.correspondence-nav {
+  border-right: 1px solid var(--cult-line);
+  padding-right: 8px;
+  background: linear-gradient(180deg, #04121ddd, #03101bc7);
+}
+.correspondence-nav > button {
+  gap: 9px;
+  min-height: 65px;
+}
+.correspondence-nav > button span {
+  flex: 1;
+}
+.correspondence-nav > button small {
+  font:
+    12px Cambria,
+    serif;
+}
+.correspondence-nav .correspondence-badge {
+  border-radius: 50%;
+  background: #b62c24;
+  min-width: 19px;
+  padding: 2px;
+  text-align: center;
+  color: #fff3d8;
+  box-shadow: 0 0 8px #dc422c70;
+}
+.correspondence-side-note {
+  margin-top: auto;
+  padding: 30px 8px;
+  color: #b9a37a;
+  line-height: 1.8;
+  font-style: italic;
+}
+.correspondence-side-note span {
+  display: block;
+  margin-bottom: 9px;
+  font:
+    9px/1.6 Cambria,
+    serif;
+  letter-spacing: 3px;
+  color: #d4b87c;
+}
+.correspondence-nav > .correspondence-map-button {
+  min-height: 42px;
+  font-size: 13px;
+  border: 1px solid var(--cult-line);
+}
+.correspondence-nav > .correspondence-map-button span:last-child {
+  flex: 0;
+}
+.correspondence-list,
+.correspondence-profile,
+.correspondence-invites {
+  border: 1px solid var(--cult-line);
+  background: linear-gradient(120deg, #071723ec, #020d17e8);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.correspondence-list-heading {
+  min-height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--cult-line);
+  background: linear-gradient(110deg, #3f321e55, #07182330);
+  gap: 10px;
+}
+.correspondence-list-heading h4 {
+  margin: 0;
+  color: #ffe0a3;
+  font:
+    17px Cambria,
+    serif;
+}
+.correspondence-list-heading > span {
+  white-space: nowrap;
+  color: #c2b08e;
+  font-size: 12px;
+}
+.correspondence-empty {
+  padding: 28px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #b7c1d0;
+}
+.correspondence-empty > .correspondence-icon {
+  width: 64px;
+  height: 64px;
+  color: #d2b278;
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+.correspondence-empty h4,
+.correspondence-empty h2 {
+  font:
+    22px Cambria,
+    serif;
+  color: #e6cf9c;
+  margin: 0 0 10px;
+}
+.correspondence-empty p {
+  max-width: 300px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.correspondence-list-foot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-top: 1px solid var(--cult-line);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #b5bba9;
+}
+.cult-mail {
+  grid-template-columns: 154px minmax(200px, 0.65fr) minmax(0, 1.65fr);
+}
+.cult-letter {
+  position: relative;
+  border: 1px solid #c29f64;
+  background: #eee0c1 url('/assets/ui/cultivation/mail-parchment-v1.png') center/100% 100%;
+  color: #402a1d;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 4px #8c642d40,
+    0 4px 15px #0006;
+}
+.cult-letter-scroll {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a48148 transparent;
+  padding: 45px 40px;
+  display: flex;
+  flex-direction: column;
+}
+.cult-letter-eyebrow {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #855b30;
+}
+.cult-letter h2 {
+  font:
+    italic 700 clamp(26px, 2.7vw, 42px)/1.2 Cambria,
+    serif;
+  color: #3d2318;
+  margin: 10px 0 16px;
+  max-width: 65%;
+}
+.cult-letter-recipient {
+  font-size: 14px;
+  margin: 0 0 22px;
+  max-width: 60%;
+  overflow-wrap: anywhere;
+}
+.cult-letter-rule {
+  width: 66%;
+  height: 1px;
+  background: linear-gradient(90deg, #a17b46a0, #b6986130);
+  position: relative;
+}
+.cult-letter-rule::before {
+  content: '◆';
+  color: #9d793f;
+  position: absolute;
+  top: -9px;
+  font-size: 12px;
+}
+.cult-letter-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 70%;
+  padding: 30px 0;
+}
+.cult-letter-empty .correspondence-icon {
+  width: 70px;
+  height: 70px;
+  color: #a9864a;
+  opacity: 0.7;
+  margin: 0 0 14px;
+}
+.cult-letter-empty h3 {
+  margin: 0 0 10px;
+  font:
+    22px Cambria,
+    serif;
+  color: #5e3a22;
+}
+.cult-letter-empty p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #725338;
+  margin: 0;
+  max-width: 320px;
+}
+.cult-letter-poem {
+  border-top: 1px solid #a17b4652;
+  padding: 14px 0 0;
+  max-width: 72%;
+  font-size: 13px;
+  font-style: italic;
+  color: #85613d;
+  margin: 0;
+}
+.correspondence-search-row {
+  padding: 10px;
+  border-bottom: 1px solid var(--cult-line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.correspondence-search {
+  min-width: 0;
+  flex: 1 1 160px;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #6f7d815f;
+  background: #030e19c7;
+  border-radius: 3px;
+  padding: 0 8px;
+  gap: 6px;
+}
+.correspondence-search .correspondence-icon {
+  width: 19px;
+  height: 19px;
+  color: #d8c190;
+}
+.correspondence-search input {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  outline: none;
+  border: 0;
+  background: transparent;
+  color: #ece5d8;
+  padding: 7px 0;
+  font:
+    13px Cambria,
+    serif;
+}
+.correspondence-search input::placeholder {
+  color: #91a0b1;
+}
+.correspondence-search:focus-within {
+  border-color: #d7b575;
+  box-shadow: 0 0 6px #e5b85622;
+}
+.correspondence-search button {
+  background: transparent;
+  border: 0;
+  color: #d5c49e;
+  padding: 3px;
+  font-size: 19px;
+}
+.correspondence-search-row select {
+  background: #071521;
+  color: #d6ccaf;
+  border: 1px solid var(--cult-line);
+  padding: 5px 7px;
+  font:
+    12px Cambria,
+    serif;
+  max-width: 100%;
+}
+.correspondence-roster,
+.correspondence-invite-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #92784466 transparent;
+  padding: 8px;
+}
+.correspondence-roster > .correspondence-empty {
+  height: 100%;
+  padding: 20px;
+}
+.correspondence-friend {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 12px 10px;
+  min-height: 88px;
+  border: 1px solid #7d724530;
+  border-radius: 3px;
+  background: linear-gradient(110deg, #12293a72, #08121a99);
+  margin-bottom: 7px;
+  color: #d9dfeb;
+  position: relative;
+}
+.correspondence-friend:hover {
+  background: #20394a88;
+  border-color: #c1a25c88;
+}
+.correspondence-friend.selected {
+  border-color: #f3ca83;
+  box-shadow:
+    inset 0 0 15px #dfae4b22,
+    0 0 6px #ffbd4c55;
+  background: linear-gradient(120deg, #50402772, #102538b0);
+}
+.correspondence-friend.selected::before {
+  content: '◆';
+  color: #ffe0a0;
+  font-size: 10px;
+  position: absolute;
+  left: -5px;
+}
+.correspondence-avatar {
+  position: relative;
+  width: 52px;
+  height: 58px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #9b8962;
+  border-radius: 40% 40% 5px 5px;
+  background: radial-gradient(circle at 40% 25%, #365371, #06131f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8b9ad;
+}
+.correspondence-avatar.online {
+  border-color: #d5be84;
+  box-shadow: 0 0 8px #a3c2ef1f;
+}
+.correspondence-avatar > img {
+  position: absolute;
+  width: 280%;
+  max-width: none;
+  height: auto;
+  left: -130%;
+  top: 0;
+}
+.correspondence-avatar .correspondence-icon {
+  width: 34px;
+  height: 34px;
+  opacity: 0.65;
+}
+.correspondence-friend-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.correspondence-friend-meta b {
+  font:
+    17px Cambria,
+    serif;
+  color: #eee0c8;
+  overflow-wrap: anywhere;
+}
+.correspondence-friend-meta > span {
+  font:
+    12px Cambria,
+    serif;
+  color: #b4c8d9;
+}
+.correspondence-friend-meta > small {
+  font:
+    11px Cambria,
+    serif;
+  color: #8f9fb3;
+}
+.correspondence-status {
+  font:
+    11px/1.4 Cambria,
+    serif;
+  color: #99a5b9;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.correspondence-status::before,
+.correspondence-dot {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #738299;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.correspondence-status.online {
+  color: #66e0aa;
+}
+.correspondence-status.online::before,
+.correspondence-dot.online {
+  background: #39d691;
+  box-shadow: 0 0 6px #35bf8070;
+}
+.correspondence-friend > .correspondence-status {
+  align-self: flex-start;
+  padding-top: 4px;
+  font-size: 10px;
+}
+.correspondence-profile-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #92784466 transparent;
+}
+.correspondence-friend-hero {
+  height: 280px;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(0deg, #061321, #06132100 80%),
+    url('/assets/ui/cultivation/ui-night-v1.png') 25% 45% / cover;
+  border-bottom: 1px solid var(--cult-line);
+}
+.correspondence-hero-person {
+  position: absolute;
+  right: 0;
+  top: -10px;
+  height: 165%;
+  width: 65%;
+  object-fit: contain;
+  object-position: 50% 0;
+  filter: drop-shadow(0 0 16px #a6d6ff2f);
+}
+.correspondence-friend-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, #061321 0%, #06132100 70%),
+    linear-gradient(90deg, #061321b0, transparent 70%);
+}
+.correspondence-friend-hero > .correspondence-icon {
+  width: 140px;
+  height: 140px;
+  position: absolute;
+  right: 12%;
+  top: 20px;
+  color: #adbcce55;
+}
+.correspondence-hero-identity {
+  position: absolute;
+  z-index: 1;
+  bottom: 20px;
+  left: 22px;
+  right: 20px;
+}
+.correspondence-hero-identity > small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #caaf73;
+}
+.correspondence-hero-identity h2 {
+  font:
+    italic 700 34px/1.2 Cambria,
+    serif;
+  color: #ffe0a0;
+  margin: 7px 0;
+  text-shadow: 0 2px 4px #000;
+  overflow-wrap: anywhere;
+}
+.correspondence-profile-body {
+  padding: 18px 22px;
+}
+.correspondence-profile-facts {
+  margin: 8px 0 0;
+}
+.correspondence-profile-facts > div {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 9px 3px;
+  border-bottom: 1px solid #a4844629;
+  font-size: 14px;
+}
+.correspondence-profile-facts dt {
+  color: #9fb0c6;
+  flex-shrink: 0;
+}
+.correspondence-profile-facts dd {
+  color: #e2d7bb;
+  text-align: right;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.correspondence-profile-facts > div:last-child dd {
+  font-size: 11px;
+  align-self: center;
+  color: #a1b3c6;
+}
+.correspondence-muted {
+  color: #9dacc0;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 15px 0 0;
+}
+.correspondence-party {
+  margin-top: 20px;
+  border: 1px solid var(--cult-line);
+  padding: 12px;
+  background: #12304340;
+}
+.correspondence-party p {
+  font-size: 13px;
+  color: #b4c6d8;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.correspondence-party .cult-btn {
+  min-height: 30px;
+  font-size: 12px;
+}
+.correspondence-profile-actions {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--cult-line);
+  background: #091c2bf0;
+}
+.correspondence-feedback {
+  min-height: 17px;
+  font-size: 12px;
+  color: #c2b38e;
+  margin: 0 0 8px;
+}
+.correspondence-action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.correspondence-action-row > span {
+  flex: 1;
+  color: #e8b6a6;
+  font-size: 12px;
+}
+.correspondence-action-row .cult-btn,
+.correspondence-invite-actions .cult-btn {
+  white-space: nowrap;
+}
+.cult-correspondence .cult-btn.danger {
+  border-color: #a96658;
+  color: #f0bcac;
+  background: linear-gradient(#512a2b, #301c24);
+}
+.correspondence-profile-placeholder {
+  background:
+    radial-gradient(ellipse at 70% 30%, #30496b45, transparent 70%),
+    url('/assets/ui/cultivation/ui-night-v1.png') 60% center/cover;
+}
+.correspondence-profile-placeholder .cult-btn {
+  flex: 0;
+  margin-top: 20px;
+}
+.correspondence-invites {
+  grid-column: 2 / 4;
+}
+.correspondence-invite-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+.correspondence-invite-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 18px;
+  border: 1px solid #a7884a60;
+  background: linear-gradient(110deg, #122b3dbe, #08141fb3);
+}
+.correspondence-invite-card > div:not(.correspondence-invite-actions) {
+  flex: 1;
+  min-width: 0;
+}
+.correspondence-invite-card small {
+  font-size: 11px;
+  color: #c9a366;
+}
+.correspondence-invite-card h3 {
+  font:
+    22px Cambria,
+    serif;
+  color: #f2dbac;
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+.correspondence-invite-card p {
+  color: #adbed1;
+  font-size: 13px;
+  margin: 0;
+}
+.correspondence-invite-actions {
+  display: flex;
+  gap: 8px;
+}
+.correspondence-connection-note {
+  color: #dfbc92;
+  margin: 12px 16px 0;
+  font-size: 12px;
+}
+.cult-correspondence button:focus-visible,
+.cult-correspondence select:focus-visible {
+  outline: 2px solid #f1ca7d;
+  outline-offset: -2px;
+}
+
+/* Phone landscape also covers the game's rotated portrait iPhone viewport. */
+.hud.phone .cult-correspondence {
+  grid-template-columns: 86px minmax(215px, 0.95fr) minmax(0, 1.2fr);
+  gap: 5px;
+  font-size: 11px;
+}
+.hud.phone .cult-mail {
+  grid-template-columns: 80px minmax(160px, 0.65fr) minmax(0, 1.65fr);
+}
+.hud.phone .correspondence-nav {
+  padding-right: 4px;
+}
+.hud.phone .correspondence-nav > button {
+  min-height: 42px;
+  padding: 6px 4px;
+  gap: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.hud.phone .correspondence-nav > button .correspondence-icon {
+  width: 19px;
+  height: 19px;
+}
+.hud.phone .correspondence-nav > button small {
+  font-size: 9px;
+}
+.hud.phone .correspondence-nav .correspondence-badge {
+  min-width: 13px;
+  padding: 1px;
+}
+.hud.phone .correspondence-side-note {
+  font-size: 9px;
+  padding: 12px 4px;
+}
+.hud.phone .correspondence-side-note span {
+  letter-spacing: 1px;
+  font-size: 7px;
+}
+.hud.phone .correspondence-nav > .correspondence-map-button {
+  min-height: 30px;
+  font-size: 10px;
+}
+.hud.phone .correspondence-list-heading {
+  min-height: 31px;
+  padding: 5px 8px;
+  gap: 4px;
+}
+.hud.phone .correspondence-list-heading h4 {
+  font-size: 12px;
+}
+.hud.phone .correspondence-list-heading > span {
+  font-size: 10px;
+}
+.hud.phone .correspondence-empty {
+  padding: 15px;
+}
+.hud.phone .correspondence-empty > .correspondence-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 9px;
+}
+.hud.phone .correspondence-empty h2,
+.hud.phone .correspondence-empty h4 {
+  font-size: 16px;
+  margin-bottom: 7px;
+}
+.hud.phone .correspondence-empty p {
+  font-size: 10px;
+}
+.hud.phone .correspondence-list-foot {
+  padding: 6px 8px;
+  font-size: 9px;
+}
+.hud.phone .cult-letter-scroll {
+  padding: 23px;
+}
+.hud.phone .cult-letter-eyebrow {
+  font-size: 7px;
+  letter-spacing: 2px;
+}
+.hud.phone .cult-letter h2 {
+  font-size: 26px;
+  margin: 6px 0 9px;
+}
+.hud.phone .cult-letter-recipient {
+  font-size: 10px;
+  margin-bottom: 12px;
+}
+.hud.phone .cult-letter-empty {
+  padding: 16px 0;
+}
+.hud.phone .cult-letter-empty .correspondence-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+.hud.phone .cult-letter-empty h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.hud.phone .cult-letter-empty p {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.hud.phone .cult-letter-poem {
+  font-size: 9px;
+  padding-top: 8px;
+}
+.hud.phone .correspondence-search-row {
+  padding: 5px;
+  gap: 4px;
+}
+.hud.phone .correspondence-search {
+  min-height: 28px;
+  padding: 0 5px;
+  gap: 4px;
+  flex-basis: 112px;
+}
+.hud.phone .correspondence-search .correspondence-icon {
+  width: 15px;
+  height: 15px;
+}
+.hud.phone .correspondence-search input {
+  font-size: 10px;
+  padding: 5px 0;
+}
+.hud.phone .correspondence-search-row select {
+  font-size: 9px;
+  padding: 4px;
+  max-width: 72px;
+}
+.hud.phone .correspondence-roster {
+  padding: 5px;
+}
+.hud.phone .correspondence-friend {
+  gap: 6px;
+  min-height: 65px;
+  padding: 7px 6px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+.hud.phone .correspondence-avatar {
+  width: 36px;
+  height: 41px;
+}
+.hud.phone .correspondence-avatar .correspondence-icon {
+  width: 25px;
+  height: 25px;
+}
+.hud.phone .correspondence-friend-meta {
+  gap: 2px;
+}
+.hud.phone .correspondence-friend-meta b {
+  font-size: 13px;
+}
+.hud.phone .correspondence-friend-meta > span {
+  font-size: 10px;
+}
+.hud.phone .correspondence-friend-meta > small {
+  font-size: 9px;
+}
+.hud.phone .correspondence-friend > .correspondence-status {
+  font-size: 8px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  padding: 0;
+}
+.hud.phone .correspondence-friend-meta b {
+  padding-right: 46px;
+}
+.hud.phone .correspondence-status {
+  font-size: 9px;
+  gap: 4px;
+}
+.hud.phone .correspondence-status::before {
+  width: 4px;
+  height: 4px;
+}
+.hud.phone .correspondence-friend-hero {
+  min-height: 135px;
+  height: 135px;
+}
+.hud.phone .correspondence-hero-identity {
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+}
+.hud.phone .correspondence-hero-identity > small {
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+.hud.phone .correspondence-hero-identity h2 {
+  font-size: 24px;
+  margin: 4px 0;
+}
+.hud.phone .correspondence-friend-hero > .correspondence-icon {
+  width: 80px;
+  height: 80px;
+  top: 10px;
+}
+.hud.phone .correspondence-profile-body {
+  padding: 10px 12px;
+}
+.hud.phone .correspondence-profile-body .cult-heading {
+  font-size: 12px;
+}
+.hud.phone .correspondence-profile-facts {
+  margin-top: 5px;
+}
+.hud.phone .correspondence-profile-facts > div {
+  padding: 6px 2px;
+  font-size: 11px;
+}
+.hud.phone .correspondence-profile-facts > div:last-child dd {
+  font-size: 9px;
+}
+.hud.phone .correspondence-muted {
+  margin-top: 10px;
+  font-size: 10px;
+}
+.hud.phone .correspondence-party {
+  padding: 8px;
+  margin-top: 12px;
+}
+.hud.phone .correspondence-party p {
+  font-size: 10px;
+}
+.hud.phone .correspondence-profile-actions {
+  padding: 6px 9px 8px;
+}
+.hud.phone .correspondence-feedback {
+  min-height: 13px;
+  font-size: 9px;
+  margin-bottom: 5px;
+}
+.hud.phone .correspondence-action-row {
+  gap: 5px;
+}
+.hud.phone .correspondence-action-row > span {
+  font-size: 10px;
+}
+.hud.phone .cult-correspondence .cult-btn {
+  min-height: 30px;
+  padding: 5px 7px;
+  font-size: 11px;
+}
+.hud.phone .correspondence-invite-scroll {
+  padding: 8px;
+  gap: 7px;
+}
+.hud.phone .correspondence-invite-card {
+  padding: 10px;
+  gap: 10px;
+}
+.hud.phone .correspondence-invite-card small {
+  font-size: 9px;
+}
+.hud.phone .correspondence-invite-card h3 {
+  font-size: 16px;
+}
+.hud.phone .correspondence-invite-card p,
+.hud.phone .correspondence-connection-note {
+  font-size: 10px;
+}
+.hud.phone .correspondence-invite-actions {
+  gap: 5px;
+}
+@media (max-height: 340px) {
+  .hud.phone .correspondence-side-note {
+    display: none;
+  }
+  .hud.phone .correspondence-nav > .correspondence-map-button {
+    margin-top: auto;
+  }
+  .hud.phone .cult-letter-scroll {
+    padding: 17px 22px;
+  }
+  .hud.phone .cult-letter-empty .correspondence-icon {
+    display: none;
+  }
+}

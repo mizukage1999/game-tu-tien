@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { iso } from '../art/iso';
+import { settingsStore } from '../../store/settingsStore';
 
 /** White flash on the hit sprite. */
 export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, color = 0xffffff, ms = 90) {
+  if (!settingsStore.getState().preferences.hitEffects) return;
   sprite.setTintFill(color);
   scene.time.delayedCall(ms, () => {
     if (sprite.active) sprite.clearTint();
@@ -11,6 +13,7 @@ export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, co
 
 /** Spark burst at the impact point (given in map space). */
 export function impact(scene: Phaser.Scene, mapX: number, mapY: number, tint = 0xbfefff, crit = false) {
+  if (!settingsStore.getState().preferences.hitEffects) return;
   const { x, y } = iso(mapX, mapY);
   const hitAnimation = 'skill_ice:hit';
   if (scene.textures.exists('skill_ice') && scene.anims.exists(hitAnimation)) {

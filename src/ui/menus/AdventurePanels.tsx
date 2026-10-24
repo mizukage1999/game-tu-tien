@@ -1,15 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../../store/gameStore';
-import {
-  adventure,
-  battlePower,
-  SECT_MISSIONS,
-  SECT_RANKS,
-  sectRank,
-} from '../../game/systems/adventure';
-import { SKILLS } from '../../data';
-import { EventBus } from '../../game/EventBus';
-import { practiceDuel } from '../../net/socialBridge';
+export { SectPanel } from './SectPanel';
 import {
   exchangePremium,
   grantPremium,
@@ -20,110 +11,6 @@ import {
 import { getAccountState, useAccount } from '../../net/session';
 import { onlineEnabled } from '../../net/config';
 import './adventure.css';
-
-export function SectPanel() {
-  const p = useGame((s) => s.player),
-    stats = useGame((s) => s.stats),
-    map = useGame((s) => s.mapId),
-    act = useGame((s) => s.adventureAction),
-    setMenu = useGame((s) => s.setMenu),
-    a = adventure(p),
-    rank = sectRank(p);
-  const atSect = ['dai_thua_vien', 'linh_son_tong'].includes(map);
-  return (
-    <div className="adventure-panel">
-      <div className="adventure-summary">
-        <h2>Tông Môn · {SECT_RANKS[rank].name}</h2>
-        <span>
-          Danh vọng <b>{a.reputation}</b> · Cống hiến <b>{a.contribution}</b> · Lực chiến{' '}
-          <b>{battlePower(stats)}</b>
-        </span>
-        <p>Trừ yêu, hái dược, luyện đan và luận kiếm để được tông môn ghi nhận.</p>
-        <div className="life-actions">
-          <button className="btn" onClick={() => EventBus.emit('cmd:travel', a.boundSect)}>
-            Về tông môn
-          </button>
-          <button
-            className="btn"
-            disabled={!atSect}
-            onClick={() => act({ type: 'bindSect', id: map as 'dai_thua_vien' | 'linh_son_tong' })}
-          >
-            Ghi danh · đặt điểm hồi sinh
-          </button>
-          <button className="btn gold" onClick={practiceDuel}>
-            Luyện tay với Mộc Nhân
-          </button>
-          <button className="btn" onClick={() => setMenu('social')}>
-            Mời người chơi tỷ võ
-          </button>
-        </div>
-      </div>
-      <div className="sect-ranks">
-        {SECT_RANKS.map((r, i) => (
-          <span className={i <= rank ? 'unlocked' : ''} key={r.name}>
-            {r.name}
-            <small>{r.reputation} danh vọng</small>
-          </span>
-        ))}
-      </div>
-      <h4>Nhiệm vụ Chấp Sự · mỗi nhiệm vụ một lần/ngày game</h4>
-      <div className="adventure-cards">
-        {SECT_MISSIONS.map((m) => (
-          <article className="immortal-card" key={m.id}>
-            <h4>{m.name}</h4>
-            <p>{m.desc}</p>
-            <small>
-              +{m.reputation} danh vọng · +{m.contribution} cống hiến
-            </small>
-            <p>
-              {a.mission?.id === m.id
-                ? `${a.mission.progress}/${a.mission.target}`
-                : a.mission
-                  ? 'Đang nhận nhiệm vụ khác'
-                  : 'Chưa nhận'}
-            </p>
-            <button
-              className="btn gold"
-              disabled={
-                !atSect ||
-                (!!a.mission && a.mission.id !== m.id) ||
-                (a.mission?.id === m.id && a.mission.progress < a.mission.target)
-              }
-              onClick={() =>
-                act(
-                  a.mission?.id === m.id ? { type: 'claimMission' } : { type: 'mission', id: m.id },
-                )
-              }
-            >
-              {a.mission?.id === m.id ? 'Trả nhiệm vụ' : 'Nhận nhiệm vụ'}
-            </button>
-          </article>
-        ))}
-      </div>
-      <h4>Trưởng Lão truyền pháp</h4>
-      <div className="adventure-cards">
-        {(['loi_kich', 'phong_nhan'] as const).map((id, i) => (
-          <article className="immortal-card" key={id}>
-            <h4>{SKILLS[id].name}</h4>
-            <p>{SKILLS[id].desc}</p>
-            <p>Cần {SECT_RANKS[i + 2].name} · 60 cống hiến</p>
-            <button
-              className="btn"
-              disabled={a.learnedSecrets.includes(id) || !atSect || rank < i + 2}
-              onClick={() => act({ type: 'learnSecret', id })}
-            >
-              {a.learnedSecrets.includes(id) ? 'Đã lĩnh ngộ' : 'Học bí thuật'}
-            </button>
-          </article>
-        ))}
-      </div>
-      <p className="muted">
-        Nội Môn mở Tàng Kinh Các; Chân Truyền mở Linh Địa Hậu Sơn. Có thể chọn đường trên bản đồ thế
-        giới.
-      </p>
-    </div>
-  );
-}
 
 export function PremiumPanel() {
   const account = useAccount(),

@@ -11,7 +11,7 @@ const STATUS_TEXT: Record<string, string> = {
   error: 'Lỗi đồng bộ.',
 };
 
-export function AccountPanel() {
+export function AccountPanel({ showSignOut = true }: { showSignOut?: boolean }) {
   const account = useAccount();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -24,14 +24,7 @@ export function AccountPanel() {
     return (
       <div className="account">
         <p className="muted">
-          Bản build này chưa cấu hình Supabase nên game chạy offline: <b>không có đăng nhập</b>, tiến
-          trình chỉ lưu trong trình duyệt này.
-        </p>
-        <p className="muted account-hint">
-          Để bật đăng nhập và cloud save: tạo project Supabase, chạy <code>supabase/schema.sql</code>{' '}
-          trong SQL Editor, bật <b>Anonymous sign-ins</b> và tắt <b>Confirm email</b>, rồi tạo{' '}
-          <code>.env.local</code> với <code>VITE_SUPABASE_URL</code> và{' '}
-          <code>VITE_SUPABASE_ANON_KEY</code>. Sau đó khởi động lại <code>npm run dev</code>.
+          Đang chơi trên thiết bị này. Tiến trình được lưu tự động trong trình duyệt.
         </p>
       </div>
     );
@@ -135,15 +128,17 @@ export function AccountPanel() {
         </>
       ) : null}
 
-      <button
-        className="btn"
-        type="button"
-        onClick={() => {
-          void signOutPlayer().then(() => window.location.reload());
-        }}
-      >
-        Đăng xuất
-      </button>
+      {showSignOut && (
+        <button
+          className="btn"
+          type="button"
+          onClick={() => {
+            void signOutPlayer().then(() => window.location.reload());
+          }}
+        >
+          Đăng xuất
+        </button>
+      )}
     </div>
   );
 }

@@ -32,12 +32,20 @@ export type MapRoute =
   | { kind: 'fail'; text: string };
 
 let pendingQuest: string | null = null;
+const trackingListeners = new Set<() => void>();
 let pendingTravel: string | null = null;
 export function trackTravel(id: string | null) { pendingTravel = id; }
 export function trackedTravel() { return pendingTravel; }
 
 export function trackQuest(id: string | null) {
+  if (pendingQuest === id) return;
   pendingQuest = id;
+  trackingListeners.forEach((fn) => fn());
+}
+
+export function subscribeQuestTracking(fn: () => void) {
+  trackingListeners.add(fn);
+  return () => { trackingListeners.delete(fn); };
 }
 
 export function trackedQuest() {

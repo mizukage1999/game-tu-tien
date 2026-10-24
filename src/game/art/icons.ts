@@ -4,6 +4,7 @@ import { BASE_POSE, drawHuman, drawPortrait, PALETTES } from './character';
 import { wangEffect } from '../../data/wangSkills';
 import { wangIconUrl } from './wangEffects';
 import { cultivationIconUrl } from './skillIcons';
+import { inventoryIconUrl } from './inventoryIcons';
 
 function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
   const m = s / 2;
@@ -553,6 +554,8 @@ function toUrl(key: string, s: number, draw: (ctx: Ctx) => void): string {
 }
 
 export function itemIconUrl(id: string, s = 48) {
+  const sprite = inventoryIconUrl(id);
+  if (sprite) return sprite;
   const key = itemSpriteTextureKey(id);
   const assetId = key?.slice('item-sprite-'.length);
   if (assetId) return ITEM_SPRITE_ASSETS[assetId];

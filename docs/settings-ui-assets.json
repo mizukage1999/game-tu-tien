@@ -1,0 +1,10 @@
+[
+  {
+    "asset": "public/assets/ui/cultivation/settings-night-v1.png",
+    "provider": "built-in imagegen",
+    "intent": "generate",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-0f6c61a2-a0a1-4a6c-a08b-276b7743c7da.png",
+    "prompt": "Use case: stylized-concept.\nAsset type: production environment backdrop for an interactive Vietnamese xianxia RPG Settings and account panel.\nPrimary request: premium hand-painted dark navy Chinese cultivation temple at night, inspired by the settings screen reference. Only environment illustration, no UI.\nScene: an elegant lantern-lit mountain temple gate and tall pagoda roof in the far RIGHT THIRD, warm golden lanterns, a slim stairway, subtle pink peach blossom branches framing top right, distant deep-blue mountains and a small moon. LEFT TWO THIRDS are very dark ink-blue mist with soft unobtrusive texture and generous negative space for real account information. Painterly fantasy game art, refined navy, antique gold, desaturated blue and tiny pink accents. Landscape 3:2, full bleed. Rich illustrated detail on the right edge only, readable low-contrast background everywhere else.\nConstraints: no people, no words, no lettering, no symbols, no logos, no watermark, no frames, no buttons or interface.",
+    "reference": "User-supplied Settings screen: visual style, environment, navy/gold palette and account-card composition. Functional UI rendered in React/CSS; unsupported audio, gift-code and external account-link systems are not simulated."
+  }
+]

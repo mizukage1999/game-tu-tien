@@ -10,7 +10,7 @@ const ITEMS: { id: MenuTab; label: string }[] = [
   { id: 'skills', label: 'Kỹ Năng' },
   { id: 'mail', label: 'Thư' },
   { id: 'quests', label: 'Nhiệm Vụ' },
-  { id: 'social', label: 'Xã Hội' },
+  { id: 'social', label: 'Bạn Bè' },
   { id: 'sect', label: 'Tông Môn' },
   { id: 'premium', label: 'Tiên Ngọc' },
   { id: 'settings', label: 'Cài Đặt' },

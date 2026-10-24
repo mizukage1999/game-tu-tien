@@ -6,6 +6,7 @@ import { arenaSteer, arenaLineClear } from '../game/systems/arenaNavigation';
 import { EventBus } from '../game/EventBus';
 import { isChildhood } from '../game/systems/origin';
 import { lifeProgress } from '../game/systems/life';
+import { adventure } from '../game/systems/adventure';
 import { realmNameAtLevel } from '../game/systems/progression';
 import { saveGame } from '../game/systems/save';
 import { getAccountState } from './session';
@@ -190,6 +191,7 @@ function myProfile(): PublicProfile {
     realm: realmNameAtLevel(s.player.level),
     mapId: s.mapId,
     party: socialStore.getState().partyId,
+    sect: isChildhood(s.player) ? undefined : adventure(s.player).boundSect,
   };
 }
 
@@ -374,7 +376,9 @@ export function startSocial(): () => void {
     if (
       s.player.level !== prev.player.level ||
       s.player.realmIndex !== prev.player.realmIndex ||
-      s.mapId !== prev.mapId
+      s.mapId !== prev.mapId ||
+      s.player.admitted !== prev.player.admitted ||
+      s.player.adventure?.boundSect !== prev.player.adventure?.boundSect
     ) {
       channel?.update(myProfile());
     }

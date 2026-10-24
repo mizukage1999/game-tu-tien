@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { iso } from '../art/iso';
+import { settingsStore } from '../../store/settingsStore';
 
 export type DamageKind = 'enemy' | 'crit' | 'player' | 'heal' | 'info';
 
@@ -35,6 +36,7 @@ export class DamageText {
 
   /** `x, y` arrive in map space; the number itself floats up the screen. */
   show(mapX: number, mapY: number, text: string, kind: DamageKind) {
+    if (!settingsStore.getState().preferences.showDamage && ['enemy', 'player', 'crit'].includes(kind)) return;
     const st = STYLES[kind];
     const at = iso(mapX, mapY);
     const x = at.x;

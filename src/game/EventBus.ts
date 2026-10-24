@@ -1,6 +1,7 @@
 import type { SkillId } from '../data';
 
 export interface BusEvents {
+  'cmd:save': void;
   'cmd:duelPause': boolean;
   'cmd:mapWalk': {x:number;y:number};
   'cmd:attack': void;

@@ -11,6 +11,7 @@ import { EXPANSION_ATLASES, registerExpansionArt } from '../art/expansionArt';
 import { WANG_EFFECT_ART } from '../../data/wangSkills';
 import { buildWangSheet, WANG_CELL } from '../art/wangEffects';
 import { registerCultivationIcons, registerChildProfile } from '../art/skillIcons';
+import { registerInventoryIcons } from '../art/inventoryIcons';
 
 interface AtlasEntry {
   atlas: string;
@@ -29,7 +30,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('cult-skill-icons','/assets/ui/cultivation/skill-icons-v1.png');
+    this.load.image('inventory-item-icons','/assets/ui/cultivation/bag-items-v1.png');
+    this.load.image('cult-skill-icons','/assets/ui/cultivation/skill-icons-alpha-v2.png');
     for (const art of Object.values(WANG_EFFECT_ART)) this.load.image(`${art.texture}-source`, art.url);
     for (const key of WORLD_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
     for (const key of COHESION_ATLASES) this.load.image(key, `assets/maps/${key}.png`);
@@ -55,6 +57,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    if(this.textures.exists('inventory-item-icons'))registerInventoryIcons(this.textures.get('inventory-item-icons').getSourceImage() as HTMLImageElement);
     for (const art of Object.values(WANG_EFFECT_ART)) {
       if (!this.textures.exists(`${art.texture}-source`)) continue;
       const source = this.textures.get(`${art.texture}-source`).getSourceImage() as HTMLImageElement;

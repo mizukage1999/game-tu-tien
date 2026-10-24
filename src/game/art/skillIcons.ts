@@ -25,6 +25,10 @@ export function registerCultivationIcons(source: HTMLImageElement) {
     const ctx = canvas.getContext('2d')!,
       w = source.width / 5,
       h = source.height / 3;
+    // Keep the circular alpha edge intact when resampling atlas cells for the HUD.
+    ctx.beginPath();
+    ctx.arc(64, 64, 63.5, 0, Math.PI * 2);
+    ctx.clip();
     ctx.drawImage(
       source,
       (index % 5) * w + 2,

@@ -4,7 +4,6 @@ import {
   ITEMS,
   MONSTERS,
   NPCS,
-  QUESTS,
   RARITIES,
   REALMS,
   rarityOf,
@@ -14,15 +13,11 @@ import { EventBus } from '../../game/EventBus';
 import { itemIconUrl } from '../../game/art/icons';
 import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
 import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
-import { canEquip, expToNext, isBottleneck, realmFor, realmNameAtLevel } from '../../game/systems/progression';
-import { objectiveText } from '../../game/systems/quest';
-import { itemName, npcName, questNames, useGame, type MenuTab } from '../../store/gameStore';
-import { useAccount } from '../../net/session';
-import { AccountPanel } from '../AccountPanel';
+import { expToNext, isBottleneck, realmFor, realmNameAtLevel } from '../../game/systems/progression';
+import { itemName, useGame, type MenuTab } from '../../store/gameStore';
 import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
 import { Journey } from './Journey';
-import { originText } from '../../game/systems/origin';
 import { battlePower } from '../../game/systems/adventure';
 import { SectPanel, PremiumPanel } from './AdventurePanels';
 import { MapPanel } from './MapPanel';
@@ -30,6 +25,10 @@ import { Skills } from './SkillPanel';
 export { Skills } from './SkillPanel';
 import { CharacterPanel } from './CharacterPanel';
 import { CultivationWallet, CultivationCorners } from './CultivationUI';
+import { BagPanel } from './BagPanel';
+import { MailPanel } from './MailPanel';
+import { QuestJournal } from './QuestJournal';
+import { SettingsPanel } from './SettingsPanel';
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -40,10 +39,10 @@ const TITLES: Record<MenuTab, string> = {
   mail: 'Thư',
   quests: 'Nhiệm Vụ',
   shop: 'Cửa Hàng',
-  social: 'Xã Hội',
+  social: 'Bạn Bè',
   settings: 'Cài Đặt',
   journey: 'Tiên Lộ · Hành Trình Tu Tiên',
-  sect:'Tông Môn & Danh Vọng',premium:'Tiên Ngọc Các',map:'Sơn Hà Đồ',
+  sect:'Tông Môn',premium:'Tiên Ngọc Các',map:'Sơn Hà Đồ',
 };
 
 function rarityColor(id: string) {
@@ -70,60 +69,6 @@ function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: numb
 function ItemLabel({id}:{id:string}) {
   const enhancement=useGame(s=>s.player.adventure?.enhancements[id]??0);
   return <b style={{color:rarityColor(id)}}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
-}
-
-function Bag() {
-  const inv = useGame((s) => s.player.inventory);
-  const linhKhi = useGame((s) => s.player.linhKhi);
-  const level = useGame((s) => s.player.level);
-  const consumeItem = useGame((s) => s.consumeItem);
-  const salvageLegacy = useGame((s) => s.salvageLegacy);
-  const entries = Object.entries(inv).filter(([, q]) => q > 0);
-  return (
-    <>
-      <div className="bag-overview">
-        <img src="/assets/ui/menu-bag.png" alt="" aria-hidden="true" />
-        <span>{entries.length} loại vật phẩm</span>
-      </div>
-      <div className="bag-currency">
-        <img src={itemIconUrl('linh_khi', 32)} alt="" /> Linh Khí: <b>{linhKhi}</b>
-      </div>
-      <div className="bag-grid">
-        {entries.length === 0 && <div className="muted">Túi đồ trống.</div>}
-        {entries.map(([id, qty]) => {
-          const def = ITEMS[id];
-          const usable = def?.kind === 'consumable' || def?.kind === 'equipment';
-          const locked = def?.kind === 'equipment' && !canEquip(id, level).ok;
-          return (
-            <div key={id} className="bag-item" title={def?.desc} style={{ borderColor: rarityColor(id) }}>
-              <ItemIcon id={id} size={48} />
-              <span className="bag-qty">{qty}</span>
-              <div className="bag-name" style={{ color: rarityColor(id) }}>
-                {def?.name ?? id}
-              </div>
-              {locked && <small className="req-bad">Cần Lv.{def.reqLevel ?? 1}</small>}
-              {def?.kind==='equipment'&&def.slot!=='weapon'&&<button className="btn small" onClick={() => salvageLegacy(id)}>Phân giải · 2 Huyền Thiết</button>}
-              {usable && (
-                <button className="btn small" disabled={locked} onClick={() => consumeItem(id)}>
-                  {def.kind === 'equipment' ? 'Trang bị' : 'Dùng'}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-function Mail() {
-  return (
-    <div className="mail-empty">
-      <img src="/assets/ui/menu-mail.png" alt="" aria-hidden="true" />
-      <h4>Hộp thư</h4>
-      <p className="muted">Hiện chưa có thư mới.</p>
-    </div>
-  );
 }
 
 function Cultivate() {
@@ -300,47 +245,6 @@ function Dungeons() {
   );
 }
 
-function Quests() {
-  const quests = useGame((s) => s.quests);
-  const player = useGame((s) => s.player);
-  const entries = Object.entries(quests).sort(([, a], [, b]) => (a.status === 'done' ? 1 : 0) - (b.status === 'done' ? 1 : 0));
-  return (
-    <div className="quest-detail">
-      {entries.map(([id, q]) => {
-        const def = QUESTS[id];
-        const r = def.rewards;
-        return (
-          <div
-            key={id}
-            className={`quest-card ${q.status}${q.status === 'done' ? '' : ' quest-go'}`}
-            onClick={() => q.status !== 'done' && EventBus.emit('cmd:questGo', id)}
-            title={q.status === 'done' ? undefined : 'Bấm để tự chạy tới'}
-          >
-            <div className="quest-title">
-              <span className={`quest-kind ${def.kind}`}>[{def.kind === 'main' ? 'Chính' : 'Phụ'}]</span> {def.name}
-              <span className="quest-status">
-                {q.status === 'done' ? 'Hoàn thành' : q.status === 'ready' ? 'Chờ trả' : 'Đang làm'}
-              </span>
-            </div>
-            <p className="muted">{originText(def.desc, player)}</p>
-            {def.objectives.map((o, i) => (
-              <div key={i} className="quest-obj">
-                {objectiveText(o, questNames)} ({q.progress[i] ?? 0}/{o.count})
-              </div>
-            ))}
-            <small>
-              Thưởng: {[r.exp && `${r.exp} EXP`, r.linhKhi && `${r.linhKhi} Linh Khí`, ...Object.entries(r.items ?? {}).map(([it, n]) => `${itemName(it)} x${n}`)]
-                .filter(Boolean)
-                .join(', ')}
-              {def.turnIn && q.status !== 'done' ? ` · Trả cho ${npcName(def.turnIn)}` : ''}
-            </small>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 type ShopTab = 'misc' | RarityId;
 
 function Shop() {
@@ -411,32 +315,17 @@ function Shop() {
   );
 }
 
-function Settings() {
-  const account = useAccount();
-  return (
-    <div>
-      <h4>Tài khoản</h4>
-      <AccountPanel />
-      <h4>Dữ liệu</h4>
-      <p>
-        Game tự động lưu mỗi 5 giây và khi chuyển bản đồ
-        {account.user ? ' — vào cả trình duyệt và cloud.' : ' vào trình duyệt (localStorage).'}
-      </p>
-    </div>
-  );
-}
-
 const CONTENT: Record<MenuTab, () => JSX.Element> = {
   character: CharacterPanel,
-  bag: Bag,
+  bag: BagPanel,
   cultivate: Cultivate,
   skills: Skills,
   dungeon: Dungeons,
-  mail: Mail,
-  quests: Quests,
+  mail: MailPanel,
+  quests: QuestJournal,
   shop: Shop,
   social: SocialPanel,
-  settings: Settings,
+  settings: SettingsPanel,
   journey: Journey,
   sect:SectPanel,premium:PremiumPanel,map:MapPanel,
 };
@@ -449,13 +338,13 @@ export function Menus() {
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
       <div className={`menu-window panel-ornate menu-${menu}`}>
-        {(menu==='skills'||menu==='character')&&<CultivationCorners/>}
+        {['skills','character','bag','mail','social','quests','sect','settings'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
             <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
             {TITLES[menu]}
           </h3>
-          {(menu==='skills'||menu==='character')&&<CultivationWallet/>}
+          {['skills','character','bag','mail','social','quests','sect','settings'].includes(menu)&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>

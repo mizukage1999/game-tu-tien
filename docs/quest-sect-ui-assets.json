@@ -1,0 +1,30 @@
+[
+  {
+    "asset": "public/assets/ui/cultivation/sect-mountain-v1.png",
+    "provider": "built-in imagegen",
+    "intent": "generate",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-878d84c4-9ac7-44c4-9f41-850f5b6082ad.png",
+    "prompt": "Use case: stylized-concept.\nAsset type: production environment hero artwork for a Vietnamese xianxia RPG sect interface.\nPrimary request: a magnificent Chinese immortal cultivation sect on a mountain above a sea of clouds, inspired by an ornate navy and gold RPG interface reference. Generate only painted environment art, no UI.\nScene: layered ivory and dark blue tiled pagodas on steep rocky terraces, elegant stairway leading toward a grand central sect hall, hanging plain blue silk banners WITHOUT letters or symbols, pink peach blossom branches at far corners, distant jagged blue peaks, waterfalls disappearing into clouds. Bright soft morning light, crisp roofs and airy mist. The buildings occupy center and right, the upper left is calmer sky and clouds to permit a real title overlay. Wide landscape 3:2, balanced painterly fantasy illustration, premium game key art, navy blue, ivory stone, pale blue clouds and restrained antique gold details.\nConstraints: no text, no letters, no logos, no watermark, no UI or framing, no people. Full bleed landscape.",
+    "reference": "User-supplied Sect overview screen (style and environment only)."
+  },
+  {
+    "asset": "public/assets/ui/cultivation/quest-scenes-v1.png",
+    "provider": "built-in imagegen",
+    "intent": "generate",
+    "original": "C:\\Users\\Hoa\\.codex\\generated_images\\01a1676f-f99e-7e62-bf4d-ab13e8996bfc\\exec-96043ae4-3b45-4f17-b13a-0f02396b194c.png",
+    "prompt": "Use case: stylized-concept.\nAsset type: production scenery sprite atlas for an interactive Vietnamese xianxia RPG quest journal.\nPrimary request: ONE perfectly aligned landscape 3:2 image with EXACTLY THREE equal columns and TWO equal rows, SIX independent SQUARE scenery paintings. Every cell fills its allotted square, no gutters, no frames, no overlaid icons or words. Hand painted high-end Chinese immortal fantasy game illustration matching ornate navy/gold RPG UI; rich but readable at thumbnail size.\nOrder left to right, top to bottom:\n1. humble peaceful ancient Chinese riverside village at early morning, tiled roofs, willow tree, round village well, warm lanterns and small wooden bridge;\n2. majestic immortal sect mountain courtyard at moonlight, glowing lanterns, blue roof temple gates and pink peach blossoms, navy-blue atmosphere;\n3. enchanted emerald herb forest, luminous medicinal leaves in foreground, turquoise stream and tall ancient trees;\n4. dangerous icy-blue crystal cavern and ancient sealed gate, distant small silhouette of a ferocious guardian beast, dramatic deep blues;\n5. warm golden alchemy chamber with bronze incense cauldron, shelves with herbs and ceramic bottles, gentle gold fire glow;\n6. stone sword training courtyard with circular carved floor and small wooden training dummy, temple roofs behind, blue mountain mist, warm lanterns.\nAll six cells are consistent detailed painterly game scenes, strong compositions, each self-contained and safely inside its own square, with distinct color moods.\nConstraints: no text, no lettering, no digits, no writing on banners, no labels, no UI, no panel borders, no characters in foreground, no watermark.",
+    "reference": "User-supplied Quest and Sect screens (style only).",
+    "layout": {
+      "columns": 3,
+      "rows": 2,
+      "order": [
+        "village",
+        "moonlit sect",
+        "herbs",
+        "crystal cave",
+        "alchemy",
+        "training courtyard"
+      ]
+    }
+  }
+]

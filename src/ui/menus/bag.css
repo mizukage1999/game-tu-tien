@@ -1,0 +1,649 @@
+.cult-bag {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 144px minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 10px;
+  color: var(--cult-text);
+}
+.cult-bag-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.cult-bag-sidebar > .cult-side {
+  flex: 1;
+  min-height: 0;
+}
+.cult-bag .cult-side > button {
+  min-height: 53px;
+  flex-shrink: 0;
+}
+.cult-bag-sort {
+  flex-shrink: 0;
+  padding: 12px 7px 6px;
+  border-top: 1px solid var(--cult-line);
+  background: #061521cd;
+}
+.cult-bag-sort label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font:
+    13px Cambria,
+    serif;
+  color: #dcc391;
+}
+.cult-bag-sort select {
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid #a98a4f8c;
+  background: #0c2030;
+  color: #ddcda9;
+  font:
+    12px Cambria,
+    serif;
+  border-radius: 3px;
+}
+.cult-bag-sort > small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #9aabc1;
+  margin-top: 10px;
+}
+.cult-bag-library,
+.cult-bag-detail {
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--cult-line);
+  background: #03101bd9;
+  display: flex;
+  flex-direction: column;
+}
+.cult-bag-rarities {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  border-bottom: 1px solid var(--cult-line);
+  padding: 7px 8px 8px;
+}
+.cult-bag-rarities > button {
+  flex: 1;
+  white-space: nowrap;
+  padding: 8px 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #ccbc98;
+  font:
+    12px Cambria,
+    serif;
+  border-radius: 3px;
+}
+.cult-bag-rarities > button.active {
+  border-color: #c19d5a8c;
+  background: linear-gradient(#9c71393b, #ae853e15);
+  box-shadow: inset 0 -2px #d7b570;
+}
+.cult-bag-grid {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 9px;
+  padding: 13px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #96733c #08141d;
+}
+.cult-bag-item,
+.cult-bag-slot-empty {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid var(--loot-color, #61758445);
+  border-radius: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+.cult-bag-item {
+  display: block;
+  padding: 5px;
+  background:
+    radial-gradient(
+      ellipse at 50% 65%,
+      color-mix(in srgb, var(--loot-color) 15%, transparent),
+      transparent 75%
+    ),
+    linear-gradient(145deg, #172b3e, #020b14);
+  box-shadow:
+    inset 0 0 0 2px #0007,
+    inset 0 0 12px #0006;
+}
+.cult-bag-item:hover {
+  box-shadow: inset 0 0 14px color-mix(in srgb, var(--loot-color) 27%, transparent);
+}
+.cult-bag-item.selected {
+  outline: 1px solid #ffe09b;
+  outline-offset: 2px;
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--loot-color) 55%, transparent),
+    inset 0 0 10px #e6b45c25;
+}
+.cult-bag-item > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px #0008);
+  pointer-events: none;
+}
+.cult-item-enhance {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font:
+    700 14px Cambria,
+    serif;
+  color: #ffe1a2;
+  text-shadow:
+    0 1px 3px #000,
+    0 0 4px #000;
+}
+.cult-item-quantity {
+  position: absolute;
+  right: 5px;
+  bottom: 3px;
+  color: #f5f2df;
+  font:
+    700 16px Cambria,
+    serif;
+  text-shadow:
+    0 1px 3px #000,
+    0 0 4px #000;
+}
+.cult-item-quality {
+  position: absolute;
+  left: 5px;
+  bottom: 4px;
+  color: var(--loot-color);
+  font-size: 12px;
+  text-shadow: 0 0 3px #000;
+}
+.cult-item-worn {
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #a6ddb1;
+  background: #0e2e23bd;
+  border-radius: 50%;
+  color: #b3f0bc;
+  font-size: 11px;
+}
+.cult-item-lock {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: grid;
+  place-items: center;
+  color: #b6c3d1;
+  background: #081726df;
+  border-radius: 3px;
+  width: 19px;
+  height: 20px;
+}
+.cult-bag-slot-empty {
+  background: linear-gradient(145deg, #15243633, #06121d77);
+  box-shadow: inset 0 0 16px #0004;
+}
+.cult-bag-slot-empty:after {
+  content: '◇';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font:
+    22px Cambria,
+    serif;
+  color: #829ab410;
+}
+.cult-bag-count {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 10px 13px;
+  border-top: 1px solid var(--cult-line);
+  font:
+    12px Cambria,
+    serif;
+  color: #d2c5a6;
+}
+.cult-bag-count small {
+  font:
+    10px 'Segoe UI',
+    sans-serif;
+  color: #91a3b8;
+}
+.cult-bag-detail-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 17px 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #96733c #08141d;
+}
+.cult-item-heading > small {
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: #b4a174;
+}
+.cult-item-heading h2 {
+  font:
+    italic 700 29px/1.15 Cambria,
+    'Times New Roman',
+    serif;
+  margin: 7px 0;
+}
+.cult-item-heading .cult-skill-tags {
+  margin: 7px 0 12px;
+}
+.cult-item-showcase {
+  position: relative;
+  min-height: 230px;
+  height: clamp(210px, 25vh, 280px);
+  border: 1px solid #a68c4b66;
+  margin-bottom: 17px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 40% 50%,
+      color-mix(in srgb, var(--loot-color) 13%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(#07111b30, #07111bbf),
+    url('/assets/ui/cultivation/ui-night-v1.png') 0 40% / cover;
+}
+.cult-item-showcase > img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 65%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  box-sizing: border-box;
+  filter: drop-shadow(0 5px 10px #0009);
+}
+.cult-item-pedestal {
+  position: absolute;
+  left: 10%;
+  bottom: 10%;
+  width: 46%;
+  height: 15%;
+  border: 1px solid #d6b97973;
+  border-radius: 50%;
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--loot-color) 30%, transparent),
+    inset 0 0 13px #d0a4511c;
+  background: #8c69321c;
+}
+.cult-item-showcase > div:last-child {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-width: 85px;
+  background: #0513218c;
+  border: 1px solid #a6905257;
+  padding: 12px 13px;
+}
+.cult-item-showcase > div:last-child > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #8fa9bd;
+  font-size: 10px;
+}
+.cult-item-showcase > div:last-child b {
+  font:
+    17px Cambria,
+    serif;
+  color: #edddac;
+}
+.cult-loot-stats {
+  margin: 0 0 18px;
+  font:
+    14px Cambria,
+    serif;
+}
+.cult-loot-stats > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 10px 8px;
+  border-bottom: 1px solid #99804c40;
+  background: linear-gradient(90deg, #30445f16, transparent);
+}
+.cult-loot-stats dt {
+  color: #acbed1;
+}
+.cult-loot-stats dd {
+  margin: 0;
+  text-align: right;
+  color: #efe6cb;
+}
+.cult-loot-stats dd > small {
+  display: block;
+  font-size: 10px;
+  margin-top: 3px;
+  color: #a9bda8;
+}
+.cult-loot-stats .up {
+  color: #84d1aa;
+}
+.cult-loot-stats .down {
+  color: #de968b;
+}
+.cult-item-description {
+  font:
+    14px/1.65 Cambria,
+    serif;
+  color: #c4d1e0;
+  margin: 0 0 15px;
+}
+.cult-item-requirement {
+  font:
+    12px Cambria,
+    serif;
+  color: #a2b9cd;
+  padding: 8px 0;
+  border-top: 1px solid #a2874a33;
+}
+.cult-item-requirement.short,
+.cult-item-showcase .short {
+  color: #e29b92;
+}
+.cult-item-effect {
+  font-size: 12px;
+  color: #92d2b1;
+  line-height: 1.5;
+}
+.cult-item-enhancement {
+  margin: 14px 0;
+  font-size: 12px;
+  color: #b8c7d5;
+  border-top: 1px solid var(--cult-line);
+  padding-top: 12px;
+}
+.cult-item-enhancement > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b9a888;
+  font-size: 11px;
+}
+.cult-item-enhancement img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+.cult-bag-actions {
+  padding: 12px 16px 15px;
+  border-top: 1px solid var(--cult-line);
+  background: linear-gradient(110deg, #172d3ae8, #041321f2);
+  flex-shrink: 0;
+}
+.cult-bag-actions .cult-notice {
+  min-height: 16px;
+}
+.cult-bag-actions .cult-btn {
+  font-size: 14px;
+  min-height: 42px;
+  padding: 8px 6px;
+}
+.cult-bag-empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 25px;
+  color: #9cb0c5;
+}
+.cult-bag-empty > span {
+  font:
+    64px Cambria,
+    serif;
+  color: #a4854f6b;
+}
+.cult-bag-empty h2 {
+  font:
+    20px Cambria,
+    serif;
+  color: #dfc68e;
+}
+.cult-bag-empty p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.cult-bag-empty .cult-btn {
+  flex: none;
+  margin-top: 10px;
+  min-width: 140px;
+}
+.hud.phone .cult-bag {
+  grid-template-columns: 80px minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 5px;
+}
+.hud.phone .cult-bag .cult-side > button {
+  min-height: 31px;
+  padding: 4px 5px;
+  font-size: 10px;
+  gap: 5px;
+}
+.hud.phone .cult-bag .cult-side > button i {
+  font-size: 17px;
+  width: 17px;
+}
+.hud.phone .cult-bag-sort {
+  padding: 6px 3px 3px;
+}
+.hud.phone .cult-bag-sort label {
+  gap: 4px;
+  font-size: 9px;
+}
+.hud.phone .cult-bag-sort select {
+  min-height: 24px;
+  padding: 3px;
+  font-size: 9px;
+}
+.hud.phone .cult-bag-sort > small {
+  font-size: 8px;
+  line-height: 1.4;
+  margin-top: 5px;
+}
+.hud.phone .cult-bag-rarities {
+  padding: 4px 4px 5px;
+  gap: 1px;
+}
+.hud.phone .cult-bag-rarities > button {
+  padding: 5px 3px;
+  font-size: 9px;
+}
+.hud.phone .cult-bag-grid {
+  gap: 6px;
+  padding: 8px;
+}
+.hud.phone .cult-bag-item {
+  padding: 3px;
+}
+.hud.phone .cult-item-enhance {
+  font-size: 10px;
+  top: 2px;
+  right: 3px;
+}
+.hud.phone .cult-item-quantity {
+  font-size: 11px;
+  bottom: 2px;
+  right: 3px;
+}
+.hud.phone .cult-item-quality {
+  font-size: 8px;
+  bottom: 2px;
+  left: 3px;
+}
+.hud.phone .cult-item-worn {
+  font-size: 8px;
+  width: 12px;
+  height: 12px;
+  left: 3px;
+  top: 3px;
+}
+.hud.phone .cult-item-lock {
+  width: 14px;
+  height: 15px;
+  left: 3px;
+  top: 3px;
+}
+.hud.phone .cult-item-lock .cult-lock {
+  width: 11px;
+  height: 11px;
+}
+.hud.phone .cult-bag-count {
+  font-size: 9px;
+  padding: 6px 8px;
+}
+.hud.phone .cult-bag-count small {
+  font-size: 8px;
+}
+.hud.phone .cult-bag-detail-scroll {
+  padding: 9px 10px 7px;
+}
+.hud.phone .cult-item-heading > small {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.hud.phone .cult-item-heading h2 {
+  font-size: 21px;
+  margin: 4px 0;
+}
+.hud.phone .cult-item-heading .cult-skill-tags {
+  margin: 5px 0 7px;
+}
+.hud.phone .cult-item-showcase {
+  min-height: 115px;
+  height: 115px;
+  margin-bottom: 11px;
+}
+.hud.phone .cult-item-showcase > div:last-child {
+  right: 6px;
+  gap: 7px;
+  min-width: 62px;
+  padding: 7px 8px;
+}
+.hud.phone .cult-item-showcase > div:last-child > span {
+  font-size: 8px;
+  gap: 2px;
+}
+.hud.phone .cult-item-showcase > div:last-child b {
+  font-size: 13px;
+}
+.hud.phone .cult-loot-stats {
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.hud.phone .cult-loot-stats > div {
+  padding: 7px 5px;
+}
+.hud.phone .cult-loot-stats dd > small {
+  font-size: 8px;
+}
+.hud.phone .cult-item-description {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.hud.phone .cult-item-requirement {
+  font-size: 9px;
+  padding: 6px 0;
+}
+.hud.phone .cult-item-effect {
+  font-size: 10px;
+}
+.hud.phone .cult-item-enhancement {
+  font-size: 10px;
+  margin: 10px 0;
+  padding-top: 9px;
+}
+.hud.phone .cult-item-enhancement > span {
+  font-size: 9px;
+}
+.hud.phone .cult-item-enhancement img {
+  width: 22px;
+  height: 22px;
+}
+.hud.phone .cult-bag-actions {
+  padding: 7px 9px 8px;
+}
+.hud.phone .cult-bag-actions .cult-notice {
+  font-size: 9px;
+  margin-bottom: 6px;
+  min-height: 12px;
+}
+.hud.phone .cult-bag-actions .cult-btn {
+  font-size: 11px;
+  min-height: 30px;
+  padding: 5px;
+}
+.hud.phone .cult-bag-empty {
+  padding: 15px;
+}
+.hud.phone .cult-bag-empty > span {
+  font-size: 40px;
+}
+.hud.phone .cult-bag-empty h2 {
+  font-size: 16px;
+}
+.hud.phone .cult-bag-empty p {
+  font-size: 10px;
+}
+/* Skill art has an alpha silhouette; keep its idle button free of a black backplate. */
+.skill-bar .skill-btn {
+  background: transparent;
+  box-shadow:
+    0 2px 8px #07121d40,
+    inset 0 0 8px #77b4d329;
+}
+.skill-bar .skill-btn > img {
+  object-fit: contain;
+  border-radius: 50%;
+}
+.skill-bar .skill-btn:not(.no-mp) > img {
+  filter: none;
+}
+.skill-bar .skill-btn.no-mp > img {
+  filter: grayscale(0.65) brightness(0.7);
+}
+@media (max-height: 340px) {
+  .hud.phone .cult-bag .cult-side > button {
+    min-height: 27px;
+  }
+  .hud.phone .cult-item-showcase {
+    min-height: 90px;
+    height: 90px;
+  }
+}

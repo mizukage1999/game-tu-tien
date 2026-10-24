@@ -6,6 +6,7 @@ import { playerArt } from '../systems/character';
 import { stepToward, type RemotePlayerState } from '../../net/presence';
 import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
+import { settingsStore } from '../../store/settingsStore';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -48,6 +49,7 @@ export class RemotePlayer {
       })
       .setOrigin(0.5, 1)
       .setDepth(90000);
+    this.label.setVisible(settingsStore.getState().preferences.showNames);
     this.ctrl.play('idle', state.dir);
     // Clicking a body opens their card. The label is also clickable so a
     // crowded spawn still lets you pick someone.
@@ -76,6 +78,7 @@ export class RemotePlayer {
     this.sprite.setPosition(spot.x, spot.y).setDepth(spot.y);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.label.setPosition(spot.x, spot.y - 108);
+    this.label.setVisible(settingsStore.getState().preferences.showNames);
     this.ctrl.play(this.state.moving ? 'run' : 'idle', this.state.dir);
   }
 

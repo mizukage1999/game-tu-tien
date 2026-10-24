@@ -668,6 +668,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.cleanups.push(
       EventBus.on('cmd:attack', () => this.player.attack()),
+      EventBus.on('cmd:save', () => this.save()),
       EventBus.on('cmd:skill', (id: SkillId) => this.player.castSkill(id)),
       EventBus.on('cmd:interact', () => this.interact()),
       EventBus.on('cmd:meditate', () => this.toggleMeditate()),

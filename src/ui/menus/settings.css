@@ -1,0 +1,822 @@
+.cult-settings {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 154px minmax(0, 1fr);
+  gap: 10px;
+  font:
+    14px/1.45 Cambria,
+    'Times New Roman',
+    serif;
+}
+.cult-settings > *,
+.settings-content > * {
+  min-width: 0;
+  min-height: 0;
+}
+.settings-glyph {
+  width: 29px;
+  height: 29px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.settings-side {
+  padding-right: 8px;
+  border-right: 1px solid var(--cult-line);
+  background:
+    linear-gradient(180deg, #04121de0, #03101b99),
+    url('/assets/ui/cultivation/settings-night-v1.png') 85% bottom/auto 75%;
+}
+.settings-side > button {
+  min-height: 64px;
+  gap: 10px;
+}
+.settings-side > button > span {
+  flex: 1;
+}
+.settings-side-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 30px 12px 14px;
+  color: #cdb786;
+}
+.settings-side-foot .settings-glyph {
+  width: 35px;
+  height: 35px;
+  opacity: 0.65;
+}
+.settings-side-foot > span {
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+.settings-side-foot > small {
+  font-size: 11px;
+  color: #acb2bd;
+}
+.settings-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  overflow: hidden;
+}
+.settings-center-scroll,
+.settings-right-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a2844366 transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 3px;
+}
+.settings-card {
+  padding: 20px;
+  border: 1px solid var(--cult-line);
+  background: linear-gradient(120deg, #0a1a28ee, #020d17eb);
+  flex-shrink: 0;
+}
+.settings-card > .cult-heading {
+  padding-bottom: 13px;
+  border-bottom: 1px solid #a3834540;
+  margin: 0;
+}
+.settings-row {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 52px;
+  padding: 11px 0;
+  border-bottom: 1px solid #9d814326;
+}
+.settings-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 1px;
+}
+.settings-row > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.settings-row > div:first-child > span {
+  color: #d3d9e2;
+  font-size: 15px;
+}
+.settings-row > div:first-child > small {
+  display: block;
+  color: #8fa2b8;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.settings-row-control {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  max-width: 58%;
+}
+.settings-row-control select {
+  width: 190px;
+  max-width: 100%;
+  font:
+    14px Cambria,
+    serif;
+  padding: 8px 10px;
+  color: #e9d3a1;
+  border: 1px solid #9d7a435e;
+  background: #071623;
+  border-radius: 3px;
+}
+.settings-static-value {
+  font-size: 13px;
+  color: #d4bd89;
+}
+.settings-row-control .cult-btn {
+  font-size: 12px;
+  min-height: 31px;
+  padding: 5px 9px;
+  flex: 0;
+  white-space: nowrap;
+}
+.settings-row:first-of-type .settings-row-control {
+  flex-wrap: wrap;
+}
+.settings-switch {
+  width: 40px;
+  height: 23px;
+  padding: 2px;
+  border-radius: 14px;
+  border: 1px solid #71809a66;
+  background: #354155;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.settings-switch > span {
+  display: block;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #a6afc0;
+  box-shadow: 0 1px 4px #0006;
+  transform: translateX(0);
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+.settings-switch.on {
+  background: linear-gradient(#e6a638, #ae6717);
+  border-color: #f2c668;
+  box-shadow: 0 0 6px #e7a94722;
+}
+.settings-switch.on > span {
+  background: #ffe7ad;
+  transform: translateX(16px);
+  box-shadow: 0 0 5px #ffd58377;
+}
+.settings-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ecc273;
+  width: 235px;
+  max-width: 100%;
+}
+.settings-range > span {
+  font-size: 23px;
+}
+.settings-range input {
+  width: 100%;
+  min-width: 0;
+  accent-color: #efb84f;
+  cursor: pointer;
+}
+.settings-range output {
+  min-width: 39px;
+  text-align: right;
+  font:
+    12px Cambria,
+    serif;
+  color: #d5cdbb;
+}
+.settings-quick-help > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-top: 10px;
+}
+.settings-quick-help .settings-glyph {
+  color: #d4b873;
+  width: 38px;
+  height: 38px;
+}
+.settings-quick-help p {
+  flex: 1;
+  margin: 0;
+  color: #b9c8d8;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.settings-quick-help .cult-btn {
+  flex: 0;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.settings-graphics-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+.settings-graphics-note .settings-glyph {
+  color: #cdb77e;
+}
+.settings-graphics-note h4 {
+  color: #e1c58b;
+  margin: 0 0 7px;
+  font:
+    18px Cambria,
+    serif;
+}
+.settings-graphics-note p {
+  color: #a9bdd4;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+}
+.settings-profile {
+  background:
+    linear-gradient(100deg, #061521ee, #06152199 70%, #06152144),
+    url('/assets/ui/cultivation/settings-night-v1.png') 75% center/cover;
+}
+.settings-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 0 13px;
+}
+.settings-portrait {
+  position: relative;
+  overflow: hidden;
+  width: 90px;
+  height: 110px;
+  border: 3px double #d5aa5c;
+  background: radial-gradient(circle at 40% 20%, #395576, #07131f);
+  border-radius: 45% 45% 22% 22%;
+  flex-shrink: 0;
+  box-shadow:
+    0 0 0 4px #07121c88,
+    0 0 13px #0008;
+}
+.settings-portrait img {
+  position: absolute;
+  width: 280%;
+  max-width: none;
+  height: auto;
+  left: -130%;
+  top: 0;
+}
+.settings-portrait.child {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.settings-portrait.child img {
+  position: static;
+  width: auto;
+  max-width: 100%;
+  height: 95%;
+  object-fit: contain;
+}
+.settings-portrait > .settings-glyph {
+  width: 60px;
+  height: 60px;
+  color: #bdc5ca;
+}
+.settings-profile-summary > div {
+  flex: 1;
+  min-width: 0;
+}
+.settings-profile h2 {
+  font:
+    italic 700 29px/1.2 Cambria,
+    serif;
+  margin: 0 0 7px;
+  color: #ffe0a5;
+  text-shadow: 0 2px 3px #000;
+  overflow-wrap: anywhere;
+}
+.settings-profile-account {
+  color: #c9b98e;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.settings-profile p {
+  color: #b8c8d9;
+  font-size: 12px;
+  margin: 7px 0 0;
+}
+.settings-account-id {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 0;
+  border-top: 1px solid #ac8c4930;
+}
+.settings-account-id > span {
+  flex: 1;
+  min-width: 0;
+  user-select: text;
+  -webkit-user-select: text;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  color: #92a9c0;
+}
+.settings-account-id button {
+  font-size: 19px;
+  color: #d1bd90;
+  background: #061523b8;
+  border: 1px solid #8c75484f;
+  border-radius: 3px;
+}
+.settings-sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border: 1px solid #638f753f;
+  background: #163c2e47;
+  border-radius: 3px;
+  color: #a2d7b8;
+  font-size: 11px;
+}
+.settings-sync-status > i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #6bd6a3;
+}
+.settings-sync-status.error {
+  color: #e6b4a1;
+  background: #62362940;
+  border-color: #b9866c66;
+}
+.settings-sync-status.error > i {
+  background: #e3a18b;
+}
+.settings-account-links p,
+.settings-data-card > p {
+  color: #b8c7d9;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 13px 0;
+}
+.settings-account-links .cult-btn {
+  width: 100%;
+  font-size: 13px;
+}
+.settings-data-facts {
+  margin: 10px 0 16px;
+}
+.settings-data-facts > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid #9b824128;
+  font-size: 13px;
+}
+.settings-data-facts dt {
+  color: #9dafc6;
+}
+.settings-data-facts dd {
+  color: #dfd3b3;
+  margin: 0;
+  text-align: right;
+}
+.settings-hint {
+  color: #adbed4;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0 16px;
+}
+.settings-data-actions {
+  display: flex;
+  gap: 9px;
+}
+.settings-data-actions .cult-btn {
+  font-size: 13px;
+}
+.settings-signout {
+  flex: 0;
+  border-color: #a95d52;
+  color: #ffb8a6;
+  background: linear-gradient(120deg, #5b2529, #361c27);
+  font-size: 15px;
+  min-height: 40px;
+}
+.settings-input-methods {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0;
+}
+.settings-input-methods article {
+  display: flex;
+  gap: 13px;
+  padding: 13px;
+  border: 1px solid #9c84484a;
+  background: #102b3b5c;
+}
+.settings-input-methods article > .settings-glyph {
+  color: #d4b57c;
+  width: 35px;
+  height: 35px;
+}
+.settings-input-methods h4 {
+  color: #ebd19c;
+  font:
+    18px Cambria,
+    serif;
+  margin: 0 0 6px;
+}
+.settings-input-methods p {
+  color: #b4c4d6;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.settings-input-methods small {
+  display: block;
+  margin-top: 9px;
+  font-size: 11px;
+  color: #d1b987;
+}
+.settings-keybinds {
+  margin: 0;
+}
+.settings-keybinds > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #977b3a29;
+  gap: 10px;
+}
+.settings-keybinds dt {
+  color: #bdcadb;
+  font-size: 14px;
+}
+.settings-keybinds dd {
+  margin: 0;
+  text-align: right;
+}
+.settings-keybinds kbd {
+  font:
+    12px/1.7 Cambria,
+    serif;
+  color: #e8ce98;
+  min-width: 75px;
+  padding: 2px 7px;
+  background: #07121e;
+}
+.settings-bottom-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--cult-line);
+  padding: 9px 13px;
+  background: #081925eb;
+}
+.settings-bottom-bar p {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  color: #cbb88d;
+  margin: 0;
+}
+.settings-bottom-bar .cult-btn {
+  flex: 0;
+  white-space: nowrap;
+  min-height: 32px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+.settings-account-management .account {
+  padding-top: 4px;
+}
+.settings-account-management .account > p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.settings-account-management .account-hint {
+  max-width: none;
+}
+.settings-account-management .create-name {
+  font:
+    14px Cambria,
+    serif;
+  color: #d7c190;
+  margin: 14px 0;
+}
+.settings-account-management input {
+  width: 100%;
+  color: #e4ddc9;
+  font:
+    14px Cambria,
+    serif;
+  padding: 10px;
+  border: 1px solid #99805280;
+  background: #06131fe8;
+  border-radius: 3px;
+}
+.settings-account-management .btn {
+  font:
+    14px Cambria,
+    serif;
+  padding: 10px 14px;
+}
+.cult-settings button:focus-visible,
+.cult-settings select:focus-visible,
+.cult-settings input:focus-visible {
+  outline: 2px solid #e9bd6b;
+  outline-offset: 2px;
+}
+
+.hud.phone .cult-settings {
+  grid-template-columns: 89px minmax(0, 1fr);
+  gap: 5px;
+  font-size: 11px;
+}
+.hud.phone .settings-side {
+  padding-right: 4px;
+}
+.hud.phone .settings-side > button {
+  min-height: 42px;
+  gap: 5px;
+  font-size: 10px;
+  white-space: nowrap;
+  padding: 7px 4px;
+}
+.hud.phone .settings-side > button > .settings-glyph {
+  width: 18px;
+  height: 18px;
+}
+.hud.phone .settings-side-foot {
+  gap: 5px;
+  padding: 14px 7px 8px;
+}
+.hud.phone .settings-side-foot .settings-glyph {
+  width: 24px;
+  height: 24px;
+}
+.hud.phone .settings-side-foot > span {
+  font-size: 7px;
+  letter-spacing: 2px;
+}
+.hud.phone .settings-side-foot > small {
+  font-size: 8px;
+}
+.hud.phone .settings-content {
+  gap: 5px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.95fr);
+}
+.hud.phone .settings-center-scroll,
+.hud.phone .settings-right-scroll {
+  gap: 6px;
+  padding-right: 2px;
+}
+.hud.phone .settings-card {
+  padding: 12px;
+}
+.hud.phone .settings-card > .cult-heading {
+  font-size: 12px;
+  padding-bottom: 9px;
+}
+.hud.phone .settings-row {
+  min-height: 39px;
+  padding: 8px 0;
+  gap: 10px;
+}
+.hud.phone .settings-row > div:first-child > span {
+  font-size: 11px;
+}
+.hud.phone .settings-row > div:first-child > small {
+  font-size: 8px;
+  margin-top: 3px;
+}
+.hud.phone .settings-row-control {
+  gap: 4px;
+  max-width: 58%;
+}
+.hud.phone .settings-row-control select {
+  width: 115px;
+  padding: 6px;
+  font-size: 10px;
+}
+.hud.phone .settings-static-value {
+  font-size: 9px;
+}
+.hud.phone .settings-row-control .cult-btn {
+  min-height: 26px;
+  padding: 4px 7px;
+  font-size: 9px;
+}
+.hud.phone .settings-switch {
+  width: 32px;
+  height: 19px;
+  padding: 2px;
+}
+.hud.phone .settings-switch > span {
+  width: 13px;
+  height: 13px;
+}
+.hud.phone .settings-switch.on > span {
+  transform: translateX(13px);
+}
+.hud.phone .settings-range {
+  width: 142px;
+  gap: 5px;
+}
+.hud.phone .settings-range > span {
+  font-size: 18px;
+}
+.hud.phone .settings-range output {
+  font-size: 9px;
+  min-width: 29px;
+}
+.hud.phone .settings-quick-help > div {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.hud.phone .settings-quick-help .settings-glyph {
+  width: 28px;
+  height: 28px;
+}
+.hud.phone .settings-quick-help p {
+  font-size: 10px;
+}
+.hud.phone .settings-quick-help .cult-btn {
+  font-size: 10px;
+  min-height: 28px;
+  padding: 5px 8px;
+  margin-left: auto;
+}
+.hud.phone .settings-graphics-note {
+  gap: 9px;
+}
+.hud.phone .settings-graphics-note h4 {
+  font-size: 14px;
+}
+.hud.phone .settings-graphics-note p {
+  font-size: 10px;
+}
+.hud.phone .settings-profile-summary {
+  gap: 11px;
+  padding: 14px 0 10px;
+}
+.hud.phone .settings-portrait {
+  width: 55px;
+  height: 69px;
+}
+.hud.phone .settings-profile h2 {
+  font-size: 21px;
+  margin-bottom: 4px;
+}
+.hud.phone .settings-profile-account {
+  font-size: 9px;
+}
+.hud.phone .settings-profile p {
+  font-size: 9px;
+  margin-top: 5px;
+}
+.hud.phone .settings-account-id {
+  padding: 5px 0;
+  gap: 5px;
+}
+.hud.phone .settings-account-id > span {
+  font-size: 8px;
+}
+.hud.phone .settings-account-id button {
+  font-size: 15px;
+}
+.hud.phone .settings-sync-status {
+  font-size: 9px;
+  gap: 5px;
+  padding: 4px 6px;
+}
+.hud.phone .settings-account-links p,
+.hud.phone .settings-data-card > p {
+  font-size: 10px;
+  margin: 9px 0;
+}
+.hud.phone .settings-account-links .cult-btn,
+.hud.phone .settings-data-actions .cult-btn {
+  min-height: 29px;
+  font-size: 10px;
+  padding: 5px 8px;
+}
+.hud.phone .settings-data-facts {
+  margin: 7px 0 10px;
+}
+.hud.phone .settings-data-facts > div {
+  padding: 7px 0;
+  font-size: 10px;
+}
+.hud.phone .settings-hint {
+  font-size: 10px;
+  margin: 9px 0 12px;
+}
+.hud.phone .settings-data-actions {
+  gap: 6px;
+}
+.hud.phone .settings-signout {
+  font-size: 12px;
+  min-height: 32px;
+}
+.hud.phone .settings-input-methods {
+  padding: 11px 0;
+  gap: 8px;
+}
+.hud.phone .settings-input-methods article {
+  gap: 9px;
+  padding: 10px;
+}
+.hud.phone .settings-input-methods article > .settings-glyph {
+  width: 25px;
+  height: 25px;
+}
+.hud.phone .settings-input-methods h4 {
+  font-size: 14px;
+}
+.hud.phone .settings-input-methods p {
+  font-size: 10px;
+}
+.hud.phone .settings-input-methods small {
+  font-size: 9px;
+  margin-top: 6px;
+}
+.hud.phone .settings-keybinds > div {
+  padding: 7px 0;
+}
+.hud.phone .settings-keybinds dt {
+  font-size: 11px;
+}
+.hud.phone .settings-keybinds kbd {
+  font-size: 10px;
+  min-width: 55px;
+  padding: 1px 5px;
+}
+.hud.phone .settings-bottom-bar {
+  padding: 6px 9px;
+  gap: 8px;
+}
+.hud.phone .settings-bottom-bar p {
+  font-size: 9px;
+}
+.hud.phone .settings-bottom-bar .cult-btn {
+  min-height: 29px;
+  padding: 4px 9px;
+  font-size: 10px;
+}
+.hud.phone .settings-account-management .account > p {
+  font-size: 10px;
+}
+.hud.phone .settings-account-management .create-name {
+  font-size: 11px;
+  margin: 10px 0;
+}
+.hud.phone .settings-account-management input {
+  padding: 7px;
+  font-size: 11px;
+}
+.hud.phone .settings-account-management .btn {
+  font-size: 11px;
+  padding: 7px 10px;
+}
+@media (max-height: 340px) {
+  .hud.phone .settings-side > button {
+    min-height: 35px;
+    padding: 5px 4px;
+  }
+  .hud.phone .settings-side-foot {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-switch,
+  .settings-switch > span {
+    transition: none;
+  }
+}
