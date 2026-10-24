@@ -5,7 +5,7 @@ import { it, expect } from 'vitest';
 import { TopMenu } from './TopMenu';
 import { gameStore, newPlayer } from '../store/gameStore';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-it('keeps mobile menus compact while making sect and premium features reachable', () => {
+it('keeps desktop and mobile menus compact while making every feature reachable', () => {
   const previous = gameStore.getState(),
     host = document.createElement('div'),
     root = createRoot(host);
@@ -19,7 +19,12 @@ it('keeps mobile menus compact while making sect and premium features reachable'
     expect(gameStore.getState().menu).toBe('sect');
     expect(host.querySelector('.top-menu-more')).toBeNull();
     act(() => root.render(<TopMenu />));
-    expect(host.querySelectorAll('button')).toHaveLength(11);
+    expect(host.querySelectorAll('button')).toHaveLength(6);
+    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
+    expect(host.querySelector('.menu-btn-settings')).not.toBeNull();
+    act(() => host.querySelector<HTMLButtonElement>('.menu-btn-premium')!.click());
+    expect(gameStore.getState().menu).toBe('premium');
+    expect(host.querySelector('.top-menu-more')).toBeNull();
   } finally {
     act(() => root.unmount());
     gameStore.setState(previous);
