@@ -2,6 +2,7 @@ import { FIELD_BANDS, type FieldBand } from '../systems/scale';
 import { MapBuilder, type MapDef } from './MapBuilder';
 import { dungeonMap, DUNGEON_MAPS } from './dungeonMaps';
 import { daiThuaVien } from './courtyard';
+import { populateBestiary } from './bestiarySpawns';
 import { vuongGiaThon, ngoaiMon, linhSonTong, dinhTa, rungLinhThu, biCanhThachLinh, thacNgoc } from './worldMaps';
 
 type Spawn = { type: string; x: number; y: number };
@@ -270,7 +271,7 @@ for(const [index,id]of DUNGEON_MAPS.entries())builders[id]=()=>dungeonMap(index)
 export function getMap(id: string): MapDef {
   let m = cache.get(id);
   if (!m) {
-    m = (builders[id] ?? daiThuaVien)();
+    m = populateBestiary((builders[id] ?? daiThuaVien)());
     cache.set(id, m);
   }
   return m;

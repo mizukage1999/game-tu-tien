@@ -29,7 +29,7 @@ import type { MapDef, PortalDef, WorldPoint } from '../maps/MapBuilder';
 import { computeDamage, inAttackArc } from '../systems/combat';
 import { meditateGain, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
-import { rollLoot } from '../systems/loot';
+import { rollDungeonGear } from '../systems/loot';
 import { questDestination, routeOnMap, trackedQuest, trackQuest, trackTravel, trackedTravel, type QuestStop } from '../systems/questNav';
 import { canEnterField, fieldForLevel, FIELD_BANDS, killExp } from '../systems/scale';
 import { realmNameAtLevel } from '../systems/progression';
@@ -922,7 +922,7 @@ export class WorldScene extends Phaser.Scene {
 
     patch.minimap = {
       player: { x: p.x, y: p.y },
-      monsters: this.monsters.filter((m) => m.alive).map((m) => ({ x: m.x, y: m.y })),
+      monsters: this.monsters.filter((m) => m.alive).map((m) => ({ x: m.x, y: m.y, boss: !!m.def.boss && !m.hideStrength, ...(!m.hideStrength ? { level: m.def.level, name: m.def.name } : {}) })),
       npcs: this.npcs.map((n) => ({ x: n.x, y: n.y })),
       loot: (this.loot.getChildren() as LootDrop[]).map((l) => ({ x: l.x, y: l.y })),
     };
@@ -1562,7 +1562,7 @@ export class WorldScene extends Phaser.Scene {
     s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
     s.beastVictory(m.type);
-    const drops = rollLoot(m.def.loot);
+    const drops = rollDungeonGear(m.def.loot);
     if (!this.map.arena && Math.random() < (m.type === 'hoa_ho' ? 0.8 : 0.4)) drops.push({ item: 'yeu_dan', qty: 1 });
     if (!this.map.arena && Math.random() < .25) drops.push({ item: 'huyen_thiet', qty: 1 });
     if (m.def.boss && Math.random() < .3) drops.push({ item: Math.random() < .5 ? 'cong_thuc_ngoc' : 'cong_thuc_pha_canh', qty: 1 });

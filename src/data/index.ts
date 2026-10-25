@@ -11,6 +11,7 @@ import { NEW_MAPS, WORLD_NPCS, WORLD_QUESTS } from './world';
 import { EXPANSION_ITEMS, EXPANSION_OFFERS } from './expansion';
 import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 import { WANG_SKILLS } from './wangSkills';
+import { BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
 
 export interface LootEntry {
   item: string;
@@ -254,12 +255,13 @@ function equipmentOffers(): ShopOffer[] {
 
 const scaled = buildScaledContent();
 
-export const MONSTERS: Record<string, MonsterDef> = {
+export const MONSTERS: Record<string, MonsterDef> = restyleLegacyMonsters({
   ...(monstersJson as unknown as Record<string, MonsterDef>),
   ...scaled.monsters,
+  ...BESTIARY_MONSTERS,
   thanh_moc_thu: { name: 'Thanh Mộc Thú', level: 3, art: 'beast_snow', hp: 210, atk: 13, def: 5, speed: 100, aggroRadius: 165, attackRange: 55, attackInterval: 1700, attackWindup: 350, leashRadius: 230, exp: 65, respawnMs: 12000, loot: [{ item: 'linh_khi', qty: [4, 8], chance: 1 }, { item: 'linh_thach', qty: [1, 1], chance: .35 }, { item: 'linh_chi', qty: [1, 1], chance: .25 }] },
   thach_linh_thu: { name: 'Thạch Linh Thú', level: 5, art: 'beast_snow', hp: 330, atk: 19, def: 9, speed: 95, aggroRadius: 155, attackRange: 58, attackInterval: 1800, attackWindup: 400, leashRadius: 240, exp: 105, respawnMs: 16000, loot: [{ item: 'linh_khi', qty: [8, 15], chance: 1 }, { item: 'yeu_dan', qty: [1, 1], chance: .45 }, { item: 'linh_thach', qty: [1, 2], chance: .4 }] },
-};
+});
 export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS };
 export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS,...WANG_SKILLS};
 export const REALMS = realmsJson as unknown as RealmDef[];

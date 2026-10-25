@@ -63,7 +63,7 @@ export interface TargetInfo {
 
 export interface MinimapData {
   player: Vec2;
-  monsters: Vec2[];
+  monsters: (Vec2 & { boss?: boolean; level?: number; name?: string })[];
   npcs: Vec2[];
   loot: Vec2[];
 }

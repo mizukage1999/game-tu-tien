@@ -8,6 +8,7 @@ import { herbNodes } from '../../game/systems/immortal';
 import { overviewFrame, overviewPoint, overviewTile } from '../../game/systems/mapProjection';
 import { useMapPreview } from '../useMapPreview';
 import './map-panel.css';
+import { MONSTERS } from '../../data';
 
 export function MapPanel() {
   const id = useGame(s => s.mapId), mm = useGame(s => s.minimap);
@@ -41,7 +42,7 @@ export function MapPanel() {
     for (const n of map.npcs) mark((n.x + .5) * TILE, (n.y + .5) * TILE, '!', '#ffe2a1');
     for (const p of map.points ?? []) mark((p.x + .5) * TILE, (p.y + .5) * TILE, '◆', '#cbd8a4', 8);
     for (const h of herbNodes(id)) mark((h.x + .5) * TILE, (h.y + .5) * TILE, '♧', '#9ee6aa', 8);
-    for (const m of mm.monsters) mark(m.x, m.y, '•', '#ff8079', 5);
+    for (const m of mm.monsters) mark(m.x, m.y, m.boss ? '♛' : '•', m.boss ? '#ffd17b' : '#ff8079', m.boss ? 12 : 5);
     mark(mm.player.x, mm.player.y, '▲', '#ffffff', 12);
   }, [mode, map, mm, id, preview, size]);
 
@@ -69,8 +70,11 @@ export function MapPanel() {
         <div className="map-targets">{map.npcs.map((n, i) => <button key={`${n.id}-${i}`} onClick={() => EventBus.emit('cmd:mapWalk', { x: n.x, y: n.y + 1 })}>! <span>{npcName(n.id)}</span></button>)}
           {(map.points ?? []).map(p => <button key={p.id} onClick={() => EventBus.emit('cmd:mapWalk', { x: p.x, y: p.y })}>◆ <span>{p.name}</span></button>)}
           {map.portals.map((p, i) => <button key={`portal-${i}`} onClick={() => EventBus.emit('cmd:mapWalk', { x: p.rect[0] + Math.floor(p.rect[2] / 2), y: p.rect[1] + Math.floor(p.rect[3] / 2) })}>◇ <span>{p.label}</span></button>)}
+          {[...new Map(map.monsters.map(m => [m.type, m])).values()].map(m => <button key={`beast-${m.type}`} className={MONSTERS[m.type]?.boss ? 'map-boss-target' : 'map-beast-target'} onClick={() => EventBus.emit('cmd:mapWalk', { x: m.x, y: m.y })}>
+            {MONSTERS[m.type]?.boss ? '♛' : '•'} <span>{MONSTERS[m.type]?.name}<small>Lv.{MONSTERS[m.type]?.level} · {MONSTERS[m.type]?.boss ? 'Boss' : 'Bãi quái'}</small></span>
+          </button>)}
         </div>
-        <div className="map-legend"><span>▲ Bạn</span><span>! NPC</span><span>◇ Cổng</span><span>• Quái / tán tu</span><span>♧ Dược liệu</span><span>◆ Tương tác</span></div>
+        <div className="map-legend"><span>▲ Bạn</span><span>! NPC</span><span>◇ Cổng</span><span>• Quái / tán tu</span><span>♛ Boss</span><span>♧ Dược liệu</span><span>◆ Tương tác</span></div>
         <p>Chạm lên bản đồ hoặc chọn điểm đến để dẫn đường.</p>
       </aside>
     </div>}

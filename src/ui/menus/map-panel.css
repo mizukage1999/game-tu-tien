@@ -79,3 +79,7 @@
   margin-top: 3px;
 }
 .hud .menu-map > .menu-header h3, .map-mode-tabs > span, .local-map-name strong, .local-map-sidebar h4 { font-family: 'Times New Roman', serif; }
+.map-targets button small { display: block; margin-top: 3px; font-size: 9px; color: #a7bbc6; }
+.map-targets .map-boss-target { border-color: #dfb56b99; color: #ffd17b; background: #59411c70; }
+.map-targets .map-beast-target { color: #ee9e98; }
+.hud.phone .map-targets button small { font-size: 8px; margin-top: 1px; }

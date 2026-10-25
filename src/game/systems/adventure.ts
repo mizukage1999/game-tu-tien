@@ -223,6 +223,7 @@ export function battlePower(stats: {
   );
 }
 export const BEAST_ENCOUNTERS: Record<string, CompanionId> = {
+  ho_yeu: 'red_fox', yeu_ho_son_lam: 'gold_tiger', linh_hac: 'white_crane', huyet_lang: 'shadow_wolf',
   linh_thu: 'snow_fox',
   hoa_ho: 'red_fox',
   thanh_moc_thu: 'jade_deer',

@@ -15,6 +15,7 @@ import { registerInventoryIcons } from '../art/inventoryIcons';
 import { VILLAGE_ATLASES, registerVillageArt } from '../art/village';
 import { WORLD_STYLE_ATLASES, registerWorldStyle } from '../art/worldStyle';
 import { HERO_SHEETS, registerHeroes } from '../art/heroes';
+import { BESTIARY_SHEETS, registerMonsterArt } from '../art/monsterArt';
 
 interface AtlasEntry {
   atlas: string;
@@ -33,6 +34,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    for (const sheet of BESTIARY_SHEETS) this.load.image(`bestiary-${sheet}-source`, `assets/monsters/${sheet}-v6.png`);
     for (const key of HERO_SHEETS) this.load.image(`${key}-source`, `assets/sprites/${key}.png`);
     this.load.image('inventory-item-icons','/assets/ui/cultivation/bag-items-v1.png');
     this.load.image('cult-skill-icons','/assets/ui/cultivation/skill-icons-alpha-v2.png');
@@ -76,6 +78,7 @@ export class PreloadScene extends Phaser.Scene {
     registerCohesiveArt(this);
     registerExpansionArt(this);
     registerHeroes(this);
+    registerMonsterArt(this);
     registerVillageArt(this);
     registerWorldStyle(this);
     if(this.textures.exists('cult-skill-icons'))registerCultivationIcons(this.textures.get('cult-skill-icons').getSourceImage() as HTMLImageElement);

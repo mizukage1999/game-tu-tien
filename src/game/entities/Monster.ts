@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { MONSTERS, type MonsterDef } from '../../data';
-import { iso } from '../art/iso';
+import { iso, isoVector } from '../art/iso';
+import { speciesForArt } from '../../data/bestiary';
 import { AnimationController } from '../anim/AnimationController';
 import { flash, impact, knockback } from '../fx/HitEffect';
 import { createBrain, isHostile, provoke, stepMonsterAI, type AIParams, type MonsterBrain } from '../systems/monsterAI';
@@ -48,7 +49,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     opts: { arena?: boolean; definition?:MonsterDef; hideStrength?:boolean } = {},
   ) {
     const def = opts.definition ?? MONSTERS[type];
-    super(world, x, y, def.art);
+    const art = world.textures.exists(def.art) ? def.art : def.boss ? 'beast_frost_king' : 'beast_snow';
+    super(world, x, y, art);
     this.def = def;
     this.hideStrength = !!opts.hideStrength;
     this.hp = def.hp;
@@ -59,8 +61,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     world.physics.add.existing(this);
     this.setVisible(false);
     const spot = iso(x, y);
-    this.art = world.add.sprite(spot.x, spot.y, def.art).setOrigin(0.5, 1);
-    this.ctrl = new AnimationController(this.art, def.art);
+    this.art = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
+    this.ctrl = new AnimationController(this.art, art);
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(34, 16);
     body.setOffset(this.width*this.originX-17,this.height*this.originY-8);
@@ -71,16 +73,16 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setScale(1.2 * scale, scale).setDepth(-100);
     this.label = world.add
-      .text(spot.x, spot.y, def.boss ? `【${def.name}】` : def.name, {
+      .text(spot.x, spot.y, def.boss && !this.hideStrength ? `【${def.name}】 Lv.${def.level}` : def.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: def.boss ? '15px' : '12px',
         fontStyle: 'bold',
         color: def.boss ? '#ffd34d' : type === 'hoa_ho' ? '#ffb27a' : '#ffd6d6',
         stroke: '#2a0a0a',
         strokeThickness: 3,
+        resolution: 2,
       })
       .setOrigin(0.5, 1)
-      .setResolution(2)
       .setDepth(89000);
     this.bar = world.add.graphics().setDepth(89000);
     this.setFlipX(Math.random() < 0.5);
@@ -135,8 +137,9 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
         this.navigator.steer(this.world.map.blocked, TILE, this, goal, Math.hypot(out.velocity.x,out.velocity.y), dt) : out.velocity;
       body.setVelocity(velocity.x * slow, velocity.y * slow);
       const moving = Math.hypot(velocity.x, velocity.y) > 5;
-      if (Math.abs(velocity.x) > 3) this.setFlipX(velocity.x < 0);
-      else if (player && isHostile(this.brain)) this.setFlipX(player.x < this.x);
+      const screenMove = isoVector(velocity.x, velocity.y);
+      if (Math.abs(screenMove.x) > 3) this.setFlipX(screenMove.x < 0);
+      else if (player && isHostile(this.brain)) this.setFlipX(isoVector(player.x - this.x, player.y - this.y).x < 0);
       this.ctrl.play(moving ? 'run' : 'idle', this.flipX ? 'left' : 'right');
     }
     const slowed = this.slowTimer > 0;
@@ -153,7 +156,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.art.setPosition(spot.x, spot.y).setDepth(spot.y);
     this.syncLook();
     this.shadow.setPosition(spot.x, spot.y - 2);
-    const top = spot.y - (this.hideStrength||this.def.art.startsWith('dungeon_boss_')?116:66) * this.scaleY;
+    const visualHeight = speciesForArt(this.art.texture.key)?.height;
+    const top = spot.y - (visualHeight ? visualHeight + 10 : this.hideStrength||this.def.art.startsWith('dungeon_boss_')?116:66) * this.scaleY;
     const density = this.world.registry.get('render-density') as number || 1;
     const zoom = this.world.cameras.main.zoom / density;
     const compact = !!this.world.registry.get('phone-layout');
@@ -190,21 +194,25 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
 
   private startAttack(player: Vec2) {
     this.attacking = true;
-    this.setFlipX(player.x < this.x);
+    this.setFlipX(isoVector(player.x - this.x, player.y - this.y).x < 0);
+    let animationDone = false, impactDone = false;
+    const finish = () => { if (animationDone && impactDone) this.attacking = false; };
     (this.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
     this.ctrl.play('attack', this.flipX ? 'left' : 'right', {
       lock: true,
       force: true,
       onComplete: () => {
-        this.attacking = false;
+        animationDone = true;
+        finish();
       },
     });
     // telegraph: brief red glow during wind-up, then resolve the bite
     this.setTintFill(0xff9a7a);
     this.world.time.delayedCall(70, () => this.alive && this.clearTint());
     this.world.time.delayedCall(this.def.attackWindup, () => {
-      if (!this.alive || this.rootTimer > 0) return;
-      this.world.monsterHitPlayer(this);
+      if (this.alive && this.rootTimer <= 0) this.world.monsterHitPlayer(this);
+      impactDone = true;
+      finish();
     });
   }
 
@@ -273,7 +281,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     (this.body as Phaser.Physics.Arcade.Body).enable = false;
     this.label.setVisible(false);
     this.bar.clear();
-    this.world.tweens.add({ targets: [this, this.shadow], alpha: 0, duration: 500, onComplete: () => this.setVisible(false) });
+    this.world.tweens.add({ targets: [this, this.art, this.shadow], alpha: 0, duration: 500, onComplete: () => this.setVisible(false) });
   }
 
   private respawn() {
@@ -284,18 +292,22 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.hp = this.def.hp;
     this.rootTimer = this.weakenTimer = this.slowTimer = 0;
     this.alive = true;
+    this.attacking = false;
+    this.hurtTimer = 0;
     this.playerContribution=false;
     this.barDirty = true;
     this.ctrl.unlock();
     this.ctrl.play('idle', 'right', { force: true });
     (this.body as Phaser.Physics.Arcade.Body).enable = true;
     (this.body as Phaser.Physics.Arcade.Body).reset(home.x, home.y);
-    this.setVisible(true).setAlpha(0);
+    this.setVisible(false).setAlpha(0);
+    this.art.setVisible(true);
     this.label.setVisible(true);
     this.world.tweens.add({ targets: [this, this.shadow], alpha: 1, duration: 600 });
   }
 
   destroy(fromScene?: boolean) {
+    this.art?.destroy();
     this.shadow?.destroy();
     this.label?.destroy();
     this.bar?.destroy();

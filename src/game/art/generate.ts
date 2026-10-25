@@ -70,7 +70,7 @@ function buildCharacterSheet(scene: Phaser.Scene, art: string, rig: RigDef, rigN
     ctx.save();
     ctx.translate(cx, fy);
     ctx.scale(k, k);
-    if (rigName === 'beast') drawBeast(ctx, 0, 0, BEAST_PALETTES[palette], beastPose(f.anim, f.i, f.n));
+    if (rigName === 'beast' || rigName === 'monster_v6') drawBeast(ctx, 0, 0, BEAST_PALETTES[palette], beastPose(f.anim, f.i, f.n));
     else drawHuman(ctx, 0, 0, f.dir as 'down' | 'up' | 'side', PALETTES[palette], humanPose(f.anim, f.i, f.n));
     ctx.restore();
     ctx.restore();

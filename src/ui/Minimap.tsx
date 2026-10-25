@@ -79,7 +79,7 @@ export function Minimap() {
       dot((x + w / 2) * TILE, (y + h / 2) * TILE, '#9fe3ff', 4);
     }
     mm.loot.forEach((l) => dot(l.x, l.y, '#7fd8ff', 1.5));
-    mm.monsters.forEach((m) => dot(m.x, m.y, '#ff4d4d', 2.5));
+    mm.monsters.forEach((m) => dot(m.x, m.y, m.boss ? '#ffd17b' : '#ff4d4d', m.boss ? 5 : 2.5));
     mm.npcs.forEach((n) => dot(n.x, n.y, '#ffd84a', 3));
     dot(mm.player.x, mm.player.y, '#ffffff', 3.5);
     ctx.restore();
