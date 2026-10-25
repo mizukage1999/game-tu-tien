@@ -5,6 +5,7 @@ import { wangEffect } from '../../data/wangSkills';
 import { wangIconUrl } from './wangEffects';
 import { cultivationIconUrl } from './skillIcons';
 import { inventoryIconUrl } from './inventoryIcons';
+import { equipmentBaseId } from '../systems/equipment';
 
 function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
   const m = s / 2;
@@ -104,6 +105,7 @@ function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
 }
 
 export function drawItem(ctx: Ctx, id: string, s: number) {
+  id = equipmentBaseId(id);
   const m = s / 2;
   ctx.save();
   const equip = ITEMS[id];
@@ -504,6 +506,7 @@ export const ITEM_SPRITE_ASSETS: Record<string, string> = {
 };
 
 export function itemSpriteTextureKey(id: string) {
+  id = equipmentBaseId(id);
   if (id === 'moc_kiem') return undefined;
   const item = ITEMS[id];
   const spriteRarity = item?.rarity === 'pink' ? 'red' : item?.rarity;
@@ -554,6 +557,7 @@ function toUrl(key: string, s: number, draw: (ctx: Ctx) => void): string {
 }
 
 export function itemIconUrl(id: string, s = 48) {
+  id = equipmentBaseId(id);
   const sprite = inventoryIconUrl(id);
   if (sprite) return sprite;
   const key = itemSpriteTextureKey(id);

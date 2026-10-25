@@ -1,5 +1,5 @@
-import type { EquipSlot } from '../../data';
-import { REALMS } from '../../data';
+import type { EquipSlot, PracticeAction } from '../../data';
+import { ITEMS, REALMS } from '../../data';
 import type { QuestLog } from './quest';
 import type { DungeonRecord } from './dungeon';
 import type { SkillLevels } from './skills';
@@ -9,6 +9,7 @@ import type { LifeProgress } from './life';
 import type { AdventureProgress } from './adventure';
 import type { SkillId } from '../../data';
 import { enhancementLevel } from './enhancement';
+import { normalizeEquipment } from './equipment';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
@@ -44,6 +45,7 @@ export interface FriendRef {
 }
 
 export interface PlayerSave {
+  practice?: Partial<Record<PracticeAction, number>>;
   name: string;
   /** Missing on saves from before character creation; those keep the original look. */
   sex?: Sex;
@@ -114,6 +116,8 @@ export function deserialize(raw: string | null): SaveData | null {
     if (data.v !== SAVE_VERSION || !data.player || typeof data.player.level !== 'number')
       return null;
     if (data.player.sex !== 'male' && data.player.sex !== 'female') data.player.sex = 'female';
+    data.player.inventory ??= {};
+    data.player.equipment ??= {};
     const realmIndex = REALMS.findIndex((realm) => data.player.level <= realm.maxLevel);
     data.player.realmIndex = realmIndex < 0 ? REALMS.length - 1 : realmIndex;
     if (data.player.adventure)
@@ -123,6 +127,7 @@ export function deserialize(raw: string | null): SaveData | null {
           enhancementLevel(n),
         ]),
       );
+    data.player = normalizeEquipment(data.player, ITEMS);
     return data;
   } catch {
     return null;

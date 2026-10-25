@@ -20,6 +20,7 @@ import {
   type InventorySort,
 } from '../../game/systems/inventory';
 import { CultHeading, CultLock } from './CultivationUI';
+import { equipmentBaseId } from '../../game/systems/equipment';
 import './bag.css';
 
 const RARITY_LABELS: Record<RarityId, string> = {
@@ -104,7 +105,7 @@ export function BagPanel() {
       } else {
         equip(id);
         setNotice(
-          gameStore.getState().player.equipment[def.slot] === id
+          equipmentBaseId(gameStore.getState().player.equipment[def.slot] ?? '') === equipmentBaseId(id)
             ? `Đã trang bị ${def.name}.`
             : (gameStore.getState().toasts.slice(-1)[0]?.text ?? 'Chưa thể trang bị vật phẩm này.'),
         );
@@ -222,8 +223,8 @@ export function BagPanel() {
                 className={`cult-bag-item ${id === e.id ? 'selected' : ''}`}
                 style={{ '--loot-color': color } as CSSProperties}
                 aria-pressed={id === e.id}
-                aria-label={`${itemName(e.id)} · ${e.quantity}${e.worn ? ' · đang dùng' : ''}`}
-                title={`${itemName(e.id)} ×${e.quantity}`}
+                aria-label={`${itemName(e.id)}${item?.slot ? ` +${rank}` : ''} · ${e.quantity}${e.worn ? ' · đang dùng' : ''}`}
+                title={`${itemName(e.id)}${item?.slot ? ` +${rank}` : ''} ×${e.quantity}`}
                 onClick={() => {
                   setSelectedId(e.id);
                   setNotice('');
@@ -254,7 +255,7 @@ export function BagPanel() {
         </div>
         <div className="cult-bag-count">
           <span>
-            {entries.length} / {owned.length} loại
+            {entries.length} / {owned.length} ô
           </span>
           <small>Chọn vật phẩm để xem chi tiết</small>
         </div>
@@ -378,7 +379,7 @@ export function BagPanel() {
                     className="cult-btn gold"
                     data-action="enhance"
                     disabled={
-                      n >= MAX_ENHANCEMENT || (p.inventory[ENHANCEMENT_STONE] ?? 0) < stones
+                      status !== 'alive' || n >= MAX_ENHANCEMENT || (p.inventory[ENHANCEMENT_STONE] ?? 0) < stones
                     }
                     onClick={() => {
                       act({ type: 'enhance', id });

@@ -1,4 +1,4 @@
-import type { Objective, QuestDef } from '../../data';
+import type { Objective, PracticeAction, QuestDef } from '../../data';
 import type { ImmortalProgress } from './immortal';
 import { realmNameAtLevel } from './progression';
 
@@ -12,6 +12,7 @@ export interface QuestProgress {
 export type QuestLog = Record<string, QuestProgress>;
 
 export type GameEvent =
+  | { type: 'practice'; action: PracticeAction }
   | { type: 'kill'; target: string }
   | { type: 'collect'; item: string; qty: number }
   | { type: 'talk'; npc: string }
@@ -26,6 +27,9 @@ export type GameEvent =
   | { type: 'interact'; point: string };
 
 export interface QuestContext {
+  practice?: Partial<Record<PracticeAction, number>>;
+  armed?: boolean;
+  clears?: Record<string, number>;
   level: number;
   immortal?: ImmortalProgress;
   mapId?: string;
@@ -33,6 +37,8 @@ export interface QuestContext {
 }
 
 function initialProgress(obj: Objective, ctx: QuestContext): number {
+  if (obj.type === 'practice') return Math.min(obj.count, Math.max(ctx.practice?.[obj.action] ?? 0, obj.action === 'equip' && ctx.armed ? 1 : 0));
+  if (obj.type === 'clearDungeon') return Math.min(obj.count, ctx.clears?.[obj.dungeon] ?? 0);
   if (obj.type === 'interact') return Math.min(obj.count, ctx.interactions?.[obj.point] ?? 0);
   if (obj.type === 'craft') return Math.min(obj.count, ctx.immortal?.crafted[obj.item] ?? 0);
   if (obj.type === 'gather') return Math.min(obj.count, ctx.immortal?.gathered[obj.item] ?? 0);
@@ -64,6 +70,8 @@ export function acceptQuest(
 
 function objectiveGain(obj: Objective, ev: GameEvent): number | 'set' | 0 {
   switch (obj.type) {
+    case 'practice':
+      return ev.type === 'practice' && ev.action === obj.action ? 1 : 0;
     case 'kill':
       return ev.type === 'kill' && ev.target === obj.target ? 1 : 0;
     case 'collect':
@@ -165,6 +173,12 @@ export function objectiveText(
   names: { monster: (id: string) => string; item: (id: string) => string; npc: (id: string) => string; zone: (id: string) => string },
 ): string {
   switch (obj.type) {
+    case 'practice':
+      return {
+        equip: 'Trang bị một vũ khí', basic: 'Đánh thường trúng mục tiêu',
+        skill: 'Thi triển một kỹ năng bằng tay', dash: 'Lướt bằng thân pháp',
+        dodge: 'Né đòn báo chiêu', potion: 'Dùng Hồi Xuân Đan', loadout: 'Thay một kỹ năng',
+      }[obj.action];
     case 'kill':
       return `Đánh bại ${names.monster(obj.target)}`;
     case 'collect':

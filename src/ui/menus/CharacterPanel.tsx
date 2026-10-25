@@ -91,6 +91,7 @@ function AttributeRadar() {
 }
 export function CharacterPanel() {
   const p = useGame((s) => s.player),
+    status = useGame((s) => s.status),
     stats = useGame((s) => s.stats),
     setMenu = useGame((s) => s.setMenu),
     equip = useGame((s) => s.equip),
@@ -363,13 +364,14 @@ export function CharacterPanel() {
                     <button
                       className="cult-btn gold"
                       disabled={
-                        enhancement >= MAX_ENHANCEMENT ||
+                        status !== 'alive' || enhancement >= MAX_ENHANCEMENT ||
                         (p.inventory[ENHANCEMENT_STONE] ?? 0) < cost
                       }
                       onClick={() => {
                         act({ type: 'enhance', id: selectedId });
+                        const current = gameStore.getState().player.equipment[selectedSlot]!;
                         const next = enhancementLevel(
-                          gameStore.getState().player.adventure?.enhancements[selectedId],
+                          gameStore.getState().player.adventure?.enhancements[current],
                         );
                         setNotice(
                           next > enhancement
@@ -396,7 +398,7 @@ export function CharacterPanel() {
                     <button
                       className="cult-gear-candidate"
                       key={id}
-                      disabled={!check.ok}
+                      disabled={status !== 'alive' || !check.ok}
                       onClick={() => {
                         equip(id);
                         setNotice(`Đã trang bị ${itemName(id)}.`);
@@ -404,7 +406,7 @@ export function CharacterPanel() {
                     >
                       <EquipGlyph id={id} />
                       <span>
-                        <b>{itemName(id)}</b>
+                        <b>{itemName(id)} +{enhancementLevel(a.enhancements[id])}</b>
                         <small>{bonusText(ITEMS[id].bonus)}</small>
                       </span>
                       <em>{check.ok ? 'Trang bị' : `Lv.${ITEMS[id].reqLevel}`}</em>

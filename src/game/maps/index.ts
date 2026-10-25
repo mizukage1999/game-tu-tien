@@ -1,6 +1,6 @@
 import { FIELD_BANDS, type FieldBand } from '../systems/scale';
 import { MapBuilder, type MapDef } from './MapBuilder';
-import { dungeonMap, DUNGEON_MAPS } from './dungeonMaps';
+import { dungeonMap, DUNGEON_MAPS, ngocAnTrial } from './dungeonMaps';
 import { daiThuaVien } from './courtyard';
 import { populateBestiary } from './bestiarySpawns';
 import { vuongGiaThon, ngoaiMon, linhSonTong, dinhTa, rungLinhThu, biCanhThachLinh, thacNgoc } from './worldMaps';
@@ -248,6 +248,7 @@ function dongPhu(): MapDef {
 }
 
 const builders: Record<string, () => MapDef> = {
+  pb_ngoc_an: ngocAnTrial,
   sect_archive:()=>sectInterior(false),sect_sacred:()=>sectInterior(true),
   vuong_gia_thon: vuongGiaThon,
   ngoai_mon: ngoaiMon,

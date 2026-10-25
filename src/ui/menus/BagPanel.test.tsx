@@ -6,6 +6,7 @@ import { BagPanel } from './BagPanel';
 import { gameStore, newPlayer } from '../../store/gameStore';
 import { playerStats } from '../../game/systems/progression';
 import { inventoryEntries } from '../../game/systems/inventory';
+import { equipmentBaseId } from '../../game/systems/equipment';
 vi.mock('../../game/art/icons', () => ({ itemIconUrl: (id: string) => `/${id}.png` }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 describe('inventory screen interactions', () => {
@@ -24,20 +25,21 @@ describe('inventory screen interactions', () => {
       act(() => root.render(<BagPanel />));
       act(() => host.querySelector<HTMLButtonElement>('[data-item="weapon_white"]')!.click());
       act(() => host.querySelector<HTMLButtonElement>('[data-action="primary"]')!.click());
-      expect(gameStore.getState().player.equipment.weapon).toBe('weapon_white');
+      const key = gameStore.getState().player.equipment.weapon!;
+      expect(equipmentBaseId(key)).toBe('weapon_white');
       expect(gameStore.getState().player.inventory.weapon_white ?? 0).toBe(0);
       expect(
-        inventoryEntries(gameStore.getState().player).find((e) => e.id === 'weapon_white')
+        inventoryEntries(gameStore.getState().player).find((e) => e.id === key)
           ?.quantity,
       ).toBe(1);
       act(() => host.querySelector<HTMLButtonElement>('[data-action="enhance"]')!.click());
-      expect(gameStore.getState().player.adventure?.enhancements.weapon_white).toBe(1);
+      expect(gameStore.getState().player.adventure?.enhancements[key]).toBe(1);
       expect(gameStore.getState().player.inventory.tinh_luyen_thach).toBe(1);
       expect(host.querySelector('[role="status"]')?.textContent).toContain('thành công');
       act(() => host.querySelector<HTMLButtonElement>('[data-action="primary"]')!.click());
       expect(gameStore.getState().player.equipment.weapon).toBeUndefined();
-      expect(gameStore.getState().player.inventory.weapon_white).toBe(1);
-      expect(gameStore.getState().player.adventure?.enhancements.weapon_white).toBe(1);
+      expect(gameStore.getState().player.inventory[key]).toBe(1);
+      expect(gameStore.getState().player.adventure?.enhancements[key]).toBe(1);
     } finally {
       act(() => root.unmount());
       gameStore.setState(previous);

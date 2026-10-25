@@ -12,6 +12,7 @@ import { EXPANSION_ITEMS, EXPANSION_OFFERS } from './expansion';
 import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 import { WANG_SKILLS } from './wangSkills';
 import { BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
+import { FIRST_TRIAL, OPENING_DUNGEON, OPENING_ITEMS, OPENING_MONSTERS, OPENING_QUESTS } from './openingAdventure';
 
 export interface LootEntry {
   item: string;
@@ -119,6 +120,8 @@ export interface WaveSpawn {
 }
 
 export interface DungeonDef {
+  requiresQuest?: string;
+  practice?: boolean;
   recommendedPower?:number;
   name: string;
   map: string;
@@ -144,7 +147,9 @@ export interface RealmDef {
   breakthrough: { linhKhi: number; linhThach: number } | null;
 }
 
+export type PracticeAction = 'equip' | 'basic' | 'skill' | 'dash' | 'dodge' | 'potion' | 'loadout';
 export type Objective =
+  | { type: 'practice'; action: PracticeAction; count: number }
   | { type: 'kill'; target: string; count: number }
   | { type: 'collect'; item: string; count: number }
   | { type: 'talk'; npc: string; count: number }
@@ -248,7 +253,7 @@ function buildEquipment(): Record<string, ItemDef> {
 }
 
 function equipmentOffers(): ShopOffer[] {
-  return RARITIES.flatMap((r) =>
+  return RARITIES.filter(r => ['white', 'blue', 'green'].includes(r.id)).flatMap((r) =>
     EQUIP_SLOTS.map((slot) => ({ item: equipmentId(slot.id, r.id), qty: 1, price: r.price })),
   );
 }
@@ -259,13 +264,23 @@ export const MONSTERS: Record<string, MonsterDef> = restyleLegacyMonsters({
   ...(monstersJson as unknown as Record<string, MonsterDef>),
   ...scaled.monsters,
   ...BESTIARY_MONSTERS,
+  ...OPENING_MONSTERS,
   thanh_moc_thu: { name: 'Thanh Mộc Thú', level: 3, art: 'beast_snow', hp: 210, atk: 13, def: 5, speed: 100, aggroRadius: 165, attackRange: 55, attackInterval: 1700, attackWindup: 350, leashRadius: 230, exp: 65, respawnMs: 12000, loot: [{ item: 'linh_khi', qty: [4, 8], chance: 1 }, { item: 'linh_thach', qty: [1, 1], chance: .35 }, { item: 'linh_chi', qty: [1, 1], chance: .25 }] },
   thach_linh_thu: { name: 'Thạch Linh Thú', level: 5, art: 'beast_snow', hp: 330, atk: 19, def: 9, speed: 95, aggroRadius: 155, attackRange: 58, attackInterval: 1800, attackWindup: 400, leashRadius: 240, exp: 105, respawnMs: 16000, loot: [{ item: 'linh_khi', qty: [8, 15], chance: 1 }, { item: 'yeu_dan', qty: [1, 1], chance: .45 }, { item: 'linh_thach', qty: [1, 2], chance: .4 }] },
 });
-export const ITEMS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS };
+const ITEM_DEFINITIONS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS, ...OPENING_ITEMS };
+/** Resolve individual loot IDs without duplicating item definitions or image textures. */
+export const ITEMS: Record<string, ItemDef> = new Proxy(ITEM_DEFINITIONS, {
+  get(defs, key) {
+    if (typeof key !== 'string') return Reflect.get(defs, key);
+    const base = key.split('~', 1)[0];
+    return defs[key] ?? (base !== 'tien_phap_bao' && defs[base]?.slot ? defs[base] : undefined);
+  },
+});
 export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS,...WANG_SKILLS};
 export const REALMS = realmsJson as unknown as RealmDef[];
-export const QUESTS: Record<string, QuestDef> = { ...(questsJson as unknown as Record<string, QuestDef>), ...WORLD_QUESTS };
+export const QUESTS: Record<string, QuestDef> = { ...(questsJson as unknown as Record<string, QuestDef>), ...WORLD_QUESTS, ...OPENING_QUESTS };
+QUESTS.main_4 = { ...QUESTS.main_4, requires: 'first_return' };
 export const NPCS: Record<string, NpcDef> = Object.fromEntries(
   Object.entries({ ...(npcsJson as unknown as Record<string, NpcDef>), ...WORLD_NPCS }).map(([id, n]) => [
     id,
@@ -273,6 +288,7 @@ export const NPCS: Record<string, NpcDef> = Object.fromEntries(
   ]),
 );
 export const DUNGEONS: Record<string, DungeonDef> = {
+  [FIRST_TRIAL]: OPENING_DUNGEON,
   ...(dungeonsJson as unknown as Record<string, DungeonDef>),
   ...scaled.dungeons,
   bang_tuyet_dong:{...scaled.dungeons.tier_10_de,name:'Băng Tuyết Lang Cung · Khởi hành',minLevel:5},

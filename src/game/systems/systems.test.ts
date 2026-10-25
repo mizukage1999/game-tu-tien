@@ -240,7 +240,8 @@ describe('progression', () => {
       prev = atk;
     }
     const equipment = NPCS.thuong_nhan.shop!.filter(o=>ITEMS[o.item]?.kind==='equipment');
-    expect(equipment).toHaveLength(RARITIES.length*EQUIP_SLOTS.length);
+    expect(equipment).toHaveLength(3*EQUIP_SLOTS.length);
+    expect(new Set(equipment.map(o => ITEMS[o.item].rarity))).toEqual(new Set(['white', 'blue', 'green']));
     expect(new Set(equipment.map(o=>ITEMS[o.item].slot)).size).toBe(EQUIP_SLOTS.length);
     expect(NPCS.thuong_nhan.shop!.some(o=>o.item==='hat_thanh_linh')).toBe(true);
   });

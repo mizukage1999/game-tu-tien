@@ -122,7 +122,7 @@ describe('skill selection and in-panel crafting', () => {
       );
       act(() => card.querySelector<HTMLButtonElement>('button')!.click());
       expect(card.querySelector('[role="status"]')?.textContent).toContain('Chế tạo thành công');
-      expect(gameStore.getState().player.inventory.moc_kiem).toBe(1);
+      expect(Object.keys(gameStore.getState().player.inventory).filter(id => id.startsWith('moc_kiem~'))).toHaveLength(1);
     } finally {
       act(() => root.unmount());
       gameStore.setState(previous);

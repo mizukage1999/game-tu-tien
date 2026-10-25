@@ -115,7 +115,10 @@ export function recordClear(rec: DungeonRecord | undefined, id: string, day = to
 
 export type EntryCheck = { ok: true } | { ok: false; reason: string };
 
-export function canEnter(rec: DungeonRecord | undefined, id: string, def: DungeonDef, _playerLevel: number, day = todayKey()): EntryCheck {
+export function canEnter(rec: DungeonRecord | undefined, id: string, def: DungeonDef, _playerLevel: number, day = todayKey(), quests?: Record<string, {status: string}>): EntryCheck {
+  if (def.requiresQuest && quests?.[def.requiresQuest]?.status !== 'done')
+    return { ok: false, reason: 'Hoàn thành Hành Trang Trước Bí Cảnh để mở thử luyện.' };
+  if (def.practice) return { ok: true };
   if (attemptsLeft(rec, id, def, day) <= 0) return { ok: false, reason: 'Hôm nay đã hết lượt vào phó bản này.' };
   return { ok: true };
 }

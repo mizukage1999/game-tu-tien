@@ -1276,6 +1276,7 @@ export class WorldScene extends Phaser.Scene {
       }
       case 'cleared': {
         s.finishDungeon(run.id, true, run.elapsed);
+        this.save();
         this.vfx.ascend(this.player, true);
         this.cameras.main.flash(400, 255, 230, 160);
         this.openExit();
@@ -1348,10 +1349,14 @@ export class WorldScene extends Phaser.Scene {
       const p = this.player;
       const dx = p.x - cx;
       const dy = (p.y - cy) / 0.65;
-      if (p.life.status !== 'alive' || Math.hypot(dx, dy) > radius + 12) return;
+      if (p.life.status !== 'alive') return;
+      if (Math.hypot(dx, dy) > radius + 12) {
+        if (aimed) gameStore.getState().recordPractice('dodge');
+        return;
+      }
       const { stats } = gameStore.getState();
       const r = computeDamage({ atk: m.def.atk, def: stats.def, multiplier: mul, critRate: 0, critMul: 1 });
-      p.takeHit(r.amount, true, { x: cx, y: cy });
+      if (!p.takeHit(r.amount, true, { x: cx, y: cy })) gameStore.getState().recordPractice('dodge');
     });
   }
 
@@ -1436,11 +1441,13 @@ export class WorldScene extends Phaser.Scene {
     this.vfx.swing(p.feet, Math.atan2(f.y, f.x), combo, gameStore.getState().player.sex === 'male');
     const finisher = combo === 3;
     const hits = this.monstersInArc(sk.range + (finisher ? 16 : 0), finisher ? 80 : sk.arc);
+    if (hits.length) gameStore.getState().recordPractice('basic');
     const finisherMul = sk.active?.finisherMul ?? 1.5;
     for (const m of hits) this.damageMonster(m, sk.multiplier * (finisher ? finisherMul : 1));
   }
 
   executeSkill(id: SkillId, target: Monster | null) {
+    if (id !== 'basic' && id !== 'than_phap') gameStore.getState().recordPractice('skill');
     const sk = playerSkill(id);
     const p = this.player;
     const f = p.facing;

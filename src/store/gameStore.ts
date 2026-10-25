@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import { DUNGEONS, ITEMS, MONSTERS, NPCS, QUESTS, SKILLS, ZONE_NAMES, type EquipSlot, type QuestRewards, type SkillId } from '../data';
+import { DUNGEONS, ITEMS, MONSTERS, NPCS, QUESTS, SKILLS, ZONE_NAMES, type EquipSlot, type PracticeAction, type QuestRewards, type SkillId } from '../data';
 import { canEnter, consumeAttempt, recordClear, type RunPhase } from '../game/systems/dungeon';
 import { rollDungeonGear } from '../game/systems/loot';
 import { checkUpgrade, effectiveSkill, skillLevel, SKILL_BONUS_LEVEL, type EffectiveSkill } from '../game/systems/skills';
@@ -34,6 +34,7 @@ import { startVillageChapter } from '../game/systems/storyStart';
 import { adventureAction, beastVictory, sectEvent, type AdventureAction } from '../game/systems/adventure';
 import { chooseSkill, skillUnlocked } from '../game/systems/skills';
 import { premiumStore } from '../net/premium';
+import { equipmentBaseId, equipmentInstanceId, findOwnedEquipment, isIndividualEquipment, normalizeEquipment } from '../game/systems/equipment';
 import {
   GARDEN_COOLDOWN_MS, HARVEST_COOLDOWN_MS, HOME_MAX_LEVEL, HOME_QUEST,
   homeUpgradeCost, immortalProgress, mountUnlocked, RECIPES, recipeCheck,
@@ -92,6 +93,7 @@ export interface DungeonResult {
 }
 
 export interface GameState {
+  recordPractice(action: PracticeAction): void;
   player: PlayerSave;
   stats: DerivedStats;
   status: LifeStatus;
@@ -248,6 +250,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
           const next = PROLOGUE_ORDER.find((nextId) => QUESTS[nextId].requires === id);
           if (next) get().acceptQuest(next);
         }
+        for (const [nextId, next] of Object.entries(QUESTS))
+          if (next.autoStart && next.requires === id) get().acceptQuest(nextId);
       } else if (q.status === 'ready' && def.turnIn) {
         get().toast(`${def.name}: hãy về gặp ${npcName(def.turnIn)}`, 'quest');
         get().addLog(`Nhiệm vụ [${def.name}] đã đủ điều kiện, về gặp ${npcName(def.turnIn)}.`);
@@ -318,10 +322,19 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
 
     addItem(id, qty, opts = {}) {
-      if (qty <= 0) return;
+      if (!Number.isFinite(qty) || qty <= 0) return;
+      qty = Math.floor(qty);
       const p = get().player;
       if (id === 'linh_khi') {
         set({ player: { ...p, linhKhi: p.linhKhi + qty } });
+      } else if (isIndividualEquipment(id, ITEMS)) {
+        const next = normalizeEquipment(p, ITEMS), inventory = { ...next.inventory };
+        for (let i = 0; i < qty; i++) {
+          let key = equipmentInstanceId(id);
+          while (inventory[key] || Object.values(next.equipment).includes(key)) key = equipmentInstanceId(id);
+          inventory[key] = 1;
+        }
+        set({ player: { ...next, inventory } });
       } else {
         set({ player: { ...p, inventory: { ...p.inventory, [id]: (p.inventory[id] ?? 0) + qty } } });
       }
@@ -330,7 +343,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
           ITEMS[id]?.kind === 'currency' ? `Nhận ${qty} ${itemName(id)}` : `Nhận được ${itemName(id)} x${qty}`,
         );
       }
-      if (opts.fromPickup) get().questEvent({ type: 'collect', item: id, qty });
+      if (opts.fromPickup) get().questEvent({ type: 'collect', item: equipmentBaseId(id), qty });
     },
 
     removeItems(cost) {
@@ -392,37 +405,45 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const heal = def.heal ?? 0;
       s.restore(Math.round(s.stats.maxHp * heal), Math.round(s.stats.maxMp * heal));
       s.addLog(`Sử dụng ${def.name}`);
+      if (id === 'hoi_xuan_dan') get().recordPractice('potion');
     },
 
     equip(id) {
       const def = ITEMS[id];
       const s = get();
-      if (!def?.slot || (s.player.inventory[id] ?? 0) <= 0) return;
+      if (!def?.slot || !findOwnedEquipment(s.player, id)) return;
       if(id==='tien_phap_bao'&&!premiumStore.getState().items.includes(id))return s.toast('Tiên pháp bảo cần được xác thực trên tài khoản.','warn');
       const check = canEquip(id, s.player.level);
       if (!check.ok) {
         s.toast(check.reason, 'warn');
         return;
       }
-      const current = s.player.equipment[def.slot];
-      s.removeItems({ [id]: 1 });
-      if (current) s.addItem(current, 1, { silent: true });
-      const p = get().player;
-      const equipment = { ...p.equipment, [def.slot]: id };
-      set({ player: { ...p, equipment }, stats: playerStats({ ...p, equipment }) });
+      const p = normalizeEquipment(s.player, ITEMS), key = findOwnedEquipment(p, id);
+      if (!key) return;
+      const current = p.equipment[def.slot], inventory = { ...p.inventory };
+      if (--inventory[key] <= 0) delete inventory[key];
+      if (current) inventory[current] = (inventory[current] ?? 0) + 1;
+      const player = { ...p, inventory, equipment: { ...p.equipment, [def.slot]: key } };
+      const stats = playerStats(player);
+      set({ player: { ...player, hp: Math.min(player.hp, stats.maxHp), mp: Math.min(player.mp, stats.maxMp) }, stats });
       s.addLog(`Trang bị ${def.name}`);
+      if (def.slot === 'weapon') get().recordPractice('equip');
     },
 
     unequip(slot) {
-      const p = get().player;
+      const p = normalizeEquipment(get().player, ITEMS);
       const id = p.equipment[slot];
       if (!id) return;
       const equipment = { ...p.equipment, [slot]: undefined };
-      set({ player: { ...p, equipment }, stats: playerStats({ ...p, equipment }) });
-      get().addItem(id, 1, { silent: true });
+      const player = { ...p, equipment, inventory: { ...p.inventory, [id]: (p.inventory[id] ?? 0) + 1 } };
+      const stats = playerStats(player);
+      set({ player: { ...player, hp: Math.min(player.hp, stats.maxHp), mp: Math.min(player.mp, stats.maxMp) }, stats });
     },
 
     questEvent(ev) {
+      // Reconcile newly added story links for older saves on their next world event.
+      for (const [id, def] of Object.entries(QUESTS))
+        if (def.autoStart && def.requires && get().quests[def.requires]?.status === 'done' && !get().quests[id]) get().acceptQuest(id);
       const event=ev.type==='dungeonClear'?'dungeon':ev.type;
       get().recordAdventure(event,ev.type==='gather'?'qty' in ev?Number(ev.qty):1:1);
       const res = applyEvent(get().quests, QUESTS, ev);
@@ -437,7 +458,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
       if (isChildhood(get().player) && !id.startsWith('village_')) return;
       if (!get().player.origin && id.startsWith('village_')) return;
       const before = get().quests;
-      const log = acceptQuestPure(before, QUESTS, id, { level: get().player.level, immortal: immortalProgress(get().player), mapId: get().mapId, interactions: get().player.world?.interactions });
+      const player = get().player;
+      const log = acceptQuestPure(before, QUESTS, id, { level: player.level, immortal: immortalProgress(player), mapId: get().mapId, interactions: player.world?.interactions, practice: player.practice, armed: !!player.equipment.weapon, clears: player.dungeons?.clears });
       if (log === before) return;
       set({ quests: log });
       get().toast(`Nhận nhiệm vụ: ${def.name}`, 'quest');
@@ -588,7 +610,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
         s.toast('Bạn đang ở trong phó bản.', 'warn');
         return false;
       }
-      const check = canEnter(s.player.dungeons, id, def, s.player.level);
+      if (s.status !== 'alive' || isChildhood(s.player) || s.tribulation || lifeProgress(s.player).retreat) return false;
+      const check = canEnter(s.player.dungeons, id, def, s.player.level, undefined, s.quests);
       if (!check.ok) {
         s.toast(check.reason, 'warn');
         return false;
@@ -654,8 +677,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const result=performLifeAction(s.player,action,s.mapId==='dong_phu',s.status==='alive');
       if(!result.ok){if(feedbackId)set({craftFeedback:{id:feedbackId,ok:false,text:result.reason}});return s.toast(result.reason,'warn');}
       if(feedbackId)set({craftFeedback:{id:feedbackId,ok:true,text:result.message}});
-      const stats=playerStats(result.player);
-      set({player:{...result.player,hp:Math.min(result.player.hp,stats.maxHp),mp:Math.min(result.player.mp,stats.maxMp)},stats,...(action.type==='retreat'?{auto:false}: {})});
+      const nextPlayer=normalizeEquipment(result.player,ITEMS),stats=playerStats(nextPlayer);
+      set({player:{...nextPlayer,hp:Math.min(nextPlayer.hp,stats.maxHp),mp:Math.min(nextPlayer.mp,stats.maxMp)},stats,...(action.type==='retreat'?{auto:false}: {})});
       if(result.exp)get().gainExp(result.exp);
       get().toast(result.message,'quest');
       get().addLog(result.message);
@@ -679,7 +702,14 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
     recordAdventure(event,qty=1){const p=get().player,next=sectEvent(p,event,qty);if(next!==p)set({player:next});},
     beastVictory(type){set({player:beastVictory(get().player,type)});},
-    chooseSkill(slot,id){const p=chooseSkill(get().player,slot,id);if(!p)return get().toast('Kỹ năng chưa mở hoặc ô không hợp lệ.','warn');set({player:p});const s=get();saveGame({player:p,quests:s.quests,mapId:s.mapId,pos:s.minimap.player.x>0?s.minimap.player:s.spawnPos});},
+    chooseSkill(slot,id){const p=chooseSkill(get().player,slot,id);if(!p)return get().toast('Kỹ năng chưa mở hoặc ô không hợp lệ.','warn');set({player:p});get().recordPractice('loadout');const s=get();saveGame({player:s.player,quests:s.quests,mapId:s.mapId,pos:s.minimap.player.x>0?s.minimap.player:s.spawnPos});},
+    recordPractice(action) {
+      const s = get();
+      if (s.status !== 'alive' || isChildhood(s.player) || (s.auto && ['basic', 'skill', 'dash'].includes(action))) return;
+      const practice = { ...s.player.practice, [action]: Math.min(999, (s.player.practice?.[action] ?? 0) + 1) };
+      set({ player: { ...s.player, practice } });
+      get().questEvent({ type: 'practice', action });
+    },
     finishTribulation(success){
       const s=get(),trial=s.tribulation;if(!trial)return;
       if(success&&(trial.remaining>0||trial.strikes<4))return;

@@ -2,6 +2,7 @@ import { ITEMS, type SkillId } from '../../data';
 import type { PlayerSave } from './save';
 import { lifeProgress, type CompanionId } from './life';
 import { enhanceCost, enhanceChance, enhancementLevel, MAX_ENHANCEMENT } from './enhancement';
+import { equipmentBaseId, findOwnedEquipment, normalizeEquipment } from './equipment';
 export { enhanceCost, enhanceChance, MAX_ENHANCEMENT } from './enhancement';
 
 export interface SectMission {
@@ -126,6 +127,14 @@ export function adventureAction(
   | { ok: false; reason: string }
   | { ok: true; player: PlayerSave; message: string; exp?: number; enhanced?: boolean } {
   if (p.origin && !p.admitted) return { ok: false, reason: 'Hoàn thành chương mở đầu trước.' };
+  if (action.type === 'enhance') {
+    p = normalizeEquipment(p, ITEMS);
+    const requestedId = action.id;
+    const worn = Object.values(p.equipment).find(id => id === requestedId || (equipmentBaseId(requestedId) === requestedId && id && equipmentBaseId(id) === requestedId));
+    const key = worn ?? findOwnedEquipment(p, action.id);
+    if (!key) return { ok: false, reason: 'Không sở hữu trang bị này.' };
+    action = { ...action, id: key };
+  }
   const a = adventure(p),
     inventory = { ...p.inventory };
   const fail = (reason: string) => ({ ok: false as const, reason });
@@ -180,8 +189,8 @@ export function adventureAction(
     case 'enhance': {
       const def = ITEMS[action.id],
         n = a.enhancements[action.id] ?? 0;
-      if (!def?.slot || !Object.values(p.equipment).includes(action.id))
-        return fail('Hãy trang bị món đồ cần cường hóa.');
+      if (!def?.slot || (!Object.values(p.equipment).includes(action.id) && !(inventory[action.id] > 0)))
+        return fail('Không sở hữu trang bị này.');
       if (n >= MAX_ENHANCEMENT) return fail('Trang bị đã đạt tối đa +12.');
       const cost = enhanceCost(n);
       if (!pay(cost)) return fail('Chưa đủ Đá Cường Hóa. Có thể nhận đá khi vượt phó bản.');

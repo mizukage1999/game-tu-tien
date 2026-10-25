@@ -7,6 +7,7 @@ import { storyOrder, storyChapter } from '../game/systems/immortal';
 import { usePhoneLayout } from './TouchPlay';
 import { originText } from '../game/systems/origin';
 import { useTrackedQuest } from './useTrackedQuest';
+import { OpeningGuide } from './OpeningGuide';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
@@ -64,6 +65,7 @@ export function QuestPanel() {
             );
           })}
         </ul>
+        <OpeningGuide />
         {phone && <button className="quest-details" onClick={() => setMenu('journey')}>Tiên Lộ · Xem chi tiết ›</button>}
         </>
       )}

@@ -28,8 +28,8 @@ describe('enhancement stones and +12 cap', () => {
       action = { type: 'enhance' as const, id: 'weapon_white' };
     const success = adventureAction(p, action, false, () => 0),
       failed = adventureAction(p, action, false, () => 0.99);
-    expect(success.ok && success.player.adventure?.enhancements.weapon_white).toBe(7);
-    expect(failed.ok && failed.player.adventure?.enhancements.weapon_white).toBe(6);
+    expect(success.ok && success.player.adventure?.enhancements[success.player.equipment.weapon!]).toBe(7);
+    expect(failed.ok && failed.player.adventure?.enhancements[failed.player.equipment.weapon!]).toBe(6);
     expect(failed.ok && failed.enhanced).toBe(false);
     expect(failed.ok && failed.player.inventory.tinh_luyen_thach).toBe(17);
     expect(p.inventory.tinh_luyen_thach).toBe(20);
@@ -50,7 +50,7 @@ describe('enhancement stones and +12 cap', () => {
     const loaded = deserialize(
       serialize({ player: p, quests: {}, mapId: 'linh_son_tong', pos: null }),
     )!;
-    expect(loaded.player.adventure?.enhancements.weapon_white).toBe(MAX_ENHANCEMENT);
+    expect(loaded.player.adventure?.enhancements[loaded.player.equipment.weapon!]).toBe(MAX_ENHANCEMENT);
     expect(adventureAction(loaded.player, { type: 'enhance', id: 'weapon_white' }, false).ok).toBe(
       false,
     );

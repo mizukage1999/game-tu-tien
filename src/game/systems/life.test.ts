@@ -218,7 +218,7 @@ describe('weapon-only save compatibility', () => {
       equipment: { weapon: 'moc_kiem', armor: 'armor_white', ring: 'nhan_bac' },
     };
     const loaded = deserialize(serialize({ player: p, quests: {}, mapId: 'dong_phu', pos: null }))!;
-    expect(loaded.player.equipment).toEqual(p.equipment);
+    expect(Object.fromEntries(Object.entries(loaded.player.equipment).map(([slot, id]) => [slot, id!.split('~')[0]]))).toEqual(p.equipment);
     expect(loaded.player.inventory.armor_white).toBeUndefined();
     expect(loaded.player.inventory.nhan_bac).toBeUndefined();
     const again = deserialize(serialize(loaded))!;

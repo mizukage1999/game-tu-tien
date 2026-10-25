@@ -137,11 +137,12 @@ function Cultivate() {
 
 function DungeonCard({ id }: { id: string }) {
   const player = useGame((s) => s.player);
+  const quests = useGame((s) => s.quests);
   const stats=useGame(s=>s.stats);
   const inDungeon = useGame((s) => s.dungeon);
   const def = DUNGEONS[id];
   const left = attemptsLeft(player.dungeons, id, def);
-  const check = canEnter(player.dungeons, id, def, player.level);
+  const check = canEnter(player.dungeons, id, def, player.level, undefined, quests);
   const clears = player.dungeons?.clears[id] ?? 0;
   const boss = MONSTERS[def.boss];
   return (
@@ -160,7 +161,7 @@ function DungeonCard({ id }: { id: string }) {
         </span>
         <span>Giới hạn {Math.round(def.timeLimitSec / 60)} phút</span>
         <span className={left === 0 ? 'short' : ''}>
-          Lượt hôm nay: {left}/{def.attemptsPerDay}
+          {def.practice ? 'Thử luyện cốt truyện · có thể thử lại' : `Lượt hôm nay: ${left}/${def.attemptsPerDay}`}
         </span>
       </div>
       <h4>Phần thưởng</h4>
@@ -191,7 +192,7 @@ function Dungeons() {
   const player = useGame((s) => s.player);
   const inDungeon = useGame((s) => s.dungeon);
   const [picked, setPicked] = useState<Record<number, DifficultyId>>({});
-  const legacy = Object.keys(DUNGEONS).filter((id) => !DUNGEONS[id].tier);
+  const legacy = Object.keys(DUNGEONS).filter((id) => !DUNGEONS[id].tier && !DUNGEONS[id].practice);
   return (
     <div className="dungeon-list">
       {inDungeon && (
@@ -205,6 +206,7 @@ function Dungeons() {
         </div>
       )}
       <p className="muted">Phó bản không khóa theo cấp. Mốc Lv chỉ là đề nghị; chọn độ khó phù hợp, boss mạnh cần chuẩn bị kỹ năng và trang bị.</p>
+      <DungeonCard id="ngoc_an_thu_luyen" />
       {DUNGEON_TIERS.map((tier) => {
         const diff = picked[tier.level] ?? 'de';
         const id = dungeonId(tier.level, diff);
@@ -261,7 +263,7 @@ function Shop() {
         <button className={tab === 'misc' ? 'active' : ''} onClick={() => setTab('misc')}>
           Vật tư & đan dược
         </button>
-        {RARITIES.map((r) => (
+        {RARITIES.filter(r => offers.some(o => ITEMS[o.item]?.rarity === r.id)).map((r) => (
           <button
             key={r.id}
             className={tab === r.id ? 'active' : ''}
@@ -274,12 +276,7 @@ function Shop() {
       </div>
       {tab !== 'misc' && (
         <p className="shop-tier-info">
-          <b style={{ color: rarityOf(tab).color }}>{rarityOf(tab).name}</b> · Yêu cầu {realmNameAtLevel(rarityOf(tab).reqLevel)}
-          {player.level >= rarityOf(tab).reqLevel ? (
-            <span className="req-ok"> · Bạn có thể cầm</span>
-          ) : (
-            <span className="req-bad"> · Cần tinh tiến EXP (có thể mua trước)</span>
-          )}
+          <b style={{ color: rarityOf(tab).color }}>{rarityOf(tab).name}</b> · Xem yêu cầu cấp trên từng món.
         </p>
       )}
       {shown.map((o) => {
@@ -292,7 +289,7 @@ function Shop() {
               <ItemLabel id={o.item} /> {o.qty > 1 && `x${o.qty}`}
               <div className="muted">{def?.desc}</div>
               {def?.reqLevel && (
-                <small className={player.level >= def.reqLevel ? 'req-ok' : 'req-bad'}>Yêu cầu {realmNameAtLevel(def.reqLevel)}</small>
+                <small className={player.level >= def.reqLevel ? 'req-ok' : 'req-bad'}>Yêu cầu Lv.{def.reqLevel} · {realmNameAtLevel(def.reqLevel)}</small>
               )}
             </div>
             <div className="shop-price">
@@ -308,6 +305,9 @@ function Shop() {
           </div>
         );
       })}
+      <p className="muted">
+        Trang bị Tím trở lên nhận từ boss và bí cảnh. Thanh Khê Kiếm là thưởng lần đầu của Cổ Viện Ngọc Ấn.
+      </p>
       <p className="muted">
         Bạn có {player.linhKhi} Linh Khí · {player.inventory.linh_thach ?? 0} Linh Thạch.
       </p>

@@ -1,6 +1,7 @@
 import type { PlayerSave } from './save';
 import type { QuestLog } from './quest';
 import { EXPLORATION_ORDER, PROLOGUE_ORDER, WORLD_QUESTS } from '../../data/world';
+import { OPENING_QUESTS } from '../../data/openingAdventure';
 import { REALMS } from '../../data';
 import { missingMaterials } from './crafting';
 
@@ -167,6 +168,9 @@ export const STORY_ORDER = [
   'main_dan',
   'main_phu',
   'main_3',
+  'first_prepare',
+  'first_boss',
+  'first_return',
   'main_4',
   'main_kiem',
   'main_hac',
@@ -177,11 +181,12 @@ export function storyOrder(player: PlayerSave) {
 }
 
 export function storyChapter(id: string) {
+  if (OPENING_QUESTS[id]?.chapter) return OPENING_QUESTS[id].chapter!;
   if (WORLD_QUESTS[id]?.chapter) return WORLD_QUESTS[id].chapter!;
   const index = STORY_ORDER.indexOf(id);
   return index <= 2
     ? 'Chương I · Tiên duyên'
     : index <= 5
       ? 'Chương II · Đan đạo'
-      : 'Chương III · Thanh vân';
+      : 'Chương III · Ngọc ấn thức tỉnh';
 }

@@ -532,6 +532,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     grantInvuln(this.life, sk.active?.invulnMs ?? 320);
     this.ctrl.unlock();
     this.ctrl.play('run', this.visualDir, { force: true });
+    store.recordPractice('dash');
   }
 
   startMeditate() {

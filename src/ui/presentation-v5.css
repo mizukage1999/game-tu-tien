@@ -185,10 +185,14 @@
 .hud-v5 .menu-glyph {
   width: 43px;
   height: 43px;
-  border: 1px solid #c7a36670;
+  border: 0;
   border-radius: 14px 4px;
-  background: linear-gradient(145deg, #253743c9, #061725df);
-  box-shadow: inset 0 0 0 2px #0003;
+  background: transparent;
+  box-shadow: none;
+}
+.hud-v5 .menu-btn:hover .menu-glyph,
+.hud-v5 .menu-btn.active .menu-glyph {
+  box-shadow: none;
 }
 .hud-v5 .menu-icon {
   width: 40px;

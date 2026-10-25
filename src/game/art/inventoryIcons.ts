@@ -1,4 +1,5 @@
 import { ITEMS } from '../../data';
+import { equipmentBaseId } from '../systems/equipment';
 
 const urls = new Map<number, string>();
 const ICONS: Record<string, number> = {
@@ -58,6 +59,7 @@ const REGIONS: number[][] = [
   [1288, 777, 247, 247],
 ];
 export function inventoryIconIndex(id: string): number | undefined {
+  id = equipmentBaseId(id);
   return (
     ICONS[id] ?? (id.startsWith('hat_') ? 18 : ITEMS[id]?.slot ? SLOTS[ITEMS[id].slot!] : undefined)
   );

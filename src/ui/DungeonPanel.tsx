@@ -3,6 +3,7 @@ import { EventBus } from '../game/EventBus';
 import { useGame, type DungeonHud } from '../store/gameStore';
 import type { QuestRewards } from '../data';
 import { RewardList } from './Rewards';
+import { OpeningGuide } from './OpeningGuide';
 
 function phaseText(d: DungeonHud) {
   switch (d.phase) {
@@ -52,6 +53,7 @@ export function DungeonPanel() {
           </div>
         </div>
       )}
+      <OpeningGuide />
       <button className="btn small" onClick={() => EventBus.emit('cmd:leaveDungeon')}>
         Rời phó bản
       </button>

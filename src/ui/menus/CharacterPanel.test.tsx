@@ -6,6 +6,7 @@ import { CharacterPanel } from './CharacterPanel';
 import { gameStore, newPlayer } from '../../store/gameStore';
 import { playerStats } from '../../game/systems/progression';
 import { adventure } from '../../game/systems/adventure';
+import { equipmentBaseId } from '../../game/systems/equipment';
 vi.mock('../../game/art/icons', () => ({ itemIconUrl: () => '/item.png' }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 it('keeps enhancement, unequip and re-equip working through the character paper-doll', () => {
@@ -29,7 +30,9 @@ it('keeps enhancement, unequip and re-equip working through the character paper-
     )!;
     expect(enhance.disabled).toBe(false);
     act(() => enhance.click());
-    expect(gameStore.getState().player.adventure?.enhancements.weapon_white).toBe(1);
+    const key = gameStore.getState().player.equipment.weapon!;
+    expect(equipmentBaseId(key)).toBe('weapon_white');
+    expect(gameStore.getState().player.adventure?.enhancements[key]).toBe(1);
     expect(gameStore.getState().player.inventory.tinh_luyen_thach).toBe(2);
     act(() =>
       host
@@ -37,10 +40,10 @@ it('keeps enhancement, unequip and re-equip working through the character paper-
         .click(),
     );
     expect(gameStore.getState().player.equipment.weapon).toBeUndefined();
-    expect(gameStore.getState().player.inventory.weapon_white).toBe(1);
+    expect(gameStore.getState().player.inventory[key]).toBe(1);
     act(() => host.querySelector<HTMLButtonElement>('.cult-gear-candidate')!.click());
-    expect(gameStore.getState().player.equipment.weapon).toBe('weapon_white');
-    expect(gameStore.getState().player.adventure?.enhancements.weapon_white).toBe(1);
+    expect(gameStore.getState().player.equipment.weapon).toBe(key);
+    expect(gameStore.getState().player.adventure?.enhancements[key]).toBe(1);
   } finally {
     act(() => root.unmount());
     gameStore.setState(previous);

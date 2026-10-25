@@ -14,6 +14,30 @@ const NAMES = [
   'U Minh Lang Địa',
   'Huyền Thiên Kiếp Đài',
 ];
+/** A small, open courtyard gives the first telegraphed fight ample room to dodge. */
+export function ngocAnTrial(): MapDef {
+  const b = new MapBuilder(28, 24, 'grass', 713);
+  b.border('wall');
+  b.fill(5, 4, 18, 17, 'stone');
+  b.ellipse(14, 10, 7, 5, 'platform');
+  b.fill(12, 18, 5, 5, 'path');
+  b.fill(2, 6, 2, 11, 'water');
+  b.fill(24, 6, 2, 11, 'water');
+  const spawns: [number, number][] = [[8, 13], [20, 13], [10, 16], [18, 16]];
+  b.reserve([...spawns.map(([x, y]) => ({ x, y })), { x: 14, y: 9 }, { x: 14, y: 21 }]);
+  for (const x of [5, 22]) {
+    b.place('court-stone-post', x, 5, { glow: 'cold' });
+    b.place('court-stone-post', x, 18, { glow: 'warm' });
+  }
+  for (const [x, y] of [[3, 3], [24, 3], [3, 20], [24, 20]]) b.place('sect-cherry', x, y, { fade: true });
+  b.place('circle', 14, 9, { block: [] });
+  return b.build({
+    id: 'pb_ngoc_an', name: 'Cổ Viện Ngọc Ấn', description: 'Di vật Thanh Vân · thử luyện đầu tiên',
+    playerSpawn: [14, 21], ambient: 'petals', monsters: [], npcs: [], zones: [], portals: [],
+    landmarks: [{ name: 'CỔ VIỆN NGỌC ẤN', x: 14, y: 4 }],
+    arena: { dungeon: 'ngoc_an_thu_luyen', spawns, boss: [14, 9], exit: [13, 22, 3, 1] },
+  });
+}
 export function dungeonMap(index: number): MapDef {
   const width = 32 + index * 2,
     height = 26 + (index % 2) * 2,

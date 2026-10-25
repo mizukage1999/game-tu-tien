@@ -22,7 +22,7 @@ export interface QuestStop {
 
 export type QuestNav =
   | { kind: 'go'; stop: QuestStop }
-  | { kind: 'menu'; menu: 'skills' | 'journey'; label: string }
+  | { kind: 'menu'; menu: 'skills' | 'journey' | 'character' | 'bag' | 'dungeon'; label: string }
   | { kind: 'toast'; text: string };
 
 export type MapRoute =
@@ -154,6 +154,12 @@ export function questDestination(id: string, log: QuestLog, level: number, here:
   const aim = aimOf(def, q);
   if (aim === 'turnin') return { kind: 'toast', text: 'Nhiệm vụ đã xong.' };
   switch (aim.type) {
+    case 'practice':
+      if (aim.action === 'equip') return { kind: 'menu', menu: 'character', label: 'Nhân Vật → Trang bị' };
+      if (aim.action === 'potion') return { kind: 'menu', menu: 'bag', label: 'Túi Đồ → Hồi Xuân Đan' };
+      if (aim.action === 'loadout') return { kind: 'menu', menu: 'skills', label: 'Kỹ Năng → Chọn ô chiêu' };
+      if (aim.action === 'dash') return { kind: 'toast', text: 'Tự bấm nút Lướt hoặc Shift trong lúc di chuyển. Tắt Auto để luyện điều khiển tay.' };
+      return pickSpawn('linh_thu', level, here, from);
     case 'talk':
       return goNpc(aim.npc, level, def.name);
     case 'kill':
@@ -172,6 +178,7 @@ export function questDestination(id: string, log: QuestLog, level: number, here:
     case 'upgradeSkill':
       return { kind: 'menu', menu: 'skills', label: 'Kỹ Năng' };
     case 'clearDungeon':
+      if (aim.dungeon === 'ngoc_an_thu_luyen') return { kind: 'menu', menu: 'dungeon', label: 'Phó Bản → Cổ Viện Ngọc Ấn' };
       return goNpc('su_huynh', level, DUNGEONS[aim.dungeon]?.name ?? 'Phó bản');
     case 'gather': {
       const candidates = id.startsWith('village_') ? ['vuong_gia_thon'] : [here, 'dai_thua_vien', ...MAP_IDS];
