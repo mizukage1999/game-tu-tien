@@ -1,15 +1,20 @@
 import type { Sex } from '../game/systems/save';
+import type { HeroId } from '../data/heroes';
+import { RosterPortrait } from './HeroArt';
 
 /** Crop the front pose from the authored atlas, keeping the UI and world hero consistent. */
 export function HeroPortrait({
   sex,
   label = '',
   className = '',
+  heroId,
 }: {
   sex: Sex;
   label?: string;
   className?: string;
+  heroId?: HeroId;
 }) {
+  if (heroId) return <RosterPortrait id={heroId} className={className} />;
   return (
     <svg
       className={`hero-portrait ${className}`}

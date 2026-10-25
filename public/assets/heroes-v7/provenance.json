@@ -1,0 +1,40 @@
+{
+  "version": 7,
+  "tool": "image_gen.imagegen",
+  "tool_mode": "builtin",
+  "created": "2026-10-25",
+  "reference": "User supplied character selection, 1v1 arena, and eight school skill reference images in this conversation.",
+  "directory": "public/assets/heroes-v7",
+  "assets": [
+    {
+      "file": "selection.png",
+      "mode": "generate",
+      "transparent_background": false,
+      "prompt_summary": "Xianxia character selection background, blue-hour mountain village and distant pagodas, waterfalls and lanterns, cherry blossom borders, clean negative space on the left 58%, empty stone presentation dais on the lower right. No actors, text, UI or controls."
+    },
+    {
+      "file": "arena.png",
+      "mode": "generate",
+      "transparent_background": false,
+      "prompt_summary": "Empty elevated 2.5D Chinese xianxia duel courtyard, symmetric round stone floor with subtle concentric golden taiji inlay, blue tiled gate and stairs along the upper edge, cherry blossoms, lanterns and rails around the outer edges. Central 80% open for manual combat. No actors, text, effects or UI."
+    },
+    {
+      "file": "roster.png",
+      "mode": "generate",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Asset type: production transparent full-body character roster atlas for a Chinese xianxia 2.5D RPG. Landscape 1536x1024, EXACT 4 columns by 2 rows of equal cells, 8 characters total, each single full body centered entirely inside its cell with 25px clear padding. Genuinely transparent background, no floor, no frames, no lettering, no shadows cast outside the body. Detailed clean hand-painted anime Chinese cultivation game illustration, elegant long robe folds, readable silhouettes and faces, consistent scale feet at 94% cell height. Row 1 left to right: (1) Wang Lin young adult male sword cultivator, long black high-ponytail hair, white navy blue gold embroidered robes, blue sword in hand; (2) Li Mu Wan young adult female ice/talisman cultivator, long black hair in elegant half-up bun, white lavender and pale icy blue layered dress, small ice-blue talisman held elegantly, gentle dignified face; (3) Tham Nguyet young adult female forest archer, dark green-black long hair, small leaf ornaments, layered emerald and white robes, elegant green bow; (4) So Thien young adult male dual-blade assassin, tied long dark hair, charcoal and crimson robes, two short red edged blades. Row 2 left to right: (5) Hong Lien young adult female fire cultivator, long black hair with red ribbons, vermilion black and gold robes, small fire lotus floating above hand; (6) Vu Minh young adult male demonic cultivator, dark hair with violet highlights, black amethyst purple robes, violet magical orb above hand; (7) Quan Vo Tran young adult male Buddhist cultivator, dark hair, broad straw hat, amber gold and cream monk robes, prayer beads, open palm; (8) Diep Ly young adult female saber illusionist, dark purple hair, wide dark blue conical hat with violet ribbons, blue violet gold robes, slender purple saber. Natural human anatomy, 6.5 heads tall, composed three quarter forward pose, appealing faces. NO UI mockup, no text, no character names, no duplicate figures, no cropping, no checkerboard, no solid background. This is an actual reusable asset sheet, not a reference board."
+    },
+    {
+      "file": "poses.png",
+      "mode": "generate",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Asset type: actual production 2.5D game character animation atlas. Portrait canvas 1536x2048 if possible. EXACT GRID: SIX equal columns and EIGHT equal rows, total 48 separate transparent sprite poses. Genuine alpha transparent background, absolutely NO background fill, NO labels, NO UI, NO lines. Every cell has one complete character, consistent small tactical sprite scale, whole body visible, common feet baseline at 90% cell height, wide padding to never cross cell borders. SIX COLUMNS left to right: 1 standing idle facing three-quarter RIGHT; 2 walking right with left foot forward; 3 running right with right foot forward; 4 attacking right with weapon/hand extended; 5 casting a spell right with one raised hand; 6 defeated lying on the ground horizontally head left feet right. EIGHT ROWS top to bottom, maintain same identity and clothing across each row: row1 young male Wang Lin, long black ponytail, white navy gold cultivation robe and small blue sword; row2 young female Li Mu Wan, long black half-up hair, white lavender ice-blue dress and blue talisman; row3 young female forest archer Tham Nguyet, black-green long hair and leaf hair ornament, emerald white robes, green bow; row4 young male dual-blade So Thien, dark tied hair, charcoal crimson robes, short red blades; row5 young female Hong Lien, black hair and red ribbons, red black gold fire cultivation robes; row6 young male Vu Minh, dark purple long hair, black amethyst robes; row7 young male Quan Vo Tran, straw hat, gold cream monk robes and beads; row8 young female Diep Ly, conical blue violet hat, dark purple hair, flowing blue-violet robe and purple saber. Detailed but readable, elegant Chinese painted anime RPG sprite art, natural proportions 6 heads tall, clear faces and garment silhouettes, long hair and sleeves trail appropriately when moving. Weapons small and included within character silhouette, NO giant effects or trails outside cells. Consistent camera, scale and anatomy. Need clean directly usable sprites instead of a mockup or character reference board."
+    },
+    {
+      "file": "effects.png",
+      "mode": "generate",
+      "transparent_background": true,
+      "prompt": "Create a production TRANSPARENT sprite atlas of 40 spell IMPACT effects for a 2.5D Chinese xianxia RPG. Exactly 5 columns and 8 rows in a regular grid, no borders, no text, no people, no backgrounds. Portrait canvas 1536x2048 if possible. All 40 isolated detailed hand-painted glowing VFX fully inside their equal cells with 15% transparent padding. Each is a distinct spell impact silhouette, with sharp painted details, luminous colored energy and clean alpha. Elevated 3/4 isometric view matching a tactical RPG.\nRow 1 BLUE sword energy: (1) a long horizontal sword slash to the right (2) three straight sword bolts aimed right (3) a circular floating blue sword field with blades (4) huge falling sky sword and impact (5) protective blue sword-heart aura.\nRow 2 ICE BLUE talisman: (1) flying ice talisman projectile right (2) ice crystal freezing seal (3) circular snow shield (4) crystalline ice lotus burst (5) ice snowstorm pillar.\nRow 3 EMERALD green archer: (1) leaf-tipped magic arrow right (2) three green leaf arrows right (3) entangling roots erupting (4) healing luminous green lotus (5) ancient spirit tree protective barrier.\nRow 4 CRIMSON dual blades: (1) red shadow dagger stab right (2) crossed blade red crescent right (3) shadow guard red wisps (4) bloodmoon blade spinning ring (5) crimson shadow nova.\nRow 5 RED ORANGE fire: (1) fire finger lance right (2) flame lotus crescent slash right (3) fire pillar eruption (4) blooming massive red fire lotus (5) descending fire meteor impact.\nRow 6 PURPLE demon: (1) purple demonic crescent slash right (2) purple shadow step trail right (3) spectral purple blades circle (4) purple ghost prison columns (5) giant spectral demon protective silhouette, no human face details.\nRow 7 GOLD Buddhist: (1) golden palm blast right (2) healing golden light lotus (3) golden bell protective dome (4) descending enormous golden palm seal (5) compassion golden lotus radiance.\nRow 8 VIOLET illusion saber: (1) violet saber crescent right (2) violet flower binding vines (3) whirlwind of violet petals (4) mirrored violet protective silhouettes (5) violet spirit realm lotus.\nEnsure all eight rows and all five columns are complete. No labels, no cards, no UI frames, no black rectangles. Genuinely transparent background, retain soft alpha glows. Do not connect effects between cells."
+    }
+  ]
+}

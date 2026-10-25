@@ -1,6 +1,7 @@
 import type { Duelist } from '../game/systems/duel';
 import type { FriendRef, Sex } from '../game/systems/save';
 import { SKILLS, type SkillId } from '../data';
+import { isHeroId, type HeroId } from '../data/heroes';
 import {
   validArenaInput,
   validateArenaSnapshot,
@@ -13,6 +14,7 @@ export type { FriendRef };
 
 /** One account as everyone else can see it. Kept small: this rides on presence. */
 export interface PublicProfile {
+  heroId?: HeroId;
   userId: string;
   name: string;
   sex: Sex;
@@ -75,6 +77,7 @@ function duelist(value: unknown): Duelist | null {
   const maxHp = Math.round(number(raw.maxHp, 100, 10_000_000));
   return {
     userId,
+    ...(isHeroId(raw.heroId) ? { heroId: raw.heroId } : {}),
     sex: raw.sex === 'male' ? 'male' : 'female',
     maxMp: number(raw.maxMp, 160, 100000),
     loadout: Array.isArray(raw.loadout)
@@ -176,6 +179,7 @@ export function parseProfile(key: string, raw: unknown, now: number): SocialPres
     userId,
     name: text(p.name, 16).trim() || 'Đạo hữu',
     sex: p.sex === 'male' ? 'male' : 'female',
+    ...(isHeroId(p.hero_id) ? { heroId: p.hero_id } : {}),
     level: Math.round(number(p.level, 1, 999)),
     realm: text(p.realm, 40),
     mapId: text(p.map_id, 40) || 'dai_thua_vien',

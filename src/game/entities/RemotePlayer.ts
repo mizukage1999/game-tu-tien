@@ -7,6 +7,7 @@ import { stepToward, type RemotePlayerState } from '../../net/presence';
 import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
 import { settingsStore } from '../../store/settingsStore';
+import { rosterArt } from '../art/heroRoster';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -33,7 +34,8 @@ export class RemotePlayer {
     this.state = state;
     this.target = { x: state.x, y: state.y };
     this.map = { x: state.x, y: state.y };
-    const art = playerArt(state.sex);
+    const authored = state.heroId ? rosterArt(state.heroId) : state.sex === 'male' ? 'hero-wang-v5' : 'hero-li-v5';
+    const art = world.textures.exists(authored) ? authored : playerArt(state.sex);
     const spot = iso(state.x, state.y);
     this.sprite = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
     this.ctrl = new AnimationController(this.sprite, art);

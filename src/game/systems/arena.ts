@@ -3,6 +3,8 @@ import { effectiveSkill, DEFAULT_LOADOUT } from './skills';
 import type { Duelist } from './duel';
 import { wangEffect } from '../../data/wangSkills';
 import { signatureHit } from './skillHit';
+import { heroSpell, heroSpellHit } from '../../data/heroSkills';
+import { heroFor, isHeroId } from '../../data/heroes';
 export const ARENA_W = 720,
   ARENA_H = 400;
 export const ARENA_ROCKS = [
@@ -16,6 +18,10 @@ export interface ArenaInput {
   cast: SkillId | null;
 }
 export interface ArenaFighter extends Duelist {
+  moving?: boolean;
+  lastSkill?: SkillId;
+  actionUntil?: number;
+  hurtUntil?: number;
   x: number;
   y: number;
   dx: number;
@@ -102,6 +108,9 @@ export function validateArenaSnapshot(raw: unknown, nonce: string): raw is Arena
         Number.isInteger(f.level) &&
         f.level >= 1 &&
         f.level <= 999 &&
+        (f.heroId === undefined || isHeroId(f.heroId)) &&
+        (f.moving === undefined || typeof f.moving === 'boolean') &&
+        (f.lastSkill === undefined || Object.prototype.hasOwnProperty.call(SKILLS,f.lastSkill)) &&
         [
           f.x,
           f.y,
@@ -142,7 +151,7 @@ export function validateArenaSnapshot(raw: unknown, nonce: string): raw is Arena
         f.y <= ARENA_H &&
         f.hp >= 0 &&
         f.hp <= f.maxHp &&
-        [f.rootUntil, f.weakenUntil, f.slowUntil].every(
+        [f.rootUntil, f.weakenUntil, f.slowUntil, f.actionUntil, f.hurtUntil].every(
           (v) => v === undefined || (Number.isFinite(v) && v >= 0 && v <= 130000),
         ),
     ) &&
@@ -170,6 +179,8 @@ export function validateArenaSnapshot(raw: unknown, nonce: string): raw is Arena
   );
 }
 function hit(e: ArenaEffect, p: ArenaFighter) {
+  const spell = heroSpell(e.skill);
+  if (spell) return heroSpellHit(spell.shape,e,{x:e.dx,y:e.dy},e.range,e.arc,p);
   if (wangEffect(e.skill)) return signatureHit(e.skill, e, { x: e.dx, y: e.dy }, e.range, p);
   const x = p.x - e.x,
     y = p.y - e.y,
@@ -249,6 +260,7 @@ export class ArenaEngine {
       s.phase = 'fighting';
     }
     for (const f of s.fighters) {
+      f.moving = false;
       const input = this.inputs.get(f.userId),
         move = input && s.elapsed - input.at < 650 ? input.input : null;
       if (f.shieldUntil < s.elapsed) f.shield = 0;
@@ -268,6 +280,7 @@ export class ArenaEngine {
           ny = clamp(f.y + (dy * speed * dt) / 1000, 28, ARENA_H - 28);
         const open = (x: number, y: number) =>
           !ARENA_ROCKS.some((r) => Math.hypot(x - r.x, y - r.y) < r.r + 14);
+        const oldX=f.x,oldY=f.y;
         if (open(nx, ny)) {
           f.x = nx;
           f.y = ny;
@@ -275,6 +288,7 @@ export class ArenaEngine {
           if (open(nx, f.y)) f.x = nx;
           if (open(f.x, ny)) f.y = ny;
         }
+        f.moving = Math.hypot(f.x-oldX,f.y-oldY)>.1;
         if (move.cast) {
           this.cast(f, move.cast);
           move.cast = null;
@@ -289,6 +303,9 @@ export class ArenaEngine {
       } else e.resolved = true;
       const target = s.fighters.find((f) => f.userId !== e.owner)!;
       if (hit(e, target) && target.invulnUntil <= s.elapsed) {
+        const rootMs=heroSpell(e.skill)?.rootMs;
+        if(rootMs)target.rootUntil=Math.max(target.rootUntil,s.elapsed+rootMs);
+        target.hurtUntil=s.elapsed+220;
         if (e.skill === 'dinh_than_thuat') {
           target.rootUntil = s.elapsed + 1000;
           continue;
@@ -330,9 +347,12 @@ export class ArenaEngine {
     if (f.rootUntil > s.elapsed) return;
     if ((id !== 'than_phap' && !allowed.includes(id)) || (f.cooldowns[id] ?? 0) > s.elapsed) return;
     const sk = effectiveSkill(id, f.skillLevels?.[id] ?? 1);
+    if (sk.hero && (sk.hero !== heroFor(f).id || f.level < (sk.unlockLevel ?? 1))) return;
     if (f.mp < sk.mpCost) return;
     f.mp -= sk.mpCost;
     f.cooldowns[id] = s.elapsed + sk.cooldownMs;
+    f.lastSkill=id;
+    f.actionUntil=s.elapsed+(id==='than_phap'?350:500);
     if (id === 'than_phap') {
       const nx = clamp(f.x + f.dx * 125, 28, ARENA_W - 28),
         ny = clamp(f.y + f.dy * 125, 28, ARENA_H - 28);
@@ -347,6 +367,9 @@ export class ArenaEngine {
       f.invulnUntil = s.elapsed + 350;
       return;
     }
+    if (sk.kind === 'heal' || sk.kind === 'shield') {
+      if(heroSpell(id))s.effects.push({id:++this.effect,owner:f.userId,x:f.x,y:f.y,dx:f.dx,dy:f.dy,range:0,arc:0,kind:'circle',ready:s.elapsed,expires:s.elapsed+900,damage:0,resolved:true,skill:id});
+    }
     if (sk.kind === 'heal') {
       f.hp = Math.min(f.maxHp, f.hp + Math.round(f.maxHp * 0.24));
       return;
@@ -359,7 +382,7 @@ export class ArenaEngine {
     const painted = wangEffect(id);
     const circle = id === 'han_bang_tran' || sk.kind === 'nova',
       line = id === 'phi_kiem' || sk.kind === 'projectile',
-      windup = id === 'basic' ? 150 : line ? 400 : 600;
+      windup = id === 'basic' ? 150 : heroSpell(id) || line ? 400 : 600;
     s.effects.push({
       id: ++this.effect,
       owner: f.userId,
@@ -373,7 +396,7 @@ export class ArenaEngine {
       ready: s.elapsed + windup,
       expires:
         s.elapsed +
-        Math.max(windup + 220, (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
+        Math.max(windup + (heroSpell(id)?500:220), (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
       damage: f.atk * sk.multiplier,
       skill: id,
       resolved: false,

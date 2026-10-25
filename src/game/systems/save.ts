@@ -10,6 +10,7 @@ import type { AdventureProgress } from './adventure';
 import type { SkillId } from '../../data';
 import { enhancementLevel } from './enhancement';
 import { normalizeEquipment } from './equipment';
+import { isHeroId, heroFor, type HeroId } from '../../data/heroes';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
@@ -45,6 +46,7 @@ export interface FriendRef {
 }
 
 export interface PlayerSave {
+  heroId?: HeroId;
   practice?: Partial<Record<PracticeAction, number>>;
   name: string;
   /** Missing on saves from before character creation; those keep the original look. */
@@ -116,6 +118,8 @@ export function deserialize(raw: string | null): SaveData | null {
     if (data.v !== SAVE_VERSION || !data.player || typeof data.player.level !== 'number')
       return null;
     if (data.player.sex !== 'male' && data.player.sex !== 'female') data.player.sex = 'female';
+    if (!isHeroId(data.player.heroId)) delete data.player.heroId;
+    else data.player.sex = heroFor(data.player).sex;
     data.player.inventory ??= {};
     data.player.equipment ??= {};
     const realmIndex = REALMS.findIndex((realm) => data.player.level <= realm.maxLevel);

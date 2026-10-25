@@ -1,13 +1,45 @@
 import { useEffect, useRef } from 'react';
 import { useSocial } from '../../store/socialStore';
 import { closeArena, readyArena, sendArenaInput } from '../../net/socialBridge';
-import { ARENA_H, ARENA_ROCKS, ARENA_W } from '../../game/systems/arena';
+import { ARENA_H, ARENA_ROCKS, ARENA_W, type ArenaFighter } from '../../game/systems/arena';
 import { DEFAULT_LOADOUT } from '../../game/systems/skills';
 import { SKILLS, type SkillId } from '../../data';
 import { skillSpriteUrl } from '../../game/art/icons';
 import './duel.css';
 import { wangEffect } from '../../data/wangSkills';
 import { PaintedArenaEffect } from './PaintedArenaEffect';
+import { heroFor } from '../../data/heroes';
+import { heroSpell } from '../../data/heroSkills';
+import { HeroPose, HeroSpellGlyph, RosterPortrait } from '../HeroArt';
+import { HeroArenaEffect } from './HeroArenaEffect';
+
+function FighterCard({ fighter: p, enemy = false }: { fighter: ArenaFighter; enemy?: boolean }) {
+  const hero = heroFor(p);
+  return (
+    <div className={`duel-vitals ${enemy ? 'rival' : ''}`}>
+      <RosterPortrait id={hero.id} />
+      <div>
+        <b>
+          {p.name}
+          <small>Lv.{p.level}</small>
+        </b>
+        <span className="duel-school">{hero.school}</span>
+        <div className="duel-vital-bar hp">
+          <i style={{ width: `${(p.hp / p.maxHp) * 100}%` }} />
+          <span>
+            {Math.ceil(p.hp)} / {p.maxHp}
+          </span>
+        </div>
+        <div className="duel-vital-bar mp">
+            <i style={{ width: `${(p.mp / Math.max(1, p.maxMp)) * 100}%` }} />
+          <span>
+            {Math.floor(p.mp)} / {p.maxMp}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function DuelOverlay() {
   const duel = useSocial((s) => s.duel),
@@ -96,124 +128,154 @@ export function DuelOverlay() {
   const s = duel.snapshot,
     me = s.fighters.find((p) => p.userId === duel.localId)!,
     loadout = me.loadout ?? DEFAULT_LOADOUT;
+  const enemy = s.fighters.find((p) => p.userId !== duel.localId)!;
+  const seconds = Math.ceil(
+    Math.max(0, s.remaining - (s.phase === 'countdown' ? 3000 - s.elapsed : 0)) / 1000,
+  );
   return (
     <div className="duel-screen">
       <section className="duel-arena panel-ornate">
         <header>
-          <div>
-            <h3>{duel.practice ? 'Luận kiếm · Mộc Nhân' : 'Tỷ Võ · Điều Khiển Tay'}</h3>
-            <small>4 chiêu chiến đấu · Lướt riêng để né đòn</small>
+          <div className="duel-title">
+            <h3>{duel.practice ? 'Luận kiếm · Mộc Nhân' : 'Tỷ Võ · 1 vs 1'}</h3>
+            <small>Điều khiển tay · Né đòn và chọn thời điểm ra chiêu</small>
+            <button className="close" aria-label="Rời tỷ võ" onClick={closeArena}>
+              ×
+            </button>
           </div>
-          <b>
-            {Math.ceil(
-              Math.max(0, s.remaining - (s.phase === 'countdown' ? 3000 - s.elapsed : 0)) / 1000,
-            )}
-            s
-          </b>
-          <button className="close" aria-label="Rời tỷ võ" onClick={closeArena}>
-            ×
-          </button>
+          <div className="duel-scoreboard">
+            <FighterCard fighter={me} />
+            <div className="duel-versus">
+              <b>VS</b>
+              <time>
+                {String(Math.floor(seconds / 60)).padStart(2, '0')}:
+                {String(seconds % 60).padStart(2, '0')}
+              </time>
+            </div>
+            <FighterCard fighter={enemy} enemy />
+          </div>
         </header>
-        <div
-          className="duel-stage"
-          onPointerDown={(e) => {
-            if (s.phase === 'finished' || (e.target as Element).closest('button,a,input')) return;
-            drag.current = { x: e.clientX, y: e.clientY };
-            e.currentTarget.setPointerCapture(e.pointerId);
-          }}
-          onPointerMove={(e) => {
-            if (!drag.current) return;
-            let x = (e.clientX - drag.current.x) / 35,
-              y = (e.clientY - drag.current.y) / 35;
-            if (e.currentTarget.closest('.app.turned')) [x, y] = [y, -x];
-            const d = Math.max(1, Math.hypot(x, y));
-            move.current = { x: x / d, y: y / d };
-          }}
-          onPointerUp={() => {
-            drag.current = null;
-            move.current = { x: 0, y: 0 };
-          }}
-          onPointerCancel={() => {
-            drag.current = null;
-            move.current = { x: 0, y: 0 };
-          }}
-        >
-          <span className="duel-floor-title">LUẬN KIẾM ĐÀI</span>
-          {ARENA_ROCKS.map((r, i) => (
-            <span
-              key={i}
-              className="duel-rock"
-              style={{ left: `${(r.x / ARENA_W) * 100}%`, top: `${(r.y / ARENA_H) * 100}%` }}
-            />
-          ))}
-          {s.effects.map((e) =>
-            wangEffect(e.skill) ? (
-              <PaintedArenaEffect
-                key={e.id}
-                effect={e}
-                elapsed={s.elapsed}
-                target={s.fighters.find((f) => f.userId !== e.owner)!}
-              />
-            ) : (
+        <div className="duel-battleground">
+          <div
+            className="duel-stage"
+            onPointerDown={(e) => {
+              if (s.phase === 'finished' || (e.target as Element).closest('button,a,input')) return;
+              drag.current = { x: e.clientX, y: e.clientY };
+              e.currentTarget.setPointerCapture(e.pointerId);
+            }}
+            onPointerMove={(e) => {
+              if (!drag.current) return;
+              let x = (e.clientX - drag.current.x) / 35,
+                y = (e.clientY - drag.current.y) / 35;
+              if (e.currentTarget.closest('.app.turned')) [x, y] = [y, -x];
+              const d = Math.max(1, Math.hypot(x, y));
+              move.current = { x: x / d, y: y / d };
+            }}
+            onPointerUp={() => {
+              drag.current = null;
+              move.current = { x: 0, y: 0 };
+            }}
+            onPointerCancel={() => {
+              drag.current = null;
+              move.current = { x: 0, y: 0 };
+            }}
+          >
+            {ARENA_ROCKS.map((r, i) => (
               <span
-                key={e.id}
-                className={`duel-effect ${e.kind} ${e.resolved ? 'landed' : ''}`}
-                style={{
-                  left: `${(e.x / ARENA_W) * 100}%`,
-                  top: `${(e.y / ARENA_H) * 100}%`,
-                  width: `${((e.kind === 'line' ? e.range : e.range * 2) / ARENA_W) * 100}%`,
-                  height: e.kind === 'line' ? '12%' : `${((e.range * 2) / ARENA_H) * 100}%`,
-                  ...(e.kind === 'cone'
-                    ? {
-                        background: `conic-gradient(from ${(Math.atan2(e.dy, e.dx) * 180) / Math.PI + 90 - e.arc / 2}deg, ${e.resolved ? '#eee8ff99' : '#ff6b3855'} 0deg ${e.arc}deg, transparent ${e.arc}deg 360deg)`,
-                      }
-                    : {}),
-                  transform:
-                    e.kind === 'line'
-                      ? `translateY(-50%) rotate(${Math.atan2(e.dy, e.dx)}rad)`
-                      : 'translate(-50%,-50%)',
-                }}
+                key={i}
+                className="duel-rock"
+                style={{ left: `${(r.x / ARENA_W) * 100}%`, top: `${(r.y / ARENA_H) * 100}%` }}
               />
-            ),
-          )}
-          {s.fighters.map((p) => (
-            <div
-              className={`duel-fighter ${p.userId === duel.localId ? 'mine' : 'enemy'} ${p.rootUntil > s.elapsed ? 'rooted' : ''}`}
-              key={p.userId}
-              style={{ left: `${(p.x / ARENA_W) * 100}%`, top: `${(p.y / ARENA_H) * 100}%` }}
-            >
-              <div className="duel-fighter-name">
-                {p.name} · Lv.{p.level}
+            ))}
+            {s.effects.map((e) =>
+              heroSpell(e.skill) ? (
+                <HeroArenaEffect key={e.id} effect={e} elapsed={s.elapsed} />
+              ) : wangEffect(e.skill) ? (
+                <PaintedArenaEffect
+                  key={e.id}
+                  effect={e}
+                  elapsed={s.elapsed}
+                  target={s.fighters.find((f) => f.userId !== e.owner)!}
+                />
+              ) : (
+                <span
+                  key={e.id}
+                  className={`duel-effect ${e.kind} ${e.resolved ? 'landed' : ''}`}
+                  style={{
+                    left: `${(e.x / ARENA_W) * 100}%`,
+                    top: `${(e.y / ARENA_H) * 100}%`,
+                    width: `${((e.kind === 'line' ? e.range : e.range * 2) / ARENA_W) * 100}%`,
+                    height: e.kind === 'line' ? '12%' : `${((e.range * 2) / ARENA_H) * 100}%`,
+                    ...(e.kind === 'cone'
+                      ? {
+                          background: `conic-gradient(from ${(Math.atan2(e.dy, e.dx) * 180) / Math.PI + 90 - e.arc / 2}deg, ${e.resolved ? '#eee8ff99' : '#ff6b3855'} 0deg ${e.arc}deg, transparent ${e.arc}deg 360deg)`,
+                        }
+                      : {}),
+                    transform:
+                      e.kind === 'line'
+                        ? `translateY(-50%) rotate(${Math.atan2(e.dy, e.dx)}rad)`
+                        : 'translate(-50%,-50%)',
+                  }}
+                />
+              ),
+            )}
+            {s.fighters.map((p) => {
+              const action = (p.actionUntil ?? 0) > s.elapsed;
+              const pose =
+                p.hp <= 0
+                  ? 5
+                  : action
+                    ? p.lastSkill === 'basic'
+                      ? 3
+                      : p.lastSkill === 'than_phap'
+                        ? 2
+                        : 4
+                    : p.moving
+                      ? Math.floor(s.elapsed / 140) % 2
+                        ? 1
+                        : 2
+                      : 0;
+              return (
+                <div
+                  className={`duel-fighter ${p.userId === duel.localId ? 'mine' : 'enemy'} ${p.rootUntil > s.elapsed ? 'rooted' : ''}`}
+                  key={p.userId}
+                  style={{ left: `${(p.x / ARENA_W) * 100}%`, top: `${(p.y / ARENA_H) * 100}%` }}
+                >
+                  <div className="duel-fighter-name">
+                    {p.name} · Lv.{p.level}
+                  </div>
+                  <div className="duel-hp">
+                    <i style={{ width: `${(p.hp / p.maxHp) * 100}%` }} />
+                  </div>
+                  <HeroPose
+                    id={heroFor(p).id}
+                    pose={pose}
+                    flip={p.dx < 0}
+                    className={`duel-body ${(p.hurtUntil ?? 0) > s.elapsed ? 'hurt' : ''}`}
+                  />
+                  {p.shield > 0 && <span className="duel-shield" aria-label="Đang có lá chắn" />}
+                </div>
+              );
+            })}
+            {(s.phase === 'waiting' || s.phase === 'countdown') && (
+              <div className="duel-countdown">
+                {s.phase === 'waiting'
+                  ? 'Chờ đối thủ sẵn sàng…'
+                  : Math.max(1, Math.ceil((3000 - s.elapsed) / 1000))}
               </div>
-              <div className="duel-hp">
-                <i style={{ width: `${(p.hp / p.maxHp) * 100}%` }} />
+            )}
+            {s.phase === 'finished' && (
+              <div className="duel-finish">
+                <h2>
+                  {!s.winner ? 'Hòa' : s.winner === duel.localId ? 'Chiến thắng' : 'Bại trận'}
+                </h2>
+                <p>{s.reason}</p>
+                <button className="btn gold" onClick={closeArena}>
+                  Trở về
+                </button>
               </div>
-              <small>
-                {Math.ceil(p.hp)}/{p.maxHp}
-                {p.shield > 0 ? ` · Khiên ${p.shield}` : ''}
-              </small>
-              <span
-                className={`duel-body ${p.sex === 'male' ? 'wang' : 'li'}`}
-                style={{ transform: p.dx < 0 ? 'scaleX(-1)' : '' }}
-              />
-            </div>
-          ))}
-          {(s.phase === 'waiting' || s.phase === 'countdown') && (
-            <div className="duel-countdown">
-              {s.phase === 'waiting'
-                ? 'Chờ đối thủ sẵn sàng…'
-                : Math.max(1, Math.ceil((3000 - s.elapsed) / 1000))}
-            </div>
-          )}
-          {s.phase === 'finished' && (
-            <div className="duel-finish">
-              <h2>{!s.winner ? 'Hòa' : s.winner === duel.localId ? 'Chiến thắng' : 'Bại trận'}</h2>
-              <p>{s.reason}</p>
-              <button className="btn gold" onClick={closeArena}>
-                Trở về
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <footer>
           <button className="btn duel-leave" onClick={closeArena} aria-label="Rời sân luyện võ">
@@ -252,10 +314,24 @@ export function DuelOverlay() {
                   disabled={!!cooldown || s.phase !== 'fighting' || me.mp < SKILLS[id].mpCost}
                   onPointerDown={() => (cast.current = id)}
                   title={SKILLS[id].desc}
+                  aria-label={id === 'than_phap' ? 'Lướt' : SKILLS[id].name}
+                  data-skill={id}
+                  className={id === 'basic' ? 'basic' : id === 'than_phap' ? 'dash' : ''}
+                  onClick={() => {
+                    cast.current = id;
+                  }}
                 >
-                  <img src={skillSpriteUrl(id, me.sex)} alt="" />
+                  {heroSpell(id) ? (
+                    <HeroSpellGlyph id={id} />
+                  ) : (
+                    <img src={skillSpriteUrl(id, me.sex)} alt="" />
+                  )}
                   <span>
-                    {id === 'than_phap' ? 'Lướt · Shift' : `${i + 1} · ${SKILLS[id].name}`}
+                    <kbd>{id === 'than_phap' ? '⇧' : i + 1}</kbd>
+                    <em className="duel-ability-name">
+                      {' '}
+                      {id === 'than_phap' ? 'Lướt' : SKILLS[id].name}
+                    </em>
                   </span>
                   {cooldown > 0 && <b>{(cooldown / 1000).toFixed(1)}</b>}
                 </button>

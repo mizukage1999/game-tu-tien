@@ -1,7 +1,7 @@
 import { useGame } from '../store/gameStore';
 import { realmNameAtLevel } from '../game/systems/progression';
 import { itemIconUrl } from '../game/art/icons';
-import { heroName, isChildhood } from '../game/systems/origin';
+import { heroName, isChildhood, usesChildSprite } from '../game/systems/origin';
 import { battlePower } from '../game/systems/adventure';
 import { HeroPortrait } from './HeroPortrait';
 
@@ -26,13 +26,13 @@ export function StatusBars() {
   return (
     <div className="status panel-glass">
       <div className={`avatar ${status === 'downed' ? 'avatar-down' : ''}`}>
-        {childhood ? (
+        {usesChildSprite(player) ? (
           <span
             className={`child-portrait ${player.sex === 'female' ? 'female' : ''}`}
             aria-label={heroName(player)}
           />
         ) : (
-          <HeroPortrait sex={player.sex ?? 'female'} />
+          <HeroPortrait sex={player.sex ?? 'female'} heroId={player.heroId} />
         )}
         <span className="avatar-level" title="Cấp độ">
           {player.level}

@@ -3,11 +3,28 @@ import { iso, isoVector } from '../art/iso';
 import type { Vec2 } from '../types';
 import { wangEffect } from '../../data/wangSkills';
 import type { SkillId } from '../../data';
+import { heroSpell } from '../../data/heroSkills';
+import { SPELL_TEXTURE } from '../art/heroRoster';
 
 const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
 
 export class SkillVfx {
   constructor(private scene: Phaser.Scene) {}
+
+  heroSpell(id: SkillId, from: Vec2, facing: Vec2, range: number) {
+    const art = heroSpell(id);
+    if (!art || !this.scene.textures.exists(SPELL_TEXTURE)) return;
+    const directed = art.shape === 'line' || art.shape === 'cone';
+    const center = directed ? {x:from.x+facing.x*range*.5,y:from.y+facing.y*range*.5} : from;
+    const spot=iso(center.x,center.y), vector=isoVector(facing.x,facing.y);
+    const effect=this.scene.add.image(spot.x,spot.y-20,SPELL_TEXTURE,id).setDepth(spot.y+180);
+    if(directed)effect.setDisplaySize(range*Math.hypot(vector.x,vector.y),art.shape==='line'?95:150).setRotation(Math.atan2(vector.y,vector.x));
+    else effect.setDisplaySize(art.shape==='self'?175:range*2.8,art.shape==='self'?190:range*1.8);
+    const sx=effect.scaleX,sy=effect.scaleY;effect.setScale(sx*.65,sy*.65).setAlpha(0);
+    this.scene.tweens.add({targets:effect,alpha:1,scaleX:sx,scaleY:sy,duration:230,onComplete:()=>{
+      this.scene.tweens.add({targets:effect,alpha:0,duration:500,delay:150,onComplete:()=>effect.destroy()});
+    }});
+  }
 
   signature(id: SkillId, from: Vec2, facing: Vec2, range: number) {
     const art = wangEffect(id);

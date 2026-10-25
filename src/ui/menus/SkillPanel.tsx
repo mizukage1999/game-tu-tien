@@ -13,6 +13,8 @@ import {
 import { wangEffect } from '../../data/wangSkills';
 import { SkillGlyph, CultHeading, CultLock } from './CultivationUI';
 import { SkillPreview } from './SkillPreview';
+import { heroFor } from '../../data/heroes';
+import { heroSkillIds, heroSpell } from '../../data/heroSkills';
 
 const GROUPS = [
   ['all', '☯', 'Tất cả'],
@@ -41,7 +43,7 @@ const ORDER: SkillId[] = [
   'basic',
 ];
 export function skillGroup(id: SkillId): Group {
-  if (wangEffect(id)) return 'signature';
+  if (wangEffect(id) || heroSpell(id)) return 'signature';
   if (id === 'than_phap') return 'movement';
   if (['heal', 'shield'].includes(SKILLS[id].kind ?? '')) return 'support';
   return ['basic', 'bang_tam_tram', 'phi_kiem', 'phong_nhan'].includes(id) ? 'sword' : 'spell';
@@ -51,7 +53,7 @@ export function Skills() {
     choose = useGame((s) => s.chooseSkill),
     upgrade = useGame((s) => s.upgradeSkill);
   const [selected, setSelected] = useState<SkillId>(
-    player.sex === 'male' ? 'hoa_ma_chi' : 'bang_tam_tram',
+    player.heroId ? heroSkillIds(player.heroId)[0] : player.sex === 'male' ? 'hoa_ma_chi' : 'bang_tam_tram',
   );
   const [group, setGroup] = useState<Group>('all'),
     [filter, setFilter] = useState<'all' | 'equipped' | 'locked'>('all');
@@ -69,10 +71,12 @@ export function Skills() {
     linhThach: player.inventory.linh_thach ?? 0,
     kiemPho: player.inventory.kiem_pho ?? 0,
   });
-  const list = ORDER.filter(
+  const hero = heroFor(player);
+  const list = [...heroSkillIds(hero.id), ...ORDER].filter(
     (id) =>
       (!SKILLS[id].character || SKILLS[id].character === (player.sex ?? 'female')) &&
-      (group === 'all' || skillGroup(id) === group) &&
+      (!SKILLS[id].character || !player.heroId || hero.id === 'wang_lam') &&
+      (group === 'all' || skillGroup(id) === group || (group === 'support' && ['heal', 'shield'].includes(SKILLS[id].kind ?? ''))) &&
       (filter === 'all' ||
         (filter === 'equipped' ? loadout.includes(id) : !!skillLockReason(player, id))),
   );
@@ -84,7 +88,7 @@ export function Skills() {
   return (
     <div className="cult-skills">
       <nav className="cult-side" aria-label="Loại kỹ năng">
-        {GROUPS.filter(([g]) => g !== 'signature' || player.sex === 'male').map(
+        {GROUPS.map(
           ([g, icon, name]) => (
             <button
               key={g}
@@ -188,7 +192,9 @@ export function Skills() {
             <SkillGlyph id={id} />
             <div>
               <small>
-                {wangEffect(id)
+                {heroSpell(id)
+                  ? `${hero.school.toLocaleUpperCase('vi-VN')} · ${hero.name}`
+                  : wangEffect(id)
                   ? 'TUYỆT KỸ VƯƠNG LÂM'
                   : skillGroup(id) === 'support'
                     ? 'PHÁP THUẬT HỖ TRỢ'

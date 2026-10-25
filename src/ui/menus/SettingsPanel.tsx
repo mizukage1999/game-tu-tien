@@ -8,6 +8,8 @@ import { heroName, isChildhood } from '../../game/systems/origin';
 import { realmNameAtLevel } from '../../game/systems/progression';
 import { adventure } from '../../game/systems/adventure';
 import { childProfileUrl } from '../../game/art/skillIcons';
+import { usesChildSprite } from '../../game/systems/origin';
+import { RosterPortrait } from '../HeroArt';
 import { loadGame } from '../../game/systems/save';
 import { EventBus } from '../../game/EventBus';
 import { AccountPanel } from '../AccountPanel';
@@ -418,7 +420,7 @@ export function SettingsPanel() {
             <CultHeading>Tài khoản</CultHeading>
             <div className="settings-profile-summary">
               <span className={`settings-portrait ${child ? 'child' : ''}`}>
-                {portrait ? <img src={portrait} alt="" /> : <SettingsGlyph kind="account" />}
+                {player.heroId && !usesChildSprite(player) ? <RosterPortrait id={player.heroId}/> : portrait ? <img src={portrait} alt="" /> : <SettingsGlyph kind="account" />}
               </span>
               <div>
                 <h2>{heroName(player)}</h2>

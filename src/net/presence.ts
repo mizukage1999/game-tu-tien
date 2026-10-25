@@ -1,4 +1,5 @@
 import type { Dir } from '../game/types';
+import { isHeroId, type HeroId } from '../data/heroes';
 
 export type Sex = 'female' | 'male';
 
@@ -12,6 +13,7 @@ export interface Pose {
 
 /** One other player in the same map, as the renderer needs them. */
 export interface RemotePlayerState extends Pose {
+  heroId?: HeroId;
   /** Presence key: unique per connection, so one account on two tabs is two players. */
   key: string;
   userId: string;
@@ -55,6 +57,7 @@ export function parseRemote(key: string, raw: unknown, now: number): RemotePlaye
     userId,
     name: (rawName || 'Đạo hữu').slice(0, 16),
     sex: parseSex(r.sex),
+    ...(isHeroId(r.hero_id) ? { heroId: r.hero_id } : {}),
     realm: typeof r.realm === 'string' ? r.realm.slice(0, 40) : '',
     x,
     y,

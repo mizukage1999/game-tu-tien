@@ -5,8 +5,11 @@ import { itemIconUrl } from '../../game/art/icons';
 import './cultivation-ui.css';
 import { SKILL_ATLAS_ORDER } from '../../game/art/skillIcons';
 import { usePremium } from '../../net/premium';
+import { heroSpell } from '../../data/heroSkills';
+import { HeroSpellGlyph } from '../HeroArt';
 
 export function SkillGlyph({ id, className = '' }: { id: SkillId; className?: string }) {
+  if (heroSpell(id)) return <HeroSpellGlyph id={id} className={`cult-skill-glyph ${className}`} />;
   const index = SKILL_ATLAS_ORDER.indexOf(id);
   return (
     <span

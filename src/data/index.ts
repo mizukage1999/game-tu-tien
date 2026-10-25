@@ -11,6 +11,8 @@ import { NEW_MAPS, WORLD_NPCS, WORLD_QUESTS } from './world';
 import { EXPANSION_ITEMS, EXPANSION_OFFERS } from './expansion';
 import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 import { WANG_SKILLS } from './wangSkills';
+import { HERO_SKILLS, type HeroSkillId } from './heroSkills';
+import type { HeroId } from './heroes';
 import { BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
 import { FIRST_TRIAL, OPENING_DUNGEON, OPENING_ITEMS, OPENING_MONSTERS, OPENING_QUESTS } from './openingAdventure';
 
@@ -84,9 +86,10 @@ export interface ItemDef {
   bonus?: StatBonus;
 }
 
-export type SkillId = 'basic' | 'bang_tam_tram' | 'phi_kiem' | 'han_bang_tran' | 'than_phap' | 'loi_kich' | 'hoa_lien' | 'moc_linh' | 'kim_cang' | 'phong_nhan' | keyof typeof WANG_SKILLS;
+export type SkillId = 'basic' | 'bang_tam_tram' | 'phi_kiem' | 'han_bang_tran' | 'than_phap' | 'loi_kich' | 'hoa_lien' | 'moc_linh' | 'kim_cang' | 'phong_nhan' | keyof typeof WANG_SKILLS | HeroSkillId;
 
 export interface SkillDef {
+  hero?: HeroId;
   character?: 'male' | 'female';
   kind?: 'melee'|'projectile'|'nova'|'heal'|'shield'|'dash';
   unlockLevel?: number;
@@ -277,7 +280,7 @@ export const ITEMS: Record<string, ItemDef> = new Proxy(ITEM_DEFINITIONS, {
     return defs[key] ?? (base !== 'tien_phap_bao' && defs[base]?.slot ? defs[base] : undefined);
   },
 });
-export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS,...WANG_SKILLS};
+export const SKILLS:Record<SkillId,SkillDef> = {...skillsJson as unknown as Record<SkillId,SkillDef>,...COMBAT_SKILLS,...WANG_SKILLS,...HERO_SKILLS};
 export const REALMS = realmsJson as unknown as RealmDef[];
 export const QUESTS: Record<string, QuestDef> = { ...(questsJson as unknown as Record<string, QuestDef>), ...WORLD_QUESTS, ...OPENING_QUESTS };
 QUESTS.main_4 = { ...QUESTS.main_4, requires: 'first_return' };

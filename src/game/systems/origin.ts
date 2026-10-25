@@ -5,9 +5,15 @@ export function isChildhood(player: Pick<PlayerSave, 'origin' | 'admitted'>) {
 }
 
 export function heroName(player: PlayerSave) {
-  return isChildhood(player) ? player.sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ' : player.name;
+  return usesChildSprite(player) ? player.sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ' : player.name;
+}
+
+export function usesChildSprite(player: Pick<PlayerSave, 'origin' | 'admitted' | 'heroId'>) {
+  return isChildhood(player) && (!player.heroId || player.heroId === 'wang_lam' || player.heroId === 'ly_mo_uyen');
 }
 
 export function originText(text: string, player: PlayerSave) {
+  if (player.heroId && player.heroId !== 'wang_lam' && player.heroId !== 'ly_mo_uyen')
+    return text.split('Thiết Trụ').join(player.name).split('THIẾT TRỤ').join(player.name.toLocaleUpperCase('vi-VN'));
   return player.sex === 'female' ? text.split('Thiết Trụ').join('Mộ Uyển').split('THIẾT TRỤ').join('MỘ UYỂN') : text;
 }

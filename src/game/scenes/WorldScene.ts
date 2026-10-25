@@ -50,6 +50,7 @@ import { routeDots } from '../systems/routeDots';
 import { findPath } from '../systems/path';
 import { storyOrder } from '../systems/immortal';
 import { wangEffect } from '../../data/wangSkills';
+import { heroSpell, heroSpellHit } from '../../data/heroSkills';
 import { signatureHit } from '../systems/skillHit';
 import { gridLineClear } from '../systems/gridNavigation';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
@@ -580,6 +581,7 @@ export class WorldScene extends Phaser.Scene {
       userId: user.id,
       name: p.name,
       sex: p.sex ?? 'female',
+      heroId: p.heroId,
       realm: realmNameAtLevel(p.level),
       party: socialStore.getState().partyId,
       pose: {
@@ -1454,6 +1456,21 @@ export class WorldScene extends Phaser.Scene {
     const ang = Math.atan2(f.y, f.x);
     const wangLinStyle = gameStore.getState().player.sex === 'male';
     const liMuStyle = !wangLinStyle;
+    const spell = heroSpell(id);
+    if (spell) {
+      const from = {x:p.x,y:p.y}, facing = {...f};
+      this.vfx.heroSpell(id,from,facing,sk.range);
+      if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*.24),0);return;}
+      if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*.35),6000);return;}
+      this.time.delayedCall(400,()=>{
+        if(p.life.status!=='alive')return;
+        for(const m of this.monsters)if(m.alive && heroSpellHit(spell.shape,from,facing,sk.range,sk.arc,m)){
+          this.damageMonster(m,sk.multiplier);
+          if(m.alive && spell.rootMs)m.rootTimer=m.def.boss?Math.min(350,spell.rootMs):spell.rootMs;
+        }
+      });
+      return;
+    }
     if (wangEffect(id)) {
       const from = {x:p.x,y:p.y}, facing = {...f};
       const hits = () => this.monsters.filter(m => m.alive && signatureHit(id,from,facing,sk.range,m))

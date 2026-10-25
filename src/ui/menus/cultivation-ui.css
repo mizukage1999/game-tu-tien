@@ -1999,3 +1999,13 @@
     animation: none !important;
   }
 }
+
+/* New class spell art keeps its native alpha; the old atlas is only for shared skills. */
+.cult-skill-glyph.hero-spell-glyph{background-image:none;overflow:hidden;border:1px solid #a68b5155;background-color:#061323}
+.cult-skill-glyph.hero-spell-glyph>svg{display:block;width:100%;height:100%}
+.cult-preview-roster-spell{position:absolute;left:20%;top:2%;width:76%;height:95%;opacity:.65;pointer-events:none;transform:scale(.85);filter:drop-shadow(0 0 7px #70b8ff55)}
+.cult-preview-roster-spell.self{left:0;width:45%}
+.cult-skill-preview.playing .cult-preview-roster-spell{animation:hero-preview-cast 950ms ease-out both}
+.cult-preview-hero.roster-preview-hero{height:100%;width:44%;bottom:0}
+@keyframes hero-preview-cast{0%{opacity:0;transform:scale(.5)}35%{opacity:1;transform:scale(1)}65%{opacity:1;transform:scale(1.03)}100%{opacity:.45;transform:scale(.85)}}
+@media(prefers-reduced-motion:reduce){.cult-skill-preview.playing .cult-preview-roster-spell{animation:none}}

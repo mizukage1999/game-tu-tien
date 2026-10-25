@@ -2,8 +2,10 @@ import type { PlayerSave } from '../systems/save';
 import type { DerivedStats } from '../systems/progression';
 import { skillLoadout, type SkillLevels } from './skills';
 import type { SkillId } from '../../data';
+import type { HeroId } from '../../data/heroes';
 
 export interface Duelist {
+  heroId?: HeroId;
   sex?: 'male'|'female';
   maxMp?: number;
   loadout?: SkillId[];
@@ -23,7 +25,7 @@ export interface Duelist {
 
 export function buildDuelist(player: PlayerSave, stats: DerivedStats, realm: string, userId: string): Duelist {
   return {
-    sex:player.sex,maxMp:stats.maxMp,loadout:skillLoadout(player),skillLevels:player.skills,
+    heroId:player.heroId,sex:player.sex,maxMp:stats.maxMp,loadout:skillLoadout(player),skillLevels:player.skills,
     userId,
     name: player.name,
     level: player.level,

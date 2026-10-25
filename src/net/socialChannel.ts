@@ -87,6 +87,7 @@ export function joinSocialChannel(
     user_id: current.userId,
     name: current.name,
     sex: current.sex,
+    hero_id: current.heroId,
     level: current.level,
     realm: current.realm,
     map_id: current.mapId,

@@ -15,6 +15,7 @@ import { registerInventoryIcons } from '../art/inventoryIcons';
 import { VILLAGE_ATLASES, registerVillageArt } from '../art/village';
 import { WORLD_STYLE_ATLASES, registerWorldStyle } from '../art/worldStyle';
 import { HERO_SHEETS, registerHeroes } from '../art/heroes';
+import { ROSTER_SOURCE, SPELL_SOURCE, ROSTER_POSES_URL, HERO_EFFECTS_URL, registerRosterArt, registerHeroSpells } from '../art/heroRoster';
 import { BESTIARY_SHEETS, registerMonsterArt } from '../art/monsterArt';
 
 interface AtlasEntry {
@@ -34,6 +35,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image(ROSTER_SOURCE, ROSTER_POSES_URL);
+    this.load.image(SPELL_SOURCE, HERO_EFFECTS_URL);
     for (const sheet of BESTIARY_SHEETS) this.load.image(`bestiary-${sheet}-source`, `assets/monsters/${sheet}-v6.png`);
     for (const key of HERO_SHEETS) this.load.image(`${key}-source`, `assets/sprites/${key}.png`);
     this.load.image('inventory-item-icons','/assets/ui/cultivation/bag-items-v1.png');
@@ -78,6 +81,8 @@ export class PreloadScene extends Phaser.Scene {
     registerCohesiveArt(this);
     registerExpansionArt(this);
     registerHeroes(this);
+    registerRosterArt(this);
+    registerHeroSpells(this);
     registerMonsterArt(this);
     registerVillageArt(this);
     registerWorldStyle(this);

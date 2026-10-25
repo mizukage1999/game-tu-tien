@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { bonusText, EQUIP_SLOTS, ITEMS, REALMS, rarityOf, type EquipSlot } from '../../data';
 import { gameStore, itemName, useGame } from '../../store/gameStore';
-import { heroName, isChildhood } from '../../game/systems/origin';
+import { heroName, isChildhood, usesChildSprite } from '../../game/systems/origin';
 import { battlePower, adventure, sectRank, SECT_RANKS } from '../../game/systems/adventure';
 import {
   enhancementLevel,
@@ -20,6 +20,7 @@ import { skillLoadout } from '../../game/systems/skills';
 import { COMPANIONS, lifeProgress } from '../../game/systems/life';
 import { SkillGlyph, EquipGlyph, CultHeading, CultMeter, CultLock } from './CultivationUI';
 import { childProfileUrl } from '../../game/art/skillIcons';
+import { HeroFigure } from '../HeroArt';
 
 const SLOT_SYMBOLS: Record<EquipSlot, string> = {
   weapon: '⚔',
@@ -163,7 +164,7 @@ export function CharacterPanel() {
         <span className="cult-hero-seal" aria-hidden="true">
           道
         </span>
-        <img
+        {p.heroId && !usesChildSprite(p) ? <HeroFigure id={p.heroId} className="cult-hero-art" /> : <img
           className={`cult-hero-art ${child ? 'child' : ''}`}
           src={
             paperdoll ??
@@ -172,7 +173,7 @@ export function CharacterPanel() {
               : '/assets/sprites/li-mu-uyen-portrait.png')
           }
           alt={heroName(p)}
-        />
+        />}
         <div className="cult-paperdoll-caption">
           <span>{child ? 'VƯƠNG GIA THÔN' : 'NGƯỜI TU ĐẠO'}</span>
           <h2>{heroName(p)}</h2>

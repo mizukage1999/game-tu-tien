@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { rosterArt } from '../art/heroRoster';
+import { usesChildSprite } from '../systems/origin';
 import type { SkillId } from '../../data';
 import { gameStore, playerSkill } from '../../store/gameStore';
 import { playerArt } from '../systems/character';
@@ -91,8 +93,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   ) {
     const p = gameStore.getState().player;
     const childArt=p.sex==='female'?'mu_uyen_child':'thiet_tru';
-    const adultArt=p.sex==='male'?'hero-wang-v5':'hero-li-v5';
-    const art = isChildhood(p) && world.textures.exists(childArt) ? childArt : world.textures.exists(adultArt)?adultArt:playerArt(p.sex);
+    const adultArt=p.heroId && p.heroId !== 'wang_lam' && p.heroId !== 'ly_mo_uyen' ? rosterArt(p.heroId) : p.sex==='male'?'hero-wang-v5':'hero-li-v5';
+    const art = usesChildSprite(p) && world.textures.exists(childArt) ? childArt : world.textures.exists(adultArt)?adultArt:playerArt(p.sex);
     super(world, x, y, art);
     world.add.existing(this);
     world.physics.add.existing(this);

@@ -6,6 +6,7 @@ import { wangIconUrl } from './wangEffects';
 import { cultivationIconUrl } from './skillIcons';
 import { inventoryIconUrl } from './inventoryIcons';
 import { equipmentBaseId } from '../systems/equipment';
+import { heroSpellIcon } from './heroSpellIcons';
 
 function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
   const m = s / 2;
@@ -571,6 +572,8 @@ export function skillIconUrl(id: string, s = 64) {
 }
 
 export function skillSpriteUrl(id: SkillId, sex: 'female' | 'male' = 'male') {
+  const heroIcon = heroSpellIcon(id);
+  if (heroIcon) return heroIcon;
   const icon = cultivationIconUrl(id);
   if (icon) return icon;
   const art = wangEffect(id);

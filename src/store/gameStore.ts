@@ -29,6 +29,8 @@ import type { LifeStatus } from '../game/systems/respawn';
 import type { Vec2 } from '../game/types';
 import { ADMISSION_QUEST, PROLOGUE_ORDER } from '../data/world';
 import { isChildhood } from '../game/systems/origin';
+import { heroFor, type HeroId } from '../data/heroes';
+import { heroDefaultLoadout } from '../data/heroSkills';
 import { advanceLife, lifeProgress, performLifeAction, type LifeAction } from '../game/systems/life';
 import { startVillageChapter } from '../game/systems/storyStart';
 import { adventureAction, beastVictory, sectEvent, type AdventureAction } from '../game/systems/adventure';
@@ -729,8 +731,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
 });
 
 /** Writes the first save and replaces the placeholder hero. Call this before the world boots. */
-export function createCharacter(name: string, sex: Sex) {
-  const player: PlayerSave = { ...newPlayer({ name, sex }), origin: 'vuong_gia_thon', admitted: false, inventory: {}, world: { interactions: {}, discovered: ['vuong_gia_thon'] } };
+export function createCharacter(name: string, sex: Sex, heroId?: HeroId) {
+  const player: PlayerSave = { ...newPlayer({ name, sex: heroId ? heroFor({ heroId }).sex : sex }), ...(heroId ? { heroId, skillLoadout: heroDefaultLoadout(heroId) } : {}), origin: 'vuong_gia_thon', admitted: false, inventory: {}, world: { interactions: {}, discovered: ['vuong_gia_thon'] } };
   const quests = initialQuests(true);
   saveGame({ player, quests, mapId: 'vuong_gia_thon', pos: null });
   gameStore.setState({

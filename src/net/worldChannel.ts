@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { HeroId } from '../data/heroes';
 import { resetSupabaseChannel } from './channelReset';
 import { supabase } from './supabase';
 import {
@@ -13,6 +14,7 @@ import {
 } from './presence';
 
 export interface WorldChannelOptions {
+  heroId?: HeroId;
   mapId: string;
   userId: string;
   name: string;
@@ -95,6 +97,7 @@ export function joinWorldChannel(
         user_id: opts.userId,
         name: opts.name,
         sex: opts.sex,
+        hero_id: opts.heroId,
         realm: opts.realm,
         ...opts.pose,
       });

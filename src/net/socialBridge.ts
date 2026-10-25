@@ -165,6 +165,8 @@ export function practiceDuel() {
       ...mine,
       userId: 'practice',
       name: 'Mộc Nhân Luận Kiếm',
+      heroId: 'so_thien' as const,
+      sex: 'male' as const,
       atk: Math.round(mine.atk * 0.7),
       loadout: ['basic'] as Duelist['loadout'],
     };
@@ -187,6 +189,7 @@ function myProfile(): PublicProfile {
     userId: myRef().userId,
     name: s.player.name,
     sex: s.player.sex ?? 'female',
+    heroId: s.player.heroId,
     level: s.player.level,
     realm: realmNameAtLevel(s.player.level),
     mapId: s.mapId,

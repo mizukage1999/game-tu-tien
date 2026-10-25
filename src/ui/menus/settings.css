@@ -286,6 +286,7 @@
   left: -130%;
   top: 0;
 }
+.settings-portrait > .hero-portrait { width: 100%; height: 100%; display: block; }
 .settings-portrait.child {
   display: flex;
   justify-content: center;
