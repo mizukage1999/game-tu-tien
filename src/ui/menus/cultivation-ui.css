@@ -1,5 +1,5 @@
 /* Native controls over painted assets: both menus share the same visual scale. */
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate),
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey),
 .hud .menu-window.menu-character {
   --cult-gold: #e5bd74;
   --cult-ink: #07121eea;
@@ -20,7 +20,7 @@
     inset 0 0 0 3px #07121d,
     inset 0 0 0 4px #b48d3b77;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header,
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header,
 .hud .menu-window.menu-character > .menu-header {
   min-height: 68px;
   padding: 8px 18px 8px 12px;
@@ -29,7 +29,7 @@
   flex-shrink: 0;
   gap: 20px;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header h3,
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3,
 .hud .menu-window.menu-character > .menu-header h3 {
   font:
     italic 700 30px Cambria,
@@ -43,13 +43,13 @@
   white-space: nowrap;
   text-shadow: 0 2px 2px #000;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header h3 img,
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3 img,
 .hud .menu-window.menu-character > .menu-header h3 img {
   width: 46px;
   height: 46px;
   object-fit: contain;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header .close,
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header .close,
 .hud .menu-window.menu-character > .menu-header .close {
   width: 42px;
   height: 42px;
@@ -59,11 +59,11 @@
   font-size: 32px;
   line-height: 32px;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header .close::first-letter,
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header .close::first-letter,
 .hud .menu-window.menu-character > .menu-header .close::first-letter {
   font-family: Cambria, serif;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-content,
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-content,
 .hud .menu-window.menu-character > .menu-content {
   padding: 10px;
   flex: 1;
@@ -1504,36 +1504,36 @@
 .hud.phone .cult-realms .cult-realm-current small {
   display: none;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate),
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey),
 .hud.phone .menu-window.menu-character {
   width: calc(100% - 12px);
   height: calc(100% - 12px);
   max-height: none;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header,
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header,
 .hud.phone .menu-window.menu-character > .menu-header {
   min-height: 37px;
   padding: 3px 10px 3px 7px;
   gap: 12px;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header h3,
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3,
 .hud.phone .menu-window.menu-character > .menu-header h3 {
   font-size: 20px;
   gap: 6px;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header h3 img,
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3 img,
 .hud.phone .menu-window.menu-character > .menu-header h3 img {
   width: 28px;
   height: 28px;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-header .close,
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header .close,
 .hud.phone .menu-window.menu-character > .menu-header .close {
   width: 26px;
   height: 26px;
   font-size: 24px;
   line-height: 20px;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate) > .menu-content,
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-content,
 .hud.phone .menu-window.menu-character > .menu-content {
   padding: 5px;
   font-size: 10px;

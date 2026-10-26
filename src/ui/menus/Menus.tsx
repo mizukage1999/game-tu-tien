@@ -274,13 +274,13 @@ export function Menus() {
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
       <div className={`menu-window panel-ornate menu-${menu}`}>
-        {['skills','character','bag','mail','social','quests','sect','settings','cultivate'].includes(menu)&&<CultivationCorners/>}
+        {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
             <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
-            {TITLES[menu]}
+            {menu === 'journey' ? <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : TITLES[menu]}
           </h3>
-          {['skills','character','bag','mail','social','quests','sect','settings','cultivate'].includes(menu)&&<CultivationWallet/>}
+          {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey'].includes(menu)&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>

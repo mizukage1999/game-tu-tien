@@ -1,0 +1,1008 @@
+.journey-shell {
+  display: grid;
+  grid-template-columns: 133px minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  font-family: Cambria, Georgia, serif;
+}
+.journey-shell > .journey-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid #b58d494f;
+  background: #03111ce6;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.journey-sidebar button {
+  justify-content: flex-start;
+  gap: 9px;
+  flex: none;
+  min-height: 65px;
+  padding: 9px 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #acbfd1;
+  text-align: left;
+  font:
+    14px Cambria,
+    Georgia,
+    serif;
+  border-radius: 2px;
+}
+.journey-sidebar button > span {
+  font: inherit;
+  opacity: 1;
+}
+.journey-sidebar button.active {
+  background: linear-gradient(90deg, #b07b2c99, #0b1723);
+  border-color: #f2cd83;
+  color: #ffe3ad;
+  box-shadow:
+    inset 3px 0 #f6d083,
+    0 0 12px #ebaf3b29;
+}
+.journey-sidebar button:disabled {
+  opacity: 0.4;
+}
+.journey-glyph {
+  flex: none;
+  width: 26px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: #dbbe83;
+}
+.journey-workspace {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a08145 #07131e;
+  padding: 0 3px 0 0;
+}
+.story-open > .journey-workspace,
+.atlas-open > .journey-workspace {
+  overflow: hidden;
+  padding: 0;
+}
+.journey-roadbook {
+  display: grid;
+  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+.road-map-panel {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 124px;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #c29a596b;
+  background: #061725;
+  overflow: hidden;
+}
+.road-map-view {
+  min-height: 0;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #19354a url('/assets/journey/journey-road-v2.png') center / cover;
+}
+.road-map-view:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, #031323bc, transparent 48%),
+    linear-gradient(0deg, #03101b5e, transparent 50%);
+  z-index: -1;
+}
+.road-map-title {
+  position: absolute;
+  left: 18px;
+  top: 17px;
+  width: 66%;
+  z-index: 1;
+  pointer-events: none;
+  text-shadow: 0 2px 4px #000;
+}
+.road-map-title small {
+  color: #f0d39a;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+.road-map-title h2 {
+  color: #ffe0a0;
+  font:
+    italic bold clamp(23px, 2.5vw, 35px)/1.15 Cambria,
+    Georgia,
+    serif;
+  margin: 5px 0 8px;
+}
+.road-map-title p {
+  color: #d2dfe4;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 265px;
+}
+.road-route {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.road-route path {
+  fill: none;
+  stroke: #d5e6df9e;
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+}
+.road-route path.travelled {
+  stroke: #ffd371;
+  stroke-width: 3;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 4px #ffb92a);
+}
+.road-node {
+  position: absolute;
+  left: var(--node-x);
+  top: var(--node-y);
+  transform: translate(-50%, -50%);
+  width: 63px;
+  height: 63px;
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  color: #e1e4e4;
+  z-index: 2;
+}
+.road-node-ring {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #caa66c;
+  border-radius: 50%;
+  background: #051722e8;
+  box-shadow:
+    0 3px 12px #000b,
+    inset 0 0 0 4px #b1905826;
+}
+.road-node-ring > .hero-portrait,
+.road-node-ring > .quest-scenery {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.road-node-ring > .cult-lock {
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  fill: none;
+  stroke: #d4cfc4;
+  stroke-width: 1.6;
+}
+.road-node-number {
+  position: absolute;
+  bottom: -4px;
+  right: -5px;
+  min-width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  border: 1px solid #d4b678;
+  border-radius: 50%;
+  background: #071725;
+  color: #f3daa1;
+  font-size: 11px;
+}
+.road-node[aria-pressed='true'] .road-node-ring {
+  border-color: #ffe9af;
+  box-shadow:
+    0 0 0 3px #cf923747,
+    0 0 20px #f9b73cbd,
+    inset 0 0 14px #ffe5a330;
+}
+.road-node.current .road-node-ring {
+  border-color: #ffdb7d;
+  box-shadow:
+    0 0 0 3px #dfac5950,
+    0 0 22px #fbd1619c;
+}
+.road-node.complete .road-node-number {
+  color: #1e351d;
+  background: #e7cf82;
+}
+.road-node.locked .road-node-ring {
+  border-color: #b2aaa1;
+  background: #06131ddf;
+}
+.road-node-label {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  width: 150px;
+  gap: 2px;
+  text-shadow:
+    0 2px 3px #000,
+    0 0 5px #000;
+  pointer-events: none;
+}
+.road-node-label b {
+  max-width: 100%;
+  font:
+    bold 14px/1.2 Cambria,
+    Georgia,
+    serif;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #03111bb3;
+}
+.road-node-label small {
+  color: #e6d7b7;
+  font-size: 11px;
+}
+.road-node.last .road-node-label {
+  top: 50%;
+  bottom: auto;
+  left: auto;
+  right: calc(100% + 8px);
+  transform: translateY(-50%);
+}
+.road-map-progress {
+  display: grid;
+  grid-template-rows: auto 8px minmax(0, 1fr);
+  gap: 7px;
+  padding: 10px 14px;
+  background: #03111df2;
+  border-top: 1px solid #c6a16393;
+}
+.road-map-progress > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.road-chest {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d3a754;
+  border-radius: 6px;
+  color: #ffda85;
+  background: radial-gradient(circle, #75461b, #1a1921);
+  font-size: 27px;
+  box-shadow: 0 0 12px #c48c3436;
+}
+.road-map-progress h3 {
+  color: #f6d594;
+  font:
+    15px Cambria,
+    Georgia,
+    serif;
+  margin: 0;
+}
+.road-map-progress h3 small {
+  display: block;
+  color: #a9bfce;
+  font-size: 10px;
+  margin-top: 2px;
+}
+.road-map-progress > div > b {
+  margin-left: auto;
+  color: #e8d69d;
+  font-size: 16px;
+  white-space: nowrap;
+}
+.road-map-progress > div > b small {
+  display: block;
+  color: #a5b7c5;
+  font-size: 9px;
+  font-weight: 400;
+  text-align: right;
+}
+.road-map-progress progress {
+  display: block;
+  height: 8px;
+  width: 100%;
+  accent-color: #ebbd63;
+}
+.road-checkpoints {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: relative;
+}
+.road-checkpoints:before {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 13px;
+  height: 1px;
+  background: #92744290;
+}
+.road-checkpoints > span {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  z-index: 1;
+}
+.road-checkpoints b {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background: #061521;
+  border: 1px solid #9d814f;
+  border-radius: 50%;
+  color: #d0b880;
+  font-size: 11px;
+}
+.road-checkpoints .complete b {
+  border-color: #f1d289;
+  color: #b6efac;
+  box-shadow: 0 0 6px #f7c34c4a;
+}
+.road-checkpoints small {
+  color: #90a7bb;
+  font-size: 8px;
+}
+.road-detail {
+  display: grid;
+  grid-template-rows: 166px 43px minmax(0, 1fr) 43px;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+}
+.road-detail-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #b68e4f72;
+  background: #0b2337;
+}
+.road-detail-hero > .quest-scenery {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+}
+.road-detail-hero:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #03111df2, #03111d9c 60%, #03111d20);
+  z-index: -1;
+}
+.road-detail-hero > .quest-scenery {
+  z-index: -2;
+}
+.road-detail-hero > .road-header-portrait {
+  position: absolute;
+  height: 115%;
+  width: 48%;
+  right: -2%;
+  bottom: -13%;
+  opacity: 0.72;
+  pointer-events: none;
+}
+.road-detail-hero > div {
+  position: relative;
+  max-width: 86%;
+  padding: 14px;
+  text-shadow: 0 2px 3px #03101a;
+}
+.road-detail-hero small {
+  color: #edcc86;
+  font-size: 11px;
+}
+.road-detail-hero h2 {
+  margin: 5px 0 8px;
+  font:
+    italic bold 29px/1.15 Cambria,
+    Georgia,
+    serif;
+  color: #ffdda0;
+}
+.road-detail-hero p {
+  color: #c3d0d9;
+  max-width: 77%;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.road-detail-tabs {
+  display: flex;
+  gap: 6px;
+}
+.road-detail-tabs button {
+  flex: 1;
+  border: 1px solid #aa85495e;
+  border-radius: 2px;
+  color: #c2ced9;
+  background: #04131fdd;
+  font:
+    14px Cambria,
+    Georgia,
+    serif;
+  padding: 4px 7px;
+  min-height: 0;
+}
+.road-detail-tabs button[aria-selected='true'] {
+  color: #ffe6b8;
+  border-color: #f3ce83;
+  background: linear-gradient(110deg, #a46e27, #d2a056a8, #10202a);
+  box-shadow: 0 0 11px #f4b4373f;
+}
+.road-detail-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #a1844f #071520;
+  padding-right: 3px;
+}
+.road-task {
+  border: 1px solid #9d824f77;
+  border-radius: 2px;
+  background: linear-gradient(130deg, #081a28ef, #020d17f0);
+  padding: 9px 10px;
+  margin-bottom: 8px;
+}
+.road-task.active,
+.road-task.ready,
+.road-task.available {
+  border-color: #dbb169c7;
+  box-shadow: inset 0 0 12px #9c713017;
+}
+.road-task.locked {
+  border-color: #5f6c6b6b;
+}
+.road-task h4 {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font:
+    16px/1.25 Cambria,
+    Georgia,
+    serif;
+  color: #f6d79c;
+  margin: 0 0 8px;
+}
+.road-task h4 > span {
+  color: #d5b474;
+  flex: none;
+}
+.road-task-main {
+  display: flex;
+  gap: 10px;
+}
+.road-task-main > .quest-scenery {
+  width: 91px;
+  height: 79px;
+  flex: none;
+  border: 1px solid #aa8f536a;
+}
+.road-task-copy {
+  flex: 1;
+  min-width: 0;
+}
+.road-task-copy p {
+  color: #b5c6d6;
+  font-size: 11px;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+.road-task-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  color: #c5b188;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+.road-task-state b {
+  color: #e9cc8d;
+  white-space: nowrap;
+}
+.road-task.ready .road-task-state,
+.road-task.done .road-task-state {
+  color: #82dfb2;
+}
+.road-task-copy progress {
+  display: block;
+  height: 6px;
+  width: 100%;
+  accent-color: #58d99f;
+}
+.road-task > footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.road-task > footer > button {
+  flex: none;
+  width: 128px;
+  min-height: 36px;
+  font-size: 12px;
+}
+.road-task > footer .road-prizes {
+  flex: 1;
+  min-width: 0;
+}
+.road-prizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.road-prize {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 36px;
+  height: 40px;
+  border: 1px solid #a38c4b85;
+  border-radius: 3px;
+  background: #03101e;
+}
+.road-prize img {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+.road-prize small {
+  position: absolute;
+  bottom: 1px;
+  font-size: 8px;
+  color: #dae7e9;
+  text-shadow: 0 1px #000;
+}
+.road-exp {
+  color: #8ee4a9;
+  border-color: #4fb7828a;
+  background: radial-gradient(circle, #176b4070, #03101e);
+}
+.road-exp b {
+  font:
+    bold 11px Cambria,
+    Georgia,
+    serif;
+  margin-bottom: 7px;
+}
+.road-objectives {
+  color: #a3bbca;
+  font-size: 10px;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.road-objectives summary {
+  color: #cfbd92;
+  cursor: pointer;
+}
+.road-objectives p {
+  margin: 3px 0;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+.road-lock-reason {
+  color: #899eae;
+  font-size: 10px;
+  margin: 5px 0 0;
+  line-height: 1.4;
+}
+.road-detail-footer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #ae8e4a60;
+  padding: 4px 0;
+}
+.road-detail-footer > span {
+  color: #adbbca;
+  font-size: 10px;
+}
+.road-detail-footer > button {
+  flex: none;
+  font-size: 11px;
+  min-height: 32px;
+}
+.road-story,
+.road-reward-ledger {
+  border: 1px solid #a28b4c66;
+  background: #04131ee8;
+  padding: 14px;
+  min-height: 100%;
+}
+.road-story > small {
+  color: #cfb67e;
+  font-size: 11px;
+}
+.road-story > h3 {
+  color: #ffe0a2;
+  font:
+    italic bold 24px Cambria,
+    Georgia,
+    serif;
+  margin: 8px 0 16px;
+}
+.road-story article {
+  border-top: 1px solid #9a80573f;
+  padding-top: 10px;
+  margin-top: 13px;
+}
+.road-story h4,
+.road-reward-ledger h4 {
+  color: #e2cfa5;
+  font:
+    15px Cambria,
+    Georgia,
+    serif;
+  margin: 0 0 8px;
+}
+.road-story p,
+.road-reward-ledger > p {
+  font-size: 12px;
+  line-height: 1.75;
+  color: #bbcedb;
+  margin: 0;
+}
+.road-reward-ledger > p {
+  margin-bottom: 12px;
+}
+.road-reward-ledger article {
+  border-top: 1px solid #92784752;
+  padding: 12px 0;
+}
+.road-reward-ledger article > span {
+  color: #91a5b6;
+  font-size: 10px;
+  display: block;
+  margin-top: 7px;
+}
+.road-reward-ledger article > span.received {
+  color: #80dba2;
+}
+@media (max-height: 720px) {
+  .road-detail {
+    grid-template-rows: 125px 37px minmax(0, 1fr) 37px;
+    gap: 6px;
+  }
+  .road-detail-hero h2 {
+    font-size: 24px;
+  }
+  .road-map-panel {
+    grid-template-rows: minmax(0, 1fr) 100px;
+  }
+  .road-map-progress {
+    padding: 7px 10px;
+    gap: 4px;
+  }
+  .road-node {
+    width: 47px;
+    height: 47px;
+  }
+  .road-node-label b {
+    font-size: 12px;
+  }
+}
+.hud.phone .journey-shell {
+  grid-template-columns: 79px minmax(0, 1fr);
+  gap: 5px;
+}
+.hud.phone .journey-shell > .journey-sidebar {
+  padding: 3px;
+  gap: 4px;
+}
+.hud.phone .journey-shell > .journey-sidebar button {
+  min-height: 42px;
+  padding: 5px 3px;
+  gap: 5px;
+  font-size: 10px;
+}
+.hud.phone .journey-shell > .journey-sidebar button > span {
+  display: block;
+  font: inherit;
+}
+.hud.phone .journey-glyph {
+  width: 18px;
+  height: 21px;
+}
+.hud.phone .journey-roadbook {
+  gap: 5px;
+  grid-template-columns: minmax(0, 52fr) minmax(0, 48fr);
+}
+.hud.phone .road-map-panel {
+  grid-template-rows: minmax(0, 1fr) 67px;
+}
+.hud.phone .road-map-title {
+  left: 7px;
+  top: 7px;
+  width: 67%;
+}
+.hud.phone .road-map-title small {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.hud.phone .road-map-title h2 {
+  font-size: 17px;
+  margin: 2px 0 3px;
+}
+.hud.phone .road-map-title p {
+  font-size: 8px;
+  line-height: 1.35;
+}
+.hud.phone .road-node {
+  width: 44px;
+  height: 44px;
+  padding: 7.5px;
+}
+.hud.phone .road-node-ring {
+  border-width: 1px;
+}
+.hud.phone .road-node-ring > .cult-lock {
+  width: 15px;
+  height: 15px;
+}
+.hud.phone .road-node-number {
+  min-width: 13px;
+  height: 13px;
+  font-size: 7px;
+  right: -3px;
+  bottom: -3px;
+  padding: 0 2px;
+}
+.hud.phone .road-node-label {
+  width: 81px;
+  gap: 0;
+  top: calc(100% - 5px);
+}
+.hud.phone .road-node-label b {
+  font-size: 8px;
+  line-height: 1.15;
+  padding: 1px 3px;
+}
+.hud.phone .road-node-label small {
+  font-size: 7px;
+}
+.hud.phone .road-node.last .road-node-label {
+  top: calc(50% + 8px);
+  bottom: auto;
+}
+.hud.phone .road-map-progress {
+  padding: 4px 6px;
+  grid-template-rows: 21px 5px minmax(0, 1fr);
+  gap: 3px;
+}
+.hud.phone .road-map-progress > div:first-child {
+  gap: 5px;
+}
+.hud.phone .road-chest {
+  width: 21px;
+  height: 21px;
+  font-size: 17px;
+}
+.hud.phone .road-map-progress h3 {
+  font-size: 10px;
+}
+.hud.phone .road-map-progress h3 small {
+  display: none;
+}
+.hud.phone .road-map-progress > div > b {
+  font-size: 10px;
+}
+.hud.phone .road-map-progress > div > b small {
+  display: none;
+}
+.hud.phone .road-map-progress progress {
+  height: 5px;
+}
+.hud.phone .road-checkpoints:before {
+  top: 9px;
+}
+.hud.phone .road-checkpoints b {
+  width: 17px;
+  height: 17px;
+  font-size: 8px;
+}
+.hud.phone .road-checkpoints small {
+  display: none;
+}
+.hud.phone .road-detail {
+  grid-template-rows: 73px 28px minmax(0, 1fr) 29px;
+  gap: 4px;
+}
+.hud.phone .road-detail-hero > div {
+  padding: 6px;
+  max-width: 94%;
+}
+.hud.phone .road-detail-hero small {
+  font-size: 7px;
+}
+.hud.phone .road-detail-hero h2 {
+  font-size: 17px;
+  margin: 3px 0 4px;
+}
+.hud.phone .road-detail-hero p {
+  display: none;
+}
+.hud.phone .road-detail-tabs {
+  gap: 3px;
+}
+.hud.phone .road-detail-tabs button {
+  font-size: 9px;
+  padding: 2px 3px;
+}
+.hud.phone .road-task {
+  padding: 6px;
+  margin-bottom: 5px;
+}
+.hud.phone .road-task h4 {
+  font-size: 10px;
+  gap: 4px;
+  margin-bottom: 5px;
+}
+.hud.phone .road-task-main {
+  gap: 6px;
+}
+.hud.phone .road-task-main > .quest-scenery {
+  width: 49px;
+  height: 47px;
+}
+.hud.phone .road-task-copy p {
+  font-size: 9px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+.hud.phone .road-task-state {
+  font-size: 8px;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+.hud.phone .road-task-copy progress {
+  height: 4px;
+}
+.hud.phone .road-task > footer {
+  gap: 4px;
+  margin-top: 5px;
+  align-items: flex-end;
+}
+.hud.phone .road-task > footer > button {
+  font-size: 8px;
+  min-height: 27px;
+  width: 84px;
+  padding: 3px;
+}
+.hud.phone .road-prizes {
+  gap: 3px;
+}
+.hud.phone .road-prize {
+  width: 26px;
+  height: 29px;
+}
+.hud.phone .road-prize img {
+  width: 21px;
+  height: 21px;
+  margin-bottom: 6px;
+}
+.hud.phone .road-prize small {
+  font-size: 7px;
+}
+.hud.phone .road-exp b {
+  font-size: 8px;
+}
+.hud.phone .road-objectives,
+.hud.phone .road-lock-reason {
+  font-size: 8px;
+  margin-top: 4px;
+}
+.hud.phone .road-detail-footer {
+  gap: 4px;
+  padding: 1px 0;
+}
+.hud.phone .road-detail-footer > span {
+  font-size: 7px;
+}
+.hud.phone .road-detail-footer > button {
+  font-size: 8px;
+  min-height: 26px;
+  padding: 3px 5px;
+}
+.hud.phone .road-story,
+.hud.phone .road-reward-ledger {
+  padding: 8px;
+}
+.hud.phone .road-story > small {
+  font-size: 8px;
+}
+.hud.phone .road-story > h3 {
+  font-size: 16px;
+  margin: 5px 0 10px;
+}
+.hud.phone .road-story h4,
+.hud.phone .road-reward-ledger h4 {
+  font-size: 11px;
+}
+.hud.phone .road-story p,
+.hud.phone .road-reward-ledger > p {
+  font-size: 9px;
+  line-height: 1.6;
+}
+.hud.phone .road-reward-ledger article > span {
+  font-size: 8px;
+}
+.hud.phone .menu-journey > .menu-header h3 {
+  font-size: 17px;
+  letter-spacing: 0;
+}
+.hud.phone .journey-header-subtitle {
+  display: none;
+}
+.hud.phone .menu-window.menu-journey,
+.hud.phone.turned .menu-window.menu-journey {
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  max-height: none;
+}
+.journey-shell.atlas-open > .journey-workspace > .world-atlas,
+.hud.phone .journey-shell.atlas-open > .journey-workspace > .world-atlas {
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+}
+@media (max-height: 350px) {
+  .hud.phone .road-detail {
+    grid-template-rows: 56px 26px minmax(0, 1fr) 27px;
+  }
+  .hud.phone .road-map-title p {
+    display: none;
+  }
+  .hud.phone .road-map-panel {
+    grid-template-rows: minmax(0, 1fr) 55px;
+  }
+  .hud.phone .road-map-progress {
+    grid-template-rows: 18px 4px minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .road-node.current .road-node-ring {
+    animation: road-current-glow 3s ease-in-out infinite;
+  }
+  @keyframes road-current-glow {
+    50% {
+      box-shadow:
+        0 0 0 3px #dfac5930,
+        0 0 28px #ffd87ac9;
+    }
+  }
+}

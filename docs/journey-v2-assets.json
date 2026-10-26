@@ -1,0 +1,10 @@
+[
+  {
+    "asset": "public/assets/journey/journey-road-v2.png",
+    "provider": "built-in imagegen",
+    "size": [1254, 1254],
+    "transparent_background": false,
+    "original": "C:/Users/Hoa/.codex/generated_images/01a1676f-f99e-7e62-bf4d-ab13e8996bfc/exec-e2722a86-6e86-49c8-9721-9d50a30fc710.png",
+    "prompt": "Use case: stylized-concept. Asset type: painted background for the interactive Journey / Tien Lo map in a Vietnamese xianxia RPG. Create ONLY environment artwork, no interface, NO TEXT, NO labels, NO letters, NO numbers, NO borders, NO drawn route lines, NO pins, NO portraits. Rich detailed 2.5D Chinese immortal fantasy game world, elevated oblique bird's eye view, luminous deep sapphire mountains, layered clouds, waterfalls, jade rivers and winding stone bridges, small ornate tiled-roof pavilions and pink blossoms. A connected magical landscape with eight distinct landmarks arranged as follows as approximate percentages from top-left: 1 a humble warm sunlit rural village and bamboo at x18 y76; 2 a river bend and ancient willow with bridge at x41 y67; 3 a stone sect entrance and stairs in mist at x29 y48; 4 an elegant blue-roof mountain sect courtyard at x58 y35; 5 an alchemy pavilion and orange lanterns in a jade grove at x77 y17; 6 a violet ancient shrine with a magical portal at x83 y48; 7 a narrow red maple ridge with swordlike rocky peaks at x81 y72; 8 an ethereal luminous golden temple on a floating island at x84 y91. Make destinations visually readable and beautiful but leave subtle empty space around each for real UI buttons to overlay. A small calm lake connects the lower-middle landmarks. Far upper-left has soft darker sky/mountains and no important structure so a title can overlay there. No large figures or characters. Premium painted fantasy landscape illustration, intricate elegant architecture, adventurous magical mood, restrained gold accents, blue-green night shadows and warm villages, contrast balanced for interactive map labels. Compose a square image 1536x1536, fill whole frame, no margins, no text anywhere."
+  }
+]
