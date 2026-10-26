@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "created": "2026-10-26",
+  "tool": "image_gen.imagegen",
+  "mode": "builtin",
+  "assets": [
+    {
+      "path": "public/assets/ui/cultivation/inspect-terrace-v1.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "transparent_background": false,
+      "prompt": "Use case: stylized-concept. Asset type: production background artwork for the 'inspect another player' panel of a Vietnamese xianxia 2.5D RPG. Create a wide landscape 3:2 illustration in polished hand-painted isometric fantasy game style, matching midnight blue mountain temples, warm amber lanterns, pink cherry blossoms and aged gold trim. Scene: a quiet stone viewing terrace, a softly glowing circular stone pedestal at lower center-left for an existing character sprite to stand on, layered Chinese pagoda rooftops and a distant misty mountain skyline across the upper band, delicate pink branches framing the far upper corners. Layout: the LEFT THIRD has the scenic terrace and pedestal, the RIGHT TWO THIRDS are predominantly empty very dark navy mist with very low contrast, allowing readable live game statistics to be overlaid. No people, no creatures, no weapons, no UI elements, no labels, no letters, no numbers, no logo, no watermark. Refined atmospheric light, detailed on the left, restrained on the right; avoid a busy or bright central background. The art is a decorative backdrop, not a screenshot of a UI. Keep all edges fully opaque."
+    },
+    {
+      "path": "public/assets/ui/cultivation/inspect-companions-v1.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "transparent_background": true,
+      "layout": {
+        "columns": 3,
+        "rows": 2,
+        "order": [
+          "snow_fox",
+          "gold_tiger",
+          "white_crane",
+          "jade_deer",
+          "shadow_wolf",
+          "red_fox"
+        ]
+      },
+      "prompt": "Use case: stylized-concept. Production transparent sprite atlas for a xianxia RPG companion information panel, matching finely painted semi-realistic 2.5D Chinese fantasy game art. EXACTLY six full-body friendly spirit animal portraits on a strict 3 columns by 2 rows equal grid, landscape 1536 by 1024 composition (each cell 512 square). Read row-major left to right: top-left small WHITE snow fox with one fluffy tail and ice-blue eyes, top-middle young GOLDEN tiger with black stripes, top-right elegant WHITE crane with a red crown and long black-white wings; bottom-left graceful JADE GREEN deer with delicate luminous leaf-like antlers, bottom-middle SILVER DARK GREY shadow wolf with violet-blue eyes, bottom-right RED ORANGE fox with exactly THREE fluffy tails. Each creature is alone, centered in its own cell, entire feet, ears, wings and tail fully contained within its cell and plenty of empty margin. Same three-quarter camera facing left, consistent soft moonlight and hand-painted brush detail. True transparent alpha background everywhere outside animals, no floor, no cast shadows, no rectangles, no borders, no labels, no letters, no UI, no weapons, no people, no watermark. Detailed attractive inspectable animal sprites, NOT a UI mockup."
+    }
+  ],
+  "reuse": [
+    "public/assets/heroes-v7/roster.png",
+    "public/assets/heroes-v8/children.png",
+    "Existing equipment and skill icon atlases"
+  ],
+  "integration": "Background kept separate from live text and controls; pet atlas cropped with CSS background position. No flattening or background replacement of generated alpha."
+}

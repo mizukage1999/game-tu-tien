@@ -3,6 +3,7 @@ import type { FriendRef, Sex } from '../game/systems/save';
 import { SKILLS, type SkillId } from '../data';
 import { isHeroId, type HeroId } from '../data/heroes';
 import { parseWhisperKey, type WhisperKey } from './whisperCrypto';
+import { parseInspection, type PlayerInspection } from './inspection';
 import {
   validArenaInput,
   validateArenaSnapshot,
@@ -35,6 +36,8 @@ export interface SocialPresence extends PublicProfile {
 }
 
 export type SocialMessage =
+  | { t: 'inspect:ask'; to: string; from: string; nonce: string }
+  | { t: 'inspect:result'; to: string; from: string; nonce: string; inspection: PlayerInspection }
   | {
       t: 'chat:private';
       to: string;
@@ -135,6 +138,14 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
   const t = text(m.t, 20);
   const to = text(m.to, 64);
   if (!to) return null;
+  if (t === 'inspect:ask' || t === 'inspect:result') {
+    const from = text(m.from, 64),
+      nonce = text(m.nonce, 64);
+    if (!from || !nonce) return null;
+    if (t === 'inspect:ask') return { t, to, from, nonce };
+    const inspection = parseInspection(m.inspection);
+    return inspection && inspection.userId === from ? { t, to, from, nonce, inspection } : null;
+  }
   if (t === 'chat:private') {
     const from = ref(m.from),
       key = parseWhisperKey(m.key),

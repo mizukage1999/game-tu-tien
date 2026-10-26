@@ -14,6 +14,8 @@ import { joinSocialChannel, type SocialChannel } from './socialChannel';
 import { newPartyId, type FriendRef, type PublicProfile, type SocialMessage } from './social';
 import { WhisperCrypto } from './whisperCrypto';
 import { chatStore } from '../store/chatStore';
+import { inspectionStore } from '../store/inspectionStore';
+import { buildInspection } from './inspection';
 
 let channel: SocialChannel | null = null;
 let stopSocial: (() => void) | null = null;
@@ -226,6 +228,22 @@ function acceptDuel(invite: SocialInvite) {
 function handleMessage(message: SocialMessage) {
   const social = socialStore.getState();
   const game = gameStore.getState();
+  if (message.t === 'inspect:ask') {
+    if (!social.roster.some((p) => p.userId === message.from)) return;
+    channel?.send({
+      t: 'inspect:result',
+      to: message.from,
+      from: myRef().userId,
+      nonce: message.nonce,
+      inspection: buildInspection(game.player, game.stats, game.quests, game.mapId, myRef().userId),
+    });
+    return;
+  }
+  if (message.t === 'inspect:result') {
+    if (social.roster.some((p) => p.userId === message.from))
+      inspectionStore.getState().complete(message.from, message.nonce, message.inspection);
+    return;
+  }
   if (message.t === 'chat:private') {
     const sender = social.roster.find((p) => p.userId === message.from.userId);
     if (
@@ -242,17 +260,15 @@ function handleMessage(message: SocialMessage) {
         if (session !== whispers || message.to !== myRef().userId) return;
         if (!text.trim() || text.length > 200) return;
         if (
-          chatStore
-            .getState()
-            .add({
-              id: message.id,
-              kind: 'private',
-              from: message.from.userId,
-              to: message.to,
-              name: sender.name,
-              text,
-              at: Date.now(),
-            })
+          chatStore.getState().add({
+            id: message.id,
+            kind: 'private',
+            from: message.from.userId,
+            to: message.to,
+            name: sender.name,
+            text,
+            at: Date.now(),
+          })
         )
           EventBus.emit('chat:whisper', { from: sender.userId, text });
       })
@@ -439,6 +455,7 @@ export function startSocial(): () => void {
     channel = null;
     whispers = null;
     chatStore.getState().reset();
+    inspectionStore.getState().reset();
     const state = socialStore.getState();
     state.setConnected(false);
     state.setRoster([]);
@@ -454,6 +471,24 @@ export function startSocial(): () => void {
 export function stopSocialChannel() {
   stopSocial?.();
   stopSocial = null;
+}
+
+/** Fetch public loadout on demand instead of broadcasting the entire character save. */
+export function requestInspection(userId: string): () => void {
+  const nonce = crypto.randomUUID(),
+    store = inspectionStore.getState();
+  store.begin(userId, nonce);
+  if (userId === myRef().userId) {
+    const s = gameStore.getState();
+    store.complete(userId, nonce, buildInspection(s.player, s.stats, s.quests, s.mapId, userId));
+  } else if (channel && presenceFor(socialStore.getState().roster, userId))
+    channel.send({ t: 'inspect:ask', to: userId, from: myRef().userId, nonce });
+  else store.fail(nonce);
+  const timer = setTimeout(() => inspectionStore.getState().fail(nonce), 6000);
+  return () => {
+    clearTimeout(timer);
+    if (inspectionStore.getState().nonce === nonce) inspectionStore.getState().reset();
+  };
 }
 
 /** Sends a duel challenge. The nonce is what both clients later replay. */
@@ -564,18 +599,16 @@ export async function sendWhisper(to: string, text: string): Promise<boolean> {
   try {
     const envelope = await whispers.seal(peer.chatKey, text, myRef().userId, to);
     channel.send({ ...envelope, t: 'chat:private', from: myRef() });
-    chatStore
-      .getState()
-      .add({
-        id: envelope.id,
-        kind: 'private',
-        from: myRef().userId,
-        to,
-        name: myRef().name,
-        text,
-        at: Date.now(),
-        outgoing: true,
-      });
+    chatStore.getState().add({
+      id: envelope.id,
+      kind: 'private',
+      from: myRef().userId,
+      to,
+      name: myRef().name,
+      text,
+      at: Date.now(),
+      outgoing: true,
+    });
     return true;
   } catch {
     gameStore.getState().toast('Chưa gửi được tin mật. Hãy thử lại.', 'warn');
