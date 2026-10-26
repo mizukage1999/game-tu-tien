@@ -10,7 +10,7 @@ import type { WorldScene } from '../scenes/WorldScene';
 import { GridNavigator, gridLineClear } from '../systems/gridNavigation';
 import { TILE } from '../art/tiles';
 import type { WorldMonsterState } from '../../net/worldProtocol';
-import { realmNameAtLevel } from '../systems/progression';
+import { RealmNameplate } from './RealmNameplate';
 
 export class Monster extends Phaser.Physics.Arcade.Sprite {
   netId='';
@@ -39,6 +39,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   private summoned = false;
   private shadow: Phaser.GameObjects.Image;
   private label: Phaser.GameObjects.Text;
+  private realmPlate?: RealmNameplate;
   private bar: Phaser.GameObjects.Graphics;
   private attacking = false;
   private hurtTimer = 0;
@@ -81,7 +82,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setScale(1.2 * scale, scale).setDepth(-100);
     this.label = world.add
-      .text(spot.x, spot.y, this.hideStrength ? `${realmNameAtLevel(def.level)}\n${def.name}` : def.boss ? `【${def.name}】 Lv.${def.level}` : def.name, {
+      .text(spot.x, spot.y, def.boss ? `【${def.name}】 Lv.${def.level}` : def.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: def.boss ? '15px' : '12px',
         fontStyle: 'bold',
@@ -93,6 +94,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       })
       .setOrigin(0.5, 1)
       .setDepth(89000);
+    if(this.hideStrength){this.realmPlate=new RealmNameplate(world,{level:def.level},def.name,'#ffd6d6',89000);this.label.setVisible(false);}
     this.bar = world.add.graphics().setDepth(89000);
     this.setFlipX(Math.random() < 0.5);
     this.ctrl.play('idle', this.flipX ? 'left' : 'right');
@@ -181,9 +183,11 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       this.barDirty = true;
     }
     this.label.setPosition(spot.x, top - 6);
+    this.realmPlate?.place(spot.x,top-6);
     const heroName = this.world.player?.nameplateBounds;
-    const overlapsHero = !!heroName && Phaser.Geom.Intersects.RectangleToRectangle(this.label.getBounds(), heroName);
-    this.label.setVisible(!overlapsHero);
+    const overlapsHero = !!heroName && Phaser.Geom.Intersects.RectangleToRectangle(this.realmPlate?.getBounds()??this.label.getBounds(), heroName);
+    this.label.setVisible(!overlapsHero&&!this.hideStrength);
+    this.realmPlate?.setVisible(!overlapsHero);
     this.bar.setVisible(!overlapsHero && !this.hideStrength);
     if (this.barDirty || this.lastBarPos.x !== this.x || this.lastBarPos.y !== this.y) {
       this.barDirty = false;
@@ -279,6 +283,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     body.enable = false;
     this.ctrl.play('die', this.flipX ? 'left' : 'right', { force: true, lock: true });
     this.label.setVisible(false);
+    this.realmPlate?.setVisible(false);
     this.bar.clear();
     this.world.onMonsterKilled(this);
     this.world.tweens.add({
@@ -297,6 +302,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.alive = false;
     (this.body as Phaser.Physics.Arcade.Body).enable = false;
     this.label.setVisible(false);
+    this.realmPlate?.setVisible(false);
     this.bar.clear();
     this.world.tweens.add({ targets: [this, this.art, this.shadow], alpha: 0, duration: 500, onComplete: () => this.setVisible(false) });
   }
@@ -320,7 +326,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     (this.body as Phaser.Physics.Arcade.Body).reset(home.x, home.y);
     this.setVisible(false).setAlpha(0);
     this.art.setVisible(true);
-    this.label.setVisible(true);
+    this.label.setVisible(!this.hideStrength);
     this.world.tweens.add({ targets: [this, this.shadow], alpha: 1, duration: 600 });
   }
 
@@ -328,6 +334,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.art?.destroy();
     this.shadow?.destroy();
     this.label?.destroy();
+    this.realmPlate?.destroy();
     this.bar?.destroy();
     super.destroy(fromScene);
   }
@@ -341,7 +348,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.hp=Math.min(this.def.hp,state.hp);this.alive=state.alive;this.generation=state.generation;this.respawnAt=state.respawnAt;this.rootTimer=state.root;this.slowTimer=state.slow;
     this.brain.home={x:state.homeX,y:state.homeY};this.setFlipX(state.flip);this.barDirty=true;
     if(revived){this.world.tweens.killTweensOf([this,this.art,this.shadow]);this.setAlpha(1);this.art.setVisible(true);this.shadow.setAlpha(1);this.ctrl.unlock();}
-    if(killed){this.ctrl.unlock();this.ctrl.play('die',state.flip?'left':'right',{force:true});this.label.setVisible(false);this.bar.clear();this.world.tweens.add({targets:[this,this.art,this.shadow],alpha:0,delay:450,duration:450});}
+    if(killed){this.ctrl.unlock();this.ctrl.play('die',state.flip?'left':'right',{force:true});this.label.setVisible(false);this.realmPlate?.setVisible(false);this.bar.clear();this.world.tweens.add({targets:[this,this.art,this.shadow],alpha:0,delay:450,duration:450});}
     if(this.alive){this.ctrl.play(state.anim==='die'?'idle':state.anim,state.flip?'left':'right');this.syncDecor();}
   }
   showNetworkAttack(){if(this.world.shared?.authority)return;this.ctrl.play('attack',this.flipX?'left':'right',{lock:true,force:true});}

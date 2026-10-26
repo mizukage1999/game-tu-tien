@@ -14,6 +14,7 @@ import { heroDirection, type HeroDirection } from '../art/heroDirections';
 import { isoVector } from '../art/iso';
 import { flightRotation } from '../systems/flightVisual';
 import type { SkillId } from '../../data';
+import { RealmNameplate } from './RealmNameplate';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -27,7 +28,7 @@ export class RemotePlayer {
   private sprite: Phaser.GameObjects.Sprite;
   private ctrl: AnimationController;
   private shadow: Phaser.GameObjects.Image;
-  private label: Phaser.GameObjects.Text;
+  private nameplate: RealmNameplate;
   private state: RemotePlayerState;
   private target: Vec2;
   private map: Vec2;
@@ -51,27 +52,15 @@ export class RemotePlayer {
     this.ctrl = new AnimationController(this.sprite, art);
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     this.mountArt=world.add.image(spot.x,spot.y,'immortal-sword').setVisible(false);
-    this.label = world.add
-      .text(spot.x, spot.y - 108, `${state.realm}\n${state.name}`, {
-        fontFamily: '"Segoe UI", Tahoma, sans-serif',
-        fontSize: '12px',
-        fontStyle: 'bold',
-        color: STRANGER_COLOR,
-        stroke: '#1a2240',
-        strokeThickness: 3,
-        align:'center',resolution:2,
-      })
-      .setOrigin(0.5, 1)
-      .setDepth(90000);
-    this.label.setVisible(settingsStore.getState().preferences.showNames);
+    this.nameplate = new RealmNameplate(world,{level:state.combat?.level,realm:state.realm,child:state.child},state.name,STRANGER_COLOR);
+    this.nameplate.setVisible(settingsStore.getState().preferences.showNames);
     this.ctrl.play('idle', state.visualDir??state.dir);
     // Clicking a body opens their card. The label is also clickable so a
     // crowded spawn still lets you pick someone.
     this.sprite.setInteractive({ useHandCursor: true });
-    this.label.setInteractive({ useHandCursor: true });
     const open = () => socialStore.getState().openCard(state.userId);
     this.sprite.on('pointerdown', open);
-    this.label.on('pointerdown', open);
+    this.nameplate.clickable(open);
     this.applyPartyStyle();
     // Party membership changes without a new presence entry, so re-check often.
     this.stopParty=socialStore.subscribe(() => this.applyPartyStyle());
@@ -83,7 +72,7 @@ export class RemotePlayer {
     this.state = next;
     this.target.x = next.x;
     this.target.y = next.y;
-    this.label.setText(`${next.realm}\n${next.name}`);
+    this.nameplate.sync({level:next.combat?.level,realm:next.realm,child:next.child},next.name);
     this.applyPartyStyle();
   }
 
@@ -97,9 +86,8 @@ export class RemotePlayer {
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
     if(this.state.mount)this.mountArt.setTexture(`immortal-${this.state.mount}`).setDisplaySize(160,100).setRotation(this.state.mount==='sword'?flightRotation(face):0).setFlipX(this.state.mount==='crane'&&isoVector(face.x,face.y).x<0).setPosition(spot.x,spot.y-lift+(this.state.mount==='sword'?-1:20)).setDepth(spot.y-.1);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.label.setPosition(spot.x, spot.y - (this.state.child?92:119)-lift);
-    this.bubble?.setPosition(spot.x,spot.y-(this.state.child?128:155)-lift);
-    this.label.setVisible(settingsStore.getState().preferences.showNames);
+    this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)-lift,settingsStore.getState().preferences.showNames);
+    this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)-lift);
     const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y);
     this.ctrl.play(this.state.combat?.hp===0?'downed':this.state.moving ? 'run' : 'idle', dir);
   }
@@ -109,7 +97,7 @@ export class RemotePlayer {
     const { partyId } = socialStore.getState();
     const mine = !!partyId && this.state.party === partyId;
     const color = mine ? PARTY_COLOR : STRANGER_COLOR;
-    if (this.label.style.color !== color) this.label.setColor(color);
+    this.nameplate.setNameColor(color);
     if (mine && !this.tintTween) {
       this.tintTween = this.sprite.scene.tweens.add({
         targets: this.sprite,
@@ -128,7 +116,7 @@ export class RemotePlayer {
   destroy() {
     this.stopParty?.();this.ctrl.destroy();this.mountArt.destroy();this.bubble?.destroy();
     this.tintTween?.stop();
-    this.label.destroy();
+    this.nameplate.destroy();
     this.shadow.destroy();
     this.sprite.destroy();
   }

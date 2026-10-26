@@ -13,6 +13,7 @@ import { heroSpell } from '../../data/heroSkills';
 import { HeroPose, HeroDirectionalPose, HeroSpellGlyph, RosterPortrait } from '../HeroArt';
 import { heroDirection } from '../../game/art/heroDirections';
 import { HeroArenaEffect } from './HeroArenaEffect';
+import { RealmBadge } from '../RealmBadge';
 
 function FighterCard({ fighter: p, enemy = false }: { fighter: ArenaFighter; enemy?: boolean }) {
   const hero = heroFor(p);
@@ -235,9 +236,8 @@ export function DuelOverlay() {
                   style={{ left: `${(p.x / ARENA_W) * 100}%`, top: `${(p.y / ARENA_H) * 100}%` }}
                 >
                   <div className="duel-fighter-name">
-                    {p.realm}
-                    <br />
-                    {p.name}
+                    <RealmBadge level={p.level} realm={p.realm} compact />
+                    <span>{p.name}</span>
                   </div>
                   <div className="duel-hp">
                     <i style={{ width: `${(p.hp / p.maxHp) * 100}%` }} />

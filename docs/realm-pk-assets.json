@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "created": "2026-10-26",
+  "tool": "image_gen.imagegen",
+  "mode": "builtin",
+  "asset": "public/assets/ui/cultivation/realm-crests-v1.png",
+  "dimensions": [
+    1536,
+    1024
+  ],
+  "transparent_background": true,
+  "atlas": {
+    "columns": 3,
+    "rows": 4,
+    "cell": [
+      512,
+      256
+    ],
+    "order": [
+      "Luyện Khí",
+      "Trúc Cơ",
+      "Kim Đan",
+      "Nguyên Anh",
+      "Hóa Thần",
+      "Anh Biến",
+      "Vấn Đỉnh",
+      "Âm Hư",
+      "Dương Thực",
+      "Khuy Niết",
+      "Tịnh Niết",
+      "Toái Niết"
+    ]
+  },
+  "prompt": "Use case: stylized-concept. Asset type: transparent sprite atlas of TWELVE glowing xianxia realm nameplate decorations for a 2.5D cultivation RPG, to float above characters' heads. Strict atlas 3 columns x 4 rows on a 1536x1024 landscape canvas; each equal cell 512x256. EXACTLY ONE small wide symmetrical winged ornament per cell, with generous transparent spacing between cells. Each is a refined luminous flame/lotus/phoenix-wing horizontal crest, small pointed crown above center, thin magical underline. Central 270px-wide horizontal area stays dark empty transparent negative space for LIVE VIETNAMESE REALM TEXT overlaid in code. No text, letters, symbols resembling letters, numbers, characters or people; no meditation figures, no icon circle, no UI mockup. Decorations occupy about 450x120 px centered within each 512x256 cell. Colors in row-major order MUST be: 1 pearl SILVER WHITE with soft lilac, 2 EMERALD GREEN, 3 electric SAPPHIRE BLUE, 4 glowing ORCHID PURPLE, 5 warm GOLD AMBER, 6 fiery ORANGE, 7 hot CRIMSON RED, 8 deep VIOLET, 9 icy AZURE BLUE, 10 vivid TURQUOISE CYAN, 11 ROSE MAGENTA, 12 brilliant AMETHYST PURPLE. Same consistent geometry and readable central opening, increasing ornament intricacy very slightly toward later ranks. Elegant sharp painted fantasy game sprites, restrained soft glow outside ornament, true transparent alpha background. No opaque black rectangles, no black backdrop, no border around sheet, no captions, no watermark. Each whole ornament stays inside its cell, no clipping and no overlapping cells.",
+  "integration": "Shared texture frames in Phaser and the same atlas in React; realm name and phase remain live text, not baked into the artwork. Alpha preserved. Crossed swords are a small currentColor SVG matching the existing UI icon style."
+}

@@ -33,6 +33,7 @@ import { adventure } from '../systems/adventure';
 import type { Pose } from '../../net/presence';
 import { heroFor } from '../../data/heroes';
 import { directionalArt } from '../art/directionalHeroes';
+import { RealmNameplate } from './RealmNameplate';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -79,7 +80,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private shadow: Phaser.GameObjects.Image;
   private mountArt: Phaser.GameObjects.Image;
   private realmAura: Phaser.GameObjects.Image;
-  private label: Phaser.GameObjects.Text;
+  private nameplate: RealmNameplate;
   private bar: Phaser.GameObjects.Graphics;
   private route: Vec2[] = [];
   private autoRoute: Vec2[] = [];
@@ -120,19 +121,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setDepth(-100);
     this.mountArt = world.add.image(spot.x, spot.y, 'immortal-sword').setVisible(false);
     this.realmAura=world.add.image(spot.x,spot.y,'circle_gold').setVisible(false).setAlpha(.35).setBlendMode(Phaser.BlendModes.ADD);
-    this.label = world.add
-      .text(spot.x, spot.y, `${isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level)}\n${heroName(p)}`, {
-        fontFamily: '"Segoe UI", Tahoma, sans-serif',
-        fontSize: '13px',
-        fontStyle: 'bold',
-        color: '#ffffff',
-        stroke: '#1a2240',
-        strokeThickness: 3,
-        resolution: 2,
-        align:'center',
-      })
-      .setOrigin(0.5, 1)
-      .setDepth(90000);
+    this.nameplate = new RealmNameplate(world,{level:p.level,child:isChildhood(p)},heroName(p));
     this.bar = world.add.graphics().setDepth(90000);
 
     const kb = world.input.keyboard!;
@@ -163,7 +152,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return { x: this.x, y: this.y };
   }
 
-  get nameplateBounds() { return this.label.getBounds(); }
+  get nameplateBounds() { return this.nameplate.getBounds(); }
 
   private get activeMount() {
     const s = gameStore.getState();
@@ -261,12 +250,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(mount.id==='crane'&&isoVector(this.facing.x,this.facing.y).x<0).setRotation(mount.id==='sword'?flightRotation(this.facing):0).setPosition(spot.x, spot.y - lift + (mount.id==='sword'?-1:20)).setDepth(spot.y - 0.1);
     this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
     const p=gameStore.getState().player;
-    this.label.setText(`${isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level)}\n${heroName(p)}`);
+    this.nameplate.sync({level:p.level,child:isChildhood(p)},heroName(p));
     this.syncLook();
     this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setPosition(spot.x,spot.y-lift+3).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]).setDepth(spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.label.setPosition(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 106) - lift);
+    this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) - lift);
     this.drawBar({x:spot.x,y:spot.y-lift});
   }
 
@@ -282,7 +271,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const { player, stats } = gameStore.getState();
     const w = 46;
     this.bar.clear();
-    const above = this.ctrl.rig.frameHeight === 160 ? 117 : 104;
+    const above = this.ctrl.rig.frameHeight === 160 ? 117 : 90;
     this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(spot.x - w / 2 - 1, spot.y - above, w + 2, 6, 2);
     this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(spot.x - w / 2, spot.y - above + 1, (w * player.hp) / stats.maxHp, 4, 2);
   }
@@ -633,7 +622,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.art?.destroy();
     this.shadow?.destroy();
     this.mountArt?.destroy();
-    this.label?.destroy();
+    this.nameplate?.destroy();
     this.bar?.destroy();
     super.destroy(fromScene);
   }

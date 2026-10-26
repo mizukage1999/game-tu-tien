@@ -4,7 +4,7 @@ import { itemIconUrl } from '../game/art/icons';
 import { heroName, isChildhood, usesChildSprite } from '../game/systems/origin';
 import { battlePower } from '../game/systems/adventure';
 import { HeroPortrait } from './HeroPortrait';
-import { gameStore } from '../store/gameStore';
+import { PkModeDropdown } from './PkModeDropdown';
 import { ChildHeroPortrait } from './HeroArt';
 import { heroFor } from '../data/heroes';
 
@@ -45,23 +45,6 @@ export function StatusBars() {
         </div>
         <Bar value={player.hp} max={stats.maxHp} kind="hp" />
         <Bar value={player.mp} max={stats.maxMp} kind="mp" />
-        <div className="status-power">
-          {childhood
-            ? 'Khởi duyên · Vương Gia Thôn'
-            : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
-        </div>
-        <div className="pk-selector" role="group" aria-label="Chế độ PK">
-          {(['peace', 'sect', 'all'] as const).map((mode, i) => (
-            <button
-              key={mode}
-              data-mode={mode}
-              aria-pressed={(player.pkMode ?? 'peace') === mode}
-              onClick={() => gameStore.setState((s) => ({ player: { ...s.player, pkMode: mode } }))}
-            >
-              {['Hòa bình', 'Tông môn', 'Toàn bộ'][i]}
-            </button>
-          ))}
-        </div>
         <div className="status-res">
           <span title="Linh Khí">
             <img src={itemIconUrl('linh_khi', 32)} alt="" /> {player.linhKhi}
@@ -70,6 +53,10 @@ export function StatusBars() {
             <img src={itemIconUrl('linh_thach', 32)} alt="" /> {player.inventory.linh_thach ?? 0}
           </span>
         </div>
+      </div>
+      <PkModeDropdown />
+      <div className="status-power">
+        {childhood ? 'Vương Gia Thôn' : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
       </div>
     </div>
   );
