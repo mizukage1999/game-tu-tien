@@ -43,7 +43,7 @@ import {
   type HerbNode, type MountId,
 } from '../game/systems/immortal';
 
-export type LogChannel = 'system' | 'world' | 'combat';
+export type LogChannel = 'system' | 'world' | 'combat' | 'near';
 export interface LogEntry {
   id: number;
   channel: LogChannel;

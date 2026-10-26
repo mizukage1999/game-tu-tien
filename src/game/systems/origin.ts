@@ -5,11 +5,11 @@ export function isChildhood(player: Pick<PlayerSave, 'origin' | 'admitted'>) {
 }
 
 export function heroName(player: PlayerSave) {
-  return usesChildSprite(player) ? player.sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ' : player.name;
+  return usesChildSprite(player) && (!player.heroId || player.heroId==='wang_lam'||player.heroId==='ly_mo_uyen') ? player.sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ' : player.name;
 }
 
 export function usesChildSprite(player: Pick<PlayerSave, 'origin' | 'admitted' | 'heroId'>) {
-  return isChildhood(player) && (!player.heroId || player.heroId === 'wang_lam' || player.heroId === 'ly_mo_uyen');
+  return isChildhood(player);
 }
 
 export function originText(text: string, player: PlayerSave) {

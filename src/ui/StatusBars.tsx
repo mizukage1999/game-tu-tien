@@ -4,6 +4,9 @@ import { itemIconUrl } from '../game/art/icons';
 import { heroName, isChildhood, usesChildSprite } from '../game/systems/origin';
 import { battlePower } from '../game/systems/adventure';
 import { HeroPortrait } from './HeroPortrait';
+import { gameStore } from '../store/gameStore';
+import { ChildHeroPortrait } from './HeroArt';
+import { heroFor } from '../data/heroes';
 
 function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'mp' }) {
   const pct = Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100));
@@ -27,10 +30,7 @@ export function StatusBars() {
     <div className="status panel-glass">
       <div className={`avatar ${status === 'downed' ? 'avatar-down' : ''}`}>
         {usesChildSprite(player) ? (
-          <span
-            className={`child-portrait ${player.sex === 'female' ? 'female' : ''}`}
-            aria-label={heroName(player)}
-          />
+          <ChildHeroPortrait id={heroFor(player).id} />
         ) : (
           <HeroPortrait sex={player.sex ?? 'female'} heroId={player.heroId} />
         )}
@@ -49,6 +49,18 @@ export function StatusBars() {
           {childhood
             ? 'Khởi duyên · Vương Gia Thôn'
             : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
+        </div>
+        <div className="pk-selector" role="group" aria-label="Chế độ PK">
+          {(['peace', 'sect', 'all'] as const).map((mode, i) => (
+            <button
+              key={mode}
+              data-mode={mode}
+              aria-pressed={(player.pkMode ?? 'peace') === mode}
+              onClick={() => gameStore.setState((s) => ({ player: { ...s.player, pkMode: mode } }))}
+            >
+              {['Hòa bình', 'Tông môn', 'Toàn bộ'][i]}
+            </button>
+          ))}
         </div>
         <div className="status-res">
           <span title="Linh Khí">

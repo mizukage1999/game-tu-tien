@@ -1,6 +1,8 @@
 import type { SkillId } from '../data';
 
 export interface BusEvents {
+  'cmd:nearChat':string;
+  'chat:whisper':{from:string;text:string};
   'cmd:save': void;
   'cmd:duelPause': boolean;
   'cmd:mapWalk': {x:number;y:number};

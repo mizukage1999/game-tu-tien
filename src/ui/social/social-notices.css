@@ -1,0 +1,162 @@
+.invite-notice {
+  position: absolute;
+  left: 50%;
+  top: 32%;
+  transform: translate(-50%, -50%);
+  z-index: 110;
+  pointer-events: auto;
+}
+.invite-emblem {
+  position: relative;
+  width: 53px;
+  height: 53px;
+  border: 1px solid #e8c17b;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5d4324, #091929);
+  color: #ffe3a1;
+  font-size: 28px;
+  box-shadow:
+    0 0 0 5px #dca64d22,
+    0 0 24px #e6aa4c60;
+}
+.invite-emblem > b {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  background: #b82d35;
+  color: #fff;
+  font: 10px Arial;
+  padding: 3px 5px;
+  border-radius: 50%;
+}
+.invite-emblem > span {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  color: #ffe3a1;
+  text-shadow: 0 1px #000;
+}
+.invite-tray {
+  position: absolute;
+  top: calc(100% + 24px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, 75vw);
+  max-height: 230px;
+  overflow: auto;
+  padding: 12px;
+  background: #051322f5;
+  border: 1px solid #ae8b51;
+  color: #d7e1e5;
+}
+.invite-tray header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.invite-tray h3 {
+  font: 17px Cambria;
+  color: #edca8a;
+  margin: 0 0 8px;
+}
+.invite-tray header button {
+  background: none;
+  border: 0;
+  color: #e6c487;
+  font-size: 20px;
+}
+.invite-tray article {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+  border-top: 1px solid #aa8a4a44;
+}
+.invite-tray article > i {
+  font-style: normal;
+  font-size: 24px;
+  color: #f4cf86;
+}
+.invite-tray article > div {
+  flex: 1;
+}
+.invite-tray b {
+  font-size: 12px;
+  color: #f0dcbb;
+}
+.invite-tray p {
+  font-size: 10px;
+  margin: 3px 0;
+}
+.invite-tray small {
+  font-size: 9px;
+  color: #8da5b8;
+}
+.invite-tray .btn {
+  font-size: 10px;
+  padding: 7px;
+}
+.pk-selector {
+  margin-top: 5px;
+  pointer-events: auto;
+  display: flex;
+  gap: 3px;
+}
+.pk-selector button {
+  border: 1px solid #8b795363;
+  background: #091a27ba;
+  color: #9fb5c4;
+  border-radius: 3px;
+  font-size: 9px;
+  padding: 3px 6px;
+  min-height: 23px;
+}
+.pk-selector button[aria-pressed='true'] {
+  color: #ffda8a;
+  border-color: #d5a65d;
+  background: #4c3725db;
+}
+.pk-selector button[data-mode='all'][aria-pressed='true'] {
+  color: #ffb4a4;
+  border-color: #cf6254;
+  background: #532527db;
+}
+.hud.phone .invite-emblem {
+  width: 42px;
+  height: 42px;
+  font-size: 23px;
+}
+.hud.phone .invite-tray {
+  max-height: 160px;
+  top: calc(100% + 16px);
+  width: 440px;
+  max-width: 70vw;
+  padding: 8px;
+}
+.hud.phone .invite-tray h3 {
+  font-size: 14px;
+}
+.hud.phone .invite-tray article {
+  padding: 6px 0;
+}
+.hud.phone .pk-selector {
+  margin-top: 3px;
+  gap: 2px;
+}
+.hud.phone .pk-selector button {
+  font-size: 8px;
+  padding: 2px 4px;
+  min-height: 19px;
+}
+.pk-selector button {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+.hud.phone.turned .invite-tray {
+  max-width: calc(100dvh - 30px);
+}

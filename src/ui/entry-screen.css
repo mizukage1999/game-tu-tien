@@ -11,6 +11,14 @@
   touch-action: auto;
   container: entry-stage / size;
 }
+.entry-auth input{font-size:16px!important;touch-action:manipulation}
+@media(max-width:600px) and (orientation:portrait){
+  .entry-auth{align-items:flex-start;padding:24px 18px 40px;overflow-y:auto;height:100dvh;container-type:normal}
+  .entry-auth .entry-content{width:100%;max-width:440px;margin:0 auto}
+  .entry-auth .entry-brand{margin-bottom:14px}
+  .entry-auth .entry-caption{display:none}
+  .entry-auth .entry-footer{position:static;display:none}
+}
 .entry-vignette {
   position: absolute;
   inset: 0;

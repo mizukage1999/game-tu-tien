@@ -21,7 +21,7 @@ describe('eight character schools', () => {
     for (const hero of HEROES) {
       const p: PlayerSave = { ...newPlayer(), heroId: hero.id, sex: hero.sex, name: hero.name, origin: 'vuong_gia_thon', admitted: false };
       const original = hero.id === 'wang_lam' || hero.id === 'ly_mo_uyen';
-      expect(usesChildSprite(p)).toBe(original);
+      expect(usesChildSprite(p)).toBe(true);
       expect(heroName(p)).toBe(original ? hero.sex === 'male' ? 'Thiết Trụ' : 'Mộ Uyển' : hero.name);
       if (!original) expect(originText('Thiết Trụ, đi nào!', p)).toBe(`${hero.name}, đi nào!`);
     }

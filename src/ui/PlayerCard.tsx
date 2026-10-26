@@ -2,6 +2,7 @@ import { challengeDuel, inviteToParty, removeFriend, requestFriend } from '../ne
 import { presenceFor, useSocial } from '../store/socialStore';
 import { useGame } from '../store/gameStore';
 import { useAccount } from '../net/session';
+import { chatStore } from '../store/chatStore';
 
 /**
  * Another player's public card: who they are, plus the three things you can do
@@ -63,6 +64,7 @@ export function PlayerCard() {
         </div>
         {!isSelf && (
           <div className="card-actions">
+            <button className="btn" disabled={!online} onClick={()=>{chatStore.getState().privateTo(card,me?.name??'Đạo hữu');closeCard();}}>Chat mật</button>
             <button className="btn gold" disabled={!connected} onClick={() => { challengeDuel(card); closeCard(); }}>
               Tỉ võ
             </button>

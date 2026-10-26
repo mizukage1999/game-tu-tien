@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { HeroId } from '../data/heroes';
 import { resetSupabaseChannel } from './channelReset';
 import { supabase } from './supabase';
+import { parseWorldEvent, type WorldEvent } from './worldProtocol';
 import {
   applyPose,
   mergePresence,
@@ -25,6 +26,11 @@ export interface WorldChannelOptions {
 }
 
 export interface WorldChannel {
+  readonly selfKey: string;
+  readonly authority: string | null;
+  readonly connected: boolean;
+  send(event: WorldEvent): void;
+  onEvent(fn: (event: WorldEvent, from: string) => void): () => void;
   readonly mapId: string;
   /** Cheap to call every frame: throttling and change detection happen inside. */
   publish(pose: Pose): void;
@@ -47,6 +53,12 @@ export function joinWorldChannel(
   // Unique per connection: the same account open in two tabs is two bodies, and we
   // must still be able to filter out exactly our own connection.
   const selfKey = `${opts.userId}:${Math.random().toString(36).slice(2, 8)}`;
+  const joinedAt = Date.now();
+  const elect = () =>
+    [
+      { key: selfKey, joinedAt },
+      ...roster.map((p) => ({ key: p.key, joinedAt: p.joinedAt ?? 0 })),
+    ].sort((a, b) => a.joinedAt - b.joinedAt || a.key.localeCompare(b.key))[0].key;
   resetSupabaseChannel(client, `world:${opts.mapId}`);
   const channel = client.channel(`world:${opts.mapId}`, {
     config: { presence: { key: selfKey }, broadcast: { self: false } },
@@ -59,6 +71,8 @@ export function joinWorldChannel(
   // Before SUBSCRIBED, send() silently falls back to the REST API; wait for the socket.
   let ready = false;
   const listeners = new Set<(roster: RemotePlayerState[]) => void>();
+  const events = new Set<(event: WorldEvent, from: string) => void>();
+  let authority: string | null = null;
 
   const emit = () => {
     for (const fn of listeners) fn(roster);
@@ -68,6 +82,7 @@ export function joinWorldChannel(
     if (closed) return;
     const state = channel.presenceState() as Record<string, unknown[] | undefined>;
     roster = mergePresence(roster, parseRoster(state, selfKey, Date.now()));
+    authority = elect();
     emit();
   };
 
@@ -82,23 +97,42 @@ export function joinWorldChannel(
     roster = pruneStale(
       applyPose(
         roster,
-        { key: String(payload.key ?? ''), x: payload.x, y: payload.y, dir: payload.dir, moving: payload.moving },
+        {
+          ...payload,
+          key: String(payload.key ?? ''),
+          x: payload.x,
+          y: payload.y,
+          dir: payload.dir,
+          moving: payload.moving,
+        },
         now,
       ),
       now,
     );
+    authority = elect();
     emit();
+  });
+  channel.on('broadcast', { event: 'combat' }, (message) => {
+    if (closed) return;
+    const payload = message.payload as { key?: unknown; event?: unknown } | undefined;
+    if (!payload || typeof payload.key !== 'string' || !roster.some((p) => p.key === payload.key))
+      return;
+    const event = parseWorldEvent(payload.event);
+    if (event) for (const fn of events) fn(event, payload.key);
   });
 
   channel.subscribe((status) => {
+    if (closed) return;
     ready = status === 'SUBSCRIBED';
     if (status === 'SUBSCRIBED') {
       void channel.track({
         user_id: opts.userId,
+        joinedAt,
         name: opts.name,
         sex: opts.sex,
         hero_id: opts.heroId,
         realm: opts.realm,
+        party: opts.party ?? null,
         ...opts.pose,
       });
       return;
@@ -110,6 +144,24 @@ export function joinWorldChannel(
 
   let currentParty: string | null = opts.party ?? null;
   return {
+    selfKey,
+    get authority() {
+      return ready ? authority : null;
+    },
+    get connected() {
+      return ready;
+    },
+    send(event) {
+      if (closed || !ready) return;
+      void channel.send({ type: 'broadcast', event: 'combat', payload: { key: selfKey, event } });
+      for (const fn of events) fn(event, selfKey);
+    },
+    onEvent(fn) {
+      events.add(fn);
+      return () => {
+        events.delete(fn);
+      };
+    },
     mapId: opts.mapId,
     publish(pose) {
       if (closed || !ready) return;
@@ -129,11 +181,23 @@ export function joinWorldChannel(
     setParty(partyId) {
       currentParty = partyId ?? null;
       if (closed || !ready) return;
-      void channel.track({ user_id: opts.userId, party: currentParty });
+      void channel.track({
+        user_id: opts.userId,
+        joinedAt,
+        name: opts.name,
+        sex: opts.sex,
+        hero_id: opts.heroId,
+        realm: opts.realm,
+        ...(lastPose ?? opts.pose),
+        party: currentParty,
+      });
     },
     async leave() {
       closed = true;
+      ready = false;
+      authority = null;
       listeners.clear();
+      events.clear();
       await client.removeChannel(channel);
     },
   };

@@ -3,13 +3,19 @@ import { iso, isoVector } from '../art/iso';
 import type { Vec2 } from '../types';
 import { wangEffect } from '../../data/wangSkills';
 import type { SkillId } from '../../data';
-import { heroSpell } from '../../data/heroSkills';
+import { heroSpell, spellVisualId } from '../../data/heroSkills';
+import type { HeroId } from '../../data/heroes';
 import { SPELL_TEXTURE } from '../art/heroRoster';
 
 const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
 
 export class SkillVfx {
   constructor(private scene: Phaser.Scene) {}
+  combatSkill(id:SkillId,from:Vec2,facing:Vec2,range:number,hero:HeroId){
+    if(id==='than_phap'){this.teleport(from);return;}
+    if(wangEffect(id)){this.signature(id,from,facing,range);return;}
+    this.heroSpell(spellVisualId(id,hero),from,facing,range);
+  }
 
   heroSpell(id: SkillId, from: Vec2, facing: Vec2, range: number) {
     const art = heroSpell(id);

@@ -368,7 +368,7 @@ export class ArenaEngine {
       return;
     }
     if (sk.kind === 'heal' || sk.kind === 'shield') {
-      if(heroSpell(id))s.effects.push({id:++this.effect,owner:f.userId,x:f.x,y:f.y,dx:f.dx,dy:f.dy,range:0,arc:0,kind:'circle',ready:s.elapsed,expires:s.elapsed+900,damage:0,resolved:true,skill:id});
+      s.effects.push({id:++this.effect,owner:f.userId,x:f.x,y:f.y,dx:f.dx,dy:f.dy,range:0,arc:0,kind:'circle',ready:s.elapsed,expires:s.elapsed+900,damage:0,resolved:true,skill:id});
     }
     if (sk.kind === 'heal') {
       f.hp = Math.min(f.maxHp, f.hp + Math.round(f.maxHp * 0.24));
@@ -396,7 +396,7 @@ export class ArenaEngine {
       ready: s.elapsed + windup,
       expires:
         s.elapsed +
-        Math.max(windup + (heroSpell(id)?500:220), (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
+        Math.max(windup + 600, (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
       damage: f.atk * sk.multiplier,
       skill: id,
       resolved: false,

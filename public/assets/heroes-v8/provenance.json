@@ -1,0 +1,50 @@
+{
+  "version": 8,
+  "created": "2026-10-26",
+  "tool": "image_gen.imagegen",
+  "mode": "builtin",
+  "transparent_background": true,
+  "layout": {
+    "rows": [
+      "wang_lam",
+      "ly_mo_uyen",
+      "tham_nguyet",
+      "so_thien",
+      "hong_lien",
+      "vu_minh",
+      "quan_vo_tran",
+      "diep_ly"
+    ],
+    "columns": [
+      "down",
+      "down_left",
+      "left",
+      "up_left",
+      "up",
+      "up_right",
+      "right",
+      "down_right"
+    ]
+  },
+  "assets": [
+    {
+      "file": "adults.png",
+      "width": 1286,
+      "height": 1223,
+      "prompt": "Production game sprite atlas, true TRANSPARENT RGBA background, portrait sheet, exactly EIGHT columns and EIGHT rows, all 64 whole body sprites complete. Eight consistent Chinese xianxia hero identities, row order: 1 young adult man white navy gold sword cultivator black ponytail (Vuong Lam); 2 young adult woman white lavender and icy blue dress black long hair talisman healer (Ly Mo Uyen); 3 woman emerald jade archer black long hair green gold robes small bow (Tham Nguyet); 4 man charcoal crimson dual short blade cultivator black ponytail (So Thien); 5 woman scarlet gold fire lotus robes black hair red ornament (Hong Lien); 6 man deep violet black demonic robes black hair purple ornament (Vu Minh); 7 man cream gold Buddhist cultivator with bamboo straw hat (Quan Vo Tran); 8 woman violet blue saber cultivator with violet bamboo conical hat (Diep Ly).\nColumns precisely show eight DIRECTIONAL idle standing views of each row's SAME hero: 1 south FRONT facing camera; 2 southwest FRONT LEFT three-quarter; 3 west LEFT profile; 4 northwest BACK LEFT three-quarter; 5 north FULL BACK, face NOT visible; 6 northeast BACK RIGHT three-quarter; 7 east RIGHT profile; 8 southeast FRONT RIGHT three-quarter. The fifth column MUST show the back of hair and robes, no face. Camera always fixed elevated 2.5D tactical isometric view. This is a turnaround sheet, NOT 8 different people across each row.\nSimple clean readable hand-painted anime RPG sprite proportions about 6 heads tall, minimal tiny details, navy gold historical xianxia visual style. All figures same scale and ground height; boots on a common baseline at 90% of each cell, 12% transparent padding inside each cell. Restrained effects only, no glow circles, no text, no labels, no UI, no borders, no scenery. Keep weapons subtle and within the cell. Genuine transparent background, no baked black or grey rectangles."
+    },
+    {
+      "file": "children.png",
+      "width": 1284,
+      "height": 1225,
+      "prompt": "Production game sprite sheet, true TRANSPARENT alpha, exactly EIGHT columns by EIGHT rows with 64 complete separate SMALL CHILDREN age 8-10, no adult bodies. Eight distinct child xianxia protagonists in plain village clothing, simplified readable anime RPG painting, about 4 heads tall, modest long sleeved historical tunics, ankle length skirts or trousers, cloth shoes. NO weapons, no magical effects, no battle armor. Row identities: 1 boy Vuong Lam, black ponytail, simple off-white tunic navy sash; 2 girl Ly Mo Uyen, black hair bun ribbons, pale lavender white village dress; 3 girl Tham Nguyet, long black hair, green cream tunic jade sash; 4 boy So Thien, black ponytail, charcoal tunic crimson scarf; 5 girl Hong Lien, black twin buns red ribbons, plain red cream dress; 6 boy Vu Minh, tied black hair, simple deep violet tunic; 7 boy Quan Vo Tran, tan cream tunic gold sash, small bamboo straw hat; 8 girl Diep Ly, black long hair, pale violet blue tunic, small purple bamboo conical hat.\nColumns are precise directional turnaround views of the SAME child in each row: SOUTH/front, SOUTHWEST/front-left three quarter, WEST/left profile, NORTHWEST/back-left three quarter, NORTH/full BACK with NO face visible, NORTHEAST/back-right three quarter, EAST/right profile, SOUTHEAST/front-right three quarter. Camera elevated 2.5D isometric, consistent proportions. All children fit inside their own equally spaced cells with ample 15% transparent padding, cloth shoes on a common baseline. Do not overlap rows. No text, no borders, no scene, no UI, no shadow rectangles. Real transparency."
+    },
+    {
+      "file": "casting.png",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Production transparent RGBA sprite atlas for the SAME eight heroes. Exactly EIGHT columns by EIGHT rows, complete 64 full body poses, no borders or text. Eight consistent Chinese xianxia hero identities, row order: 1 young adult man white navy gold sword cultivator black ponytail (Vuong Lam); 2 young adult woman white lavender and icy blue dress black long hair talisman healer (Ly Mo Uyen); 3 woman emerald jade archer black long hair green gold robes small bow (Tham Nguyet); 4 man charcoal crimson dual short blade cultivator black ponytail (So Thien); 5 woman scarlet gold fire lotus robes black hair red ornament (Hong Lien); 6 man deep violet black demonic robes black hair purple ornament (Vu Minh); 7 man cream gold Buddhist cultivator with bamboo straw hat (Quan Vo Tran); 8 woman violet blue saber cultivator with violet bamboo conical hat (Diep Ly).\nAll sprites show an active battle spell-casting / weapon-strike ready pose: one hand/weapon extended forward in the direction the character FACES, other arm raised, slight forward step, robe motion. No magic effects or ground circles; only the hero and their weapon. Readable simplified hand-painted Chinese anime tactical 2.5D RPG style, about 6 heads tall. \nEight columns per hero row are strict directional views: 1 SOUTH/front casting toward camera; 2 SOUTHWEST/front-left; 3 WEST/left profile casting to LEFT; 4 NORTHWEST/back-left; 5 NORTH/full BACK casting away from camera, NO face visible; 6 NORTHEAST/back-right; 7 EAST/right profile casting to RIGHT; 8 SOUTHEAST/front-right. Fixed elevated isometric camera. Body, hand, weapon must all align with the stated facing. Matching costumes and silhouettes across all columns, 15% transparent padding within each cell, equal feet baseline, no overlap between rows, all boots and hair inside cells. Real alpha background, no scenery, no black rectangles."
+    }
+  ],
+  "integration": "8 x 8 RGBA atlas. Trim alpha bounds and normalize foot anchors in directionalHeroes.ts; retain source transparency. Standing, moving, and casting use authored facings. Movement uses a lightweight bob between directional poses."
+}

@@ -6,6 +6,7 @@ import { iso } from '../art/iso';
 import { findPath } from '../systems/path';
 import { isChildhood } from '../systems/origin';
 import type { Vec2 } from '../types';
+import type { Monster } from './Monster';
 
 export class Companion {
   private art: Phaser.GameObjects.Image;
@@ -85,8 +86,8 @@ export class Companion {
       else if(l.companion==='jade_deer'&&this.world.time.now-hero.lastDamageAt<4000){hero.grantShield(Math.round(store.stats.maxHp*.12*strength),5000);this.skillTimer=12000;}
       else if(target?.alive&&target.distanceTo(this.pos)<240){
         const power=companionStats(p).atk*(l.companion==='gold_tiger'?3:2)*strength;
-        if(l.companion==='red_fox')for(const m of this.world.monsters.filter(m=>m.alive&&m.distanceTo(target)<125))m.hit(Math.round(power),false,this.pos);
-        else target.hit(Math.round(power),false,this.pos);
+        if(l.companion==='red_fox')for(const m of this.world.monsters.filter(m=>m.alive&&m.distanceTo(target)<125))this.hit(m,Math.round(power));
+        else this.hit(target,Math.round(power));
         if(l.companion==='snow_fox'||l.companion==='shadow_wolf')target.slowTimer=Math.max(target.slowTimer,1800+evolution*500);
         this.skillTimer=8000;
       }
@@ -98,8 +99,12 @@ export class Companion {
       gameStore.getState().status === 'alive' &&
       !l.retreat
     ) {
-      target.hit(Math.max(1, companionStats(p).atk - target.def.def / 2), false, this.pos);
+      this.hit(target,Math.max(1, companionStats(p).atk - target.def.def / 2));
       this.attack = 1700;
     }
+  }
+  private hit(target:Monster,amount:number){
+    if(this.world.shared?.authority)target.lastAttacker=this.world.shared.channel.selfKey;
+    target.hit(amount,false,this.pos);
   }
 }

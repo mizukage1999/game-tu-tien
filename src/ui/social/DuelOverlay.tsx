@@ -10,7 +10,8 @@ import { wangEffect } from '../../data/wangSkills';
 import { PaintedArenaEffect } from './PaintedArenaEffect';
 import { heroFor } from '../../data/heroes';
 import { heroSpell } from '../../data/heroSkills';
-import { HeroPose, HeroSpellGlyph, RosterPortrait } from '../HeroArt';
+import { HeroPose, HeroDirectionalPose, HeroSpellGlyph, RosterPortrait } from '../HeroArt';
+import { heroDirection } from '../../game/art/heroDirections';
 import { HeroArenaEffect } from './HeroArenaEffect';
 
 function FighterCard({ fighter: p, enemy = false }: { fighter: ArenaFighter; enemy?: boolean }) {
@@ -31,7 +32,7 @@ function FighterCard({ fighter: p, enemy = false }: { fighter: ArenaFighter; ene
           </span>
         </div>
         <div className="duel-vital-bar mp">
-            <i style={{ width: `${(p.mp / Math.max(1, p.maxMp)) * 100}%` }} />
+          <i style={{ width: `${(p.mp / Math.max(1, p.maxMp)) * 100}%` }} />
           <span>
             {Math.floor(p.mp)} / {p.maxMp}
           </span>
@@ -57,7 +58,14 @@ export function DuelOverlay() {
     move.current = { x: 0, y: 0 };
     keys.current.clear();
     readyArena();
+    let lastReady = Date.now();
     const tick = () => {
+      // Acceptance can arrive before the host has opened its arena. Retry the
+      // ready handshake until a snapshot confirms that the countdown started.
+      if (live.current?.snapshot.phase === 'waiting' && Date.now() - lastReady >= 500) {
+        readyArena();
+        lastReady = Date.now();
+      }
       const p = live.current?.snapshot.fighters.find((p) => p.userId === live.current?.localId);
       if (!p) return;
       const k = keys.current,
@@ -188,9 +196,7 @@ export function DuelOverlay() {
               />
             ))}
             {s.effects.map((e) =>
-              heroSpell(e.skill) ? (
-                <HeroArenaEffect key={e.id} effect={e} elapsed={s.elapsed} />
-              ) : wangEffect(e.skill) ? (
+              wangEffect(e.skill) ? (
                 <PaintedArenaEffect
                   key={e.id}
                   effect={e}
@@ -198,24 +204,11 @@ export function DuelOverlay() {
                   target={s.fighters.find((f) => f.userId !== e.owner)!}
                 />
               ) : (
-                <span
+                <HeroArenaEffect
                   key={e.id}
-                  className={`duel-effect ${e.kind} ${e.resolved ? 'landed' : ''}`}
-                  style={{
-                    left: `${(e.x / ARENA_W) * 100}%`,
-                    top: `${(e.y / ARENA_H) * 100}%`,
-                    width: `${((e.kind === 'line' ? e.range : e.range * 2) / ARENA_W) * 100}%`,
-                    height: e.kind === 'line' ? '12%' : `${((e.range * 2) / ARENA_H) * 100}%`,
-                    ...(e.kind === 'cone'
-                      ? {
-                          background: `conic-gradient(from ${(Math.atan2(e.dy, e.dx) * 180) / Math.PI + 90 - e.arc / 2}deg, ${e.resolved ? '#eee8ff99' : '#ff6b3855'} 0deg ${e.arc}deg, transparent ${e.arc}deg 360deg)`,
-                        }
-                      : {}),
-                    transform:
-                      e.kind === 'line'
-                        ? `translateY(-50%) rotate(${Math.atan2(e.dy, e.dx)}rad)`
-                        : 'translate(-50%,-50%)',
-                  }}
+                  effect={e}
+                  elapsed={s.elapsed}
+                  heroId={heroFor(s.fighters.find((p) => p.userId === e.owner)!).id}
                 />
               ),
             )}
@@ -242,17 +235,23 @@ export function DuelOverlay() {
                   style={{ left: `${(p.x / ARENA_W) * 100}%`, top: `${(p.y / ARENA_H) * 100}%` }}
                 >
                   <div className="duel-fighter-name">
-                    {p.name} · Lv.{p.level}
+                    {p.realm}
+                    <br />
+                    {p.name}
                   </div>
                   <div className="duel-hp">
                     <i style={{ width: `${(p.hp / p.maxHp) * 100}%` }} />
                   </div>
-                  <HeroPose
-                    id={heroFor(p).id}
-                    pose={pose}
-                    flip={p.dx < 0}
-                    className={`duel-body ${(p.hurtUntil ?? 0) > s.elapsed ? 'hurt' : ''}`}
-                  />
+                  {pose === 5 ? (
+                    <HeroPose id={heroFor(p).id} pose={5} className="duel-body" />
+                  ) : (
+                    <HeroDirectionalPose
+                      id={heroFor(p).id}
+                      direction={heroDirection(p.dx, p.dy)}
+                      cast={pose === 3 || pose === 4}
+                      className={`duel-body ${(p.hurtUntil ?? 0) > s.elapsed ? 'hurt' : ''}`}
+                    />
+                  )}
                   {p.shield > 0 && <span className="duel-shield" aria-label="Đang có lá chắn" />}
                 </div>
               );

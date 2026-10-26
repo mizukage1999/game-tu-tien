@@ -15,8 +15,9 @@ import { StartScreen } from './ui/EntryScreen';
 export function App() {
   const phone = usePhoneLayout();
   const portrait = usePortrait();
-  const turned = phone && portrait;
   const account = useAccount();
+  const needsLogin = onlineEnabled && !account.user;
+  const turned = phone && portrait && !needsLogin;
   const accountId = account.user?.id;
   const [ready, setReady] = useState(() => loadGame() !== null);
   const [entered, setEntered] = useState(false);
@@ -41,7 +42,6 @@ export function App() {
     };
   }, [turned, ready]);
   // Online builds require a session first; offline builds never show this screen.
-  const needsLogin = onlineEnabled && !account.user;
   // The social channel outlives individual maps, so it lives here rather than in the scene.
   useEffect(() => {
     if (needsLogin || !ready || !entered || !onlineEnabled) return;

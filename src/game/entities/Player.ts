@@ -27,6 +27,12 @@ import { immortalProgress, MOUNTS, mountUnlocked, flightProfile } from '../syste
 import { lifeProgress } from '../systems/life';
 import { skillLoadout, skillUnlocked } from '../systems/skills';
 import { heroDirection, type HeroDirection } from '../art/heroDirections';
+import { realmNameAtLevel } from '../systems/progression';
+import { flightRotation } from '../systems/flightVisual';
+import { adventure } from '../systems/adventure';
+import type { Pose } from '../../net/presence';
+import { heroFor } from '../../data/heroes';
+import { directionalArt } from '../art/directionalHeroes';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -58,6 +64,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   readonly life: LifeState = createLife();
   dir: Dir = 'down';
   private visualDir: HeroDirection = 'down';
+  private mapFacing:Vec2=inputToMap(0,1);
+  rootMs=0;
   cooldowns: Partial<Record<SkillId, number>> = {};
   meditating = false;
   lastDamageAt = -99999;
@@ -92,8 +100,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     y: number,
   ) {
     const p = gameStore.getState().player;
-    const childArt=p.sex==='female'?'mu_uyen_child':'thiet_tru';
-    const adultArt=p.heroId && p.heroId !== 'wang_lam' && p.heroId !== 'ly_mo_uyen' ? rosterArt(p.heroId) : p.sex==='male'?'hero-wang-v5':'hero-li-v5';
+    const childArt=world.textures.exists(directionalArt(heroFor(p).id,true))?directionalArt(heroFor(p).id,true):p.sex==='female'?'mu_uyen_child':'thiet_tru';
+    const adultArt=world.textures.exists(directionalArt(heroFor(p).id))?directionalArt(heroFor(p).id):p.heroId ? rosterArt(p.heroId) : p.sex==='male'?'hero-wang-v5':'hero-li-v5';
     const art = usesChildSprite(p) && world.textures.exists(childArt) ? childArt : world.textures.exists(adultArt)?adultArt:playerArt(p.sex);
     super(world, x, y, art);
     world.add.existing(this);
@@ -113,7 +121,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.mountArt = world.add.image(spot.x, spot.y, 'immortal-sword').setVisible(false);
     this.realmAura=world.add.image(spot.x,spot.y,'circle_gold').setVisible(false).setAlpha(.35).setBlendMode(Phaser.BlendModes.ADD);
     this.label = world.add
-      .text(spot.x, spot.y, heroName(p), {
+      .text(spot.x, spot.y, `${isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level)}\n${heroName(p)}`, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: '13px',
         fontStyle: 'bold',
@@ -121,6 +129,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         stroke: '#1a2240',
         strokeThickness: 3,
         resolution: 2,
+        align:'center',
       })
       .setOrigin(0.5, 1)
       .setDepth(90000);
@@ -147,7 +156,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   get facing(): Vec2 {
-    return dirVector(this.dir);
+    return this.mapFacing??dirVector(this.dir);
   }
 
   get feet(): Vec2 {
@@ -184,12 +193,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   faceToward(p: Vec2) {
+    const length=Math.hypot(p.x-this.x,p.y-this.y)||1;this.mapFacing={x:(p.x-this.x)/length,y:(p.y-this.y)/length};
     this.dir = dirFromVector(p.x - this.x, p.y - this.y, this.dir);
     const screen = isoVector(p.x - this.x, p.y - this.y);
     this.visualDir = heroDirection(screen.x, screen.y, this.visualDir);
   }
 
   update(dt: number) {
+    this.rootMs=Math.max(0,this.rootMs-dt);
     this.shieldMs=Math.max(0,this.shieldMs-dt);if(!this.shieldMs)this.shield=0;
     tickLife(this.life, dt);
     for (const id of Object.keys(this.cooldowns) as SkillId[]) {
@@ -198,9 +209,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.comboTimer = Math.max(0, this.comboTimer - dt);
     const body = this.body as Phaser.Physics.Arcade.Body;
 
-    if (!canAct(this.life) || lifeProgress(gameStore.getState().player).retreat) {
+    if (!canAct(this.life) || lifeProgress(gameStore.getState().player).retreat || this.rootMs>0) {
       body.setVelocity(0, 0);
-      if (canAct(this.life) && this.ctrl.currentAnim !== 'meditate') this.ctrl.play('meditate', 'down', {force:true});
+      if (canAct(this.life) && this.rootMs<=0 && this.ctrl.currentAnim !== 'meditate') this.ctrl.play('meditate', 'down', {force:true});
     } else if (this.dashTime > 0) {
       this.dashTime -= dt;
       body.setVelocity(this.dashVec.x, this.dashVec.y);
@@ -231,7 +242,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         body.setVelocity(move.x * speed, move.y * speed);
         if (mag > 0.1) {
           const onScreen = isoVector(move.x, move.y);
-          this.dir = dirFromVector(onScreen.x, onScreen.y, this.dir);
+          this.mapFacing={x:move.x/mag,y:move.y/mag};
+          this.dir = dirFromVector(move.x, move.y, this.dir);
           this.visualDir = heroDirection(onScreen.x, onScreen.y, this.visualDir);
           this.ctrl.play(this.activeMount ? 'idle' : 'run', this.visualDir);
         } else {
@@ -246,9 +258,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const mount = this.activeMount;
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
-    if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(this.dir === 'left').setPosition(spot.x, spot.y - lift + (mount.id==='sword'?-1:20)).setDepth(spot.y - 0.1);
+    if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(mount.id==='crane'&&isoVector(this.facing.x,this.facing.y).x<0).setRotation(mount.id==='sword'?flightRotation(this.facing):0).setPosition(spot.x, spot.y - lift + (mount.id==='sword'?-1:20)).setDepth(spot.y - 0.1);
     this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
     const p=gameStore.getState().player;
+    this.label.setText(`${isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level)}\n${heroName(p)}`);
     this.syncLook();
     this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setPosition(spot.x,spot.y-lift+3).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]).setDepth(spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
@@ -433,12 +446,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private autoFace(range: number) {
+    const opponent=this.world.shared?.opponent(range);if(opponent){this.faceToward(opponent);return null;}
     const t = this.world.target?.alive && this.world.target.distanceTo(this) <= range ? this.world.target : this.world.nearestMonster(this, range);
     if (t) this.faceToward(t);
     return t;
   }
 
   attack() {
+    if(this.rootMs>0)return;
     if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
     if (!canAct(this.life) || this.dashTime > 0) return;
@@ -470,6 +485,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   castSkill(id: SkillId) {
+    if(this.rootMs>0)return;
     if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
     if((id!=='than_phap'&&!skillLoadout(gameStore.getState().player).includes(id))||!skillUnlocked(gameStore.getState().player,id))return;
@@ -482,7 +498,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     let target: Monster | null = null;
     if (id === 'phi_kiem') {
       target = this.autoFace(sk.range);
-      if (!target) {
+      if (!target && !this.world.shared?.opponent(sk.range)) {
         store.toast('Không có mục tiêu trong tầm', 'warn');
         return;
       }
@@ -512,6 +528,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   dash() {
+    if(this.rootMs>0)return;
     if(lifeProgress(gameStore.getState().player).retreat)return;
     if (isChildhood(gameStore.getState().player)) return;
     if (!canAct(this.life) || this.dashTime > 0) return;
@@ -526,10 +543,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const speed = 820;
     this.dashVec = { x: (v.x / l) * speed, y: (v.y / l) * speed };
     this.dir = dirFromVector(v.x, v.y, this.dir);
+    this.mapFacing={x:v.x/l,y:v.y/l};
     const screen = isoVector(v.x, v.y);
     this.visualDir = heroDirection(screen.x, screen.y, this.visualDir);
     this.dashTime = 180;
     this.world.vfx.teleport(this.feet);
+    this.world.shared?.attack('than_phap');
     this.cooldowns.than_phap = sk.cooldownMs;
     grantInvuln(this.life, sk.active?.invulnMs ?? 320);
     this.ctrl.unlock();
@@ -602,6 +621,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   grantShield(amount:number,ms:number){this.shield=amount;this.shieldMs=ms;this.world.vfx.ascend(this);}
+
+  networkPose():Pose {
+    const s=gameStore.getState(),p=s.player,stats=s.stats,mount=this.activeMount;
+    const body=this.body as Phaser.Physics.Arcade.Body;
+    return {x:Math.round(this.x),y:Math.round(this.y),dir:this.dir,visualDir:this.visualDir,dx:this.facing.x,dy:this.facing.y,moving:Math.hypot(body.velocity.x,body.velocity.y)>8,mount:mount?.id??null,showMount:mount?.showMount??false,child:isChildhood(p),realm:isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level),sect:adventure(p).boundSect,pkMode:p.pkMode??'peace',combat:{atk:stats.atk,def:stats.def,maxHp:stats.maxHp,hp:p.hp,maxMp:stats.maxMp,mp:p.mp,critRate:stats.critRate,critMul:stats.critMul,level:p.level,loadout:skillLoadout(p),skills:p.skills??{}}};
+  }
 
   destroy(fromScene?: boolean) {
     this.realmAura?.destroy();

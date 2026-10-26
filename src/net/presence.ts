@@ -1,10 +1,22 @@
 import type { Dir } from '../game/types';
 import { isHeroId, type HeroId } from '../data/heroes';
+import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
+import { parseCombatStats, parsePkMode, type CombatStats, type PkMode } from './worldProtocol';
 
 export type Sex = 'female' | 'male';
 
 /** What travels over the wire for one player's movement. */
 export interface Pose {
+  visualDir?: HeroDirection;
+  dx?: number;
+  dy?: number;
+  mount?: 'sword' | 'crane' | null;
+  showMount?: boolean;
+  child?: boolean;
+  realm?: string;
+  sect?: string;
+  pkMode?: PkMode;
+  combat?: CombatStats;
   x: number;
   y: number;
   dir: Dir;
@@ -13,6 +25,7 @@ export interface Pose {
 
 /** One other player in the same map, as the renderer needs them. */
 export interface RemotePlayerState extends Pose {
+  joinedAt?: number;
   heroId?: HeroId;
   /** Presence key: unique per connection, so one account on two tabs is two players. */
   key: string;
@@ -27,6 +40,26 @@ export interface RemotePlayerState extends Pose {
 }
 
 const DIRS: Dir[] = ['down', 'up', 'left', 'right'];
+export function poseExtras(r: Record<string, unknown>): Partial<Pose> {
+  return {
+    ...(HERO_DIRECTIONS.includes(r.visualDir as HeroDirection)
+      ? { visualDir: r.visualDir as HeroDirection }
+      : {}),
+    ...(typeof r.dx === 'number' && Number.isFinite(r.dx) && Math.abs(r.dx) <= 1
+      ? { dx: r.dx }
+      : {}),
+    ...(typeof r.dy === 'number' && Number.isFinite(r.dy) && Math.abs(r.dy) <= 1
+      ? { dy: r.dy }
+      : {}),
+    ...(r.mount === 'sword' || r.mount === 'crane' || r.mount === null ? { mount: r.mount } : {}),
+    ...(typeof r.showMount === 'boolean' ? { showMount: r.showMount } : {}),
+    ...(typeof r.child === 'boolean' ? { child: r.child } : {}),
+    ...(typeof r.realm === 'string' ? { realm: r.realm.slice(0, 50) } : {}),
+    ...(r.sect === 'dai_thua_vien' || r.sect === 'linh_son_tong' ? { sect: r.sect } : {}),
+    ...(r.pkMode !== undefined ? { pkMode: parsePkMode(r.pkMode) } : {}),
+    ...(parseCombatStats(r.combat) ? { combat: parseCombatStats(r.combat) } : {}),
+  };
+}
 
 export function parseDir(value: unknown): Dir {
   return DIRS.includes(value as Dir) ? (value as Dir) : 'down';
@@ -59,11 +92,16 @@ export function parseRemote(key: string, raw: unknown, now: number): RemotePlaye
     sex: parseSex(r.sex),
     ...(isHeroId(r.hero_id) ? { heroId: r.hero_id } : {}),
     realm: typeof r.realm === 'string' ? r.realm.slice(0, 40) : '',
+    ...(typeof r.party === 'string' ? { party: r.party.slice(0, 100) } : {}),
     x,
     y,
     dir: parseDir(r.dir),
     moving: r.moving === true,
+    ...poseExtras(r),
     updatedAt: now,
+    ...(typeof r.joinedAt === 'number' && Number.isFinite(r.joinedAt) && r.joinedAt >= 0
+      ? { joinedAt: r.joinedAt }
+      : {}),
   };
 }
 
@@ -97,11 +135,20 @@ export function mergePresence(
   return fresh.map((next) => {
     const old = known.get(next.key);
     if (!old) return next;
-    return { ...next, x: old.x, y: old.y, dir: old.dir, moving: old.moving, updatedAt: old.updatedAt };
+    return {
+      ...next,
+      ...poseExtras(old as unknown as Record<string, unknown>),
+      x: old.x,
+      y: old.y,
+      dir: old.dir,
+      moving: old.moving,
+      updatedAt: old.updatedAt,
+    };
   });
 }
 
 export interface PoseUpdate {
+  [field: string]: unknown;
   key: string;
   x: unknown;
   y: unknown;
@@ -120,7 +167,15 @@ export function applyPose(
   if (x === null || y === null) return roster;
   return roster.map((p) =>
     p.key === update.key
-      ? { ...p, x, y, dir: parseDir(update.dir), moving: update.moving === true, updatedAt: now }
+      ? {
+          ...p,
+          ...poseExtras(update),
+          x,
+          y,
+          dir: parseDir(update.dir),
+          moving: update.moving === true,
+          updatedAt: now,
+        }
       : p,
   );
 }
@@ -156,6 +211,16 @@ export function shouldPublish(
   if (sinceMs < minGapMs) return false;
   if (!prev) return true;
   if (prev.dir !== next.dir || prev.moving !== next.moving) return true;
+  if (
+    prev.visualDir !== next.visualDir ||
+    prev.mount !== next.mount ||
+    prev.showMount !== next.showMount ||
+    prev.pkMode !== next.pkMode ||
+    prev.child !== next.child ||
+    prev.combat?.hp !== next.combat?.hp ||
+    prev.realm !== next.realm
+  )
+    return true;
   if (Math.hypot(next.x - prev.x, next.y - prev.y) >= minStepPx) return true;
   return sinceMs >= heartbeatMs;
 }

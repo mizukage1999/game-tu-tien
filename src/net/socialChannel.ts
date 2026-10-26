@@ -85,6 +85,7 @@ export function joinSocialChannel(
    */
   const presencePayload = () => ({
     user_id: current.userId,
+    chat_key: current.chatKey,
     name: current.name,
     sex: current.sex,
     hero_id: current.heroId,

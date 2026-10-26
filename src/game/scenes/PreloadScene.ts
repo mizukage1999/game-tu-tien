@@ -17,6 +17,7 @@ import { WORLD_STYLE_ATLASES, registerWorldStyle } from '../art/worldStyle';
 import { HERO_SHEETS, registerHeroes } from '../art/heroes';
 import { ROSTER_SOURCE, SPELL_SOURCE, ROSTER_POSES_URL, HERO_EFFECTS_URL, registerRosterArt, registerHeroSpells } from '../art/heroRoster';
 import { BESTIARY_SHEETS, registerMonsterArt } from '../art/monsterArt';
+import { DIRECTIONAL_SOURCES, registerDirectionalHeroes } from '../art/directionalHeroes';
 
 interface AtlasEntry {
   atlas: string;
@@ -35,6 +36,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    for(const name of DIRECTIONAL_SOURCES)this.load.image(`hero-v8-${name}-source`,`/assets/heroes-v8/${name}.png`);
     this.load.image(ROSTER_SOURCE, ROSTER_POSES_URL);
     this.load.image(SPELL_SOURCE, HERO_EFFECTS_URL);
     for (const sheet of BESTIARY_SHEETS) this.load.image(`bestiary-${sheet}-source`, `assets/monsters/${sheet}-v6.png`);
@@ -82,6 +84,7 @@ export class PreloadScene extends Phaser.Scene {
     registerExpansionArt(this);
     registerHeroes(this);
     registerRosterArt(this);
+    registerDirectionalHeroes(this);
     registerHeroSpells(this);
     registerMonsterArt(this);
     registerVillageArt(this);

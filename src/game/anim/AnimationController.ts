@@ -62,6 +62,7 @@ export class AnimationController {
   unlock() {
     this.lockedFlag = false;
   }
+  destroy(){this.sprite.off(Phaser.Animations.Events.ANIMATION_UPDATE,this.onUpdate,this);this.sprite.off(Phaser.Animations.Events.ANIMATION_COMPLETE,this.onComplete,this);}
 
   private onUpdate(_anim: Phaser.Animations.Animation, frame: Phaser.Animations.AnimationFrame) {
     const cur = this.current;

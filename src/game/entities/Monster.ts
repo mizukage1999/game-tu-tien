@@ -9,8 +9,16 @@ import type { Vec2 } from '../types';
 import type { WorldScene } from '../scenes/WorldScene';
 import { GridNavigator, gridLineClear } from '../systems/gridNavigation';
 import { TILE } from '../art/tiles';
+import type { WorldMonsterState } from '../../net/worldProtocol';
+import { realmNameAtLevel } from '../systems/progression';
 
 export class Monster extends Phaser.Physics.Arcade.Sprite {
+  netId='';
+  generation=0;
+  respawnAt=0;
+  lastAttacker='';
+  targetKey='';
+  attackTargetKey='';
   readonly def: MonsterDef;
   readonly brain: MonsterBrain;
   readonly ctrl: AnimationController;
@@ -73,7 +81,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setScale(1.2 * scale, scale).setDepth(-100);
     this.label = world.add
-      .text(spot.x, spot.y, def.boss && !this.hideStrength ? `【${def.name}】 Lv.${def.level}` : def.name, {
+      .text(spot.x, spot.y, this.hideStrength ? `${realmNameAtLevel(def.level)}\n${def.name}` : def.boss ? `【${def.name}】 Lv.${def.level}` : def.name, {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontSize: def.boss ? '15px' : '12px',
         fontStyle: 'bold',
@@ -81,6 +89,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
         stroke: '#2a0a0a',
         strokeThickness: 3,
         resolution: 2,
+        align:'center',
       })
       .setOrigin(0.5, 1)
       .setDepth(89000);
@@ -98,6 +107,9 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(dt: number, player: Vec2 | null) {
+    if(this.world.shared&&!this.world.shared.authority){(this.body as Phaser.Physics.Arcade.Body).setVelocity(0,0);if(this.alive)this.syncDecor();return;}
+    if(this.world.shared&&this.alive)(this.body as Phaser.Physics.Arcade.Body).enable=true;
+    if(!this.alive&&this.world.shared?.authority&&this.respawnAt>0&&Date.now()>=this.respawnAt)this.respawn();
     if (!this.alive) return;
     this.hurtTimer = Math.max(0, this.hurtTimer - dt);
     this.slowTimer = Math.max(0, this.slowTimer - dt);
@@ -193,6 +205,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   private startAttack(player: Vec2) {
+    this.attackTargetKey=this.targetKey;
+    this.world.shared?.monsterAttack(this);
     this.attacking = true;
     this.setFlipX(isoVector(player.x - this.x, player.y - this.y).x < 0);
     let animationDone = false, impactDone = false;
@@ -230,6 +244,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
 
   hit(amount: number, crit: boolean, from: Vec2, source: 'player'|'wanderer' = 'player') {
     if (!this.alive) return;
+    if(this.world.shared&&!this.world.shared.authority){if(source==='player')this.world.shared.auxiliary(this,amount);return;}
+    if(source==='player'&&this.world.shared&&!this.lastAttacker)this.lastAttacker=this.world.shared.channel.selfKey;
     if(source==='player')this.playerContribution=true;
     this.hp = Math.max(0, this.hp - amount);
     this.barDirty = true;
@@ -255,6 +271,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   private die() {
+    if(this.world.shared)this.respawnAt=this.def.respawnMs>0?Date.now()+this.def.respawnMs:0;
     this.alive = false;
     this.attacking = false;
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -271,7 +288,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       duration: 500,
       onComplete: () => this.setVisible(false),
     });
-    if (!this.arena && this.def.respawnMs > 0) this.world.time.delayedCall(this.def.respawnMs, () => this.respawn());
+    if (!this.world.shared && !this.arena && this.def.respawnMs > 0) this.world.time.delayedCall(this.def.respawnMs, () => this.respawn());
   }
 
   /** Removes the monster without rewards (dungeon failed / left). */
@@ -290,6 +307,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.setPosition(home.x, home.y);
     Object.assign(this.brain, createBrain(home));
     this.hp = this.def.hp;
+    this.generation++;this.respawnAt=0;this.lastAttacker='';
     this.rootTimer = this.weakenTimer = this.slowTimer = 0;
     this.alive = true;
     this.attacking = false;
@@ -313,4 +331,18 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.bar?.destroy();
     super.destroy(fromScene);
   }
+
+  networkState():WorldMonsterState {
+    return {id:this.netId,type:this.type,x:this.x,y:this.y,homeX:this.brain.home.x,homeY:this.brain.home.y,hp:this.hp,alive:this.alive,flip:this.flipX,anim:!this.alive?'die':this.attacking?'attack':this.hurtTimer>0?'hurt':(this.body as Phaser.Physics.Arcade.Body).speed>5?'run':'idle',root:this.rootTimer,slow:this.slowTimer,generation:this.generation,respawnAt:this.respawnAt};
+  }
+  applyNetwork(state:WorldMonsterState){
+    const revived=!this.alive&&state.alive,killed=this.alive&&!state.alive;
+    this.setPosition(state.x,state.y);(this.body as Phaser.Physics.Arcade.Body).enable=false;
+    this.hp=Math.min(this.def.hp,state.hp);this.alive=state.alive;this.generation=state.generation;this.respawnAt=state.respawnAt;this.rootTimer=state.root;this.slowTimer=state.slow;
+    this.brain.home={x:state.homeX,y:state.homeY};this.setFlipX(state.flip);this.barDirty=true;
+    if(revived){this.world.tweens.killTweensOf([this,this.art,this.shadow]);this.setAlpha(1);this.art.setVisible(true);this.shadow.setAlpha(1);this.ctrl.unlock();}
+    if(killed){this.ctrl.unlock();this.ctrl.play('die',state.flip?'left':'right',{force:true});this.label.setVisible(false);this.bar.clear();this.world.tweens.add({targets:[this,this.art,this.shadow],alpha:0,delay:450,duration:450});}
+    if(this.alive){this.ctrl.play(state.anim==='die'?'idle':state.anim,state.flip?'left':'right');this.syncDecor();}
+  }
+  showNetworkAttack(){if(this.world.shared?.authority)return;this.ctrl.play('attack',this.flipX?'left':'right',{lock:true,force:true});}
 }

@@ -120,6 +120,11 @@ export function heroSkillIds(hero: HeroId): HeroSkillId[] {
 export function heroDefaultLoadout(hero: HeroId): SkillId[] {
   return ['basic', ...heroSkillIds(hero).slice(0, 3)];
 }
+export function spellVisualId(id:SkillId,hero:HeroId):HeroSkillId {
+  if(heroSpell(id))return id as HeroSkillId;
+  const kind=id==='basic'||id==='bang_tam_tram'?'melee':id==='phi_kiem'||id==='loi_kich'?'projectile':id==='moc_linh'?'heal':id==='kim_cang'?'shield':id==='than_phap'?'dash':'nova';
+  return heroSkillIds(hero).find(sid=>HERO_SKILLS[sid].kind===kind)??heroSkillIds(hero)[kind==='nova'?2:0];
+}
 
 /** Shared by the world and arena, so spell art and the actual hit area agree. */
 export function heroSpellHit(

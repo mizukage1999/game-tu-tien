@@ -2,6 +2,7 @@ import { useId, type CSSProperties } from 'react';
 import { HERO_ASSETS, heroRow, type HeroId } from '../data/heroes';
 import { heroSpell } from '../data/heroSkills';
 import type { SkillId } from '../data';
+import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
 
 /** Clip to the atlas cell itself as well as the viewport, including letterboxed SVGs. */
 function AtlasCrop({
@@ -12,6 +13,7 @@ function AtlasCrop({
   className,
   style,
   onAnimationEnd,
+  directory = HERO_ASSETS,
 }: {
   box: [number, number, number, number];
   source: string;
@@ -20,6 +22,7 @@ function AtlasCrop({
   className?: string;
   style?: CSSProperties;
   onAnimationEnd?: () => void;
+  directory?: string;
 }) {
   const clip = useId().replace(/:/g, '');
   const [x, y, w, h] = box;
@@ -38,11 +41,53 @@ function AtlasCrop({
       </defs>
       <image
         clipPath={`url(#${clip})`}
-        href={`${HERO_ASSETS}/${source}.png`}
+        href={`${directory}/${source}.png`}
         width={width}
         height={height}
       />
     </svg>
+  );
+}
+
+export function HeroDirectionalPose({
+  id,
+  direction = 'down',
+  child = false,
+  cast = false,
+  className = '',
+}: {
+  id: HeroId;
+  direction?: HeroDirection;
+  child?: boolean;
+  cast?: boolean;
+  className?: string;
+}) {
+  const source = child ? 'children' : cast ? 'casting' : 'adults',
+    width = child ? 1284 : cast ? 1536 : 1286,
+    height = child ? 1225 : cast ? 1024 : 1223;
+  const col = Math.max(0, HERO_DIRECTIONS.indexOf(direction)),
+    row = heroRow(id);
+  return (
+    <AtlasCrop
+      className={`hero-directional-v8 ${className}`}
+      box={[(col * width) / 8, (row * height) / 8, width / 8, height / 8]}
+      source={source}
+      width={width}
+      height={height}
+      directory="/assets/heroes-v8"
+    />
+  );
+}
+export function ChildHeroPortrait({ id, className = '' }: { id: HeroId; className?: string }) {
+  return (
+    <AtlasCrop
+      className={`hero-portrait ${className}`}
+      box={[16, (heroRow(id) * 1225) / 8 + 2, 1284 / 8 - 32, 110]}
+      source="children"
+      width={1284}
+      height={1225}
+      directory="/assets/heroes-v8"
+    />
   );
 }
 

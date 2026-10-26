@@ -2,6 +2,7 @@ import type { Duelist } from '../game/systems/duel';
 import type { FriendRef, Sex } from '../game/systems/save';
 import { SKILLS, type SkillId } from '../data';
 import { isHeroId, type HeroId } from '../data/heroes';
+import { parseWhisperKey, type WhisperKey } from './whisperCrypto';
 import {
   validArenaInput,
   validateArenaSnapshot,
@@ -14,6 +15,7 @@ export type { FriendRef };
 
 /** One account as everyone else can see it. Kept small: this rides on presence. */
 export interface PublicProfile {
+  chatKey?: WhisperKey;
   heroId?: HeroId;
   userId: string;
   name: string;
@@ -33,6 +35,15 @@ export interface SocialPresence extends PublicProfile {
 }
 
 export type SocialMessage =
+  | {
+      t: 'chat:private';
+      to: string;
+      from: FriendRef;
+      id: string;
+      key: WhisperKey;
+      iv: string;
+      data: string;
+    }
   | { t: 'arena:ready'; to: string; from: string; nonce: string }
   | { t: 'arena:input'; to: string; from: string; nonce: string; input: ArenaInput }
   | { t: 'arena:state'; to: string; from: string; nonce: string; snapshot: ArenaSnapshot }
@@ -124,6 +135,24 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
   const t = text(m.t, 20);
   const to = text(m.to, 64);
   if (!to) return null;
+  if (t === 'chat:private') {
+    const from = ref(m.from),
+      key = parseWhisperKey(m.key),
+      id = text(m.id, 100),
+      iv = text(m.iv, 30),
+      data = text(m.data, 2048);
+    if (
+      !from ||
+      !key ||
+      !id ||
+      !/^[A-Za-z0-9+/]{16}$/.test(iv) ||
+      data.length < 24 ||
+      data.length >= 2048 ||
+      !/^[A-Za-z0-9+/]+={0,2}$/.test(data)
+    )
+      return null;
+    return { t, to, from, key, id, iv, data };
+  }
   if (t.startsWith('arena:')) {
     const from = text(m.from, 64),
       nonce = text(m.nonce, 32);
@@ -178,6 +207,7 @@ export function parseProfile(key: string, raw: unknown, now: number): SocialPres
     key,
     userId,
     name: text(p.name, 16).trim() || 'Đạo hữu',
+    ...(parseWhisperKey(p.chat_key) ? { chatKey: parseWhisperKey(p.chat_key) } : {}),
     sex: p.sex === 'male' ? 'male' : 'female',
     ...(isHeroId(p.hero_id) ? { heroId: p.hero_id } : {}),
     level: Math.round(number(p.level, 1, 999)),

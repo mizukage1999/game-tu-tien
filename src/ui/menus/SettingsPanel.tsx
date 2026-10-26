@@ -9,7 +9,7 @@ import { realmNameAtLevel } from '../../game/systems/progression';
 import { adventure } from '../../game/systems/adventure';
 import { childProfileUrl } from '../../game/art/skillIcons';
 import { usesChildSprite } from '../../game/systems/origin';
-import { RosterPortrait } from '../HeroArt';
+import { RosterPortrait,ChildHeroPortrait } from '../HeroArt';
 import { loadGame } from '../../game/systems/save';
 import { EventBus } from '../../game/EventBus';
 import { AccountPanel } from '../AccountPanel';
@@ -420,7 +420,7 @@ export function SettingsPanel() {
             <CultHeading>Tài khoản</CultHeading>
             <div className="settings-profile-summary">
               <span className={`settings-portrait ${child ? 'child' : ''}`}>
-                {player.heroId && !usesChildSprite(player) ? <RosterPortrait id={player.heroId}/> : portrait ? <img src={portrait} alt="" /> : <SettingsGlyph kind="account" />}
+                {player.heroId ? usesChildSprite(player)?<ChildHeroPortrait id={player.heroId}/>:<RosterPortrait id={player.heroId}/> : portrait ? <img src={portrait} alt="" /> : <SettingsGlyph kind="account" />}
               </span>
               <div>
                 <h2>{heroName(player)}</h2>

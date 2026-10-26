@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { bonusText, EQUIP_SLOTS, ITEMS, REALMS, rarityOf, type EquipSlot } from '../../data';
 import { gameStore, itemName, useGame } from '../../store/gameStore';
-import { heroName, isChildhood, usesChildSprite } from '../../game/systems/origin';
+import { heroName, isChildhood } from '../../game/systems/origin';
 import { battlePower, adventure, sectRank, SECT_RANKS } from '../../game/systems/adventure';
 import {
   enhancementLevel,
@@ -20,7 +20,7 @@ import { skillLoadout } from '../../game/systems/skills';
 import { COMPANIONS, lifeProgress } from '../../game/systems/life';
 import { SkillGlyph, EquipGlyph, CultHeading, CultMeter, CultLock } from './CultivationUI';
 import { childProfileUrl } from '../../game/art/skillIcons';
-import { HeroFigure } from '../HeroArt';
+import { HeroFigure,HeroDirectionalPose } from '../HeroArt';
 
 const SLOT_SYMBOLS: Record<EquipSlot, string> = {
   weapon: '⚔',
@@ -164,7 +164,7 @@ export function CharacterPanel() {
         <span className="cult-hero-seal" aria-hidden="true">
           道
         </span>
-        {p.heroId && !usesChildSprite(p) ? <HeroFigure id={p.heroId} className="cult-hero-art" /> : <img
+        {p.heroId ? child ? <HeroDirectionalPose id={p.heroId} child className="cult-hero-art child"/> : <HeroFigure id={p.heroId} className="cult-hero-art" /> : <img
           className={`cult-hero-art ${child ? 'child' : ''}`}
           src={
             paperdoll ??

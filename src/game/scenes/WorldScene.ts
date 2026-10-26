@@ -51,6 +51,8 @@ import { findPath } from '../systems/path';
 import { storyOrder } from '../systems/immortal';
 import { wangEffect } from '../../data/wangSkills';
 import { heroSpell, heroSpellHit } from '../../data/heroSkills';
+import { SharedWorld } from '../systems/SharedWorld';
+import { chatStore } from '../../store/chatStore';
 import { signatureHit } from '../systems/skillHit';
 import { gridLineClear } from '../systems/gridNavigation';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
@@ -76,6 +78,8 @@ const WORLD_CHAT = [
 const hash = (x: number, y: number) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
 
 export class WorldScene extends Phaser.Scene {
+  shared:SharedWorld|null=null;
+  private stopMultiplayer:(()=>void)|null=null;
   map!: MapDef;
   player!: Player;
   monsters: Monster[] = [];
@@ -101,7 +105,7 @@ export class WorldScene extends Phaser.Scene {
   private transitioning = false;
   private cleanups: (() => void)[] = [];
   private channel: WorldChannel | null = null;
-  private remotes = new Map<string, RemotePlayer>();
+  remotes = new Map<string, RemotePlayer>();
   private syncTimer = 0;
   private secondTimer = 0;
   private saveTimer = 0;
@@ -191,7 +195,7 @@ export class WorldScene extends Phaser.Scene {
     const start = this.resolveSpawn(map);
     this.player = new Player(this, start.x, start.y);
     this.companion=new Companion(this);
-    for(const person of wandererRoster(map,Date.now()%1000000)){
+    for(const person of wandererRoster(map,[...map.id].reduce((s,c)=>s+c.charCodeAt(0)*31,0))){
       let tile:{x:number;y:number}|null=null;
       for(let tries=0;tries<100;tries++){const x=2+Math.floor(Math.random()*(map.width-4)),y=2+Math.floor(Math.random()*(map.height-4));if(!map.blocked[y][x]&&Math.hypot(x-start.x/TILE,y-start.y/TILE)>4){tile={x,y};break;}}
       if(tile){const npc=new Wanderer(this,{x:(tile.x+.5)*TILE,y:(tile.y+.5)*TILE},person.name,person.cultivation,person.art);this.wanderers.push(npc);this.monsters.push(npc);}
@@ -571,11 +575,11 @@ export class WorldScene extends Phaser.Scene {
    * player, and offline builds have no session, so both skip silently.
    */
   private startMultiplayer(map: MapDef) {
-    if (map.arena || map.private || isChildhood(gameStore.getState().player)) return;
+    if(this.channel)return;
+    if (map.arena || map.private) return;
     const user = getAccountState().user;
     if (!user) return;
     const p = gameStore.getState().player;
-    const body = this.player.body as Phaser.Physics.Arcade.Body;
     const channel = joinWorldChannel({
       mapId: map.id,
       userId: user.id,
@@ -584,29 +588,29 @@ export class WorldScene extends Phaser.Scene {
       heroId: p.heroId,
       realm: realmNameAtLevel(p.level),
       party: socialStore.getState().partyId,
-      pose: {
-        x: this.player.x,
-        y: this.player.y,
-        dir: this.player.dir,
-        moving: Math.hypot(body.velocity.x, body.velocity.y) > 8,
-      },
+      pose: this.player.networkPose(),
     });
     if (!channel) return;
     this.channel = channel;
+    this.shared=new SharedWorld(this,channel);
     const stop = channel.onRoster((roster) => this.syncRoster(roster));
     // Re-advertise the party so teammates still tint green after a map change.
     const stopParty = socialStore.subscribe((s, prev) => {
       if (s.partyId !== prev.partyId) channel.setParty(s.partyId);
     });
-    this.cleanups.push(stop, stopParty, () => {
-      this.channel = null;
-      this.remotes.clear();
+    const shared=this.shared;
+    const leave=()=>{
+      stop();stopParty();shared?.destroy();
+      if(this.channel===channel){this.channel=null;this.shared=null;for(const remote of this.remotes.values())remote.destroy();this.remotes.clear();}
       gameStore.getState().patch({ online: 0 });
       void channel.leave();
-    });
+      if(this.stopMultiplayer===leave)this.stopMultiplayer=null;
+    };
+    this.stopMultiplayer=leave;this.cleanups.push(()=>{if(this.stopMultiplayer===leave)leave();});
   }
 
   private syncRoster(roster: RemotePlayerState[]) {
+    if(this.shared)this.shared.roster=roster;
     // The HUD only needs the count, and this runs on every movement packet.
     if (gameStore.getState().online !== roster.length) gameStore.getState().patch({ online: roster.length });
     const seen = new Set<string>();
@@ -626,13 +630,8 @@ export class WorldScene extends Phaser.Scene {
   private tickMultiplayer(dt: number) {
     const channel = this.channel;
     if (!channel) return;
-    const body = this.player.body as Phaser.Physics.Arcade.Body;
-    channel.publish({
-      x: Math.round(this.player.x),
-      y: Math.round(this.player.y),
-      dir: this.player.dir,
-      moving: Math.hypot(body.velocity.x, body.velocity.y) > 8,
-    });
+    channel.publish(this.player.networkPose());
+    this.shared?.tick(dt);
     for (const remote of this.remotes.values()) remote.update(dt);
   }
 
@@ -703,6 +702,11 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:attack', () => this.player.attack()),
       EventBus.on('cmd:save', () => this.save()),
       EventBus.on('cmd:skill', (id: SkillId) => this.player.castSkill(id)),
+      EventBus.on('cmd:nearChat',text=>{
+        if(this.shared)this.shared.chat(text);
+        else {const p=gameStore.getState().player;chatStore.getState().add({id:crypto.randomUUID(),kind:'near',from:getAccountState().user?.id??'me',name:p.name,text,at:Date.now()});gameStore.getState().addLog(`${p.name}: ${text}`,'near');this.showSpeech(text);}
+      }),
+      EventBus.on('chat:whisper',({from,text})=>{for(const remote of this.remotes.values())if(remote.userId===from)remote.speech(text,true);}),
       EventBus.on('cmd:interact', () => this.interact()),
       EventBus.on('cmd:meditate', () => this.toggleMeditate()),
       EventBus.on('cmd:target', () => this.cycleTarget()),
@@ -711,7 +715,7 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
       EventBus.on('cmd:home', () => this.visitHome()),
       EventBus.on('cmd:travel', (id: string) => this.travelTo(id)),
-      EventBus.on('cmd:duelPause',(pause:boolean)=>{this.input.keyboard?.resetKeys();virtualInput.x=0;virtualInput.y=0;if(pause){this.player.clearRoute();this.player.setVelocity(0,0);this.scene.pause();}else this.scene.resume();}),
+      EventBus.on('cmd:duelPause',(pause:boolean)=>{this.input.keyboard?.resetKeys();virtualInput.x=0;virtualInput.y=0;if(pause){this.player.clearRoute();this.player.setVelocity(0,0);this.stopMultiplayer?.();this.scene.pause();}else {this.scene.resume();this.startMultiplayer(this.map);}}),
       EventBus.on('cmd:mapWalk',(tile:{x:number;y:number})=>{
         const s=gameStore.getState();if(s.status!=='alive'||s.tribulation||lifeProgress(s.player).retreat)return;
         const path=findPath(this.map.blocked,Math.floor(this.player.x/TILE),Math.floor(this.player.y/TILE),tile.x,tile.y,0);
@@ -751,7 +755,7 @@ export class WorldScene extends Phaser.Scene {
     if (this.guideTimer <= 0) { this.guideTimer = 500; this.drawRouteGuide(); }
     this.tickMultiplayer(dt);
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
-    for (const m of this.monsters) m.update(dt, targetable);
+    for (const m of this.monsters) m.update(dt, this.shared?.authority?this.shared.target(m):targetable);
     for (const l of this.loot.getChildren() as LootDrop[]) {
       if (l.tick(dt, this.player.feet)) this.collectLoot(l);
     }
@@ -1328,6 +1332,7 @@ export class WorldScene extends Phaser.Scene {
 
   /** Telegraphed area attack around a boss; damage lands after `windup` ms if the player is still inside. */
   bossSlam(m: Monster, radius: number, windup: number, mul: number) {
+    if(this.shared){this.shared.slam(m,radius,windup,mul);return;}
     const aimed=m.def.boss?.pattern==='storm'||m.def.boss?.pattern==='celestial';
     const cx = aimed?this.player.x:m.x;
     const cy = aimed?this.player.y:m.y;
@@ -1437,6 +1442,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   playerMeleeHit(combo: number) {
+    if(this.shared){gameStore.getState().recordPractice('basic');this.shared.attack('basic',combo);return;}
     const sk = playerSkill('basic');
     const p = this.player;
     const f = p.facing;
@@ -1449,6 +1455,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   executeSkill(id: SkillId, target: Monster | null) {
+    if(this.shared){if(id!=='basic'&&id!=='than_phap')gameStore.getState().recordPractice('skill');this.shared.attack(id);return;}
     if (id !== 'basic' && id !== 'than_phap') gameStore.getState().recordPractice('skill');
     const sk = playerSkill(id);
     const p = this.player;
@@ -1564,6 +1571,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   monsterHitPlayer(m: Monster) {
+    if(this.shared){this.shared.monsterHit(m);return;}
     const p = this.player;
     if (!m.alive || m.rootTimer > 0 || p.life.status !== 'alive') return;
     if (!gridLineClear(this.map.blocked,TILE,m,p,0,0)) return;
@@ -1577,6 +1585,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onMonsterKilled(m: Monster) {
+    if(this.shared){this.shared.killed(m);return;}
+    this.rewardMonster(m);
+  }
+  rewardMonster(m:Monster){
     if(!m.playerContribution)return;
     const s = gameStore.getState();
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
@@ -1609,5 +1621,10 @@ export class WorldScene extends Phaser.Scene {
     this.vfx.pickup(drop.x, drop.y, color);
     this.damageText.show(this.player.x, this.player.y - 100, `+${drop.qty} ${itemName(drop.item)}`, 'heal');
     drop.destroy();
+  }
+  addSharedMonster(type:string,x:number,y:number,id:string){const m=this.spawnMonster(type,x,y);m.netId=id;return m;}
+  showSpeech(text:string){
+    const at=iso(this.player.x,this.player.y),bubble=this.add.text(at.x,at.y-150,text.slice(0,100),{fontSize:'12px',fontFamily:'Arial',color:'#183047',backgroundColor:'#f5ead7',padding:{x:9,y:6},wordWrap:{width:190},resolution:2}).setOrigin(.5,1).setDepth(95000);
+    this.time.delayedCall(4500,()=>bubble.destroy());
   }
 }

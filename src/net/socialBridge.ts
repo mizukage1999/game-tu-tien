@@ -12,6 +12,8 @@ import { saveGame } from '../game/systems/save';
 import { getAccountState } from './session';
 import { joinSocialChannel, type SocialChannel } from './socialChannel';
 import { newPartyId, type FriendRef, type PublicProfile, type SocialMessage } from './social';
+import { WhisperCrypto } from './whisperCrypto';
+import { chatStore } from '../store/chatStore';
 
 let channel: SocialChannel | null = null;
 let stopSocial: (() => void) | null = null;
@@ -24,6 +26,7 @@ let arenaReady = new Set<string>();
 let lastPeerInput = 0;
 let practiceSeq = 0;
 let rewardedNonce = '';
+let whispers: WhisperCrypto | null = null;
 function canDuel() {
   const s = gameStore.getState();
   return (
@@ -42,17 +45,15 @@ function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practic
   arenaReady = new Set();
   lastPeerInput = Date.now();
   const snapshot = (arenaEngine ?? new ArenaEngine(nonce, a, b)).snapshot();
-  socialStore
-    .getState()
-    .setDuel({
-      nonce,
-      snapshot,
-      a,
-      b,
-      aIsMe: a.userId === myRef().userId,
-      localId: myRef().userId,
-      practice,
-    });
+  socialStore.getState().setDuel({
+    nonce,
+    snapshot,
+    a,
+    b,
+    aIsMe: a.userId === myRef().userId,
+    localId: myRef().userId,
+    practice,
+  });
   gameStore.getState().setAuto(false);
   gameStore.getState().setMenu(null);
   EventBus.emit('cmd:duelPause', true);
@@ -65,17 +66,15 @@ function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practic
         return;
       }
       if (Date.now() - lastPeerInput > 20000) {
-        socialStore
-          .getState()
-          .setDuel({
-            ...live,
-            snapshot: {
-              ...live.snapshot,
-              phase: 'finished',
-              winner: null,
-              reason: 'Mất kết nối với đối thủ',
-            },
-          });
+        socialStore.getState().setDuel({
+          ...live,
+          snapshot: {
+            ...live.snapshot,
+            phase: 'finished',
+            winner: null,
+            reason: 'Mất kết nối với đối thủ',
+          },
+        });
       }
     }, 1000);
     return;
@@ -94,8 +93,12 @@ function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practic
           !e.resolved &&
           Math.hypot(e.x - bot.x, e.y - bot.y) < e.range + 20,
       );
-      const goal = danger ? { x: Math.max(30, Math.min(690, bot.x - dy / d * 90)),
-        y: Math.max(30, Math.min(370, bot.y + dx / d * 90)) } : hero;
+      const goal = danger
+        ? {
+            x: Math.max(30, Math.min(690, bot.x - (dy / d) * 90)),
+            y: Math.max(30, Math.min(370, bot.y + (dx / d) * 90)),
+          }
+        : hero;
       const steering = arenaSteer(bot, goal);
       arenaEngine.input(bot.userId, {
         seq: ++practiceSeq,
@@ -223,6 +226,39 @@ function acceptDuel(invite: SocialInvite) {
 function handleMessage(message: SocialMessage) {
   const social = socialStore.getState();
   const game = gameStore.getState();
+  if (message.t === 'chat:private') {
+    const sender = social.roster.find((p) => p.userId === message.from.userId);
+    if (
+      !whispers ||
+      !sender?.chatKey ||
+      sender.chatKey.x !== message.key.x ||
+      sender.chatKey.y !== message.key.y
+    )
+      return;
+    const session = whispers;
+    void session
+      .open({ ...message, from: message.from.userId })
+      .then((text) => {
+        if (session !== whispers || message.to !== myRef().userId) return;
+        if (!text.trim() || text.length > 200) return;
+        if (
+          chatStore
+            .getState()
+            .add({
+              id: message.id,
+              kind: 'private',
+              from: message.from.userId,
+              to: message.to,
+              name: sender.name,
+              text,
+              at: Date.now(),
+            })
+        )
+          EventBus.emit('chat:whisper', { from: sender.userId, text });
+      })
+      .catch(() => undefined);
+    return;
+  }
   if (message.t.startsWith('arena:')) {
     const m = message as Extract<
         SocialMessage,
@@ -366,6 +402,13 @@ export function startSocial(): () => void {
   const next = joinSocialChannel(profile);
   if (!next) return () => {};
   channel = next;
+  chatStore.getState().reset();
+  if (crypto.subtle) {
+    whispers = new WhisperCrypto();
+    void whispers.publicKey().then((chatKey) => {
+      if (channel === next) next.update({ chatKey });
+    });
+  }
   if (import.meta.env.DEV) Object.assign(window, { __socialChannel: channel });
 
   const social = socialStore.getState();
@@ -394,6 +437,8 @@ export function startSocial(): () => void {
     offLevel();
     void channel?.leave();
     channel = null;
+    whispers = null;
+    chatStore.getState().reset();
     const state = socialStore.getState();
     state.setConnected(false);
     state.setRoster([]);
@@ -505,4 +550,35 @@ export function respondInvite(invite: SocialInvite, accept: boolean) {
 /** Removes a friend. Local only; the other side is not told. */
 export function removeFriend(userId: string) {
   persistFriends(socialStore.getState().friends.filter((f) => f.userId !== userId));
+}
+
+export async function sendWhisper(to: string, text: string): Promise<boolean> {
+  text = text.trim();
+  const peer = socialStore.getState().roster.find((p) => p.userId === to);
+  if (!text || text.length > 200 || !channel || !whispers || !peer?.chatKey) {
+    gameStore
+      .getState()
+      .toast('Đạo hữu cần trực tuyến và mở phiên chat mới để nhận tin mật.', 'warn');
+    return false;
+  }
+  try {
+    const envelope = await whispers.seal(peer.chatKey, text, myRef().userId, to);
+    channel.send({ ...envelope, t: 'chat:private', from: myRef() });
+    chatStore
+      .getState()
+      .add({
+        id: envelope.id,
+        kind: 'private',
+        from: myRef().userId,
+        to,
+        name: myRef().name,
+        text,
+        at: Date.now(),
+        outgoing: true,
+      });
+    return true;
+  } catch {
+    gameStore.getState().toast('Chưa gửi được tin mật. Hãy thử lại.', 'warn');
+    return false;
+  }
 }
