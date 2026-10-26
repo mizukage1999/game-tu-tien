@@ -233,9 +233,28 @@
 .roster-details {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
   padding: 10px 4px 4px;
+}
+.roster-details-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #9a7848 #061520;
+  padding-right: 4px;
+}
+.roster-details-content > :not(.roster-radar) {
+  flex-shrink: 0;
+}
+.roster-actions {
+  flex: none;
+  padding-top: 10px;
 }
 .roster-identity {
   border-bottom: 1px solid #a88a5655;
@@ -448,6 +467,9 @@
   }
   .roster-details {
     padding-top: 0;
+  }
+  .roster-actions {
+    padding-top: 6px;
   }
   .roster-radar {
     height: 84px;

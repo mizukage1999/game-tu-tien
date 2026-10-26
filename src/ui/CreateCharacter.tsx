@@ -147,58 +147,62 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
           <small>{hero.motto}</small>
         </div>
         <section className="roster-details" aria-label="Thông tin nhân vật">
-          <div className="roster-identity">
-            <span className="roster-school">
-              {hero.symbol} {hero.school}
-            </span>
-            <h2>{hero.name}</h2>
-            <p>{hero.desc}</p>
+          <div className="roster-details-content">
+            <div className="roster-identity">
+              <span className="roster-school">
+                {hero.symbol} {hero.school}
+              </span>
+              <h2>{hero.name}</h2>
+              <p>{hero.desc}</p>
+            </div>
+            <Radar values={hero.ratings} />
+            <div className="roster-spells" role="group" aria-label="Kỹ năng nhân vật">
+              {spells.map((id, i) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-label={SKILLS[id].name}
+                  aria-pressed={spellIndex === i}
+                  onClick={() => setSpellIndex(i)}
+                >
+                  <HeroSpellGlyph id={id} />
+                </button>
+              ))}
+            </div>
+            <div className="roster-spell-info" aria-live="polite">
+              <b>{SKILLS[spell].name}</b>
+              <span>{SKILLS[spell].desc}</span>
+              <small>
+                {SKILLS[spell].unlockLevel === 1
+                  ? 'Có từ đầu'
+                  : `Mở ở Lv.${SKILLS[spell].unlockLevel}`}{' '}
+                · {SKILLS[spell].cooldownMs / 1000}s · {SKILLS[spell].mpCost} MP
+              </small>
+            </div>
           </div>
-          <Radar values={hero.ratings} />
-          <div className="roster-spells" role="group" aria-label="Kỹ năng nhân vật">
-            {spells.map((id, i) => (
-              <button
-                key={id}
-                type="button"
-                aria-label={SKILLS[id].name}
-                aria-pressed={spellIndex === i}
-                onClick={() => setSpellIndex(i)}
-              >
-                <HeroSpellGlyph id={id} />
-              </button>
-            ))}
+          <div className="roster-actions">
+            <label className="roster-name">
+              Tên nhân vật
+              <input
+                value={name}
+                maxLength={NAME_MAX}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError('');
+                }}
+                autoComplete="off"
+              />
+            </label>
+            {error && (
+              <p className="roster-error" role="alert">
+                {error}
+              </p>
+            )}
+            <button className="roster-enter" type="submit">
+              Vào game <span>→</span>
+            </button>
+            <p className="roster-footnote">Đánh thường · 3 chiêu tùy chọn · 1 lướt</p>
           </div>
-          <div className="roster-spell-info" aria-live="polite">
-            <b>{SKILLS[spell].name}</b>
-            <span>{SKILLS[spell].desc}</span>
-            <small>
-              {SKILLS[spell].unlockLevel === 1
-                ? 'Có từ đầu'
-                : `Mở ở Lv.${SKILLS[spell].unlockLevel}`}{' '}
-              · {SKILLS[spell].cooldownMs / 1000}s · {SKILLS[spell].mpCost} MP
-            </small>
-          </div>
-          <label className="roster-name">
-            Tên nhân vật
-            <input
-              value={name}
-              maxLength={NAME_MAX}
-              onChange={(e) => {
-                setName(e.target.value);
-                setError('');
-              }}
-              autoComplete="off"
-            />
-          </label>
-          {error && (
-            <p className="roster-error" role="alert">
-              {error}
-            </p>
-          )}
-          <button className="roster-enter" type="submit">
-            Vào game <span>→</span>
-          </button>
-          <p className="roster-footnote">Đánh thường · 3 chiêu tùy chọn · 1 lướt</p>
         </section>
       </form>
     </main>
