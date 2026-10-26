@@ -155,6 +155,33 @@ function pair() {
 }
 afterEach(() => vi.useRealTimers());
 describe('two clients in a shared combat map', () => {
+  it('shows a new school spell on both clients and resolves damage only at its authored impact', () => {
+    vi.useFakeTimers();
+    const { a, b, aw, bw, actors } = pair();
+    actors[1].combat.level = 40;
+    actors[1].combat.loadout = ['basic', 'wang_lam_7'];
+    b.attack('wang_lam_7');
+    expect(aw.w.vfx.combatSkill).toHaveBeenCalledWith('wang_lam_7', expect.anything(), { x: 1, y: 0 }, 390, 'wang_lam');
+    expect(bw.w.vfx.combatSkill).toHaveBeenCalled();
+    vi.advanceTimersByTime(449);
+    expect(aw.m.hp).toBe(180);
+    vi.advanceTimersByTime(1);
+    a.tick(150);
+    expect(aw.m.hp).toBeLessThan(180);
+    expect(bw.m.hp).toBe(aw.m.hp);
+    a.destroy(); b.destroy();
+  });
+  it('rejects a forged advanced loadout below its required level on every peer', () => {
+    vi.useFakeTimers();
+    const { a, b, aw, bw, actors } = pair();
+    actors[1].combat.loadout = ['basic', 'wang_lam_10'];
+    b.attack('wang_lam_10');
+    vi.advanceTimersByTime(1200);
+    expect(aw.w.vfx.combatSkill).not.toHaveBeenCalled();
+    expect(bw.w.vfx.combatSkill).not.toHaveBeenCalled();
+    expect(aw.m.hp).toBe(180);
+    a.destroy(); b.destroy();
+  });
   it('replicates an attack, HP loss and death; rewards only the remote killer once', () => {
     vi.useFakeTimers();
     const { a, b, aw, bw } = pair();

@@ -3,12 +3,10 @@ import { HEROES, HERO_ASSETS, type HeroId } from '../../data/heroes';
 import { HERO_SPELLS, heroSpell } from '../../data/heroSkills';
 import { CHARACTERS, RIGS, frameName } from './generate';
 import { cacheHeroSpellIcon } from './heroSpellIcons';
+import { SPELL_FRAMES, spellCell, spellSource, spellTexture } from '../../data/heroSpellArt';
 
 export const ROSTER_SOURCE = 'hero-roster-v7-source';
-export const SPELL_SOURCE = 'hero-spells-v7-source';
-export const SPELL_TEXTURE = 'hero-spells-v7';
 export const ROSTER_POSES_URL = `${HERO_ASSETS}/poses.png`;
-export const HERO_EFFECTS_URL = `${HERO_ASSETS}/effects.png`;
 export const SPELL_CELL = 192;
 
 export function rosterArt(id: HeroId) {
@@ -110,41 +108,55 @@ export function registerRosterArt(scene: Phaser.Scene) {
 }
 
 export function registerHeroSpells(scene: Phaser.Scene) {
-  if (!scene.textures.exists(SPELL_SOURCE)) return;
-  const source = scene.textures.get(SPELL_SOURCE).getSourceImage() as HTMLImageElement;
-  const canvas = document.createElement('canvas');
-  canvas.width = SPELL_CELL * 5;
-  canvas.height = SPELL_CELL * 8;
-  const ctx = canvas.getContext('2d')!;
-  ctx.imageSmoothingQuality = 'high';
-  const sw = source.width / 5,
-    sh = source.height / 8;
-  for (const art of Object.values(HERO_SPELLS)) {
-    ctx.drawImage(
-      source,
-      art.col * sw,
-      art.row * sh,
-      sw,
-      sh,
-      art.col * SPELL_CELL,
-      art.row * SPELL_CELL,
-      SPELL_CELL,
-      SPELL_CELL,
-    );
-    const icon = document.createElement('canvas');
-    icon.width = 96;
-    icon.height = 96;
-    const ic = icon.getContext('2d')!;
-    ic.beginPath();
-    ic.arc(48, 48, 47, 0, Math.PI * 2);
-    ic.clip();
-    ic.drawImage(source, art.col * sw, art.row * sh, sw, sh, 0, 0, 96, 96);
-    cacheHeroSpellIcon(art.id, icon.toDataURL('image/png'));
+  for (const hero of HEROES) {
+    const key = spellSource(hero.id);
+    if (!scene.textures.exists(key)) continue;
+    const source = scene.textures.get(key).getSourceImage() as HTMLImageElement;
+    const canvas = document.createElement('canvas');
+    canvas.width = SPELL_CELL * 5;
+    canvas.height = SPELL_CELL * 8;
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingQuality = 'high';
+    for (const art of Object.values(HERO_SPELLS).filter((a) => a.hero === hero.id)) {
+      for (let frame = 0; frame < SPELL_FRAMES; frame++) {
+        const [x, y, w, h] = spellCell(art.id, frame);
+        ctx.drawImage(
+          source,
+          x,
+          y,
+          w,
+          h,
+          (art.col % 5) * SPELL_CELL,
+          (Math.floor(art.col / 5) * 4 + frame) * SPELL_CELL,
+          SPELL_CELL,
+          SPELL_CELL,
+        );
+      }
+      const icon = document.createElement('canvas');
+      icon.width = 96;
+      icon.height = 96;
+      const ic = icon.getContext('2d')!;
+      ic.beginPath();
+      ic.arc(48, 48, 47, 0, Math.PI * 2);
+      ic.clip();
+      const [x, y, w, h] = spellCell(art.id);
+      ic.drawImage(source, x, y, w, h, 0, 0, 96, 96);
+      cacheHeroSpellIcon(art.id, icon.toDataURL('image/png'));
+    }
+    const texture = scene.textures.addCanvas(spellTexture(hero.id), canvas)!;
+    for (const art of Object.values(HERO_SPELLS).filter((a) => a.hero === hero.id)) {
+      for (let frame = 0; frame < SPELL_FRAMES; frame++)
+        texture.add(
+          `${art.id}:${frame}`,
+          0,
+          (art.col % 5) * SPELL_CELL,
+          (Math.floor(art.col / 5) * 4 + frame) * SPELL_CELL,
+          SPELL_CELL,
+          SPELL_CELL,
+        );
+    }
+    scene.textures.remove(key);
   }
-  const texture = scene.textures.addCanvas(SPELL_TEXTURE, canvas)!;
-  for (const art of Object.values(HERO_SPELLS))
-    texture.add(art.id, 0, art.col * SPELL_CELL, art.row * SPELL_CELL, SPELL_CELL, SPELL_CELL);
-  scene.textures.remove(SPELL_SOURCE);
 }
 
 export function hasHeroSpell(id: string) {

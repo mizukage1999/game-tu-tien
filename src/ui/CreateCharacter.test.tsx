@@ -7,7 +7,7 @@ import { createCharacter } from '../store/gameStore';
 vi.mock('../store/gameStore', () => ({ createCharacter: vi.fn() }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-it('selects a real school, previews its own five spells and starts with that identity', () => {
+it('selects a real school, previews its own ten spells and starts with that identity', () => {
   const host = document.createElement('div'),
     root = createRoot(host),
     done = vi.fn();
@@ -16,10 +16,13 @@ it('selects a real school, previews its own five spells and starts with that ide
     expect(host.querySelectorAll('.roster-grid>button')).toHaveLength(8);
     act(() => host.querySelector<HTMLButtonElement>('[data-hero="hong_lien"]')!.click());
     expect(host.querySelector('input')!.value).toBe('Hồng Liên');
-    expect(host.querySelectorAll('.roster-spells button')).toHaveLength(5);
+    expect(host.querySelectorAll('.roster-spells button')).toHaveLength(10);
     expect(host.querySelector('.roster-spell-info')!.textContent).toContain('Hỏa Ma Chỉ');
     act(() => host.querySelectorAll<HTMLButtonElement>('.roster-spells button')[4].click());
     expect(host.querySelector('.roster-spell-info')!.textContent).toContain('Vạn Hỏa Triều Thiên');
+    act(() => host.querySelectorAll<HTMLButtonElement>('.roster-spells button')[9].click());
+    expect(host.querySelector('.roster-spell-info')!.textContent).toContain('Hỏa Thần');
+    expect(host.querySelector('.roster-spell-info')!.textContent).toContain('Lv.40');
     act(() =>
       host
         .querySelector('form')!

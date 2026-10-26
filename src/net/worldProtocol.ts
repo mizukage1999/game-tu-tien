@@ -95,7 +95,7 @@ export function parseCombatStats(raw: unknown): CombatStats | undefined {
   return {
     ...p,
     loadout: Array.isArray(p.loadout)
-      ? [...new Set(p.loadout.filter(known))].slice(0, 4)
+      ? [...new Set(p.loadout.filter(known))].slice(0, 7)
       : ['basic'],
     skills: Object.fromEntries(
       Object.entries(p.skills ?? {}).filter(

@@ -1,8 +1,18 @@
 import type { SkillDef, SkillId } from './index';
 import { HEROES, type HeroId } from './heroes';
 
-export type HeroSkillId = `${HeroId}_${1 | 2 | 3 | 4 | 5}`;
+export type HeroSkillId = `${HeroId}_${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 export type SpellShape = 'line' | 'circle' | 'cone' | 'self';
+export type SpellMotion = 'travel' | 'sweep' | 'eruption' | 'orbit' | 'ward' | 'bloom';
+interface SpellTuning {
+  motion?: SpellMotion;
+  range?: number;
+  arc?: number;
+  multiplier?: number;
+  healFraction?: number;
+  shieldFraction?: number;
+  shieldMs?: number;
+}
 export interface HeroSpell {
   id: HeroSkillId;
   hero: HeroId;
@@ -10,6 +20,12 @@ export interface HeroSpell {
   col: number;
   shape: SpellShape;
   rootMs?: number;
+  motion: SpellMotion;
+  windupMs: number;
+  duration: number;
+  healFraction: number;
+  shieldFraction: number;
+  shieldMs: number;
 }
 
 type Spec = [
@@ -18,6 +34,333 @@ type Spec = [
   shape: SpellShape,
   desc: string,
   rootMs?: number,
+  tuning?: SpellTuning,
+];
+
+/** New skills retain the first five IDs so existing characters keep their loadout. */
+const ADVANCED: Spec[][] = [
+  [
+    [
+      'Lưu Quang',
+      'melee',
+      'cone',
+      'Kiếm khí uốn thành sóng quét rộng phía trước.',
+      0,
+      { range: 210, arc: 125, motion: 'sweep' },
+    ],
+    [
+      'Nhất Kiếm',
+      'projectile',
+      'line',
+      'Dồn kiếm ý vào một đường đâm xa, hẹp và mạnh.',
+      0,
+      { range: 390, multiplier: 3.5 },
+    ],
+    [
+      'Bách Xuyên',
+      'melee',
+      'cone',
+      'Kiếm triều xuyên qua nhóm địch trong hình quạt.',
+      0,
+      { range: 260, arc: 70 },
+    ],
+    [
+      'Vạn Kiếm',
+      'nova',
+      'circle',
+      'Vạn kiếm xoay quanh người, chặn chân địch 0,6 giây.',
+      600,
+      { range: 180, motion: 'orbit' },
+    ],
+    [
+      'Kiếm Thần',
+      'nova',
+      'circle',
+      'Thiên kiếm giáng xuống, bộc phát kiếm ý diện rộng.',
+      0,
+      { range: 210, motion: 'eruption' },
+    ],
+  ],
+  [
+    [
+      'Hộ Thân Băng Giáp',
+      'shield',
+      'self',
+      'Băng giáp hấp thụ sát thương bằng 42% sinh lực trong 5 giây.',
+      0,
+      { shieldFraction: 0.42, shieldMs: 5000 },
+    ],
+    [
+      'Tẩy Uế',
+      'heal',
+      'self',
+      'Tuyết trắng hồi 20% sinh lực tối đa; hồi chiêu ngắn hơn đại pháp hồi phục.',
+      0,
+      { healFraction: 0.2 },
+    ],
+    [
+      'Phục Sinh Băng Liên',
+      'heal',
+      'self',
+      'Băng liên hồi 32% sinh lực khi còn sống; không hồi sinh sau khi tử trận.',
+      0,
+      { healFraction: 0.32 },
+    ],
+    [
+      'Thiên Giới',
+      'nova',
+      'circle',
+      'Băng trụ khóa vòng vây, giữ chân địch 1,4 giây.',
+      1400,
+      { range: 175 },
+    ],
+    [
+      'Thần Phù',
+      'projectile',
+      'line',
+      'Thần phù phá không, xuyên thẳng và đóng băng 0,8 giây.',
+      800,
+      { range: 360 },
+    ],
+  ],
+  [
+    [
+      'Đằng La',
+      'projectile',
+      'line',
+      'Dây gai vươn dài theo hướng bắn, trói chân địch 1,2 giây.',
+      1200,
+      { range: 320 },
+    ],
+    [
+      'Bách Thảo',
+      'heal',
+      'self',
+      'Linh thảo nở hoa, hồi 30% sinh lực tối đa.',
+      0,
+      { healFraction: 0.3 },
+    ],
+    [
+      'Linh Thú Tiễn',
+      'melee',
+      'cone',
+      'Linh tiễn hóa bóng hươu lao qua nhóm địch phía trước.',
+      0,
+      { range: 250, arc: 65 },
+    ],
+    [
+      'Thiên La',
+      'nova',
+      'circle',
+      'Lưới gai phủ quanh người, trói chân địch 1,5 giây.',
+      1500,
+      { range: 170 },
+    ],
+    [
+      'Mộc Thần',
+      'shield',
+      'self',
+      'Cổ thụ linh quang tạo lá chắn bằng 50% sinh lực trong 8 giây.',
+      0,
+      { shieldFraction: 0.5, shieldMs: 8000 },
+    ],
+  ],
+  [
+    [
+      'Cuồng Sát',
+      'melee',
+      'cone',
+      'Liên trảm ba vệt đao thành một đòn quét gần đầy uy lực.',
+      0,
+      { range: 165, arc: 120, multiplier: 3.1 },
+    ],
+    [
+      'Huyết Ảnh',
+      'projectile',
+      'line',
+      'Bóng sát thủ hóa huyết nhận đâm thẳng về trước.',
+      0,
+      { range: 330 },
+    ],
+    [
+      'Loạn Vũ',
+      'nova',
+      'circle',
+      'Lốc song đao cắt mọi mục tiêu áp sát.',
+      0,
+      { range: 150, motion: 'orbit' },
+    ],
+    [
+      'Tử Sát',
+      'projectile',
+      'line',
+      'Sát nhận tầm xa ghim chân địch 0,8 giây.',
+      800,
+      { range: 350 },
+    ],
+    [
+      'Sát Thần',
+      'melee',
+      'cone',
+      'Đao ảnh khổng lồ bổ xuống hình quạt hẹp phía trước.',
+      0,
+      { range: 240, arc: 60, multiplier: 5 },
+    ],
+  ],
+  [
+    [
+      'Hỏa Long',
+      'projectile',
+      'line',
+      'Hỏa long bay thẳng xuyên qua mục tiêu trên đường.',
+      0,
+      { range: 360 },
+    ],
+    [
+      'Phượng Hoàng',
+      'melee',
+      'cone',
+      'Phượng hoàng xòe cánh quét lửa thành hình quạt rộng.',
+      0,
+      { range: 230, arc: 135 },
+    ],
+    ['Diễm Ngục', 'nova', 'circle', 'Cột lửa dựng thành hỏa ngục quanh người.', 0, { range: 175 }],
+    [
+      'Tịnh Hỏa',
+      'heal',
+      'self',
+      'Hỏa liên tái tạo hồi 28% sinh lực tối đa.',
+      0,
+      { healFraction: 0.28 },
+    ],
+    [
+      'Hỏa Thần',
+      'nova',
+      'circle',
+      'Pháp tướng hỏa thần giáng một đòn bộc phát diện rộng.',
+      0,
+      { range: 205 },
+    ],
+  ],
+  [
+    ['Hồn Tức', 'projectile', 'line', 'Ma tức hóa linh hồn lao thẳng về trước.', 0, { range: 330 }],
+    [
+      'Vong Hồn',
+      'melee',
+      'cone',
+      'Ba vong hồn hợp thành một đợt công kích hình quạt.',
+      0,
+      { range: 220, arc: 110 },
+    ],
+    [
+      'Ma Liên Hoa',
+      'nova',
+      'circle',
+      'Hắc liên nở rộ rồi nổ tung quanh người.',
+      0,
+      { range: 170, motion: 'bloom' },
+    ],
+    [
+      'Tà Linh Chú',
+      'nova',
+      'circle',
+      'Chú ấn giáng xuống, giữ chân địch 1,3 giây.',
+      1300,
+      { range: 150 },
+    ],
+    [
+      'Diệt Thế',
+      'nova',
+      'circle',
+      'U minh xoáy thành vực ma khí diện rộng.',
+      0,
+      { range: 215, motion: 'orbit' },
+    ],
+  ],
+  [
+    [
+      'Bát Nhã',
+      'projectile',
+      'line',
+      'Pháp luân trí tuệ xuyên thẳng qua hàng địch.',
+      0,
+      { range: 310 },
+    ],
+    [
+      'La Hán',
+      'melee',
+      'cone',
+      'Kim quyền quét mạnh hình quạt phía trước.',
+      0,
+      { range: 190, arc: 115 },
+    ],
+    [
+      'Phật Ấn',
+      'nova',
+      'circle',
+      'Pháp ấn trấn áp quanh người, giữ chân địch 1,2 giây.',
+      1200,
+      { range: 160 },
+    ],
+    [
+      'Kim Thân',
+      'shield',
+      'self',
+      'Kim thân hấp thụ sát thương bằng 48% sinh lực trong 8 giây.',
+      0,
+      { shieldFraction: 0.48, shieldMs: 8000 },
+    ],
+    [
+      'Phật Thần',
+      'heal',
+      'self',
+      'Đại liên đài hồi 38% sinh lực tối đa.',
+      0,
+      { healFraction: 0.38 },
+    ],
+  ],
+  [
+    [
+      'Ảo Cảnh',
+      'nova',
+      'circle',
+      'Hoa trận mê ảnh khóa chân địch quanh người 1 giây.',
+      1000,
+      { range: 155, motion: 'bloom' },
+    ],
+    [
+      'Phân Thân',
+      'projectile',
+      'line',
+      'Bóng ảo ngưng thành đao khí lao thẳng; tan sau một đòn.',
+      0,
+      { range: 340 },
+    ],
+    [
+      'Hoa Tán',
+      'melee',
+      'cone',
+      'Đàn hồ điệp hóa lưỡi đao quét rộng phía trước.',
+      0,
+      { range: 220, arc: 140 },
+    ],
+    [
+      'Tịnh Mộng',
+      'nova',
+      'circle',
+      'Mộng ấn trấn giữ địch 1,5 giây trong vùng ảnh hưởng.',
+      1500,
+      { range: 155 },
+    ],
+    [
+      'Ảo Thần',
+      'shield',
+      'self',
+      'Ảo thần kết liên đài tạo lá chắn bằng 50% sinh lực trong 7 giây.',
+      0,
+      { shieldFraction: 0.5, shieldMs: 7000 },
+    ],
+  ],
 ];
 const SETS: Spec[][] = [
   [
@@ -81,28 +424,56 @@ const SETS: Spec[][] = [
 export const HERO_SPELLS = {} as Record<HeroSkillId, HeroSpell>;
 export const HERO_SKILLS = {} as Record<HeroSkillId, SkillDef>;
 HEROES.forEach((hero, row) =>
-  SETS[row].forEach(([name, kind, shape, desc, rootMs], col) => {
+  [...SETS[row], ...ADVANCED[row]].forEach(([name, kind, shape, desc, rootMs, tuning], col) => {
     const id = `${hero.id}_${col + 1}` as HeroSkillId;
     const support = shape === 'self';
-    HERO_SPELLS[id] = { id, hero: hero.id, row, col, shape, ...(rootMs ? { rootMs } : {}) };
+    const motion =
+      tuning?.motion ??
+      (shape === 'line'
+        ? 'travel'
+        : shape === 'cone'
+          ? 'sweep'
+          : kind === 'heal'
+            ? 'bloom'
+            : kind === 'shield'
+              ? 'ward'
+              : 'eruption');
+    HERO_SPELLS[id] = {
+      id,
+      hero: hero.id,
+      row,
+      col,
+      shape,
+      motion,
+      ...(rootMs ? { rootMs } : {}),
+      windupMs: col < 5 ? 400 : [300, 450, 500, 550, 650][col - 5],
+      duration: col < 5 ? 960 : 1120,
+      healFraction: tuning?.healFraction ?? 0.24,
+      shieldFraction: tuning?.shieldFraction ?? 0.35,
+      shieldMs: tuning?.shieldMs ?? 6000,
+    };
     HERO_SKILLS[id] = {
       hero: hero.id,
       name,
       kind,
       key: '',
-      mpCost: [14, 20, 28, 36, 42][col],
-      cooldownMs: [5000, 8000, 12000, 16000, 20000][col],
-      multiplier: support ? 0 : [1.8, 2.2, 2.4, 3.2, 3.8][col],
-      range: support
+      mpCost: [14, 20, 28, 36, 42, 30, 34, 42, 48, 60][col],
+      cooldownMs: [5000, 8000, 12000, 16000, 20000, 9000, 11000, 15000, 19000, 26000][col],
+      multiplier: support
         ? 0
-        : shape === 'line'
-          ? 300
-          : shape === 'cone'
-            ? 160
-            : [100, 110, 120, 145, 160][col],
-      arc: shape === 'cone' ? 100 : 0,
-      unlockLevel: [1, 1, 1, 8, 12][col],
-      desc: `${desc}${kind === 'shield' ? ' Lá chắn bằng 35% sinh lực tối đa.' : ''}`,
+        : (tuning?.multiplier ?? [1.8, 2.2, 2.4, 3.2, 3.8, 2.7, 3.1, 3.5, 3.8, 4.7][col]),
+      range:
+        tuning?.range ??
+        (support
+          ? 0
+          : shape === 'line'
+            ? 300
+            : shape === 'cone'
+              ? 160
+              : [100, 110, 120, 145, 160, 150, 155, 170, 180, 205][col]),
+      arc: shape === 'cone' ? (tuning?.arc ?? 100) : 0,
+      unlockLevel: [1, 1, 1, 8, 12, 16, 20, 25, 30, 40][col],
+      desc: `${desc}${kind === 'shield' && col < 5 ? ' Lá chắn bằng 35% sinh lực tối đa.' : ''}`,
       growth: { multiplier: 0.08, cooldown: -0.025, range: support ? 0 : 0.015 },
       bonus: { desc: 'Lĩnh ngộ: uy lực tiếp tục tăng theo cấp kỹ năng.' },
     };
@@ -115,15 +486,29 @@ export function heroSpell(id: string): HeroSpell | undefined {
     : undefined;
 }
 export function heroSkillIds(hero: HeroId): HeroSkillId[] {
-  return [1, 2, 3, 4, 5].map((n) => `${hero}_${n}` as HeroSkillId);
+  return Array.from({ length: 10 }, (_, i) => `${hero}_${i + 1}` as HeroSkillId);
 }
 export function heroDefaultLoadout(hero: HeroId): SkillId[] {
-  return ['basic', ...heroSkillIds(hero).slice(0, 3)];
+  return ['basic', ...heroSkillIds(hero).slice(0, 3), 'bang_tam_tram', 'phi_kiem', 'han_bang_tran'];
 }
-export function spellVisualId(id:SkillId,hero:HeroId):HeroSkillId {
-  if(heroSpell(id))return id as HeroSkillId;
-  const kind=id==='basic'||id==='bang_tam_tram'?'melee':id==='phi_kiem'||id==='loi_kich'?'projectile':id==='moc_linh'?'heal':id==='kim_cang'?'shield':id==='than_phap'?'dash':'nova';
-  return heroSkillIds(hero).find(sid=>HERO_SKILLS[sid].kind===kind)??heroSkillIds(hero)[kind==='nova'?2:0];
+export function spellVisualId(id: SkillId, hero: HeroId): HeroSkillId {
+  if (heroSpell(id)) return id as HeroSkillId;
+  const kind =
+    id === 'basic' || id === 'bang_tam_tram'
+      ? 'melee'
+      : id === 'phi_kiem' || id === 'loi_kich'
+        ? 'projectile'
+        : id === 'moc_linh'
+          ? 'heal'
+          : id === 'kim_cang'
+            ? 'shield'
+            : id === 'than_phap'
+              ? 'dash'
+              : 'nova';
+  return (
+    heroSkillIds(hero).find((sid) => HERO_SKILLS[sid].kind === kind) ??
+    heroSkillIds(hero)[kind === 'nova' ? 2 : 0]
+  );
 }
 
 /** Shared by the world and arena, so spell art and the actual hit area agree. */

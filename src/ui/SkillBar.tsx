@@ -69,6 +69,22 @@ export function SkillBar() {
 
   return (
     <div className="skill-bar">
+      <svg className="skill-orbits" viewBox="0 0 280 260" aria-hidden="true">
+        <defs>
+          <linearGradient id="skill-orbit-gold">
+            <stop stopColor="#96702d" stopOpacity=".15" />
+            <stop offset=".5" stopColor="#ffe4a0" />
+            <stop offset="1" stopColor="#bd8734" stopOpacity=".3" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M158 223 A84 84 0 0 1 250 132 M110 229 A132 132 0 0 1 254 84"
+          fill="none"
+          stroke="url(#skill-orbit-gold)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
       <button
         className={`round-btn auto-btn ${auto ? 'on' : ''}`}
         onClick={() => setAuto(!auto)}
@@ -109,10 +125,10 @@ export function SkillBar() {
           key={i}
           id={id}
           slot={i}
-          className={['pos-main', 'pos-s1', 'pos-s2', 'pos-s3'][i]}
+          className={['pos-main', 'pos-s1', 'pos-s2', 'pos-s3', 'pos-s4', 'pos-s5', 'pos-s6'][i]}
         />
       ))}
-      <SkillButton id="than_phap" slot={4} className="pos-dash" />
+      <SkillButton id="than_phap" slot={7} className="pos-dash" />
       <button
         className="skill-btn pos-potion"
         onPointerDown={() => consumeItem('hoi_xuan_dan')}

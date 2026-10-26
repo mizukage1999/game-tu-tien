@@ -3,6 +3,7 @@ import { HERO_ASSETS, heroRow, type HeroId } from '../data/heroes';
 import { heroSpell } from '../data/heroSkills';
 import type { SkillId } from '../data';
 import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
+import { SCHOOL_ART, SCHOOL_SHEET_W, SCHOOL_SHEET_H, spellCell } from '../data/heroSpellArt';
 
 /** Clip to the atlas cell itself as well as the viewport, including letterboxed SVGs. */
 function AtlasCrop({
@@ -14,6 +15,7 @@ function AtlasCrop({
   style,
   onAnimationEnd,
   directory = HERO_ASSETS,
+  stretch = false,
 }: {
   box: [number, number, number, number];
   source: string;
@@ -23,6 +25,7 @@ function AtlasCrop({
   style?: CSSProperties;
   onAnimationEnd?: () => void;
   directory?: string;
+  stretch?: boolean;
 }) {
   const clip = useId().replace(/:/g, '');
   const [x, y, w, h] = box;
@@ -30,6 +33,7 @@ function AtlasCrop({
     <svg
       className={className}
       viewBox={box.join(' ')}
+      preserveAspectRatio={stretch ? 'none' : 'xMidYMid meet'}
       style={style}
       onAnimationEnd={onAnimationEnd}
       aria-hidden="true"
@@ -147,10 +151,11 @@ export function HeroSpellGlyph({ id, className = '' }: { id: SkillId; className?
   return (
     <span className={`hero-spell-glyph ${className}`} aria-hidden="true">
       <AtlasCrop
-        box={[art.col * 217.2, art.row * 181, 217.2, 181]}
-        source="effects"
-        width={1086}
-        height={1448}
+        box={spellCell(art.id)}
+        source={art.hero}
+        directory={SCHOOL_ART}
+        width={SCHOOL_SHEET_W}
+        height={SCHOOL_SHEET_H}
       />
     </span>
   );
@@ -161,21 +166,27 @@ export function HeroEffectArt({
   className = '',
   style,
   onAnimationEnd,
+  frame = 2,
+  stretch = false,
 }: {
   id: SkillId;
   className?: string;
   style?: CSSProperties;
   onAnimationEnd?: () => void;
+  frame?: number;
+  stretch?: boolean;
 }) {
   const art = heroSpell(id);
   if (!art) return null;
   return (
     <AtlasCrop
       className={`hero-effect-v7 ${className}`}
-      box={[art.col * 217.2, art.row * 181, 217.2, 181]}
-      source="effects"
-      width={1086}
-      height={1448}
+      stretch={stretch}
+      box={spellCell(art.id, frame)}
+      source={art.hero}
+      directory={SCHOOL_ART}
+      width={SCHOOL_SHEET_W}
+      height={SCHOOL_SHEET_H}
       style={style}
       onAnimationEnd={onAnimationEnd}
     />

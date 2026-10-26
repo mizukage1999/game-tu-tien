@@ -8,11 +8,20 @@ import {
   parseSex,
   pruneStale,
   shouldPublish,
+  uniqueWorldPlayers,
   smoothing,
   stepToward,
   type Pose,
   type RemotePlayerState,
 } from './presence';
+
+it('renders one body per account and never renders a closing copy of the local player', () => {
+  const make = (key: string, userId: string, joinedAt: number) => parseRemote(key,
+    { user_id: userId, x: 100, y: 100, joinedAt }, 0)!;
+  const old = make('old', 'peer', 10), latest = make('latest', 'peer', 20), other = make('other', 'other', 5);
+  expect(uniqueWorldPlayers([old, latest, other, make('my-old-tab', 'me', 0)], 'me')).toEqual([latest, other]);
+  expect(uniqueWorldPlayers([latest, old], 'me')).toEqual([latest]);
+});
 
 const pose = (x: number, y: number, extra: Partial<Pose> = {}): Pose => ({
   x,

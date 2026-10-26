@@ -261,7 +261,7 @@ export function Skills() {
                 ? id === 'basic'
                   ? 'Đánh thường cố định ở ô 1.'
                   : 'Lướt có nút riêng, không chiếm ô.'
-                : `Chọn ô 2–4 bên trái để đặt ${cur.name}.`)}
+                : `Chọn ô 2–7 bên trái để đặt ${cur.name}.`)}
           </p>
           <div className="cult-upgrade-cost">
             {cost ? (

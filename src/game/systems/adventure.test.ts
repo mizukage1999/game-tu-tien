@@ -63,11 +63,11 @@ describe('equipment, EXP and loadouts', () => {
       adventureAction({ ...p, inventory: {} }, { type: 'enhance', id: 'armor_white' }, false).ok,
     ).toBe(false);
   });
-  it('requires more EXP and keeps four unique selected slots across saves', () => {
+  it('requires more EXP and keeps seven unique selected slots across saves', () => {
     expect(expToNext(1)).toBeGreaterThan(400);
     expect(expToNext(20)).toBeGreaterThan(expToNext(10) * 2);
     const chosen = chooseSkill(hero(), 1, 'moc_linh')!;
-    expect(skillLoadout(chosen)).toHaveLength(4);
+    expect(skillLoadout(chosen)).toHaveLength(7);
     expect(skillLoadout(chosen)[1]).toBe('moc_linh');
     const loaded = deserialize(
       serialize({ player: chosen, quests: {}, mapId: 'dai_thua_vien', pos: null }),
@@ -78,7 +78,7 @@ describe('equipment, EXP and loadouts', () => {
     expect(chooseSkill(chosen, 0, 'moc_linh')).toBeNull();
     expect(chooseSkill(chosen, 1, 'than_phap')).toBeNull();
     expect(chooseSkill(chosen, 1, 'basic')).toBeNull();
-    expect(new Set(skillLoadout(chooseSkill(chosen, 2, 'moc_linh')!)).size).toBe(4);
+    expect(new Set(skillLoadout(chooseSkill(chosen, 2, 'moc_linh')!)).size).toBe(7);
   });
 });
 describe('sect missions and reputation gates', () => {

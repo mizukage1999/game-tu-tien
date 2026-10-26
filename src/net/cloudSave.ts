@@ -3,23 +3,22 @@ import { loadGame, setSaveSink, writeSnapshot } from '../game/systems/save';
 import { supabase } from './supabase';
 import { setAccountState } from './session';
 import { pickNewer } from './merge';
-
-/** Row shape in public.saves: one row per player. */
-interface SaveRow {
-  user_id: string;
-  data: SaveData;
-  updated_at: string;
-}
+import { activeSessionId } from './activeSession';
 
 let activeUser: string | null = null;
 let pushing = false;
-let queued: SaveData | null = null;
+let queued: { userId: string; data: SaveData } | null = null;
 let lastError: string | null = null;
 
 export async function pullCloudSave(userId: string): Promise<SaveData | null> {
   if (!supabase) return null;
-  const { data, error } = await supabase.from('saves').select('data').eq('user_id', userId).maybeSingle();
+  const { data, error } = await supabase
+    .from('saves')
+    .select('data')
+    .eq('user_id', userId)
+    .maybeSingle();
   if (error) {
+    if (activeUser !== userId || !activeSessionId(userId)) return null;
     lastError = error.message;
     setAccountState({ status: 'error', error: `Không tải được save trên cloud: ${error.message}` });
     return null;
@@ -29,8 +28,13 @@ export async function pullCloudSave(userId: string): Promise<SaveData | null> {
 
 async function pushNow(userId: string, data: SaveData) {
   if (!supabase) return;
-  const row: SaveRow = { user_id: userId, data, updated_at: new Date().toISOString() };
-  const { error } = await supabase.from('saves').upsert(row, { onConflict: 'user_id' });
+  const instance = activeSessionId(userId);
+  if (!instance || activeUser !== userId) return;
+  const { error } = await supabase.rpc('save_game_snapshot', {
+    p_instance_id: instance,
+    p_snapshot: data,
+  });
+  if (activeSessionId(userId) !== instance || activeUser !== userId) return;
   if (error) {
     lastError = error.message;
     setAccountState({ status: 'error', error: `Chưa lưu được lên cloud: ${error.message}` });
@@ -45,8 +49,9 @@ async function pushNow(userId: string, data: SaveData) {
  * a single follow-up push so the newest snapshot always ends up on the server.
  */
 async function pushSave(userId: string, data: SaveData) {
+  if (activeUser !== userId || !activeSessionId(userId)) return;
   if (pushing) {
-    queued = data;
+    queued = { userId, data };
     return;
   }
   pushing = true;
@@ -56,7 +61,7 @@ async function pushSave(userId: string, data: SaveData) {
     while (queued) {
       const next = queued;
       queued = null;
-      await pushNow(userId, next);
+      await pushNow(next.userId, next.data);
     }
   } finally {
     pushing = false;
@@ -73,12 +78,16 @@ export function attachCloudSync(userId: string) {
 
 export function detachCloudSync() {
   activeUser = null;
+  queued = null;
   setSaveSink(null);
 }
 
 export async function deleteCloudSave(userId: string): Promise<void> {
   if (!supabase) return;
-  await supabase.from('saves').delete().eq('user_id', userId);
+  const instance = activeSessionId(userId);
+  if (!instance) return;
+  const { error } = await supabase.rpc('delete_game_snapshot', { p_instance_id: instance });
+  if (error) throw new Error(error.message);
 }
 
 /**
@@ -88,6 +97,7 @@ export async function deleteCloudSave(userId: string): Promise<void> {
  */
 export async function hydrateFromCloud(userId: string): Promise<void> {
   const cloud = await pullCloudSave(userId);
+  if (activeUser !== userId || !activeSessionId(userId)) return;
   const local = loadGame();
   const winner = pickNewer(local, cloud);
   if (!winner) {

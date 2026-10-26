@@ -17,6 +17,24 @@ vi.mock('../../game/art/icons', () => ({
 }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 describe('skill selection and in-panel crafting', () => {
+  it('equips a newly unlocked school spell from the painted library while keeping eight HUD buttons', () => {
+    const host = document.createElement('div'), root = createRoot(host), previous = gameStore.getState();
+    gameStore.setState({ player: { ...newPlayer({ sex: 'female' }), heroId: 'hong_lien', admitted: true, level: 40 }, cooldowns: {} });
+    try {
+      act(() => root.render(<><Skills /><SkillBar /></>));
+      expect(host.querySelectorAll('.cult-skill-card[data-skill^="hong_lien_"]')).toHaveLength(10);
+      const tenth = host.querySelector<HTMLButtonElement>('.cult-skill-card[data-skill="hong_lien_10"]')!;
+      expect(tenth.querySelector('image')?.getAttribute('href')).toBe('/assets/skills-schools-v1/hong_lien.png');
+      act(() => tenth.click());
+      act(() => host.querySelectorAll<HTMLButtonElement>('.skill-loadout button')[3].click());
+      act(() => host.querySelector<HTMLButtonElement>('[data-action="assign"]')!.click());
+      expect(skillLoadout(gameStore.getState().player)[3]).toBe('hong_lien_10');
+      expect(host.querySelectorAll('.skill-bar [data-skill]')).toHaveLength(8);
+      expect(host.querySelector('.skill-bar [data-skill="hong_lien_10"]')).not.toBeNull();
+    } finally {
+      act(() => root.unmount()); gameStore.setState(previous);
+    }
+  });
   it('changes a selected slot through actual menu buttons and immediately updates combat controls', () => {
     const host = document.createElement('div'),
       root = createRoot(host),
@@ -45,14 +63,14 @@ describe('skill selection and in-panel crafting', () => {
       expect(skillLoadout(gameStore.getState().player)[2]).toBe('hoa_ma_chi');
       expect(host.querySelector('.skill-assignment')?.textContent).toContain('ô 3');
       expect(host.querySelector('.skill-bar [data-skill="hoa_ma_chi"]')).not.toBeNull();
-      expect(host.querySelectorAll('.skill-bar [data-skill]')).toHaveLength(5);
+      expect(host.querySelectorAll('.skill-bar [data-skill]')).toHaveLength(8);
       act(() => slots[1].click());
       const swap = host.querySelector<HTMLButtonElement>(
         '.cult-skill-detail[data-skill="hoa_ma_chi"] [data-action="assign"]',
       )!;
       act(() => swap.click());
       expect(skillLoadout(gameStore.getState().player)[1]).toBe('hoa_ma_chi');
-      expect(new Set(skillLoadout(gameStore.getState().player)).size).toBe(4);
+      expect(new Set(skillLoadout(gameStore.getState().player)).size).toBe(7);
     } finally {
       act(() => root.unmount());
       gameStore.setState(previous);

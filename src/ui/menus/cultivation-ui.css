@@ -2005,7 +2005,14 @@
 .cult-skill-glyph.hero-spell-glyph>svg{display:block;width:100%;height:100%}
 .cult-preview-roster-spell{position:absolute;left:20%;top:2%;width:76%;height:95%;opacity:.65;pointer-events:none;transform:scale(.85);filter:drop-shadow(0 0 7px #70b8ff55)}
 .cult-preview-roster-spell.self{left:0;width:45%}
-.cult-skill-preview.playing .cult-preview-roster-spell{animation:hero-preview-cast 950ms ease-out both}
+.cult-skill-preview.playing .cult-preview-roster-spell{transform:scale(1)}
 .cult-preview-hero.roster-preview-hero{height:100%;width:44%;bottom:0}
 @keyframes hero-preview-cast{0%{opacity:0;transform:scale(.5)}35%{opacity:1;transform:scale(1)}65%{opacity:1;transform:scale(1.03)}100%{opacity:.45;transform:scale(.85)}}
 @media(prefers-reduced-motion:reduce){.cult-skill-preview.playing .cult-preview-roster-spell{animation:none}}
+
+.cult-loadout.skill-loadout{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 30px;gap:4px}
+.cult-loadout.skill-loadout .cult-skill-glyph{max-width:100%}
+.cult-loadout.skill-loadout .cult-fixed-dash{width:auto}
+.cult-profile-skills > div{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.cult-profile-skills > div > button{min-width:0}
+.cult-profile-skills .cult-skill-glyph{max-width:100%}

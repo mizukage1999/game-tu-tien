@@ -702,3 +702,109 @@
     height: 49px;
   }
 }
+
+/* Six equipped skills: preserve the inner ring, add three buttons on the outer ring. */
+.hud-v5 .skill-bar {
+  width: 350px;
+  height: 325px;
+}
+.skill-orbits {
+  position: absolute;
+  right: -1.5px;
+  bottom: 3px;
+  width: 350px;
+  height: 325px;
+  pointer-events: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 2px #ffe1a0aa);
+}
+.hud-v5 .pos-s4,
+.hud-v5 .pos-s5,
+.hud-v5 .pos-s6 {
+  width: 58px;
+  height: 58px;
+}
+.hud-v5 .pos-s4 {
+  right: 171px;
+  bottom: 18px;
+}
+.hud-v5 .pos-s5 {
+  right: 157px;
+  bottom: 122px;
+}
+.hud-v5 .pos-s6 {
+  right: 71px;
+  bottom: 187px;
+}
+.hud-v5 .pos-dash {
+  right: 253px;
+  bottom: 85px;
+}
+.hud-v5 .pos-potion {
+  right: 257px;
+  bottom: 4px;
+}
+.hud-v5 .target-btn {
+  right: 269px;
+  bottom: 161px;
+}
+.hud-v5 .auto-btn,
+.hud-v5 .flight-btn {
+  bottom: 273px;
+}
+.hud-v5.phone .skill-bar {
+  width: 280px;
+  height: 260px;
+}
+.hud-v5.phone .skill-orbits {
+  width: 280px;
+  height: 260px;
+  right: 0;
+  bottom: 0;
+}
+.hud-v5.phone .pos-s4,
+.hud-v5.phone .pos-s5,
+.hud-v5.phone .pos-s6 {
+  width: 44px;
+  height: 44px;
+}
+.hud-v5.phone .pos-s4 {
+  right: 144px;
+  bottom: 13px;
+}
+.hud-v5.phone .pos-s5 {
+  right: 129px;
+  bottom: 94px;
+}
+.hud-v5.phone .pos-s6 {
+  right: 61px;
+  bottom: 145px;
+}
+.hud-v5.phone .pos-dash {
+  right: 213px;
+  bottom: 63px;
+  width: 38px;
+  height: 38px;
+}
+.hud-v5.phone .pos-potion {
+  right: 222px;
+  bottom: 4px;
+}
+.hud-v5.phone .target-btn {
+  right: 220px;
+  bottom: 119px;
+  width: 30px;
+  height: 30px;
+}
+.hud-v5.phone .auto-btn,
+.hud-v5.phone .flight-btn {
+  bottom: 203px;
+}
+
+@media (max-width: 740px) {
+  .hud-v5.phone .hud-bottom-center,
+  .hud-v5.phone.turned .hud-bottom-center {
+    left: 43%;
+    width: min(200px, 28%);
+  }
+}

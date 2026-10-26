@@ -630,3 +630,12 @@
     max-width: 46px;
   }
 }
+
+/* Seven combat buttons plus dash remain reachable on small landscape screens. */
+@container duel-screen (max-width:800px){
+  .duel-abilities{gap:5px}
+  .duel-abilities button{width:38px;height:38px}
+  .duel-abilities button.basic{width:44px;height:44px}
+  .duel-abilities button.dash{width:34px;height:34px}
+  .duel-mp small{display:none}
+}

@@ -100,7 +100,7 @@ function duelist(value: unknown): Duelist | null {
             (id): id is SkillId =>
               typeof id === 'string' && Object.prototype.hasOwnProperty.call(SKILLS, id),
           )
-          .slice(0, 4)
+          .slice(0, 7)
       : undefined,
     skillLevels:
       raw.skillLevels && typeof raw.skillLevels === 'object'

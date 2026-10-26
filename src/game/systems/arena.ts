@@ -135,7 +135,7 @@ export function validateArenaSnapshot(raw: unknown, nonce: string): raw is Arena
         f.mp <= f.maxMp &&
         Array.isArray(f.loadout) &&
         f.loadout.length >= 1 &&
-        f.loadout.length <= 4 &&
+        f.loadout.length <= 7 &&
         new Set(f.loadout).size === f.loadout.length &&
         f.loadout.every(
           (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(SKILLS, id),
@@ -347,6 +347,7 @@ export class ArenaEngine {
     if (f.rootUntil > s.elapsed) return;
     if ((id !== 'than_phap' && !allowed.includes(id)) || (f.cooldowns[id] ?? 0) > s.elapsed) return;
     const sk = effectiveSkill(id, f.skillLevels?.[id] ?? 1);
+    const spell = heroSpell(id);
     if (sk.hero && (sk.hero !== heroFor(f).id || f.level < (sk.unlockLevel ?? 1))) return;
     if (f.mp < sk.mpCost) return;
     f.mp -= sk.mpCost;
@@ -368,21 +369,21 @@ export class ArenaEngine {
       return;
     }
     if (sk.kind === 'heal' || sk.kind === 'shield') {
-      s.effects.push({id:++this.effect,owner:f.userId,x:f.x,y:f.y,dx:f.dx,dy:f.dy,range:0,arc:0,kind:'circle',ready:s.elapsed,expires:s.elapsed+900,damage:0,resolved:true,skill:id});
+      s.effects.push({id:++this.effect,owner:f.userId,x:f.x,y:f.y,dx:f.dx,dy:f.dy,range:0,arc:0,kind:'circle',ready:s.elapsed,expires:s.elapsed+(spell?.duration ?? 900),damage:0,resolved:true,skill:id});
     }
     if (sk.kind === 'heal') {
-      f.hp = Math.min(f.maxHp, f.hp + Math.round(f.maxHp * 0.24));
+      f.hp = Math.min(f.maxHp, f.hp + Math.round(f.maxHp * (spell?.healFraction ?? 0.24)));
       return;
     }
     if (sk.kind === 'shield') {
-      f.shield = Math.round(f.maxHp * 0.35);
-      f.shieldUntil = s.elapsed + 6000;
+      f.shield = Math.round(f.maxHp * (spell?.shieldFraction ?? 0.35));
+      f.shieldUntil = s.elapsed + (spell?.shieldMs ?? 6000);
       return;
     }
     const painted = wangEffect(id);
     const circle = id === 'han_bang_tran' || sk.kind === 'nova',
       line = id === 'phi_kiem' || sk.kind === 'projectile',
-      windup = id === 'basic' ? 150 : heroSpell(id) || line ? 400 : 600;
+      windup = id === 'basic' ? 150 : spell?.windupMs ?? (line ? 400 : 600);
     s.effects.push({
       id: ++this.effect,
       owner: f.userId,
@@ -396,7 +397,7 @@ export class ArenaEngine {
       ready: s.elapsed + windup,
       expires:
         s.elapsed +
-        Math.max(windup + 600, (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
+        Math.max(windup + 600, spell?.duration ?? (painted?.duration ?? 0) + (id === 'dinh_than_thuat' ? windup : 0)),
       damage: f.atk * sk.multiplier,
       skill: id,
       resolved: false,

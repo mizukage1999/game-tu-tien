@@ -9,6 +9,7 @@ import {
   parseRoster,
   pruneStale,
   shouldPublish,
+  uniqueWorldPlayers,
   type Pose,
   type RemotePlayerState,
   type Sex,
@@ -50,8 +51,8 @@ export function joinWorldChannel(
 ): WorldChannel | null {
   if (!client) return null;
 
-  // Unique per connection: the same account open in two tabs is two bodies, and we
-  // must still be able to filter out exactly our own connection.
+  // Unique per connection while the global account lease removes the prior session.
+  // Rejoining another map must still be distinguishable from an old connection.
   const selfKey = `${opts.userId}:${Math.random().toString(36).slice(2, 8)}`;
   const joinedAt = Date.now();
   const elect = () =>
@@ -81,7 +82,7 @@ export function joinWorldChannel(
   const readPresence = () => {
     if (closed) return;
     const state = channel.presenceState() as Record<string, unknown[] | undefined>;
-    roster = mergePresence(roster, parseRoster(state, selfKey, Date.now()));
+    roster = uniqueWorldPlayers(mergePresence(roster, parseRoster(state, selfKey, Date.now())), opts.userId);
     authority = elect();
     emit();
   };

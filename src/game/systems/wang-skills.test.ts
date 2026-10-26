@@ -46,7 +46,7 @@ describe('Wương Lâm signature skills', () => {
         serialize({ player: p, quests: {}, mapId: 'dai_thua_vien', pos: null }),
       )!;
       expect(skillLoadout(loaded.player)[2]).toBe(id);
-      expect(skillLoadout(loaded.player)).toHaveLength(4);
+      expect(skillLoadout(loaded.player)).toHaveLength(7);
       expect(skillLoadout(loaded.player)[0]).toBe('basic');
     }
     expect(chooseSkill(newPlayer({ sex: 'female' }), 1, 'hoa_ma_chi')).toBeNull();

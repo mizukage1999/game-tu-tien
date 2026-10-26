@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { register, signIn, signInGuest, type AuthResult } from '../net/auth';
 import type { RegisterMode } from '../net/identity';
 import { EntryScreen } from './EntryScreen';
+import { getAccountState } from '../net/session';
 
 type Tab = 'guest' | 'login' | 'register';
 
@@ -18,7 +19,7 @@ export function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() => getAccountState().error ?? '');
 
   const run = async (action: () => Promise<AuthResult>, allowOffline = false) => {
     if (busy) return;

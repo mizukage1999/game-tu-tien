@@ -1,5 +1,7 @@
 # Nhân vật và tỷ võ · V7
 
+> Bản nâng cấp kỹ năng hiện tại: [10 chiêu mỗi phái và 320 khung sprite](school-skills-v1.md). Phần dưới ghi lại bản V7 với 5 chiêu/phái.
+
 Màn chọn nhân vật dùng nền sơn môn buổi tối, tám thẻ chân dung, hình toàn thân, thông tin pháp môn và năm kỹ năng có thể xem trước. Người chơi đặt tên rồi vào Vương Gia Thôn. Chọn Vương Lâm hoặc Lý Mộ Uyển vẫn giữ phần tuổi thơ đã có.
 
 | Nhân vật | Pháp môn | Sắc hiệu ứng |

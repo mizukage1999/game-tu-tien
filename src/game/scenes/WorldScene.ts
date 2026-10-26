@@ -682,6 +682,9 @@ export class WorldScene extends Phaser.Scene {
     on('TWO', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[1]));
     on('THREE', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[2]));
     on('FOUR', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[3]));
+    on('FIVE', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[4]));
+    on('SIX', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[5]));
+    on('SEVEN', () => this.player.castSkill(skillLoadout(gameStore.getState().player)[6]));
     on('SHIFT', () => this.player.dash());
     on('E', () => this.interact());
     on('F', () => this.toggleMeditate());
@@ -1467,9 +1470,9 @@ export class WorldScene extends Phaser.Scene {
     if (spell) {
       const from = {x:p.x,y:p.y}, facing = {...f};
       this.vfx.heroSpell(id,from,facing,sk.range);
-      if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*.24),0);return;}
-      if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*.35),6000);return;}
-      this.time.delayedCall(400,()=>{
+      if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*spell.healFraction),0);return;}
+      if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*spell.shieldFraction),spell.shieldMs);return;}
+      this.time.delayedCall(spell.windupMs,()=>{
         if(p.life.status!=='alive')return;
         for(const m of this.monsters)if(m.alive && heroSpellHit(spell.shape,from,facing,sk.range,sk.arc,m)){
           this.damageMonster(m,sk.multiplier);

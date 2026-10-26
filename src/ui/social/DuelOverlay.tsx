@@ -100,6 +100,8 @@ export function DuelOverlay() {
           '4',
           'shift',
           '5',
+          '6',
+          '7',
           ' ',
           'escape',
         ].includes(k)
@@ -112,8 +114,8 @@ export function DuelOverlay() {
         keys.current.add(k);
         const me = live.current?.snapshot.fighters.find((p) => p.userId === live.current?.localId),
           loadout = me?.loadout ?? DEFAULT_LOADOUT;
-        if ('1234'.includes(k)) cast.current = loadout[Number(k) - 1];
-        if (k === 'shift' || k === '5') cast.current = 'than_phap';
+        if ('1234567'.includes(k)) cast.current = loadout[Number(k) - 1] ?? null;
+        if (k === 'shift') cast.current = 'than_phap';
         if (k === ' ' && loadout.includes('basic')) cast.current = 'basic';
         if (k === 'escape') closeArena();
       }
@@ -302,7 +304,7 @@ export function DuelOverlay() {
           </div>
           <span className="duel-mp">
             MP {Math.floor(me.mp)}/{me.maxMp}
-            <small>Kéo sân để di chuyển · WASD / 1–4</small>
+            <small>Kéo sân để di chuyển · WASD / 1–7 · Shift lướt</small>
           </span>
           <div className="duel-abilities">
             {[...loadout, 'than_phap' as const].map((id, i) => {

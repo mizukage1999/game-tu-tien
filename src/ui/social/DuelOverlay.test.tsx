@@ -73,7 +73,7 @@ it('lets the result return button receive a tap instead of capturing it as arena
     expect(capture).not.toHaveBeenCalled();
     act(() => button.click());
     expect(closeArena).toHaveBeenCalledOnce();
-    expect(host.querySelectorAll('.duel-abilities button')).toHaveLength(5);
+    expect(host.querySelectorAll('.duel-abilities button')).toHaveLength(8);
     expect(host.querySelector('.duel-leave')).not.toBeNull();
   } finally {
     act(() => root.unmount());

@@ -10,7 +10,7 @@ vi.mock('../game/art/icons', () => ({
 }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 describe('selected combat controls', () => {
-  it('keeps four combat buttons plus a separate dash while selected skills change', () => {
+  it('keeps seven combat buttons plus a separate dash while selected skills change', () => {
     const host = document.createElement('div'),
       root = createRoot(host);
     const previous = gameStore.getState();
@@ -18,14 +18,14 @@ describe('selected combat controls', () => {
     gameStore.setState({ player });
     try {
       act(() => root.render(<SkillBar />));
-      expect(host.querySelectorAll('[data-skill]')).toHaveLength(5);
+      expect(host.querySelectorAll('[data-skill]')).toHaveLength(8);
       expect(host.querySelector('[data-skill="basic"]')).not.toBeNull();
       expect(host.querySelector('[data-skill="than_phap"]')?.classList.contains('pos-dash')).toBe(
         true,
       );
       expect(host.querySelector('.flight-btn')).not.toBeNull();
       act(() => gameStore.getState().chooseSkill(1, 'moc_linh'));
-      expect(host.querySelectorAll('[data-skill]')).toHaveLength(5);
+      expect(host.querySelectorAll('[data-skill]')).toHaveLength(8);
       expect(host.querySelector('[data-skill="moc_linh"]')).not.toBeNull();
       act(() => gameStore.setState({ cooldowns: { moc_linh: 8000 } }));
       expect(host.querySelector('[data-skill="moc_linh"]')?.classList.contains('cooling')).toBe(

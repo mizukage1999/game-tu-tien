@@ -5,7 +5,7 @@ import { wangEffect } from '../../data/wangSkills';
 import type { SkillId } from '../../data';
 import { heroSpell, spellVisualId } from '../../data/heroSkills';
 import type { HeroId } from '../../data/heroes';
-import { SPELL_TEXTURE } from '../art/heroRoster';
+import { spellFrame, spellTexture } from '../../data/heroSpellArt';
 
 const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
 
@@ -19,17 +19,29 @@ export class SkillVfx {
 
   heroSpell(id: SkillId, from: Vec2, facing: Vec2, range: number) {
     const art = heroSpell(id);
-    if (!art || !this.scene.textures.exists(SPELL_TEXTURE)) return;
+    if (!art || !this.scene.textures.exists(spellTexture(art.hero))) return;
     const directed = art.shape === 'line' || art.shape === 'cone';
     const center = directed ? {x:from.x+facing.x*range*.5,y:from.y+facing.y*range*.5} : from;
     const spot=iso(center.x,center.y), vector=isoVector(facing.x,facing.y);
-    const effect=this.scene.add.image(spot.x,spot.y-20,SPELL_TEXTURE,id).setDepth(spot.y+180);
+    const effect=this.scene.add.image(spot.x,spot.y-20,spellTexture(art.hero),`${id}:0`).setDepth(spot.y+180);
     if(directed)effect.setDisplaySize(range*Math.hypot(vector.x,vector.y),art.shape==='line'?95:150).setRotation(Math.atan2(vector.y,vector.x));
     else effect.setDisplaySize(art.shape==='self'?175:range*2.8,art.shape==='self'?190:range*1.8);
-    const sx=effect.scaleX,sy=effect.scaleY;effect.setScale(sx*.65,sy*.65).setAlpha(0);
-    this.scene.tweens.add({targets:effect,alpha:1,scaleX:sx,scaleY:sy,duration:230,onComplete:()=>{
-      this.scene.tweens.add({targets:effect,alpha:0,duration:500,delay:150,onComplete:()=>effect.destroy()});
-    }});
+    // Authored windup / release / impact / dissolve frames replace the single stretched image.
+    // Directional motifs point right in the atlas and rotate with the projected facing vector.
+    const sx=effect.scaleX,sy=effect.scaleY;
+    this.scene.tweens.addCounter({from:0,to:art.duration,duration:art.duration,
+      onUpdate: tween => {
+        const age=tween.getValue()??0, progress=age/art.duration;
+        effect.setFrame(`${id}:${spellFrame(art.id,age)}`);
+        effect.setAlpha(Math.min(1,age/100,(art.duration-age)/180));
+        const scale=art.motion==='bloom' ? .75+.25*Math.min(1,age/art.windupMs)
+          : art.motion==='ward' ? .92+.08*Math.sin(progress*Math.PI) : 1;
+        effect.setScale(sx*scale,sy*scale);
+        if(art.motion==='travel') {
+          const advance=(Math.min(1,age/art.windupMs)-1)*range*.35;
+          effect.setPosition(spot.x+vector.x*advance,spot.y-20+vector.y*advance);
+        }
+      },onComplete:()=>effect.destroy()});
   }
 
   signature(id: SkillId, from: Vec2, facing: Vec2, range: number) {

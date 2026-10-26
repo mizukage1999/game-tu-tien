@@ -96,7 +96,7 @@ describe('painted opponent card', () => {
     expect(host.textContent).toContain('+12 / 12');
     act(() => button('Kỹ năng').click());
     expect(host.textContent).toContain('Hỏa Ma Chỉ');
-    expect(host.querySelectorAll('.inspect-skill-grid .equipped')).toHaveLength(5);
+    expect(host.querySelectorAll('.inspect-skill-grid .equipped')).toHaveLength(8);
     expect(gameStore.getState().player).toEqual(local);
     act(() => button('Tổng quan').click());
     act(() => button('Xem so sánh thuộc tính ⇄').click());

@@ -56,14 +56,14 @@ describe('enhancement stones and +12 cap', () => {
     );
   });
 });
-describe('four selected combat skills and independent dash', () => {
+describe('seven selected combat skills and independent dash', () => {
   it('migrates old dash slots and fixes the basic attack in slot one', () => {
     const p = {
       ...newPlayer(),
       skillLoadout: ['phi_kiem', 'than_phap', 'basic', 'bang_tam_tram'] as const,
     };
     const slots = skillLoadout({ ...p, skillLoadout: [...p.skillLoadout] });
-    expect(slots).toHaveLength(4);
+    expect(slots).toHaveLength(7);
     expect(slots[0]).toBe('basic');
     expect(slots).not.toContain('than_phap');
     expect(chooseSkill({ ...p, skillLoadout: [...p.skillLoadout] }, 0, 'phi_kiem')).toBeNull();

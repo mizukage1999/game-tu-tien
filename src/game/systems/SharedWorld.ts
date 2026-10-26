@@ -175,8 +175,9 @@ export class SharedWorld {
       )
         return;
       const sk = effectiveSkill(e.skill, actor.combat.skills[e.skill] ?? 1);
+      const spell = heroSpell(e.skill);
       if (e.skill !== 'than_phap' && !actor.combat.loadout.includes(e.skill)) return;
-      if (sk.hero && sk.hero !== heroFor(actor).id) return;
+      if (sk.hero && (sk.hero !== heroFor(actor).id || actor.combat.level < (sk.unlockLevel ?? 1))) return;
       const cdKey = `${from}:${e.skill}`,
         now = Date.now();
       if ((this.cooldowns.get(cdKey) ?? 0) > now) return;
@@ -189,14 +190,14 @@ export class SharedWorld {
           if (remote.userId === actor.userId) remote.cast(e.skill, dir);
       if (from === this.channel.selfKey) {
         if (sk.kind === 'heal')
-          gameStore.getState().restore(Math.round(actor.combat.maxHp * 0.24), 0);
-        if (sk.kind === 'shield') w.player.grantShield(Math.round(actor.combat.maxHp * 0.35), 6000);
+          gameStore.getState().restore(Math.round(actor.combat.maxHp * (spell?.healFraction ?? 0.24)), 0);
+        if (sk.kind === 'shield') w.player.grantShield(Math.round(actor.combat.maxHp * (spell?.shieldFraction ?? 0.35)), spell?.shieldMs ?? 6000);
       }
       if (!this.authority || e.skill === 'than_phap' || sk.kind === 'heal' || sk.kind === 'shield')
         return;
       if (e.skill === 'dao_hoa_hoang_tuyen')
         for (let i = 1; i <= 8; i++) w.time.delayedCall(i * 500, () => this.resolve(e, actor));
-      else w.time.delayedCall(e.skill === 'basic' ? 0 : 400, () => this.resolve(e, actor));
+      else w.time.delayedCall(e.skill === 'basic' ? 0 : spell?.windupMs ?? 400, () => this.resolve(e, actor));
       return;
     }
     if (e.t === 'aux-hit') {

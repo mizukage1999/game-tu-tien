@@ -121,6 +121,19 @@ export function parseRoster(
   return roster;
 }
 
+/** Hide closing connections immediately while the global lease logs out the old tab. */
+export function uniqueWorldPlayers(roster: RemotePlayerState[], selfUserId: string) {
+  const players = new Map<string, RemotePlayerState>();
+  for (const player of roster) {
+    if (player.userId === selfUserId) continue;
+    const previous = players.get(player.userId);
+    if (!previous || (player.joinedAt ?? 0) > (previous.joinedAt ?? 0) ||
+      ((player.joinedAt ?? 0) === (previous.joinedAt ?? 0) && player.key > previous.key))
+      players.set(player.userId, player);
+  }
+  return [...players.values()];
+}
+
 /**
  * A presence sync only re-reads identity, and it carries the pose each client tracked
  * when it joined. Taking that pose would snap everyone back to their spawn point

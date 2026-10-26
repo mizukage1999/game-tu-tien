@@ -4,9 +4,10 @@ import { heroDefaultLoadout } from '../../data/heroSkills';
 import { heroFor } from '../../data/heroes';
 
 export const DASH_SKILL: SkillId = 'than_phap';
+export const COMBAT_SLOTS = 7;
 export const DEFAULT_LOADOUT: SkillId[] = ['basic', 'bang_tam_tram', 'phi_kiem', 'han_bang_tran'];
 export function skillLoadout(p: PlayerSave): SkillId[] {
-  const defaults = p.heroId ? heroDefaultLoadout(p.heroId) : DEFAULT_LOADOUT;
+  const defaults = p.heroId ? heroDefaultLoadout(p.heroId) : [...DEFAULT_LOADOUT, ...heroDefaultLoadout(heroFor(p).id)];
   const selected: SkillId[] = [
     'basic',
     ...(p.skillLoadout ?? defaults).filter(
@@ -19,8 +20,8 @@ export function skillLoadout(p: PlayerSave): SkillId[] {
     ),
   ];
   for (const id of defaults)
-    if (selected.length < 4 && !selected.includes(id)) selected.push(id);
-  return selected.slice(0, 4);
+    if (selected.length < COMBAT_SLOTS && !selected.includes(id) && skillUnlocked(p, id)) selected.push(id);
+  return selected.slice(0, COMBAT_SLOTS);
 }
 export function skillUnlocked(p: PlayerSave, id: SkillId) {
   return skillLockReason(p, id) === null;
@@ -39,7 +40,7 @@ export function chooseSkill(p: PlayerSave, slot: number, id: SkillId): PlayerSav
   if (
     !Number.isInteger(slot) ||
     slot < 1 ||
-    slot > 3 ||
+    slot >= COMBAT_SLOTS ||
     id === 'basic' ||
     id === DASH_SKILL ||
     !skillUnlocked(p, id)
