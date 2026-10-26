@@ -5,7 +5,9 @@ export function isChildhood(player: Pick<PlayerSave, 'origin' | 'admitted'>) {
 }
 
 export function heroName(player: PlayerSave) {
-  return usesChildSprite(player) && (!player.heroId || player.heroId==='wang_lam'||player.heroId==='ly_mo_uyen') ? player.sex === 'female' ? 'Mộ Uyển' : 'Thiết Trụ' : player.name;
+  // Story dialogue can retain childhood aliases, but visible multiplayer names
+  // must always use the unique identity chosen by the player.
+  return player.name;
 }
 
 export function usesChildSprite(player: Pick<PlayerSave, 'origin' | 'admitted' | 'heroId'>) {

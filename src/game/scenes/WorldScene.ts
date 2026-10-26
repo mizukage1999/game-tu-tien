@@ -27,7 +27,7 @@ import { SkillVfx } from '../fx/SkillVfx';
 import { getMap } from '../maps';
 import type { MapDef, PortalDef, WorldPoint } from '../maps/MapBuilder';
 import { computeDamage, inAttackArc } from '../systems/combat';
-import { meditateGain, zoneAt, type ZoneDef } from '../systems/cultivation';
+import { meditateGain, tribulationPlan, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
 import { rollDungeonGear } from '../systems/loot';
 import { questDestination, routeOnMap, trackedQuest, trackQuest, trackTravel, trackedTravel, type QuestStop } from '../systems/questNav';
@@ -958,16 +958,38 @@ export class WorldScene extends Phaser.Scene {
 
   private updateTribulation(dt:number){
     const s=gameStore.getState(),trial=s.tribulation;if(!trial||s.status!=='alive')return;
-    const remaining=Math.max(0,trial.remaining-dt),strikes=Math.min(4,Math.floor((18000-remaining)/3500));
+    if (this.player.meditating) this.player.stopMeditate();
+    const plan = tribulationPlan(trial.realm);
+    // Background tabs cannot skip the trial or resolve several unseen waves at once.
+    const remaining=Math.max(0,trial.remaining-Math.min(100,Math.max(0,dt)));
+    const strikes=Math.min(plan.waves,Math.floor((plan.durationMs-remaining)/plan.intervalMs));
     s.patch({tribulation:{...trial,remaining,strikes}});
     if(strikes>trial.strikes){
-      const target={x:this.player.x,y:this.player.y},spot=iso(target.x,target.y),radius=88;
-      const warning=this.add.graphics().setDepth(spot.y-2).fillStyle(0xff5252,.2).fillEllipse(spot.x,spot.y,radius*3.4,radius*1.7).lineStyle(2,0xffdc78).strokeEllipse(spot.x,spot.y,radius*3.4,radius*1.7);
-      this.time.delayedCall(1050,()=>{
-        warning.destroy();if(!gameStore.getState().tribulation)return;
-        this.vfx.frostNova(target,radius);this.cameras.main.flash(100,190,205,255);
-        if(Math.hypot(this.player.x-target.x,this.player.y-target.y)<radius)this.player.takeHit(Math.round(s.stats.maxHp*.32),false,target);
-      });
+      for (let i=0;i<plan.threats;i++) {
+        const angle=strikes*1.7+i*Math.PI;
+        const offset=i===0?0:plan.radius*1.9;
+        const target={x:this.player.x+Math.cos(angle)*offset,y:this.player.y+Math.sin(angle)*offset};
+        const spot=iso(target.x,target.y),radius=plan.radius;
+        const warning=this.add.graphics().setDepth(spot.y-2)
+          .fillStyle(0xff5252,.22).fillEllipse(spot.x,spot.y,radius*2*Math.SQRT2,radius*Math.SQRT2)
+          .lineStyle(2,0xffdc78).strokeEllipse(spot.x,spot.y,radius*2*Math.SQRT2,radius*Math.SQRT2);
+        this.time.delayedCall(plan.warningMs,()=>{
+          warning.destroy();
+          const current=gameStore.getState();
+          if(!current.tribulation||current.tribulation.id!==trial.id||current.status!=='alive')return;
+          const bolt=this.add.graphics().setDepth(spot.y+300).setBlendMode(Phaser.BlendModes.ADD);
+          const points=Array.from({length:9},(_,n)=>({x:spot.x+(n===8?0:Math.sin(n*13+strikes)*19),y:spot.y-240+n*30}));
+          for(const [width,color] of [[9,0x529bff],[3,0xffedbd]] as const){
+            bolt.lineStyle(width,color,.9).beginPath().moveTo(points[0].x,points[0].y);
+            points.slice(1).forEach(p=>bolt.lineTo(p.x,p.y));bolt.strokePath();
+          }
+          bolt.lineStyle(3,0xffe7a3).strokeEllipse(spot.x,spot.y,radius*1.8,radius*.9);
+          this.tweens.add({targets:bolt,alpha:0,duration:480,onComplete:()=>bolt.destroy()});
+          this.cameras.main.flash(80,160,185,255);
+          if(Math.hypot(this.player.x-target.x,this.player.y-target.y)<radius)
+            this.player.takeHit(Math.round(current.stats.maxHp*plan.damagePct),false,target);
+        });
+      }
     }
     if(!remaining)s.finishTribulation(true);
   }

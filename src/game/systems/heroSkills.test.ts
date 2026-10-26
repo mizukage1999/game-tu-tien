@@ -30,9 +30,7 @@ describe('eight character schools', () => {
       };
       const original = hero.id === 'wang_lam' || hero.id === 'ly_mo_uyen';
       expect(usesChildSprite(p)).toBe(true);
-      expect(heroName(p)).toBe(
-        original ? (hero.sex === 'male' ? 'Thiết Trụ' : 'Mộ Uyển') : hero.name,
-      );
+      expect(heroName(p)).toBe(hero.name);
       if (!original) expect(originText('Thiết Trụ, đi nào!', p)).toBe(`${hero.name}, đi nào!`);
     }
   });

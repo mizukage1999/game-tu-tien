@@ -29,6 +29,7 @@ import type { LifeStatus } from '../game/systems/respawn';
 import type { Vec2 } from '../game/types';
 import { ADMISSION_QUEST, PROLOGUE_ORDER } from '../data/world';
 import { isChildhood } from '../game/systems/origin';
+import { breakthroughBlocker, tribulationPlan } from '../game/systems/cultivation';
 import { heroFor, type HeroId } from '../data/heroes';
 import { heroDefaultLoadout } from '../data/heroSkills';
 import { advanceLife, lifeProgress, performLifeAction, type LifeAction } from '../game/systems/life';
@@ -126,7 +127,7 @@ export interface GameState {
   dungeonReturn: { mapId: string; pos: Vec2 } | null;
   /** Other humans on this map right now (online builds only). */
   online: number;
-  tribulation: {realm:number;strikes:number;remaining:number}|null;
+  tribulation: {realm:number;strikes:number;remaining:number;id?:string}|null;
 
   addLog(text: string, channel?: LogChannel): void;
   toast(text: string, kind?: ToastKind): void;
@@ -482,7 +483,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const s = get();
       if (s.status !== 'alive') return;
       if(s.tribulation)return s.toast('Thiên kiếp đang diễn ra.','warn');
-      if(!['dai_thua_vien','linh_son_tong'].includes(s.mapId))return s.toast('Hãy về Linh Đài trong tông môn để độ kiếp.','warn');
+      const blocked = breakthroughBlocker(s.player, s.mapId, s.status === 'alive');
+      if (blocked) return s.toast(blocked, 'warn');
       const check = checkBreakthrough(s.player, s.player.linhKhi, s.player.inventory.linh_thach ?? 0);
       if (!check.ok) {
         s.toast(check.reason, 'warn');
@@ -493,8 +495,10 @@ export const gameStore = createStore<GameState>()((set, get) => {
         return;
       }
       s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach, pha_canh_dan: 1 });
-      set({tribulation:{realm:s.player.realmIndex,strikes:0,remaining:18000},auto:false,menu:null});
-      s.toast('Thiên kiếp giáng lâm! Né vùng sét và sống sót qua 4 đợt.','realm');
+      const plan = tribulationPlan(s.player.realmIndex);
+      s.selectMount(null);
+      set({tribulation:{realm:s.player.realmIndex,strikes:0,remaining:plan.durationMs,id:crypto.randomUUID()},auto:false,menu:null});
+      s.toast(`Thiên kiếp giáng lâm! Né vùng sét và sống sót qua ${plan.waves} đợt.`, 'realm');
     },
 
     craftPill(id) {
@@ -714,7 +718,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
     finishTribulation(success){
       const s=get(),trial=s.tribulation;if(!trial)return;
-      if(success&&(trial.remaining>0||trial.strikes<4))return;
+      if(success&&(trial.remaining>0||trial.strikes<tribulationPlan(trial.realm).waves))return;
       set({tribulation:null});
       if(!success)return s.toast('Độ kiếp thất bại. Hãy chuẩn bị lại đan dược và trang bị.','warn');
       if(s.player.realmIndex!==trial.realm||s.status!=='alive')return;

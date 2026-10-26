@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { EventBus } from '../game/EventBus';
 import { npcName, useGame, type Toast } from '../store/gameStore';
 import { onlineEnabled } from '../net/config';
+import { tribulationPlan } from '../game/systems/cultivation';
 
 export function TargetFrame() {
   const t = useGame((s) => s.target);
@@ -42,7 +43,7 @@ export function Toasts() {
     </div>
   );
 }
-export function TribulationOverlay(){const trial=useGame(s=>s.tribulation);if(!trial)return null;return <div className="tribulation-hud panel-glass"><b>THIÊN KIẾP · {Math.ceil(trial.remaining/1000)}s</b><span>{trial.strikes}/4 đợt sét · Di chuyển khỏi vùng đỏ!</span></div>;}
+export function TribulationOverlay(){const trial=useGame(s=>s.tribulation);if(!trial)return null;const plan=tribulationPlan(trial.realm);return <div className="tribulation-hud panel-glass"><b>ϟ THIÊN KIẾP · {Math.ceil(trial.remaining/1000)}s</b><span>{trial.strikes}/{plan.waves} đợt sét · Di chuyển khỏi vùng đỏ!</span><progress value={plan.durationMs-trial.remaining} max={plan.durationMs} aria-label="Tiến trình vượt Thiên Kiếp"/><small>Sống sót hết thiên kiếp mới đột phá thành công.</small></div>;}
 
 export function DownedOverlay() {
   const status = useGame((s) => s.status);

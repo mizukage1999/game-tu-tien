@@ -99,13 +99,18 @@ export async function hydrateFromCloud(userId: string): Promise<void> {
   const cloud = await pullCloudSave(userId);
   if (activeUser !== userId || !activeSessionId(userId)) return;
   const local = loadGame();
-  const winner = pickNewer(local, cloud);
+  let winner = pickNewer(local, cloud);
+  const localWon = !!local && winner === local;
   if (!winner) {
     // Keep a pull error visible instead of overwriting it with a cheerful status.
     if (!lastError) setAccountState({ status: 'idle', error: null });
     return;
   }
+  // The server may have resolved a legacy duplicate name. Progress still merges
+  // by timestamp, but a newer browser cache cannot restore the old duplicate.
+  if (cloud?.player?.name && winner.player.name !== cloud.player.name)
+    winner = { ...winner, player: { ...winner.player, name: cloud.player.name } };
   if (winner !== local) writeSnapshot(winner);
   // The local cache was ahead (played offline or on another tab): push it up.
-  if (local && winner === local) void pushSave(userId, local);
+  if (localWon) void pushSave(userId, winner);
 }

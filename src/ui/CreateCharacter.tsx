@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { NAME_MAX, normalizeName } from '../game/systems/character';
 import { createCharacter } from '../store/gameStore';
 import { HEROES, heroFor, type HeroId } from '../data/heroes';
@@ -6,6 +6,7 @@ import { heroSkillIds } from '../data/heroSkills';
 import { SKILLS } from '../data';
 import { HeroFigure, HeroSpellGlyph, RosterPortrait } from './HeroArt';
 import './character-select.css';
+import { claimCharacterName } from '../net/characterName';
 
 function Radar({ values }: { values: readonly number[] }) {
   const point = (i: number, radius: number) =>
@@ -60,6 +61,8 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
   const [filter, setFilter] = useState('all');
   const [name, setName] = useState('Vương Lâm');
   const [error, setError] = useState('');
+  const [creating, setCreating] = useState(false);
+  const submitting = useRef(false);
   const hero = heroFor({ heroId: selected });
   const [spellIndex, setSpellIndex] = useState(0);
   const spells = heroSkillIds(hero.id),
@@ -84,15 +87,29 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
       </header>
       <form
         className="roster-layout"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
+          if (submitting.current) return;
           const cleaned = normalizeName(name);
           if (!cleaned) {
             setError(`Tên từ 1 đến ${NAME_MAX} ký tự.`);
             return;
           }
-          createCharacter(cleaned, hero.sex, hero.id);
-          onDone();
+          submitting.current = true;
+          setCreating(true);
+          setError('');
+          try {
+            const reserved = await claimCharacterName(cleaned);
+            createCharacter(reserved, hero.sex, hero.id);
+            onDone();
+          } catch (cause) {
+            setError(
+              cause instanceof Error ? cause.message : 'Chưa tạo được nhân vật. Hãy thử lại.',
+            );
+          } finally {
+            submitting.current = false;
+            setCreating(false);
+          }
         }}
       >
         <section className="roster-library" aria-label="Chọn nhân vật">
@@ -108,6 +125,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
               <button
                 key={id}
                 type="button"
+                disabled={creating}
                 aria-pressed={filter === id}
                 onClick={() => setFilter(id)}
               >
@@ -120,6 +138,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
               <button
                 key={h.id}
                 type="button"
+                disabled={creating}
                 data-hero={h.id}
                 className={h.id === hero.id ? 'selected' : ''}
                 aria-pressed={h.id === hero.id}
@@ -191,6 +210,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
                   setError('');
                 }}
                 autoComplete="off"
+                disabled={creating}
               />
             </label>
             {error && (
@@ -198,8 +218,8 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
                 {error}
               </p>
             )}
-            <button className="roster-enter" type="submit">
-              Vào game <span>→</span>
+            <button className="roster-enter" type="submit" disabled={creating} aria-busy={creating}>
+              {creating ? 'Đang giữ tên…' : 'Vào game'} <span>→</span>
             </button>
             <p className="roster-footnote">Đánh thường · 3 chiêu tùy chọn · 1 lướt</p>
           </div>

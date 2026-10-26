@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { HEROES, type HeroId } from '../../data/heroes';
 import { HERO_DIRECTIONS } from './heroDirections';
 import { CHARACTERS, RIGS, frameName } from './generate';
+import { directionalCell, type HERO_ATLASES } from './heroAtlas';
 export const DIRECTIONAL_SOURCES = ['adults', 'children', 'casting'] as const;
 export function directionalArt(id: HeroId, child = false) {
   return `hero-v8-${id}${child ? '-child' : ''}`;
@@ -39,11 +40,13 @@ export function registerDirectionalHeroes(scene: Phaser.Scene) {
         meditate: { frames: 1, frameRate: 1, repeat: -1 },
       },
     };
-    const crop = (image: HTMLImageElement, row: number, col: number) => {
-      const w = Math.floor(image.width / 8),
-        h = Math.floor(image.height / 8),
-        x = Math.round((image.width * col) / 8),
-        y = Math.round((image.height * row) / 8);
+    const crop = (
+      image: HTMLImageElement,
+      row: number,
+      col: number,
+      source: keyof typeof HERO_ATLASES,
+    ) => {
+      const [x, y, w, h] = directionalCell(source, row, col);
       const c = document.createElement('canvas');
       c.width = w;
       c.height = h;
@@ -65,8 +68,12 @@ export function registerDirectionalHeroes(scene: Phaser.Scene) {
       return { image, x: x + l, y: y + t, w: Math.max(1, r - l + 1), h: Math.max(1, b - t + 1) };
     };
     HEROES.forEach((hero, row) => {
-      const idle = HERO_DIRECTIONS.map((_, col) => crop(source, row, col)),
-        cast = HERO_DIRECTIONS.map((_, col) => crop(casting, row, col));
+      const idle = HERO_DIRECTIONS.map((_, col) =>
+          crop(source, row, col, child ? 'children' : 'adults'),
+        ),
+        cast = HERO_DIRECTIONS.map((_, col) =>
+          crop(casting, row, col, child ? 'children' : casting === source ? 'adults' : 'casting'),
+        );
       const scale = Math.min(
         bodyHeight / Math.max(...idle.map((p) => p.h)),
         (cell - 12) / Math.max(...idle.concat(cast).map((p) => p.w)),

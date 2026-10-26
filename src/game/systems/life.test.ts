@@ -51,8 +51,8 @@ function act(p: PlayerSave, action: LifeAction) {
 describe('game calendar',()=>{
   it('keeps identity choices and does not grant EXP for elapsed calendar time',()=>{
     const p=player(),child={...p,admitted:false};
-    expect(heroName(child)).toBe('Mộ Uyển');
-    expect(heroName({...child,sex:'male'})).toBe('Thiết Trụ');
+    expect(heroName(child)).toBe(child.name);
+    expect(heroName({...child,sex:'male'})).toBe(child.name);
     expect(originText('Thiết Trụ ở Vương Gia Thôn',child)).toBe('Mộ Uyển ở Vương Gia Thôn');
     expect(playerStats(advanceLife(p,360*DAY_MS))).toEqual(playerStats(p));
     expect(advanceLife(p,360*DAY_MS).exp).toBe(p.exp);

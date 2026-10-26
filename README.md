@@ -18,6 +18,7 @@ Không cần cấu hình gì thì game chạy **offline** như cũ, tiến trìn
 1. Tạo project tại [supabase.com](https://supabase.com), rồi mở **SQL Editor** và chạy toàn bộ [`supabase/schema.sql`](supabase/schema.sql)
    (bảng `profiles` + `saves`, RLS chỉ cho mỗi người đọc/ghi dữ liệu của mình, trigger tạo hồ sơ, hàm kiểm tra username).
    Sau đó chạy [`supabase/single-session.sql`](supabase/single-session.sql) **trước khi dùng bản client mới**: mỗi tài khoản chỉ có một phiên chơi, đăng nhập sau đẩy phiên cũ ra và chặn phiên cũ ghi đè save. Áp dụng cả khi nâng cấp project đang có; xem [hướng dẫn phiên đăng nhập và HUD](docs/hud-sessions-v1.md).
+   Tiếp tục chạy [`supabase/character-names.sql`](supabase/character-names.sql): giữ tên nhân vật duy nhất toàn server trước khi vào game. Tên trùng cũ được gắn hậu tố, giữ nguyên tiến trình; xem [tên nhân vật và tu luyện mới](docs/cultivation-v2.md).
 2. Trong **Authentication → Sign In / Providers**, bật **Anonymous sign-ins** và tắt **Confirm email**
    (tài khoản đăng ký bằng username dùng email nội bộ `@players.tutien.invalid` nên không nhận được thư xác nhận).
 3. Chép `.env.example` thành `.env.local` và điền hai biến public:

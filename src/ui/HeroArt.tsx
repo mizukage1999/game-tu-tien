@@ -4,6 +4,7 @@ import { heroSpell } from '../data/heroSkills';
 import type { SkillId } from '../data';
 import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
 import { SCHOOL_ART, SCHOOL_SHEET_W, SCHOOL_SHEET_H, spellCell } from '../data/heroSpellArt';
+import { directionalCell, HERO_ATLASES } from '../game/art/heroAtlas';
 
 /** Clip to the atlas cell itself as well as the viewport, including letterboxed SVGs. */
 function AtlasCrop({
@@ -66,15 +67,14 @@ export function HeroDirectionalPose({
   cast?: boolean;
   className?: string;
 }) {
-  const source = child ? 'children' : cast ? 'casting' : 'adults',
-    width = child ? 1284 : cast ? 1536 : 1286,
-    height = child ? 1225 : cast ? 1024 : 1223;
+  const source = child ? 'children' : cast ? 'casting' : 'adults';
+  const { width, height } = HERO_ATLASES[source];
   const col = Math.max(0, HERO_DIRECTIONS.indexOf(direction)),
     row = heroRow(id);
   return (
     <AtlasCrop
       className={`hero-directional-v8 ${className}`}
-      box={[(col * width) / 8, (row * height) / 8, width / 8, height / 8]}
+      box={directionalCell(source, row, col)}
       source={source}
       width={width}
       height={height}
@@ -83,10 +83,11 @@ export function HeroDirectionalPose({
   );
 }
 export function ChildHeroPortrait({ id, className = '' }: { id: HeroId; className?: string }) {
+  const [x, y, width] = directionalCell('children', heroRow(id), 0);
   return (
     <AtlasCrop
       className={`hero-portrait ${className}`}
-      box={[16, (heroRow(id) * 1225) / 8 + 2, 1284 / 8 - 32, 110]}
+      box={[x + 16, y + 2, width - 32, 110]}
       source="children"
       width={1284}
       height={1225}
@@ -102,6 +103,20 @@ export function HeroFigure({ id, className = '' }: { id: HeroId; className?: str
       className={`hero-figure-v7 ${className}`}
       box={[(row % 4) * 384, Math.floor(row / 4) * 512, 384, 512]}
       source="roster"
+      width={1536}
+      height={1024}
+    />
+  );
+}
+
+export function HeroMeditation({ id, className = '' }: { id: HeroId; className?: string }) {
+  const row = heroRow(id);
+  return (
+    <AtlasCrop
+      className={`hero-meditation ${className}`}
+      box={[(row % 4) * 384, Math.floor(row / 4) * 512, 384, 512]}
+      source="meditating-heroes-v2"
+      directory="/assets/ui/cultivation"
       width={1536}
       height={1024}
     />

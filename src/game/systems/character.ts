@@ -9,7 +9,8 @@ export function playerArt(sex: Sex | undefined) {
 
 /** Empty or oversized names are rejected. Extra spaces collapse. */
 export function normalizeName(raw: string): string | null {
-  const name = raw.trim().replace(/\s+/g, ' ');
+  const name = raw.normalize('NFC').trim().replace(/\s+/g, ' ');
   if (name.length < 1 || name.length > NAME_MAX) return null;
+  if (/[\p{Cc}\p{Cf}]/u.test(name)) return null;
   return name;
 }

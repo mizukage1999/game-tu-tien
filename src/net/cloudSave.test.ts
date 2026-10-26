@@ -7,6 +7,7 @@ const fake = vi.hoisted(() => ({
   account: vi.fn(),
   write: vi.fn(),
   maybe: vi.fn(),
+  local: null as SaveData | null,
 }));
 vi.mock('./supabase', () => ({
   supabase: {
@@ -20,12 +21,13 @@ vi.mock('../game/systems/save', () => ({
   setSaveSink: (s: typeof fake.sink) => {
     fake.sink = s;
   },
-  loadGame: () => null,
+  loadGame: () => fake.local,
   writeSnapshot: fake.write,
 }));
 import { attachCloudSync, detachCloudSync, hydrateFromCloud, deleteCloudSave } from './cloudSave';
 beforeEach(() => {
   fake.instance = 'instance-a';
+  fake.local = null;
   fake.rpc.mockReset().mockResolvedValue({ data: true, error: null });
   fake.account.mockClear();
   fake.write.mockClear();
@@ -84,4 +86,18 @@ it('does not hydrate a save that arrives after the player has been logged out', 
   resolve({ data: { data: { savedAt: 3 } as SaveData }, error: null });
   await hydration;
   expect(fake.write).not.toHaveBeenCalled();
+});
+
+it('keeps newer local progress but adopts a server-resolved legacy duplicate name', async () => {
+  const cloud = { savedAt: 10, player: { name: 'Đạo Hữu·1234561', level: 1 } } as SaveData;
+  fake.local = { savedAt: 20, player: { name: 'Đạo Hữu', level: 40 } } as SaveData;
+  fake.maybe.mockResolvedValueOnce({ data: { data: cloud }, error: null });
+  await hydrateFromCloud('user');
+  await settle();
+  const expected = { ...fake.local, player: { ...fake.local.player, name: cloud.player.name } };
+  expect(fake.write).toHaveBeenCalledWith(expected);
+  expect(fake.rpc).toHaveBeenCalledWith('save_game_snapshot', {
+    p_instance_id: 'instance-a',
+    p_snapshot: expected,
+  });
 });

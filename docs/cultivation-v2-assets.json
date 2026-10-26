@@ -1,0 +1,21 @@
+[
+  {
+    "asset": "public/assets/ui/cultivation/training-courtyard-v2.png",
+    "provider": "built-in imagegen",
+    "size": [1536, 1024],
+    "transparent_background": false,
+    "original": "C:/Users/Hoa/.codex/generated_images/01a1676f-f99e-7e62-bf4d-ab13e8996bfc/exec-685004f2-6242-4fc9-978b-f5a2e60ef6a0.png",
+    "prompt": "Create a production game background asset for a Vietnamese xianxia cultivation RPG, inspired by the user's provided cultivation menu references. Asset only, NO UI, NO text, NO numbers, NO logos, NO frames. Wide landscape 3:2. A serene moonlit mountain sect courtyard with a circular ornate stone meditation dais in the lower middle, blue mountains and waterfalls in the distance, elegant dark wooden Chinese pavilions with warm golden lanterns on both sides, blossoming pink plum trees framing the scene, drifting petals. In the center a large luminous jade green mystical mandala with a subtle golden rim floats above the dais, tasteful delicate energy threads and soft light. The dais and mandala are visually clear, central, no humans or animals. Beautiful detailed painted 2.5D fantasy game environment, crisp surfaces and luxurious deep navy teal jade gold color palette, high production value, strong foreground and depth, calm night atmosphere. Leave the bottom quarter of the central dais unobstructed so actual game progress UI can overlay there. No UI glyphs or text."
+  },
+  {
+    "asset": "public/assets/ui/cultivation/meditating-heroes-v2.png",
+    "provider": "built-in imagegen",
+    "size": [1536, 1024],
+    "transparent_background": true,
+    "alpha_verified": true,
+    "grid": [4, 2],
+    "reference": "public/assets/heroes-v7/roster.png",
+    "original": "C:/Users/Hoa/.codex/generated_images/01a1676f-f99e-7e62-bf4d-ab13e8996bfc/exec-74b20c99-4e50-434a-8c6d-ec62cc4a6d62.png",
+    "prompt": "Use the reference ONLY to preserve these exact eight fantasy character identities and outfits in this exact row-major order. Create a NEW transparent game sprite atlas of the same 8 characters in seated cross-legged meditation pose, eyes peacefully closed, hands resting on knees, full seated bodies visible. Exactly FOUR COLUMNS and TWO ROWS, each character isolated in an equal rectangular cell with generous empty transparent padding, no overlap, no label or divider. Target canvas 1536x1024, each cell384x512, center each full seated character at the same relative position in its cell, all cloth and seated legs fully contained. Row1: white blue gold robed black-haired male sword cultivator; pale lilac white robed long black-haired female talisman cultivator; green white gold robed black-haired female nature archer; black crimson robed black-haired male assassin. Row2: ornate red black gold robed black-haired female fire cultivator; black purple silver robed black-haired male dark cultivator; warm ochre cream robed black-haired male monk wearing his straw hat and beads; purple blue gold robed black-haired female illusion cultivator, her closed parasol lying lightly beside her. No held swords, no projectiles, no weapons in hands. Delicate small colored glow close to each body, but no environment, no round dais, no backdrop. Detailed hand painted 2.5D polished RPG illustration consistent with reference faces, costume and colors. Genuine transparent alpha everywhere outside each body, not black, no checkerboard. Identical visual scale and clean uncropped silhouettes. These seated portraits will overlay a moonlit temple meditation background in the game."
+  }
+]

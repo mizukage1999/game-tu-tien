@@ -5,7 +5,6 @@ import {
   MONSTERS,
   NPCS,
   RARITIES,
-  REALMS,
   rarityOf,
   type RarityId,
 } from '../../data';
@@ -13,7 +12,7 @@ import { EventBus } from '../../game/EventBus';
 import { itemIconUrl } from '../../game/art/icons';
 import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
 import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
-import { expToNext, isBottleneck, realmFor, realmNameAtLevel } from '../../game/systems/progression';
+import { realmNameAtLevel } from '../../game/systems/progression';
 import { itemName, useGame, type MenuTab } from '../../store/gameStore';
 import { SocialPanel } from '../social/SocialPanel';
 import { DropChanceList, RewardList } from '../Rewards';
@@ -24,6 +23,7 @@ import { MapPanel } from './MapPanel';
 import { Skills } from './SkillPanel';
 export { Skills } from './SkillPanel';
 import { CharacterPanel } from './CharacterPanel';
+import { CultivationPanel } from './CultivationPanel';
 import { CultivationWallet, CultivationCorners } from './CultivationUI';
 import { BagPanel } from './BagPanel';
 import { MailPanel } from './MailPanel';
@@ -69,70 +69,6 @@ function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: numb
 function ItemLabel({id}:{id:string}) {
   const enhancement=useGame(s=>s.player.adventure?.enhancements[id]??0);
   return <b style={{color:rarityColor(id)}}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
-}
-
-function Cultivate() {
-  const player = useGame((s) => s.player);
-  const zone = useGame((s) => s.zone);
-  const meditating = useGame((s) => s.meditating);
-  const setMenu = useGame((s) => s.setMenu);
-  const tryBreakthrough = useGame((s) => s.tryBreakthrough);
-  const realm = realmFor(player.realmIndex);
-  const next = REALMS[player.realmIndex + 1];
-  const need = expToNext(player.level);
-  const expPct = Math.min(100, (player.exp / Math.max(1, need)) * 100);
-  const capped = isBottleneck(player) && player.exp >= need;
-  const cost = realm.breakthrough;
-  return (
-    <div className="cultivate">
-      <div className="cultivate-hero">
-        <img src="/assets/ui/cultivation-meditation.png" alt="" aria-hidden="true" />
-        <div className="cultivate-progress">
-          <b>{realmNameAtLevel(player.level)} · Lv.{player.level}</b>
-          <div className="cultivate-progress-track" role="progressbar" aria-label="EXP" aria-valuenow={player.exp} aria-valuemin={0} aria-valuemax={need}>
-            <span style={{ width: `${expPct}%` }} />
-          </div>
-          <small>{player.exp} / {need}</small>
-          <button
-            className="btn gold cultivate-action"
-            onClick={() => {
-              EventBus.emit('cmd:meditate');
-              setMenu(null);
-            }}
-          >
-            {meditating ? 'Dừng tu luyện' : 'Tu luyện'}
-          </button>
-        </div>
-      </div>
-      <div className="realm-ladder">
-        {REALMS.map((r, i) => (
-          <div key={r.name} className={`realm-step ${i === player.realmIndex ? 'current' : i < player.realmIndex ? 'past' : ''}`}>
-            {r.name}
-            <small>
-              Sơ kỳ → Viên mãn
-            </small>
-          </div>
-        ))}
-      </div>
-      <p className="muted">
-        Tọa thiền (F) để hấp thu linh khí. Linh Đài (x1), Linh Tuyền (x5).
-        {zone ? ` Bạn đang ở ${zone.name}.` : ''}
-      </p>
-      {next && cost ? (
-        <div className="breakthrough">
-          <div>
-            Đột phá lên <b>{realmNameAtLevel(next.minLevel)}</b> cần: đạt đại viên mãn, đầy EXP, {cost.linhKhi} Linh Khí ({player.linhKhi}),{' '}
-            {cost.linhThach} Linh Thạch ({player.inventory.linh_thach ?? 0}) và 1 Phá Cảnh Đan ({player.inventory.pha_canh_dan ?? 0}).
-          </div>
-          <button className={`btn gold ${capped ? 'pulse' : ''}`} onClick={tryBreakthrough}>
-            Đột Phá
-          </button>
-        </div>
-      ) : (
-        <p>Đã đạt cảnh giới cao nhất của bản demo.</p>
-      )}
-    </div>
-  );
 }
 
 function DungeonCard({ id }: { id: string }) {
@@ -318,7 +254,7 @@ function Shop() {
 const CONTENT: Record<MenuTab, () => JSX.Element> = {
   character: CharacterPanel,
   bag: BagPanel,
-  cultivate: Cultivate,
+  cultivate: CultivationPanel,
   skills: Skills,
   dungeon: Dungeons,
   mail: MailPanel,
@@ -338,13 +274,13 @@ export function Menus() {
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
       <div className={`menu-window panel-ornate menu-${menu}`}>
-        {['skills','character','bag','mail','social','quests','sect','settings'].includes(menu)&&<CultivationCorners/>}
+        {['skills','character','bag','mail','social','quests','sect','settings','cultivate'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
             <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
             {TITLES[menu]}
           </h3>
-          {['skills','character','bag','mail','social','quests','sect','settings'].includes(menu)&&<CultivationWallet/>}
+          {['skills','character','bag','mail','social','quests','sect','settings','cultivate'].includes(menu)&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>
