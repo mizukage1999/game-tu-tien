@@ -28,6 +28,12 @@ export function realmFor(index: number): RealmDef {
   return REALMS[Math.max(0, Math.min(index, REALMS.length - 1))];
 }
 
+/** One pill for Trúc Cơ, then double at each successive major realm. */
+export function breakthroughPillCount(realmIndex: number): number {
+  const index = Math.max(0, Math.min(REALMS.length - 1, Math.floor(realmIndex)));
+  return realmFor(index).breakthrough ? 2 ** index : 0;
+}
+
 export function realmNameAtLevel(level: number): string {
   const realm = REALMS.find((entry) => level <= entry.maxLevel) ?? REALMS[REALMS.length - 1];
   const levelInRealm = Math.max(0, Math.min(9, level - realm.minLevel));

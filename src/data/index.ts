@@ -13,7 +13,8 @@ import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 import { WANG_SKILLS } from './wangSkills';
 import { HERO_SKILLS, type HeroSkillId } from './heroSkills';
 import type { HeroId } from './heroes';
-import { BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
+import { BESTIARY, BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
+import { cultivationLoot } from './cultivationBalance';
 import { FIRST_TRIAL, OPENING_DUNGEON, OPENING_ITEMS, OPENING_MONSTERS, OPENING_QUESTS } from './openingAdventure';
 
 export interface LootEntry {
@@ -263,7 +264,7 @@ function equipmentOffers(): ShopOffer[] {
 
 const scaled = buildScaledContent();
 
-export const MONSTERS: Record<string, MonsterDef> = restyleLegacyMonsters({
+const monsterDefinitions: Record<string, MonsterDef> = restyleLegacyMonsters({
   ...(monstersJson as unknown as Record<string, MonsterDef>),
   ...scaled.monsters,
   ...BESTIARY_MONSTERS,
@@ -271,6 +272,21 @@ export const MONSTERS: Record<string, MonsterDef> = restyleLegacyMonsters({
   thanh_moc_thu: { name: 'Thanh Mộc Thú', level: 3, art: 'beast_snow', hp: 210, atk: 13, def: 5, speed: 100, aggroRadius: 165, attackRange: 55, attackInterval: 1700, attackWindup: 350, leashRadius: 230, exp: 65, respawnMs: 12000, loot: [{ item: 'linh_khi', qty: [4, 8], chance: 1 }, { item: 'linh_thach', qty: [1, 1], chance: .35 }, { item: 'linh_chi', qty: [1, 1], chance: .25 }] },
   thach_linh_thu: { name: 'Thạch Linh Thú', level: 5, art: 'beast_snow', hp: 330, atk: 19, def: 9, speed: 95, aggroRadius: 155, attackRange: 58, attackInterval: 1800, attackWindup: 400, leashRadius: 240, exp: 105, respawnMs: 16000, loot: [{ item: 'linh_khi', qty: [8, 15], chance: 1 }, { item: 'yeu_dan', qty: [1, 1], chance: .45 }, { item: 'linh_thach', qty: [1, 2], chance: .4 }] },
 });
+const eliteSpecies = new Set(BESTIARY.filter((s) => s.sheet === 'elite').map((s) => s.id));
+export const MONSTERS: Record<string, MonsterDef> = Object.fromEntries(
+  Object.entries(monsterDefinitions).map(([id, def]) => [
+    id,
+    {
+      ...def,
+      loot: cultivationLoot(
+        def,
+        def.loot.some((entry) => entry.item === 'yeu_dan') ||
+          (def.aggroRadius > 0 && (def.level >= 10 || id === 'linh_thu' || id === 'hoa_ho')),
+        eliteSpecies.has(id) || id.endsWith('_elite') || id === 'hoa_ho',
+      ),
+    },
+  ]),
+);
 const ITEM_DEFINITIONS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS, ...OPENING_ITEMS };
 /** Resolve individual loot IDs without duplicating item definitions or image textures. */
 export const ITEMS: Record<string, ItemDef> = new Proxy(ITEM_DEFINITIONS, {

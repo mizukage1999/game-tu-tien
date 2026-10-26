@@ -37,8 +37,9 @@ export function breakthroughBlocker(
     return 'Hãy về Linh Đài trong tông môn để độ kiếp.';
   const check = checkBreakthrough(player, player.linhKhi, player.inventory.linh_thach ?? 0);
   if (!check.ok) return check.reason;
-  if ((player.inventory.pha_canh_dan ?? 0) < 1)
-    return 'Cần 1 Phá Cảnh Đan. Mở Tiên Lộ → Đan Phòng để luyện.';
+  const pills = breakthroughPillCount(player.realmIndex);
+  if ((player.inventory.pha_canh_dan ?? 0) < pills)
+    return `Cần ${pills.toLocaleString('vi-VN')} Phá Cảnh Đan (${(player.inventory.pha_canh_dan ?? 0).toLocaleString('vi-VN')}/${pills.toLocaleString('vi-VN')}). Mở Tiên Lộ → Đan Phòng để luyện.`;
   return null;
 }
 
@@ -68,6 +69,6 @@ export function zoneAt(zones: ZoneDef[], tileX: number, tileY: number): ZoneDef 
   return null;
 }
 import type { PlayerSave } from './save';
-import { checkBreakthrough } from './progression';
+import { breakthroughPillCount, checkBreakthrough } from './progression';
 import { isChildhood } from './origin';
 import { lifeProgress } from './life';

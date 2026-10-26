@@ -1,5 +1,6 @@
 import type { PlayerSave } from './save';
 import { missingMaterials } from './crafting';
+import { BREAKTHROUGH_PILL_RECIPE } from '../../data/cultivationBalance';
 
 export const DAY_MS = 30_000;
 export type Facility = 'field' | 'chamber' | 'furnace' | 'array';
@@ -25,8 +26,8 @@ export const FACILITIES: Record<Facility, string> = {
 };
 export const CROPS = [
   { id: 'thanh_linh_thao', name: 'Thanh Linh Thảo', seed: 'hat_thanh_linh', days: 2, qty: 3 },
-  { id: 'linh_chi', name: 'Linh Chi', seed: 'hat_linh_chi', days: 4, qty: 2 },
-  { id: 'ngung_lo', name: 'Ngưng Lộ', seed: 'hat_ngung_lo', days: 3, qty: 3 },
+  { id: 'linh_chi', name: 'Linh Chi', seed: 'hat_linh_chi', days: 12, qty: 2 },
+  { id: 'ngung_lo', name: 'Ngưng Lộ', seed: 'hat_ngung_lo', days: 6, qty: 3 },
 ] as const;
 export const COMPANIONS = [
   {
@@ -109,7 +110,7 @@ export const WORKSHOP_RECIPES = [
   {
     id: 'pha_canh_dan',
     name: 'Phá Cảnh Đan',
-    cost: { linh_chi: 3, yeu_dan: 2, ngung_lo: 2 },
+    cost: BREAKTHROUGH_PILL_RECIPE,
     furnace: 2,
     formula: 'cong_thuc_pha_canh',
   },
@@ -198,10 +199,14 @@ export function performLifeAction(
       companions: { ...l.companions },
     },
     inventory = { ...p.inventory };
+  let linhKhi = p.linhKhi;
   const fail = (reason: string): LifeResult => ({ ok: false, reason });
   const pay = (cost: Record<string, number>) => {
-    if (Object.entries(cost).some(([id, n]) => (inventory[id] ?? 0) < n)) return false;
-    for (const [id, n] of Object.entries(cost)) inventory[id] = (inventory[id] ?? 0) - n;
+    if (Object.entries(cost).some(([id, n]) => (id === 'linh_khi' ? linhKhi : inventory[id] ?? 0) < n)) return false;
+    for (const [id, n] of Object.entries(cost)) {
+      if (id === 'linh_khi') linhKhi -= n;
+      else inventory[id] = (inventory[id] ?? 0) - n;
+    }
     return true;
   };
   const gain = (id: string, n: number) => (inventory[id] = (inventory[id] ?? 0) + n);
@@ -324,5 +329,5 @@ export function performLifeAction(
       break;
     }
   }
-  return { ok: true, player: { ...p, life, inventory, adventure:nextAdventure }, exp, message };
+  return { ok: true, player: { ...p, life, inventory, linhKhi, adventure:nextAdventure }, exp, message };
 }

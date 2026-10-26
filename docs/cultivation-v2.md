@@ -8,7 +8,7 @@ Atlas trẻ em có tám hàng cao khác nhau. `heroAtlas.ts` định nghĩa vùn
 
 Bảng **Tu Luyện** có dải 12 cảnh giới, bốn giai đoạn, hình tọa thiền đúng phái, EXP thật, tốc độ hấp thu tại vị trí hiện tại, thuộc tính dự kiến và số nguyên liệu đang có. Xem trước cảnh giới không tăng chỉ số hay tiêu hao tài nguyên. Nút tọa thiền dùng hành động đang có trong map; nút Kỹ Năng và Bí Thuật Tông Môn mở các hệ thống tương ứng. Nút chính nằm ngoài vùng cuộn trên cả PC và mobile.
 
-Bảng **Đột Phá** hiển thị điều kiện và nguyên liệu thiếu ngay trong bảng. Đạt Đại Viên Mãn, đủ EXP, Linh Khí, Linh Thạch và một Phá Cảnh Đan mới được bắt đầu Thiên Kiếp tại tông môn. Nguyên liệu trừ một lần lúc bắt đầu; tọa thiền và ngự hành dừng để người chơi điều khiển né sét.
+Bảng **Đột Phá** hiển thị điều kiện và nguyên liệu thiếu ngay trong bảng. Đạt Đại Viên Mãn, đủ EXP, Linh Khí, Linh Thạch và Phá Cảnh Đan theo cảnh giới mới được bắt đầu Thiên Kiếp tại tông môn. Số đan bắt đầu từ 1 viên khi lên Trúc Cơ, gấp đôi ở mỗi đại cảnh giới tiếp theo; công thức và nguồn nguyên liệu được mô tả tại [cân bằng đột phá](cultivation-balance.md). Nguyên liệu trừ một lần lúc bắt đầu; tọa thiền và ngự hành dừng để người chơi điều khiển né sét.
 
 Thiên Kiếp có từ 4 đến 9 đợt tùy cảnh giới, 1–3 vùng sét mỗi đợt; các cảnh giới cao có thời gian báo chiêu ngắn hơn. Vùng cảnh báo khớp bán kính sát thương, sét có hiệu ứng đánh xuống thực tế. Chỉ sống sót qua toàn bộ đợt và thời gian thử thách mới tăng cảnh giới. Bị hạ gục quay về tông môn theo luồng hiện có, giữ cảnh giới và EXP; nguyên liệu đã tiêu hao không hoàn lại. Bộ đếm không bỏ qua thử thách khi tab chạy nền, và sét của một lượt cũ không đánh vào lượt thử mới.
 

@@ -10,13 +10,13 @@ export const EXPANSION_ITEMS: Record<string, ItemDef> = {
     name: 'Bào Tử Linh Chi',
     kind: 'material',
     color: '#dda18c',
-    desc: 'Gieo tại linh điền; trưởng thành sau 4 ngày game.',
+    desc: 'Gieo tại linh điền; trưởng thành sau 12 ngày game.',
   },
   hat_ngung_lo: {
     name: 'Hạt Ngưng Lộ',
     kind: 'material',
     color: '#9bd8e4',
-    desc: 'Gieo tại linh điền; trưởng thành sau 3 ngày game.',
+    desc: 'Gieo tại linh điền; trưởng thành sau 6 ngày game.',
   },
   huyen_thiet: {
     name: 'Huyền Thiết',

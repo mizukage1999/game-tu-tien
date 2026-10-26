@@ -9,6 +9,7 @@ import {
   applyBreakthrough,
   canEquip,
   checkBreakthrough,
+  breakthroughPillCount,
   computeStats,
   expToNext,
   isBottleneck,
@@ -39,7 +40,7 @@ import { chooseSkill, skillUnlocked } from '../game/systems/skills';
 import { premiumStore } from '../net/premium';
 import { equipmentBaseId, equipmentInstanceId, findOwnedEquipment, isIndividualEquipment, normalizeEquipment } from '../game/systems/equipment';
 import {
-  GARDEN_COOLDOWN_MS, HARVEST_COOLDOWN_MS, HOME_MAX_LEVEL, HOME_QUEST,
+  GARDEN_COOLDOWN_MS, herbCooldownMs, HOME_MAX_LEVEL, HOME_QUEST,
   homeUpgradeCost, immortalProgress, mountUnlocked, RECIPES, recipeCheck,
   type HerbNode, type MountId,
 } from '../game/systems/immortal';
@@ -490,11 +491,8 @@ export const gameStore = createStore<GameState>()((set, get) => {
         s.toast(check.reason, 'warn');
         return;
       }
-      if ((s.player.inventory.pha_canh_dan ?? 0) < 1) {
-        s.toast('Cần 1 Phá Cảnh Đan. Mở Tiên Lộ → Đan Phòng để luyện.', 'warn');
-        return;
-      }
-      s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach, pha_canh_dan: 1 });
+      const pills = breakthroughPillCount(s.player.realmIndex);
+      if (!s.removeItems({ linh_khi: check.cost.linhKhi, linh_thach: check.cost.linhThach, pha_canh_dan: pills })) return;
       const plan = tribulationPlan(s.player.realmIndex);
       s.selectMount(null);
       set({tribulation:{realm:s.player.realmIndex,strikes:0,remaining:plan.durationMs,id:crypto.randomUUID()},auto:false,menu:null});
@@ -525,7 +523,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       set({ player: { ...s.player, immortal: {
         ...progress,
         gathered: { ...progress.gathered, [node.item]: (progress.gathered[node.item] ?? 0) + qty },
-        harvestReadyAt: { ...progress.harvestReadyAt, [node.id]: now + HARVEST_COOLDOWN_MS },
+        harvestReadyAt: { ...progress.harvestReadyAt, [node.id]: now + herbCooldownMs(node.item) },
       } } });
       get().addItem(node.item, qty, { fromPickup: true });
       get().questEvent({ type: 'gather', item: node.item, qty });

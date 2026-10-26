@@ -1624,7 +1624,6 @@ export class WorldScene extends Phaser.Scene {
     s.questEvent({ type: 'kill', target: m.type });
     s.beastVictory(m.type);
     const drops = rollDungeonGear(m.def.loot);
-    if (!this.map.arena && Math.random() < (m.type === 'hoa_ho' ? 0.8 : 0.4)) drops.push({ item: 'yeu_dan', qty: 1 });
     if (!this.map.arena && Math.random() < .25) drops.push({ item: 'huyen_thiet', qty: 1 });
     if (m.def.boss && Math.random() < .3) drops.push({ item: Math.random() < .5 ? 'cong_thuc_ngoc' : 'cong_thuc_pha_canh', qty: 1 });
     drops.forEach((d, i) => {

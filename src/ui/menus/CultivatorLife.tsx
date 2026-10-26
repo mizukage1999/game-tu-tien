@@ -19,12 +19,13 @@ const BEAST_SOURCES={snow_fox:'Linh Thú · Linh Thú Lâm',gold_tiger:'Thạch 
 const BEAST_SKILLS={snow_fox:'Hàn tức: sát thương và làm chậm',gold_tiger:'Hổ khiếu: đòn công kích mạnh',white_crane:'Linh vũ: hồi sinh lực và MP',jade_deer:'Mộc giáp: tạo khiên hộ chủ',shadow_wolf:'Ảnh tập: công kích và giữ chân',red_fox:'Hồ hỏa: sát thương lan'};
 
 function Materials({ cost }: { cost: Record<string, number> }) {
-  const inventory = useGame((s) => s.player.inventory);
+  const player = useGame((s) => s.player);
+  const have = (id: string) => id === 'linh_khi' ? player.linhKhi : player.inventory[id] ?? 0;
   return (
     <div className="life-materials">
       {Object.entries(cost).map(([id, n]) => (
-        <span key={id} className={(inventory[id] ?? 0) >= n ? 'enough' : 'short'}>
-          {itemName(id)} {inventory[id] ?? 0}/{n}
+        <span key={id} className={have(id) >= n ? 'enough' : 'short'}>
+          {itemName(id)} {have(id)}/{n}
         </span>
       ))}
     </div>

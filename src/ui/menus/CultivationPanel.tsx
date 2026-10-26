@@ -7,7 +7,7 @@ import { breakthroughBlocker, meditateGain, tribulationPlan } from '../../game/s
 import { homeMeditateRate, immortalProgress } from '../../game/systems/immortal';
 import { lifeProgress } from '../../game/systems/life';
 import { isChildhood } from '../../game/systems/origin';
-import { expToNext, playerStats, realmFor } from '../../game/systems/progression';
+import { breakthroughPillCount, expToNext, playerStats, realmFor } from '../../game/systems/progression';
 import { REALM_COLORS, REALM_PHASES, realmStyle } from '../../game/systems/realmStyle';
 import { itemName, useGame } from '../../store/gameStore';
 import { HeroMeditation } from '../HeroArt';
@@ -93,7 +93,7 @@ export function CultivationPanel() {
     ? [
         { id: 'linh_khi', have: player.linhKhi, need: cost.linhKhi },
         { id: 'linh_thach', have: player.inventory.linh_thach ?? 0, need: cost.linhThach },
-        { id: 'pha_canh_dan', have: player.inventory.pha_canh_dan ?? 0, need: 1 },
+        { id: 'pha_canh_dan', have: player.inventory.pha_canh_dan ?? 0, need: breakthroughPillCount(player.realmIndex) },
       ]
     : [];
   useEffect(() => {

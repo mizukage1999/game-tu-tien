@@ -40,10 +40,14 @@ it('shows real material shortages inline and never starts an unaffordable breakt
   act(() => root.render(<CultivationPanel />));
   act(() => host.querySelectorAll<HTMLButtonElement>('.training-tabs button')[1].click());
   expect(host.querySelector('.training-materials .short')?.textContent).toContain('Phá Cảnh Đan');
+  expect(host.querySelector('.training-materials .short small')?.textContent).toBe('0 / 64');
   expect(host.querySelector('.training-inline-note')?.textContent).toContain('Phá Cảnh Đan');
   expect(host.querySelector<HTMLButtonElement>('.training-primary')!.disabled).toBe(true);
   expect(gameStore.getState().tribulation).toBeNull();
   act(() => gameStore.getState().addItem('pha_canh_dan', 1));
+  expect(host.querySelector<HTMLButtonElement>('.training-primary')!.disabled).toBe(true);
+  expect(host.querySelector('.training-materials .short small')?.textContent).toBe('1 / 64');
+  act(() => gameStore.getState().addItem('pha_canh_dan', 63));
   expect(host.querySelector<HTMLButtonElement>('.training-primary')!.disabled).toBe(false);
   act(() => host.querySelector<HTMLButtonElement>('.training-primary')!.click());
   expect(gameStore.getState().tribulation).toMatchObject({ realm: 6, strikes: 0 });

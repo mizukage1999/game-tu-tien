@@ -4,6 +4,7 @@ import { EXPLORATION_ORDER, PROLOGUE_ORDER, WORLD_QUESTS } from '../../data/worl
 import { OPENING_QUESTS } from '../../data/openingAdventure';
 import { REALMS } from '../../data';
 import { missingMaterials } from './crafting';
+import { BREAKTHROUGH_PILL_RECIPE } from '../../data/cultivationBalance';
 
 export type MountId = 'sword' | 'crane';
 export interface ImmortalProgress {
@@ -47,8 +48,8 @@ export const RECIPES = [
     id: 'pha_canh_dan',
     name: 'Phá Cảnh Đan',
     level: 5,
-    desc: 'Tiêu hao 1 viên khi đột phá đại cảnh giới.',
-    cost: { linh_chi: 3, yeu_dan: 2, ngung_lo: 2, linh_khi: 40 },
+    desc: 'Đột phá Trúc Cơ cần 1 viên; số viên cần tăng gấp đôi qua mỗi đại cảnh giới tiếp theo.',
+    cost: BREAKTHROUGH_PILL_RECIPE,
   },
 ] as const;
 
@@ -158,7 +159,10 @@ export function herbNodes(mapId: string): HerbNode[] {
 }
 
 export const HARVEST_COOLDOWN_MS = 25_000;
-export const GARDEN_COOLDOWN_MS = 90_000;
+export function herbCooldownMs(item: HerbNode['item']) {
+  return item === 'linh_chi' ? 180_000 : item === 'ngung_lo' ? 60_000 : HARVEST_COOLDOWN_MS;
+}
+export const GARDEN_COOLDOWN_MS = 300_000;
 
 export const STORY_ORDER = [
   'main_0',
