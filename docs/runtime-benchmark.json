@@ -1,0 +1,59 @@
+{
+  "renderer": "headless Chrome Canvas",
+  "cpuThrottle": 2,
+  "networkMbps": 40,
+  "latencyMs": 40,
+  "cacheDisabled": true,
+  "records": [
+    {
+      "variant": "before",
+      "ms": 43451.70000000298,
+      "textures": 266,
+      "pixels": 101286562,
+      "map": "vuong_gia_thon",
+      "assetBytes": 138357547
+    },
+    {
+      "variant": "after",
+      "ms": 10923.80000000447,
+      "textures": 122,
+      "pixels": 57095026,
+      "map": "vuong_gia_thon",
+      "assetBytes": 20766458
+    },
+    {
+      "variant": "before",
+      "ms": 39580.89999999851,
+      "textures": 266,
+      "pixels": 101286562,
+      "map": "vuong_gia_thon",
+      "assetBytes": 138357547
+    },
+    {
+      "variant": "after",
+      "ms": 11044.30000000447,
+      "textures": 122,
+      "pixels": 57095026,
+      "map": "vuong_gia_thon",
+      "assetBytes": 20766458
+    }
+  ],
+  "measuredSpan": "Character entry button to active Vuong Gia Thon scene with loading overlay dismissed",
+  "backend": "Local fake account backend; production Vite bundles",
+  "summary": {
+    "before": {
+      "ms": 41516.300000000745,
+      "assetBytes": 138357547,
+      "textures": 266,
+      "pixels": 101286562
+    },
+    "after": {
+      "ms": 10984.05000000447,
+      "assetBytes": 20766458,
+      "textures": 122,
+      "pixels": 57095026
+    },
+    "timeReduction": 0.7354280126118109,
+    "imageByteReduction": 0.8499072985154905
+  }
+}
