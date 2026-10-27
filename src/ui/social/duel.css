@@ -182,6 +182,10 @@
   user-select: none;
   container: arena-field / size;
 }
+.duel-move-marker { position: absolute; width: 24px; height: 13px; border: 2px solid #e8c077; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; box-shadow: 0 0 8px #e8c07760; z-index: 3; }
+.duel-touch-hint { display: none; }
+.hud.phone .duel-desktop-hint { display: none; }
+.hud.phone .duel-touch-hint { display: block; }
 .duel-rock {
   position: absolute;
   width: 6.4%;

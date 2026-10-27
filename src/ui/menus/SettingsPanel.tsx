@@ -267,22 +267,23 @@ export function SettingsPanel() {
           <div>
             <h4>Trên điện thoại</h4>
             <p>Kéo trên bản đồ để di chuyển. Chạm nút chiêu để đánh và dùng nút lướt để né.</p>
-            <small>4 ô chiến đấu, gồm đánh thường · 1 nút lướt</small>
+            <small>Đánh thường · 6 chiêu lựa chọn · 1 nút lướt</small>
           </div>
         </article>
         <article>
           <SettingsGlyph kind="graphics" />
           <div>
             <h4>Trên máy tính</h4>
-            <p>Dùng bàn phím hoặc nhấp bản đồ để di chuyển.</p>
+            <p>Nhấp chuột trái lên mặt đất để di chuyển. Bấm NPC để đi tới trò chuyện, bấm quái để chọn mục tiêu.</p>
           </div>
         </article>
       </div>
       <dl className="settings-keybinds">
         {[
-          ['Di chuyển', 'W A S D / ↑ ↓ ← →'],
+          ['Di chuyển', 'Chuột trái chọn điểm đến'],
+          ['Di chuyển dự phòng', 'W A S D / ↑ ↓ ← →'],
           ['Đánh thường', 'J / Space'],
-          ['Ô chiến đấu', '1 · 2 · 3 · 4'],
+          ['Ô chiến đấu', '1 · 2 · 3 · 4 · 5 · 6 · 7'],
           ['Lướt', 'Shift'],
           ['Tương tác', 'E'],
           ['Tu luyện', 'F'],

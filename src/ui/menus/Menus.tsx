@@ -1,23 +1,16 @@
 import { useState } from 'react';
 import {
-  DUNGEONS,
   ITEMS,
-  MONSTERS,
   NPCS,
   RARITIES,
   rarityOf,
   type RarityId,
 } from '../../data';
-import { EventBus } from '../../game/EventBus';
 import { itemIconUrl } from '../../game/art/icons';
-import { attemptsLeft, canEnter } from '../../game/systems/dungeon';
-import { DIFFICULTIES, DUNGEON_TIERS, dungeonId, type DifficultyId } from '../../game/systems/scale';
 import { realmNameAtLevel } from '../../game/systems/progression';
 import { itemName, useGame, type MenuTab } from '../../store/gameStore';
 import { SocialPanel } from '../social/SocialPanel';
-import { DropChanceList, RewardList } from '../Rewards';
 import { Journey } from './Journey';
-import { battlePower } from '../../game/systems/adventure';
 import { SectPanel, PremiumPanel } from './AdventurePanels';
 import { MapPanel } from './MapPanel';
 import { Skills } from './SkillPanel';
@@ -29,6 +22,7 @@ import { BagPanel } from './BagPanel';
 import { MailPanel } from './MailPanel';
 import { QuestJournal } from './QuestJournal';
 import { SettingsPanel } from './SettingsPanel';
+import { DungeonSelectPanel } from './DungeonSelectPanel';
 
 const TITLES: Record<MenuTab, string> = {
   character: 'Nhân Vật',
@@ -69,118 +63,6 @@ function ItemIcon({ id, size, rotatingBorder = false }: { id: string; size: numb
 function ItemLabel({id}:{id:string}) {
   const enhancement=useGame(s=>s.player.adventure?.enhancements[id]??0);
   return <b style={{color:rarityColor(id)}}>{itemName(id)}{enhancement>0?` +${enhancement}`:''}</b>;
-}
-
-function DungeonCard({ id }: { id: string }) {
-  const player = useGame((s) => s.player);
-  const quests = useGame((s) => s.quests);
-  const stats=useGame(s=>s.stats);
-  const inDungeon = useGame((s) => s.dungeon);
-  const def = DUNGEONS[id];
-  const left = attemptsLeft(player.dungeons, id, def);
-  const check = canEnter(player.dungeons, id, def, player.level, undefined, quests);
-  const clears = player.dungeons?.clears[id] ?? 0;
-  const boss = MONSTERS[def.boss];
-  return (
-    <div className="dungeon-card">
-      <div className="dungeon-card-head">
-        <b>{def.name}</b>
-        <span className="muted">
-          Đề nghị Lv.{def.minLevel} · Đã vượt {clears} lần
-        </span>
-      </div>
-      <p className="muted">{def.desc}</p>
-      <p className={battlePower(stats)<(def.recommendedPower??0)?'req-bad':'muted'}>Lực chiến đề nghị {def.recommendedPower??'—'} · Bạn {battlePower(stats)}. Boss cuồng nộ dưới 50% HP; hãy né vùng báo chiêu.</p>
-      <div className="dungeon-facts">
-        <span>
-          {def.waves.length} đợt quái + thủ lĩnh <b>{boss.name}</b> (Lv {boss.level})
-        </span>
-        <span>Giới hạn {Math.round(def.timeLimitSec / 60)} phút</span>
-        <span className={left === 0 ? 'short' : ''}>
-          {def.practice ? 'Thử luyện cốt truyện · có thể thử lại' : `Lượt hôm nay: ${left}/${def.attemptsPerDay}`}
-        </span>
-      </div>
-      <h4>Phần thưởng</h4>
-      <RewardList rewards={def.rewards} />
-      {def.drops && def.drops.length > 0 && (
-        <>
-          <h4>Có thể rơi</h4>
-          <DropChanceList drops={def.drops} />
-        </>
-      )}
-      {clears === 0 && (
-        <>
-          <h4>Thưởng lần đầu</h4>
-          <RewardList rewards={def.firstClear} />
-        </>
-      )}
-      <div className="dungeon-enter">
-        {!check.ok && <span className="muted">{check.reason}</span>}
-        <button className="btn gold" disabled={!check.ok || !!inDungeon} onClick={() => EventBus.emit('cmd:enterDungeon', id)}>
-          Tiến vào
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Dungeons() {
-  const player = useGame((s) => s.player);
-  const inDungeon = useGame((s) => s.dungeon);
-  const [picked, setPicked] = useState<Record<number, DifficultyId>>({});
-  const legacy = Object.keys(DUNGEONS).filter((id) => !DUNGEONS[id].tier && !DUNGEONS[id].practice);
-  return (
-    <div className="dungeon-list">
-      {inDungeon && (
-        <div className="breakthrough">
-          <div>
-            Bạn đang ở trong <b>{inDungeon.name}</b>.
-          </div>
-          <button className="btn" onClick={() => EventBus.emit('cmd:leaveDungeon')}>
-            Rời phó bản
-          </button>
-        </div>
-      )}
-      <p className="muted">Phó bản không khóa theo cấp. Mốc Lv chỉ là đề nghị; chọn độ khó phù hợp, boss mạnh cần chuẩn bị kỹ năng và trang bị.</p>
-      <DungeonCard id="ngoc_an_thu_luyen" />
-      {DUNGEON_TIERS.map((tier) => {
-        const diff = picked[tier.level] ?? 'de';
-        const id = dungeonId(tier.level, diff);
-        const locked = player.level < tier.level;
-        return (
-          <div key={tier.level} className="dungeon-tier">
-            <div className="dungeon-card-head">
-              <b>
-                {realmNameAtLevel(tier.level)} · {tier.name}
-              </b>
-              {locked && <span className="req-bad">Đề nghị Lv.{tier.level} · vẫn có thể thử</span>}
-            </div>
-            <div className="diff-row">
-              {DIFFICULTIES.map((d) => (
-                <button
-                  key={d.id}
-                  className={diff === d.id ? 'active' : ''}
-                  style={{ color: d.color, borderColor: diff === d.id ? d.color : undefined }}
-                  onClick={() => setPicked((prev) => ({ ...prev, [tier.level]: d.id }))}
-                >
-                  {d.name}
-                </button>
-              ))}
-            </div>
-            <DungeonCard id={id} />
-          </div>
-        );
-      })}
-      {legacy.length > 0 && (
-        <>
-          <h4>Phó bản sư môn</h4>
-          {legacy.map((id) => (
-            <DungeonCard key={id} id={id} />
-          ))}
-        </>
-      )}
-    </div>
-  );
 }
 
 type ShopTab = 'misc' | RarityId;
@@ -256,7 +138,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
   bag: BagPanel,
   cultivate: CultivationPanel,
   skills: Skills,
-  dungeon: Dungeons,
+  dungeon: DungeonSelectPanel,
   mail: MailPanel,
   quests: QuestJournal,
   shop: Shop,
@@ -275,13 +157,13 @@ export function Menus() {
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
       <div className={`menu-window panel-ornate menu-${menu}`}>
-        {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey'].includes(menu)&&<CultivationCorners/>}
+        {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
             <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
             {menu === 'journey' ? journeySection === 'alchemy' ? 'Đan Phòng' : <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : TITLES[menu]}
           </h3>
-          {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey'].includes(menu)&&<CultivationWallet/>}
+          {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon'].includes(menu)&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>

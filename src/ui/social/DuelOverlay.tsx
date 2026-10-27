@@ -4,6 +4,8 @@ import { closeArena, readyArena, sendArenaInput } from '../../net/socialBridge';
 import { ARENA_H, ARENA_ROCKS, ARENA_W, type ArenaFighter } from '../../game/systems/arena';
 import { DEFAULT_LOADOUT } from '../../game/systems/skills';
 import { isTypingTarget } from '../../game/systems/typing';
+import { arenaMouseMotion, arenaMousePoint } from '../../game/systems/arenaMouse';
+import type { Vec2 } from '../../game/types';
 import { optimizedAsset } from '../../data/assetDelivery';
 import { SKILLS, type SkillId } from '../../data';
 import { skillSpriteUrl } from '../../game/art/icons';
@@ -49,6 +51,7 @@ export function DuelOverlay() {
   const duel = useSocial((s) => s.duel),
     nonce = duel?.nonce;
   const move = useRef({ x: 0, y: 0 }),
+    mouseGoal = useRef<Vec2 | null>(null),
     keys = useRef(new Set<string>()),
     cast = useRef<SkillId | null>(null),
     seq = useRef(0),
@@ -63,6 +66,7 @@ export function DuelOverlay() {
     keys.current.clear();
     cast.current = null;
     drag.current = null;
+    mouseGoal.current = null;
     readyArena();
     let lastReady = Date.now();
     const tick = () => {
@@ -78,10 +82,17 @@ export function DuelOverlay() {
         x =
           (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0),
         y = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
+      let motion = move.current;
+      if (x || y) { mouseGoal.current = null; motion = { x, y }; }
+      else if (mouseGoal.current) {
+        const next = arenaMouseMotion(p, mouseGoal.current, p.speed);
+        if (next) motion = next;
+        else { mouseGoal.current = null; motion = { x: 0, y: 0 }; }
+      }
       sendArenaInput({
         seq: ++seq.current,
-        x: x || move.current.x,
-        y: y || move.current.y,
+        x: motion.x,
+        y: motion.y,
         cast: cast.current,
       });
       cast.current = null;
@@ -127,6 +138,7 @@ export function DuelOverlay() {
     };
     const blur = () => {
       keys.current.clear();
+      mouseGoal.current = null;
       move.current = { x: 0, y: 0 };
     };
     window.addEventListener('keydown', key, true);
@@ -139,6 +151,7 @@ export function DuelOverlay() {
       move.current = { x: 0, y: 0 };
       cast.current = null;
       drag.current = null;
+      mouseGoal.current = null;
       window.removeEventListener('keydown', key, true);
       window.removeEventListener('keyup', key, true);
       window.removeEventListener('blur', blur);
@@ -181,6 +194,12 @@ export function DuelOverlay() {
             className="duel-stage"
             onPointerDown={(e) => {
               if (s.phase === 'finished' || (e.target as Element).closest('button,a,input')) return;
+              if (e.pointerType === 'mouse') {
+                if (e.button !== 0) return;
+                mouseGoal.current = arenaMousePoint({ x: e.clientX, y: e.clientY }, e.currentTarget.getBoundingClientRect(), me, !!e.currentTarget.closest('.app.turned'));
+                return;
+              }
+              mouseGoal.current = null;
               drag.current = { x: e.clientX, y: e.clientY };
               e.currentTarget.setPointerCapture(e.pointerId);
             }}
@@ -198,9 +217,11 @@ export function DuelOverlay() {
             }}
             onPointerCancel={() => {
               drag.current = null;
+              mouseGoal.current = null;
               move.current = { x: 0, y: 0 };
             }}
           >
+            {mouseGoal.current && <span className="duel-move-marker" aria-hidden="true" style={{ left: `${mouseGoal.current.x / ARENA_W * 100}%`, top: `${mouseGoal.current.y / ARENA_H * 100}%` }} />}
             {ARENA_ROCKS.map((r, i) => (
               <span
                 key={i}
@@ -314,7 +335,8 @@ export function DuelOverlay() {
           </div>
           <span className="duel-mp">
             MP {Math.floor(me.mp)}/{me.maxMp}
-            <small>Kéo sân để di chuyển · WASD / 1–7 · Shift lướt</small>
+            <small className="duel-desktop-hint">Chuột trái chọn điểm đến · 1–7 ra chiêu · Shift lướt</small>
+            <small className="duel-touch-hint">Kéo sân để di chuyển · Chạm chiêu để tấn công</small>
           </span>
           <div className="duel-abilities">
             {[...loadout, 'than_phap' as const].map((id, i) => {

@@ -7,7 +7,7 @@ import { VillageAtmosphere } from '../art/VillageAtmosphere';
 import { buildWorldGround } from '../art/worldGround';
 import { worldTheme } from '../art/worldPalette';
 import { publishWorldPreview } from '../art/worldPreview';
-import { iso, isoBounds, isoX, isoY } from '../art/iso';
+import { iso, uniso, isoBounds, isoX, isoY } from '../art/iso';
 import { TERRAIN, TILE } from '../art/tiles';
 import { EventBus, virtualInput } from '../EventBus';
 import { Player } from '../entities/Player';
@@ -60,6 +60,7 @@ import { SharedWorld } from '../systems/SharedWorld';
 import { chatStore } from '../../store/chatStore';
 import { signatureHit } from '../systems/skillHit';
 import { gridLineClear } from '../systems/gridNavigation';
+import { mouseWalkPath } from '../systems/mouseNavigation';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
 
 interface WorldData {
@@ -126,6 +127,8 @@ export class WorldScene extends Phaser.Scene {
   private sceneryTimer = 0;
   private cancelArenaReturn: (() => void) | null = null;
   private inArena = false;
+  private mouseWalk: { point: Vec2; npc?: Npc } | null = null;
+  private mouseMarker: Phaser.GameObjects.Ellipse | null = null;
 
   constructor() {
     super('World');
@@ -154,6 +157,8 @@ export class WorldScene extends Phaser.Scene {
     this.guideTimer = 0;
     this.levelWarned = false;
     this.remotes.clear();
+    this.mouseWalk = null;
+    this.mouseMarker = null;
   }
 
   preload() {
@@ -740,6 +745,7 @@ export class WorldScene extends Phaser.Scene {
     // Capturing keys here would eat them for every text field on the page (TAB is
     // also the only way to move between inputs), so leave the browser in charge.
     this.releaseKeysWhileTyping();
+    this.bindMouseMovement();
     const on = (key: string, fn: () => void) => {
       kb.on(`keydown-${key}`, fn);
       this.cleanups.push(() => kb.off(`keydown-${key}`, fn));
@@ -796,6 +802,65 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
+  private bindMouseMovement() {
+    const marker = this.add.ellipse(0, 0, 32, 16, 0xe8c075, .12).setStrokeStyle(2, 0xf3d28c).setDepth(90020).setVisible(false);
+    this.mouseMarker = marker;
+    const click = (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
+      if (pointer.wasTouch || !pointer.leftButtonDown() || over.length || worldInputBlocked() || isTypingTarget(document.activeElement) || this.transitioning) return;
+      const s = gameStore.getState();
+      if (s.status !== 'alive' || lifeProgress(s.player).retreat) return;
+      const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      // NPCs and monsters are painted sprites in screen space, unlike their
+      // physics bodies. Test their drawn bounds before treating the tap as ground.
+      const npc = [...this.npcs].sort((a, b) => b.depth - a.depth).find(n => this.paintedMouseHit(n, point));
+      const monster = [...this.monsters].filter(m => m.alive).sort((a, b) => b.art.depth - a.art.depth).find(m => this.paintedMouseHit(m.art, point));
+      if (npc && (!monster || npc.depth >= monster.art.depth)) {
+        this.cancelQuestNav(); s.setAuto(false);
+        if (Math.hypot(this.player.x - npc.map.x, this.player.y - npc.map.y) <= 100) this.talkToMouseNpc(npc);
+        else this.startMouseWalk(npc.map, npc);
+      } else if (monster) {
+        this.cancelQuestNav(); s.setAuto(false);
+        this.player.setVelocity(0, 0);
+        this.setTarget(monster); this.player.faceToward(monster);
+      } else {
+        this.startMouseWalk(uniso(point.x, point.y));
+      }
+    };
+    this.input.on(Phaser.Input.Events.POINTER_DOWN, click);
+    this.cleanups.push(() => this.input.off(Phaser.Input.Events.POINTER_DOWN, click));
+  }
+
+  private paintedMouseHit(sprite: Phaser.GameObjects.Sprite, point: Vec2) {
+    if (!sprite.visible || !sprite.getBounds().contains(point.x, point.y)) return false;
+    const local = sprite.getWorldTransformMatrix().applyInverse(point.x, point.y);
+    let x = local.x + sprite.displayOriginX, y = local.y + sprite.displayOriginY;
+    if (sprite.flipX) x = sprite.width - 1 - x;
+    if (sprite.flipY) y = sprite.height - 1 - y;
+    const alpha = this.textures.getPixelAlpha(Math.floor(x), Math.floor(y), sprite.texture.key, sprite.frame.name);
+    return alpha === null || alpha >= 64;
+  }
+
+  private startMouseWalk(point: Vec2, npc?: Npc) {
+    const route = mouseWalkPath(this.map.blocked, TILE, this.player.feet, point);
+    if (!route) { gameStore.getState().toast('Không tìm được đường tới vị trí này.', 'info'); return; }
+    this.cancelQuestNav();
+    gameStore.getState().setAuto(false);
+    this.mouseWalk = { point, npc };
+    this.player.setRoute(route.points);
+    const spot = iso(route.target.x, route.target.y), marker = this.mouseMarker!;
+    this.tweens.killTweensOf(marker);
+    marker.setPosition(spot.x, spot.y).setScale(1).setAlpha(1).setVisible(true);
+    this.tweens.add({ targets: marker, alpha: 0, scale: 1.6, duration: 650, onComplete: () => marker.setVisible(false) });
+  }
+
+  private talkToMouseNpc(npc: Npc) {
+    if (worldInputBlocked() || Math.hypot(this.player.x - npc.map.x, this.player.y - npc.map.y) > 130) return;
+    this.player.stopMeditate(); this.player.faceToward(npc.map);
+    const s = gameStore.getState();
+    s.questEvent({ type: 'talk', npc: npc.npcId });
+    s.setDialog(npc.npcId);
+  }
+
   private bindStore() {
     window.addEventListener('keydown', dismissWorldPanel, true);
     this.cleanups.push(() => window.removeEventListener('keydown', dismissWorldPanel, true));
@@ -806,7 +871,10 @@ export class WorldScene extends Phaser.Scene {
         this.input.keyboard.enabled = !blocked && !isTypingTarget(document.activeElement);
         this.input.keyboard.resetKeys();
       }
-      if (blocked) { virtualInput.x = 0; virtualInput.y = 0; }
+      if (blocked) {
+        virtualInput.x = 0; virtualInput.y = 0;
+        if (this.mouseWalk) { this.cancelQuestNav(); this.player.setVelocity(0, 0); }
+      }
     };
     let wasBlocked = !worldInputBlocked();
     const syncFocus = () => { const blocked = worldInputBlocked(); if (blocked !== wasBlocked) { wasBlocked = blocked; focus(); } };
@@ -1330,6 +1398,8 @@ export class WorldScene extends Phaser.Scene {
     this.navRepaths = 0;
     this.navLabel = '';
     this.player?.clearRoute();
+    this.mouseWalk = null;
+    this.mouseMarker?.setVisible(false);
   }
 
   repathQuest() {
@@ -1339,12 +1409,20 @@ export class WorldScene extends Phaser.Scene {
       this.cancelQuestNav();
       return;
     }
-    if (trackedTravel()) this.guideTravel();
+    if (this.mouseWalk) {
+      const route = mouseWalkPath(this.map.blocked, TILE, this.player.feet, this.mouseWalk.point);
+      if (route) this.player.setRoute(route.points);
+      else this.cancelQuestNav();
+    } else if (trackedTravel()) this.guideTravel();
     else this.guideQuest();
   }
 
   onQuestRouteDone() {
-    if (trackedTravel()) this.guideTravel();
+    if (this.mouseWalk) {
+      const npc = this.mouseWalk.npc;
+      this.mouseWalk = null;
+      if (npc) this.talkToMouseNpc(npc);
+    } else if (trackedTravel()) this.guideTravel();
     else if (trackedQuest()) this.guideQuest();
   }
 

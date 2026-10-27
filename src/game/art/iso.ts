@@ -37,6 +37,14 @@ export function iso(mx: number, my: number): Vec2 {
   return { x: originX + (mx - my) * ISO_X, y: originY + (mx + my) * ISO_Y };
 }
 
+/** Camera world position on the painted diamond → gameplay map coordinates. */
+export function uniso(sx: number, sy: number): Vec2 {
+  return {
+    x: (sx - originX) / (2 * ISO_X) + (sy - originY) / (2 * ISO_Y),
+    y: -(sx - originX) / (2 * ISO_X) + (sy - originY) / (2 * ISO_Y),
+  };
+}
+
 export function isoX(mx: number, my: number) {
   return originX + (mx - my) * ISO_X;
 }
