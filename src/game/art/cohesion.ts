@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { makeCanvas } from './canvas';
 import { worldNpcPortraits, WORLD_PROPS } from './world';
 import { PAINTED_NPC_GROUPS } from '../systems/npcArt';
@@ -194,7 +195,7 @@ export function registerCohesiveArt(scene: Phaser.Scene) {
         width * scale,
         height * scale,
       );
-      scene.textures.addCanvas(`npc-painted-${id}`, canvas);
+      addStaticTexture(scene, `npc-painted-${id}`, canvas);
       worldNpcPortraits[id] = canvas.toDataURL();
     });
   }

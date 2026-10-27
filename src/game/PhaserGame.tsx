@@ -5,7 +5,13 @@ import { WorldScene } from './scenes/WorldScene';
 import { gameStore } from '../store/gameStore';
 import { socialStore } from '../store/socialStore';
 import { screenToTurnedGame } from '../ui/TouchPlay';
-import { adaptiveDensity } from './systems/display';
+import { startupDensity } from './systems/display';
+import {
+  beginGameBoot,
+  bootStorage,
+  finishGameBoot,
+  requestCanvasRecovery,
+} from './systems/gameBoot';
 import { performanceStore, sampleFrame } from '../store/performanceStore';
 import { settingsStore, useSettings } from '../store/settingsStore';
 
@@ -61,27 +67,48 @@ function fitTurnedCanvas(game: Phaser.Game) {
     if (!scale.parent) return;
     const w = Math.max(1, parent.clientWidth);
     const h = Math.max(1, parent.clientHeight);
-    const density = adaptiveDensity(w, h, window.devicePixelRatio, settingsStore.getState().preferences.quality);
+    const gl = (game.renderer as Phaser.Renderer.WebGL.WebGLRenderer | null)?.gl;
+    const maxEdge =
+      gl && !gl.isContextLost()
+        ? Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE), gl.getParameter(gl.MAX_TEXTURE_SIZE))
+        : undefined;
+    const density = startupDensity(
+      w,
+      h,
+      window.devicePixelRatio,
+      settingsStore.getState().preferences.quality,
+      {
+        mobile: window.matchMedia('(pointer: coarse)').matches,
+        memory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory,
+        mode: game.registry.get('boot-mode') ?? 0,
+        maxEdge,
+      },
+    );
     const width = Math.round(w * density);
     const height = Math.round(h * density);
-    if (scale.width === width && scale.height === height && game.registry.get('render-density') === density) return;
+    if (
+      scale.width === width &&
+      scale.height === height &&
+      game.registry.get('render-density') === density
+    )
+      return;
     game.registry.set('render-density', density);
     scale.resize(width, height);
     // NONE mode writes canvas CSS dimensions in setZoom. Apply it after the
     // buffer resize so turning a phone at density 1 cannot retain the old size.
     scale.setZoom(1 / density);
   };
-  const observer = new ResizeObserver(apply);
+  const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(apply);
   const stopPreferences = settingsStore.subscribe((next, prev) => {
     if (next.preferences.quality !== prev.preferences.quality) apply();
   });
-  observer.observe(parent);
+  observer?.observe(parent);
   window.addEventListener('resize', apply);
   apply();
   game.events.once(Phaser.Core.Events.READY, apply);
   const raf = requestAnimationFrame(apply);
   return () => {
-    observer.disconnect();
+    observer?.disconnect();
     stopPreferences();
     window.removeEventListener('resize', apply);
     cancelAnimationFrame(raf);
@@ -90,7 +117,7 @@ function fitTurnedCanvas(game: Phaser.Game) {
 
 export function saveNow() {
   const world = game?.scene.getScene('World') as WorldScene | undefined;
-  if (world?.scene.isActive()) world.save();
+  if (world?.scene.isActive() && world.player?.active) world.save();
 }
 
 export function PhaserGame() {
@@ -98,58 +125,149 @@ export function PhaserGame() {
   const host = useRef<HTMLDivElement>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!host.current) return;
-    game = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent: host.current,
-      backgroundColor: '#18202e',
-      scale: { mode: Phaser.Scale.NONE, width: host.current.clientWidth, height: host.current.clientHeight },
-      physics: { default: 'arcade', arcade: { debug: false } },
-      // Linear texture filtering keeps painted sprites smooth. MSAA adds large
-      // framebuffer attachments on HiDPI phones but does not sharpen bitmap art.
-      render: { antialias: true, antialiasGL: false, roundPixels: false, batchSize: 2048 },
-      input: { activePointers: 3 },
-      fps: { target: 60, smoothStep: true },
-      audio: { noAudio: true },
-      scene: [PreloadScene, WorldScene],
-    });
+    const storage = bootStorage(),
+      mode = beginGameBoot(storage);
+    const mobile = window.matchMedia('(pointer: coarse)').matches;
+    let stable: ReturnType<typeof setTimeout> | undefined;
+    let stalled: ReturnType<typeof setTimeout> | undefined;
+    let alive = true;
+    const failed = (message: string) => {
+      if (!alive) return;
+      clearTimeout(stable);
+      clearTimeout(stalled);
+      setLoading(true);
+      setError(message);
+    };
+    const lost = (event: Event) => {
+      event.preventDefault();
+      failed('Thiết bị đã ngắt đồ họa. Hãy thử lại với cấu hình nhẹ.');
+    };
+    try {
+      game = new Phaser.Game({
+        type: mode === 2 ? Phaser.CANVAS : Phaser.AUTO,
+        parent: host.current,
+        backgroundColor: '#18202e',
+        scale: {
+          mode: Phaser.Scale.NONE,
+          width: host.current.clientWidth,
+          height: host.current.clientHeight,
+        },
+        physics: { default: 'arcade', arcade: { debug: false } },
+        // Linear texture filtering keeps painted sprites smooth. MSAA adds large
+        // framebuffer attachments on HiDPI phones but does not sharpen bitmap art.
+        render: { antialias: true, antialiasGL: false, roundPixels: false, batchSize: 2048 },
+        // No game object uses pre-FX. Its default framebuffer pool costs tens of MB.
+        disablePreFX: true,
+        disablePostFX: mobile || mode > 0,
+        loader: { maxParallelDownloads: mobile ? 3 : 6, imageLoadType: 'HTMLImageElement' },
+        input: { activePointers: 3 },
+        fps: { target: 60, smoothStep: true },
+        audio: { noAudio: true },
+        scene: [PreloadScene, WorldScene],
+        callbacks: {
+          preBoot: (g) => g.registry.set('boot-mode', mode),
+          postBoot: (g) => g.canvas.addEventListener('webglcontextlost', lost),
+        },
+      });
+    } catch (cause) {
+      console.error('[game] renderer startup failed', cause);
+      failed('Không khởi tạo được đồ họa. Hãy thử lại với cấu hình nhẹ.');
+      return () => {
+        alive = false;
+      };
+    }
+    const current = game;
+    const watchLoading = () => {
+      clearTimeout(stalled);
+      stalled = setTimeout(
+        () => failed('Tải game đang bị gián đoạn. Kiểm tra kết nối rồi thử lại.'),
+        45_000,
+      );
+    };
+    watchLoading();
     const updateProgress = (progress: number) => setLoadingProgress(Math.round(progress * 100));
-    const assetsReady = () => setLoading(false);
-    const assetsLoading = () => { setLoadingProgress(0); setLoading(true); };
+    const assetsReady = () => {
+      clearTimeout(stalled);
+      clearTimeout(stable);
+      setError('');
+      setLoading(false);
+      stable = setTimeout(() => finishGameBoot(storage), 10_000);
+    };
+    const assetsLoading = () => {
+      clearTimeout(stable);
+      setError('');
+      setLoadingProgress(0);
+      setLoading(true);
+      watchLoading();
+    };
+    const assetError = () =>
+      failed('Không chuẩn bị được dữ liệu bản đồ. Hãy thử lại với cấu hình nhẹ.');
     const frame = (_time: number, delta: number) => sampleFrame(delta);
     game.events.on(Phaser.Core.Events.STEP, frame);
     game.events.on('assets-progress', updateProgress);
     game.events.on('assets-ready', assetsReady);
     game.events.on('assets-loading', assetsLoading);
+    game.events.on('assets-error', assetError);
     if (game.scene.isActive('World')) assetsReady();
     const stopFitting = fitTurnedCanvas(game);
-    if (import.meta.env.DEV) Object.assign(window, { __game: game, __store: gameStore, __social: socialStore, __performance: performanceStore });
+    if (import.meta.env.DEV)
+      Object.assign(window, {
+        __game: game,
+        __store: gameStore,
+        __social: socialStore,
+        __performance: performanceStore,
+      });
     const onUnload = () => saveNow();
     window.addEventListener('beforeunload', onUnload);
     return () => {
+      alive = false;
+      clearTimeout(stable);
+      clearTimeout(stalled);
+      finishGameBoot(storage);
       window.removeEventListener('beforeunload', onUnload);
       stopFitting?.();
-      game?.events.off('assets-progress', updateProgress);
-      game?.events.off('assets-ready', assetsReady);
-      game?.events.off('assets-loading', assetsLoading);
-      game?.events.off(Phaser.Core.Events.STEP, frame);
-      game?.destroy(true);
-      game = null;
+      current.canvas?.removeEventListener('webglcontextlost', lost);
+      current.events.off('assets-progress', updateProgress);
+      current.events.off('assets-ready', assetsReady);
+      current.events.off('assets-loading', assetsLoading);
+      current.events.off('assets-error', assetError);
+      current.events.off(Phaser.Core.Events.STEP, frame);
+      current.destroy(true);
+      if (game === current) game = null;
     };
   }, []);
 
   return (
     <>
-      <div ref={host} className="game-host" style={{ filter: brightness === 100 ? undefined : `brightness(${brightness / 100})` }} />
+      <div
+        ref={host}
+        className="game-host"
+        style={{ filter: brightness === 100 ? undefined : `brightness(${brightness / 100})` }}
+      />
       {loading && (
         <div className="loading-overlay" role="status" aria-live="polite">
           <img src="/assets/ui/ui-loading-orb.png" alt="" className="loading-orb" />
           <div className="loading-track">
             <span style={{ width: `${loadingProgress}%` }} />
           </div>
-          <span>Đang tải... {loadingProgress}%</span>
+          <span>{error || `Đang tải... ${loadingProgress}%`}</span>
+          {error && (
+            <button
+              className="loading-retry"
+              data-action="retry-game"
+              onClick={() => {
+                saveNow();
+                requestCanvasRecovery(bootStorage());
+                window.location.reload();
+              }}
+            >
+              Thử lại với cấu hình nhẹ
+            </button>
+          )}
         </div>
       )}
     </>

@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { COURTYARD_ATLAS, COURTYARD_PROPS } from './courtyard';
 import { makeCanvas } from './canvas';
 import { CHARACTERS, RIGS } from './generate';
@@ -38,7 +39,7 @@ export function registerWorldArt(scene: Phaser.Scene) {
       const [canvas, ctx] = makeCanvas(180, 180);
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(source, (i % 3) * source.width / 3, Math.floor(i / 3) * source.height / 2, source.width / 3, source.height / 2, 0, 0, 180, 180);
-      scene.textures.addCanvas(`npc-village-${id}`, canvas);
+      addStaticTexture(scene, `npc-village-${id}`, canvas);
       worldNpcPortraits[id] = canvas.toDataURL();
     }
   }
@@ -53,10 +54,10 @@ export function registerWorldArt(scene: Phaser.Scene) {
   const source = scene.textures.get('child-source').getSourceImage() as HTMLImageElement;
   const [canvas, ctx] = makeCanvas(136 * 4, 136 * 2);
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  const texture = scene.textures.addCanvas('thiet_tru', canvas);
+  const texture = addStaticTexture(scene, 'thiet_tru', canvas);
   for (let row = 0; row < 2; row++) for (let col = 0; col < 4; col++) {
     ctx.drawImage(source, col * source.width / 4, row * source.height / 2, source.width / 4, source.height / 2, col * 136 + 12, row * 136 + 18, 112, 112);
     texture?.add(`${row ? 'run' : 'idle'}_side_${col}`, 0, col * 136, row * 136, 136, 136);
   }
-  texture?.refresh();
+  texture?.source[0].update();
 }

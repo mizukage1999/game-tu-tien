@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { BESTIARY, BESTIARY_SHEETS, speciesArt } from '../../data/bestiary';
 import { CHARACTERS, RIGS, frameName } from './generate';
 
@@ -57,7 +58,7 @@ function poseBounds(source: HTMLImageElement, col: number, row: number, insetTop
     : { x: x + left, y: y + top, w: right - left + 1, h: bottom - top + 1 };
 }
 
-export function registerMonsterArt(scene: Phaser.Scene) {
+export function registerMonsterArt(scene: Phaser.Scene, required?: ReadonlySet<string>) {
   RIGS.monster_v6 = {
     frameWidth: CELL,
     frameHeight: CELL,
@@ -74,6 +75,7 @@ export function registerMonsterArt(scene: Phaser.Scene) {
   for (const species of BESTIARY) {
     const key = speciesArt(species.id),
       sourceKey = `bestiary-${species.sheet}-source`;
+    if ((required && !required.has(key)) || scene.textures.exists(key)) continue;
     CHARACTERS[key] = { rig: 'monster_v6', palette: 'beast_snow' };
     if (!scene.textures.exists(sourceKey)) continue;
     const source = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
@@ -110,7 +112,7 @@ export function registerMonsterArt(scene: Phaser.Scene) {
       ),
     );
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    const texture = scene.textures.addCanvas(key, canvas)!;
+    const texture = addStaticTexture(scene, key, canvas)!;
     const sequences: Record<string, number[]> = {
       idle: [0],
       run: [0, 1],

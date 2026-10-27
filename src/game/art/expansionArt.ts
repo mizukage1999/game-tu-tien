@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { makeCanvas } from './canvas';
 import { CHARACTERS, RIGS } from './generate';
 export const EXPANSION_ATLASES = [
@@ -80,14 +81,14 @@ export function registerExpansionArt(scene: Phaser.Scene) {
             h * k,
           );
       }
-    const tex = scene.textures.addCanvas(key, out);
+    const tex = addStaticTexture(scene, key, out);
     for (const [anim, def] of Object.entries(RIGS.simple.anims))
       for (let i = 0; i < def.frames; i++)
         tex?.add(`${anim}_side_${i}`, 0, (i % 4) * 136, (anim === 'run' ? 1 : 0) * 136, 136, 136);
-    tex?.refresh();
+    tex?.source[0].update();
     const alias = key === 'hero_wang_simple' ? 'player_male' : 'player';
     CHARACTERS[alias] = { rig: 'simple', palette };
-    const alternate = scene.textures.addCanvas(alias, out);
+    const alternate = addStaticTexture(scene, alias, out);
     for (const [anim, def] of Object.entries(RIGS.simple.anims))
       for (let i = 0; i < def.frames; i++)
         alternate?.add(
@@ -98,13 +99,13 @@ export function registerExpansionArt(scene: Phaser.Scene) {
           136,
           136,
         );
-    alternate?.refresh();
+    alternate?.source[0].update();
   }
   CHARACTERS.mu_uyen_child = { rig: 'child', palette: 'player' };
   if (scene.textures.exists('mu-uyen-child')) {
     const src = scene.textures.get('mu-uyen-child').getSourceImage() as HTMLImageElement;
     const [canvas, ctx] = makeCanvas(544, 272),
-      texture = scene.textures.addCanvas('mu_uyen_child', canvas);
+      texture = addStaticTexture(scene, 'mu_uyen_child', canvas);
     ctx.imageSmoothingQuality = 'high';
     for (let row = 0; row < 2; row++)
       for (let col = 0; col < 4; col++) {
@@ -121,7 +122,7 @@ export function registerExpansionArt(scene: Phaser.Scene) {
         );
         texture?.add(`${row ? 'run' : 'idle'}_side_${col}`, 0, col * 136, row * 136, 136, 136);
       }
-    texture?.refresh();
+    texture?.source[0].update();
   }
   for (const [atlas, prefix] of [
     ['wanderers', 'wanderer'],
@@ -173,16 +174,16 @@ export function registerExpansionArt(scene: Phaser.Scene) {
         w * scale,
         h * scale,
       );
-      scene.textures.addCanvas(`${prefix}-${i}`, out);
+      addStaticTexture(scene, `${prefix}-${i}`, out);
       if (prefix === 'wanderer' || prefix === 'dungeon_boss') {
         const key = `${prefix}_${i}`;
         CHARACTERS[key] = { rig: 'simple', palette: 'player_male' };
         const [small, c] = makeCanvas(136, 136);
         c.drawImage(out, 8, 8, 120, 120);
-        const tex = scene.textures.addCanvas(key, small);
+        const tex = addStaticTexture(scene, key, small);
         for (const [anim, def] of Object.entries(RIGS.simple.anims))
           for (let f = 0; f < def.frames; f++) tex?.add(`${anim}_side_${f}`, 0, 0, 0, 136, 136);
-        tex?.refresh();
+        tex?.source[0].update();
       }
     }
   }

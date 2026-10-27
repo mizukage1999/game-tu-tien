@@ -1,23 +1,34 @@
 import type Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { HEROES, type HeroId } from '../../data/heroes';
 import { HERO_DIRECTIONS } from './heroDirections';
-import { CHARACTERS, RIGS, frameName } from './generate';
+import { CHARACTERS, RIGS, frameName, registerCharacterArt } from './generate';
 import { directionalCell, type HERO_ATLASES } from './heroAtlas';
 export const DIRECTIONAL_SOURCES = ['adults', 'children', 'casting'] as const;
+const sources = new WeakMap<Phaser.Game, Map<string, HTMLImageElement>>();
 export function directionalArt(id: HeroId, child = false) {
   return `hero-v8-${id}${child ? '-child' : ''}`;
 }
 
 /** Eight authored facings share their anatomical scale and feet anchor. */
-export function registerDirectionalHeroes(scene: Phaser.Scene) {
+export function registerDirectionalHeroes(
+  scene: Phaser.Scene,
+  selected?: readonly { id: HeroId; child: boolean }[],
+) {
+  let images = sources.get(scene.game);
+  if (!images) {
+    images = new Map();
+    sources.set(scene.game, images);
+  }
+  for (const name of DIRECTIONAL_SOURCES) {
+    const key = `hero-v8-${name}-source`;
+    if (scene.textures.exists(key))
+      images.set(name, scene.textures.get(key).getSourceImage() as HTMLImageElement);
+  }
   for (const child of [false, true]) {
-    const key = `hero-v8-${child ? 'children' : 'adults'}-source`;
-    if (!scene.textures.exists(key)) continue;
-    const source = scene.textures.get(key).getSourceImage() as HTMLImageElement;
-    const casting =
-      !child && scene.textures.exists('hero-v8-casting-source')
-        ? (scene.textures.get('hero-v8-casting-source').getSourceImage() as HTMLImageElement)
-        : source;
+    const source = images.get(child ? 'children' : 'adults');
+    if (!source) continue;
+    const casting = !child ? (images.get('casting') ?? source) : source;
     const cell = child ? 128 : 160,
       foot = child ? 118 : 150,
       bodyHeight = child ? 76 : 108;
@@ -68,6 +79,8 @@ export function registerDirectionalHeroes(scene: Phaser.Scene) {
       return { image, x: x + l, y: y + t, w: Math.max(1, r - l + 1), h: Math.max(1, b - t + 1) };
     };
     HEROES.forEach((hero, row) => {
+      if (selected && !selected.some((s) => s.id === hero.id && s.child === child)) return;
+      if (scene.textures.exists(directionalArt(hero.id, child))) return;
       const idle = HERO_DIRECTIONS.map((_, col) =>
           crop(source, row, col, child ? 'children' : 'adults'),
         ),
@@ -102,7 +115,7 @@ export function registerDirectionalHeroes(scene: Phaser.Scene) {
       });
       cast.forEach((p, col) => draw(p, col, 3));
       const art = directionalArt(hero.id, child),
-        texture = scene.textures.addCanvas(art, canvas)!;
+        texture = addStaticTexture(scene, art, canvas)!;
       const add = (anim: string, dir: string, poses: number[]) =>
         poses.forEach((r, i) =>
           texture.add(
@@ -129,4 +142,11 @@ export function registerDirectionalHeroes(scene: Phaser.Scene) {
   for (const name of DIRECTIONAL_SOURCES)
     if (scene.textures.exists(`hero-v8-${name}-source`))
       scene.textures.remove(`hero-v8-${name}-source`);
+}
+
+/** Build a peer's school/age only when that actor actually enters the map. */
+export function ensureDirectionalHero(scene: Phaser.Scene, id: HeroId, child: boolean) {
+  if (scene.textures.exists(directionalArt(id, child))) return;
+  registerDirectionalHeroes(scene, [{ id, child }]);
+  registerCharacterArt(scene, new Set());
 }

@@ -2794,6 +2794,21 @@ kbd {
   filter: drop-shadow(0 0 10px rgba(88, 197, 255, 0.7));
   animation: ui-orb-spin 2.4s linear infinite;
 }
+.loading-overlay > span {
+  max-width: min(520px, 85vw);
+  text-align: center;
+  line-height: 1.5;
+}
+.loading-retry {
+  min-height: 42px;
+  padding: 10px 20px;
+  border: 1px solid #ebc67a;
+  border-radius: 5px;
+  color: #fff0ce;
+  background: linear-gradient(#795b32, #372a1a);
+  font: inherit;
+  cursor: pointer;
+}
 .loading-track {
   width: min(220px, 60vw);
   height: 12px;

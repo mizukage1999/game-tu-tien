@@ -13,6 +13,7 @@ import { gameStore } from './store/gameStore';
 import { StartScreen } from './ui/EntryScreen';
 import { usePerformanceTier } from './store/performanceStore';
 import { MobileViewport } from './ui/MobileViewport';
+import { bootStorage, consumeBootRetry } from './game/systems/gameBoot';
 
 export function App() {
   const performanceTier = usePerformanceTier();
@@ -23,7 +24,7 @@ export function App() {
   const turned = phone && portrait && !needsLogin;
   const accountId = account.user?.id;
   const [ready, setReady] = useState(() => loadGame() !== null);
-  const [entered, setEntered] = useState(false);
+  const [entered, setEntered] = useState(() => consumeBootRetry(bootStorage()));
   useTryLockLandscape(phone);
   useEffect(() => {
     resetPremium();

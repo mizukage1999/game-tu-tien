@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { gameStore } from '../../store/gameStore';
 import { optimizedAsset } from '../../data/assetDelivery';
 import { getMap } from '../maps';
@@ -14,22 +15,32 @@ import { EXPANSION_ATLASES, registerExpansionArt } from './expansionArt';
 import { VILLAGE_ATLASES, registerVillageArt } from './village';
 import { WORLD_STYLE_ATLASES, registerWorldStyle } from './worldStyle';
 import { BESTIARY_SHEETS, registerMonsterArt } from './monsterArt';
-import { DIRECTIONAL_SOURCES, registerDirectionalHeroes } from './directionalHeroes';
+import { DIRECTIONAL_SOURCES, directionalArt, ensureDirectionalHero, registerDirectionalHeroes } from './directionalHeroes';
 import { registerHeroSpells } from './heroRoster';
 import { registerCultivationIcons, registerChildProfile } from './skillIcons';
 import { registerInventoryIcons } from './inventoryIcons';
 import { buildWangSheet, WANG_CELL } from './wangEffects';
 import { ITEM_SPRITE_ASSETS } from './icons';
 import { REALM_CREST_TEXTURE } from '../entities/RealmNameplate';
+import { NPCS } from '../../data';
+import { usesChildSprite } from '../systems/origin';
+import { playerArt } from '../systems/character';
+import { NPC_SPRITES } from '../systems/npcArt';
+import { mapMonsterArt, monsterSheets } from '../systems/mapAssetPlan';
 
 const pending = new WeakMap<Phaser.Scene, Map<string, () => void>>();
+const mapIds = new WeakMap<Phaser.Scene, string>();
 const spellLoads = new WeakMap<Phaser.Game, Map<HeroId, Promise<boolean>>>();
+function releaseSources(scene: Phaser.Scene, keys: readonly string[]) {
+  for (const key of keys) if (scene.textures.exists(key)) scene.textures.remove(key);
+}
 
 /** Large character/monster libraries are prepared only for maps that use them. */
 export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
   const map = getMap(mapId),
     builders = new Map<string, () => void>();
   pending.set(scene, builders);
+  mapIds.set(scene, mapId);
   let count = 0;
   const image = (key: string, url: string) => {
     if (!scene.textures.exists(key)) {
@@ -97,14 +108,15 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
           art,
           scene.textures.get(`${art.texture}-source`).getSourceImage() as HTMLImageElement,
         );
-        const texture = scene.textures.addCanvas(art.texture, sheet)!;
+        const texture = addStaticTexture(scene, art.texture, sheet)!;
         for (let i = 0; i < 6; i++) texture.add(i, 0, i * WANG_CELL, 0, WANG_CELL, WANG_CELL);
         scene.textures.remove(`${art.texture}-source`);
       }
       registerCourtyardFrames(scene);
       registerVillageReferenceProps(scene);
       registerWorldArt(scene);
-      registerDirectionalHeroes(scene);
+      const player = gameStore.getState().player;
+      registerDirectionalHeroes(scene, [{ id: heroFor(player).id, child: usesChildSprite(player) }]);
       if (scene.textures.exists('cult-skill-icons'))
         registerCultivationIcons(
           scene.textures.get('cult-skill-icons').getSourceImage() as HTMLImageElement,
@@ -124,6 +136,9 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
           frame.cutHeight,
         );
       }
+      // These sheets have become small NPC textures / DOM icon URLs. No actor
+      // renders the original sheets, so retaining their GPU copies is wasteful.
+      releaseSources(scene, ['inventory-item-icons', 'cult-skill-icons', 'child-source', 'world-people']);
     },
   );
   if (map.id === 'vuong_gia_thon')
@@ -136,7 +151,10 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
     group(
       'cities',
       () => maps(COHESION_ATLASES),
-      () => registerCohesiveArt(scene),
+      () => {
+        registerCohesiveArt(scene);
+        releaseSources(scene, ['city-people-v2', 'travel-people-v2']);
+      },
     );
     // v8 directional heroes replace the retired simple and v5/v7 pose atlases.
     group(
@@ -145,10 +163,14 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
         maps(
           EXPANSION_ATLASES.filter((key) => key !== 'hero-wang-simple' && key !== 'hero-li-simple'),
         ),
-      () => registerExpansionArt(scene),
+      () => {
+        registerExpansionArt(scene);
+        releaseSources(scene, ['mu-uyen-child', 'wanderers', 'spirit-companions', 'dungeon-bosses-v3']);
+      },
     );
   }
   if (map.monsters.length || map.arena) {
+    const arts = mapMonsterArt(map), sheets = monsterSheets(new Set([...arts].filter(art => !scene.textures.exists(art))));
     group(
       'items',
       () => {
@@ -157,13 +179,13 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
       () => {},
     );
     group(
-      'monsters',
+      `monsters:${map.id}`,
       () =>
-        BESTIARY_SHEETS.forEach((sheet) =>
+        sheets.forEach((sheet) =>
           image(`bestiary-${sheet}-source`, `/assets/monsters/${sheet}-v6.png`),
         ),
       () => {
-        registerMonsterArt(scene);
+        registerMonsterArt(scene, arts);
         for (const sheet of BESTIARY_SHEETS)
           if (scene.textures.exists(`bestiary-${sheet}-source`))
             scene.textures.remove(`bestiary-${sheet}-source`);
@@ -182,18 +204,28 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
 
 export function finishMapAssets(scene: Phaser.Scene) {
   const builders = pending.get(scene);
-  if (!builders?.size) return;
-  for (const [id, build] of builders) {
+  for (const [id, build] of builders ?? []) {
     build();
     scene.registry.set(`art-ready:${id}`, true);
   }
   registerWorldStyle(scene);
+  const player = gameStore.getState().player, hero = heroFor(player).id, child = usesChildSprite(player);
+  ensureDirectionalHero(scene, hero, child);
+  const required = new Set<string>();
+  if (!scene.textures.exists(directionalArt(hero, child))) required.add(playerArt(player.sex));
+  const map = getMap(mapIds.get(scene) ?? gameStore.getState().mapId);
+  for (const npc of map.npcs) {
+    if (!scene.textures.exists(NPC_SPRITES[npc.id]?.texture ?? '')) required.add(NPCS[npc.id].art);
+  }
+  for (const art of mapMonsterArt(map)) required.add(art);
+  if (map.monsters.length || map.arena) { required.add('beast_snow'); required.add('beast_frost_king'); }
   if (!scene.registry.get('art-ready:procedural')) {
-    generateArt(scene);
+    generateArt(scene, required);
     buildImmortalArt(scene);
     scene.registry.set('art-ready:procedural', true);
-  } else registerCharacterArt(scene);
+  } else registerCharacterArt(scene, required);
   pending.delete(scene);
+  mapIds.delete(scene);
 }
 
 /** Peers can arrive from any school; load that school's effects once on arrival. */

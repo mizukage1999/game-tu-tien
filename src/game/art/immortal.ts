@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { makeCanvas } from './canvas';
 
 /** Paint at 2x; display sizes stay in world units so mobile scaling keeps clean edges. */
@@ -59,6 +60,6 @@ export function buildImmortalArt(scene: Phaser.Scene) {
         }
       }
     }
-    scene.textures.addCanvas(key, canvas)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
+    addStaticTexture(scene, key, canvas)?.setFilter(Phaser.Textures.FilterMode.LINEAR);
   }
 }

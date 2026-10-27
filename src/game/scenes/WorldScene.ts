@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
+import { addGroundTextures, clearGroundTextures, GROUND_PREFIX } from '../art/groundTextures';
 import { buildVillageGround } from '../art/villageGround';
 import { VillageAtmosphere } from '../art/VillageAtmosphere';
 import { buildWorldGround } from '../art/worldGround';
@@ -128,6 +129,7 @@ export class WorldScene extends Phaser.Scene {
   private cancelArenaReturn: (() => void) | null = null;
   private inArena = false;
   private mouseWalk: { point: Vec2; npc?: Npc } | null = null;
+  private worldBuilt = false;
   private mouseMarker: Phaser.GameObjects.Ellipse | null = null;
 
   constructor() {
@@ -158,6 +160,7 @@ export class WorldScene extends Phaser.Scene {
     this.levelWarned = false;
     this.remotes.clear();
     this.mouseWalk = null;
+    this.worldBuilt = false;
     this.mouseMarker = null;
   }
 
@@ -171,6 +174,14 @@ export class WorldScene extends Phaser.Scene {
   }
 
   create() {
+    try { this.createWorld(); }
+    catch (error) {
+      console.error('[game] world creation failed', error);
+      this.game.events.emit('assets-error');
+    }
+  }
+
+  private createWorld() {
     finishMapAssets(this);
     const map = (this.map = getMap(this.mapId));
     const state = gameStore.getState();
@@ -207,7 +218,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.buildTerrain(map);
     this.buildDecor(map);
-    this.scenery = (this.children.list.filter(child => child.type === 'Image' && (child as Phaser.GameObjects.Image).texture.key !== 'ground:active') as Phaser.GameObjects.Image[])
+    this.scenery = (this.children.list.filter(child => child.type === 'Image' && !(child as Phaser.GameObjects.Image).texture.key.startsWith(GROUND_PREFIX)) as Phaser.GameObjects.Image[])
       .filter(image => image.visible).map(image => ({ image, bounds: image.getBounds(), tweens: this.tweens.getTweensOf(image) }));
     publishWorldPreview(this, map);
 
@@ -274,7 +285,7 @@ export class WorldScene extends Phaser.Scene {
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitZoom, this);
     this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, this.fitZoom, this));
     cam.fadeIn(400);
-    if (this.game.renderer.type === Phaser.WEBGL && performanceStore.getState().tier === 0) {
+    if (this.game.renderer.type === Phaser.WEBGL && !this.game.config.disablePostFX && performanceStore.getState().tier === 0) {
       cam.postFX.addVignette(0.5, 0.5, 0.92, map.ambient === 'fireflies' ? 0.42 : 0.28);
     }
     this.buildAmbient(map);
@@ -316,6 +327,7 @@ export class WorldScene extends Phaser.Scene {
     this.save();
     this.startMultiplayer(map);
     this.game.events.emit('assets-progress', 1);
+    this.worldBuilt = true;
     this.game.events.emit('assets-ready');
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -330,6 +342,7 @@ export class WorldScene extends Phaser.Scene {
   // ---- construction ------------------------------------------------------
 
   private buildTerrain(map: MapDef) {
+    clearGroundTextures(this);
     const data = map.terrain.map((row, y) =>
       row.map((t, x) => TERRAIN[t].base + (hash(x, y) % TERRAIN[t].variants)),
     );
@@ -341,10 +354,7 @@ export class WorldScene extends Phaser.Scene {
       : map.id === 'vuong_gia_thon' && this.textures.exists('village-materials-v3')
       ? buildVillageGround(map, this.textures.get('village-materials-v3').getSourceImage() as HTMLImageElement)
       : buildIsoGround(map);
-    const key = 'ground:active';
-    if (this.textures.exists(key)) this.textures.remove(key);
-    this.textures.addCanvas(key, ground.canvas);
-    this.add.image(0, 0, key).setOrigin(0, 0).setDepth(-10000);
+    addGroundTextures(this, ground.canvas);
 
     const tm = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
     const tileset = tm.addTilesetImage('tiles', 'tiles', TILE, TILE, 0, 0)!;
@@ -899,6 +909,7 @@ export class WorldScene extends Phaser.Scene {
   // ---- main loop ---------------------------------------------------------
 
   update(_time: number, delta: number) {
+    if (!this.worldBuilt) return;
     const dt = Math.min(delta, 50);
     this.updateTribulation(dt);
     this.player.update(dt);

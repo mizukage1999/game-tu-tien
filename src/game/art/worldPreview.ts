@@ -10,10 +10,9 @@ export function publishWorldPreview(scene: Phaser.Scene, map: MapDef) {
   const size = mapArtSize(map), width = 768, scale = width / size.width;
   const [canvas, ctx] = makeCanvas(width, Math.round(size.height * scale));
   ctx.imageSmoothingQuality = 'high'; ctx.scale(scale, scale);
-  ctx.drawImage(scene.textures.get('ground:active').getSourceImage() as CanvasImageSource, 0, 0);
   const images = scene.children.list.filter(child => child.type === 'Image') as Phaser.GameObjects.Image[];
   for (const image of images.sort((a, b) => a.depth - b.depth)) {
-    if (!image.visible || image.texture.key === 'ground:active' || image.texture.key.startsWith('glow_')) continue;
+    if (!image.visible || image.texture.key.startsWith('glow_')) continue;
     const frame = image.frame;
     ctx.save(); ctx.translate(image.x, image.y); ctx.rotate(image.rotation);
     ctx.scale(image.scaleX * (image.flipX ? -1 : 1), image.scaleY * (image.flipY ? -1 : 1));

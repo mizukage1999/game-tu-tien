@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import { HEROES, HERO_ASSETS, type HeroId } from '../../data/heroes';
 import { HERO_SPELLS, heroSpell } from '../../data/heroSkills';
 import { CHARACTERS, RIGS, frameName } from './generate';
@@ -87,7 +88,7 @@ export function registerRosterArt(scene: Phaser.Scene) {
         p.h * scale,
       ),
     );
-    const texture = scene.textures.addCanvas(rosterArt(hero.id), canvas)!;
+    const texture = addStaticTexture(scene, rosterArt(hero.id), canvas)!;
     const add = (anim: string, sequence: number[]) =>
       sequence.forEach((pose, i) =>
         texture.add(frameName(anim, 'side', i), 0, pose * cell, 0, cell, cell),
@@ -143,7 +144,7 @@ export function registerHeroSpells(scene: Phaser.Scene) {
       ic.drawImage(source, x, y, w, h, 0, 0, 96, 96);
       cacheHeroSpellIcon(art.id, icon.toDataURL('image/png'));
     }
-    const texture = scene.textures.addCanvas(spellTexture(hero.id), canvas)!;
+    const texture = addStaticTexture(scene, spellTexture(hero.id), canvas)!;
     for (const art of Object.values(HERO_SPELLS).filter((a) => a.hero === hero.id)) {
       for (let frame = 0; frame < SPELL_FRAMES; frame++)
         texture.add(

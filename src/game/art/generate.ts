@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { addStaticTexture } from './staticTexture';
 import animData from '../../data/animations.json';
 import { makeCanvas } from './canvas';
 import { drawHuman, PALETTES } from './character';
@@ -37,7 +38,7 @@ export function animKey(art: string, anim: string, dir: string) {
 }
 
 function addCanvas(scene: Phaser.Scene, key: string, canvas: HTMLCanvasElement) {
-  if (!scene.textures.exists(key)) scene.textures.addCanvas(key, canvas);
+  if (!scene.textures.exists(key)) addStaticTexture(scene, key, canvas);
 }
 
 /** How much each rig is blown up inside its frame, keyed by rig name. */
@@ -75,7 +76,7 @@ function buildCharacterSheet(scene: Phaser.Scene, art: string, rig: RigDef, rigN
     ctx.restore();
     ctx.restore();
   });
-  const tex = scene.textures.addCanvas(art, canvas);
+  const tex = addStaticTexture(scene, art, canvas);
   if (!tex) return;
   frames.forEach((f, idx) => {
     tex.add(frameName(f.anim, f.dir, f.i), 0, (idx % cols) * fw, Math.floor(idx / cols) * fh, fw, fh);
@@ -106,7 +107,7 @@ function createAnims(scene: Phaser.Scene, art: string, rig: RigDef) {
 }
 
 /** Builds every texture the game needs. Textures already loaded from real assets are kept. */
-export function generateArt(scene: Phaser.Scene) {
+export function generateArt(scene: Phaser.Scene, required?: ReadonlySet<string>) {
   addCanvas(scene, 'tiles', buildTileset());
   for (const [key, c] of Object.entries(buildDecor())) addCanvas(scene, key, c);
   for (const [key, c] of Object.entries(buildFx())) addCanvas(scene, key, c);
@@ -119,11 +120,12 @@ export function generateArt(scene: Phaser.Scene) {
   }
   for (const [key, c] of Object.entries(buildLootTextures(lootSprites))) addCanvas(scene, key, c);
   createSkillFxAnimations(scene);
-  registerCharacterArt(scene);
+  registerCharacterArt(scene, required);
 }
 
-export function registerCharacterArt(scene: Phaser.Scene) {
+export function registerCharacterArt(scene: Phaser.Scene, required?: ReadonlySet<string>) {
   for (const [art, cfg] of Object.entries(CHARACTERS)) {
+    if (!scene.textures.exists(art) && required && !required.has(art)) continue;
     const rig = RIGS[cfg.rig];
     if (!scene.textures.exists(art)) buildCharacterSheet(scene, art, rig, cfg.rig, cfg.palette);
     createAnims(scene, art, rig);

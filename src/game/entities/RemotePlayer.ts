@@ -8,7 +8,7 @@ import { socialStore } from '../../store/socialStore';
 import type { Vec2 } from '../types';
 import { settingsStore } from '../../store/settingsStore';
 import { rosterArt } from '../art/heroRoster';
-import { directionalArt } from '../art/directionalHeroes';
+import { directionalArt, ensureDirectionalHero } from '../art/directionalHeroes';
 import { heroFor } from '../../data/heroes';
 import { heroDirection, type HeroDirection } from '../art/heroDirections';
 import { isoVector } from '../art/iso';
@@ -46,6 +46,7 @@ export class RemotePlayer {
     this.state = state;
     this.target = { x: state.x, y: state.y };
     this.map = { x: state.x, y: state.y };
+    ensureDirectionalHero(world, heroFor(state).id, !!state.child);
     const authored = world.textures.exists(directionalArt(heroFor(state).id,!!state.child))?directionalArt(heroFor(state).id,!!state.child):state.heroId ? rosterArt(state.heroId) : state.sex === 'male' ? 'hero-wang-v5' : 'hero-li-v5';
     const art = world.textures.exists(authored) ? authored : playerArt(state.sex);
     const spot = iso(state.x, state.y);
@@ -68,6 +69,7 @@ export class RemotePlayer {
   }
 
   apply(next: RemotePlayerState) {
+    ensureDirectionalHero(this.sprite.scene, heroFor(next).id, !!next.child);
     const art=directionalArt(heroFor(next).id,!!next.child);
     if(this.sprite.texture.key!==art&&this.sprite.scene.textures.exists(art)){this.ctrl.destroy();this.sprite.setTexture(art);this.ctrl=new AnimationController(this.sprite,art);}
     this.state = next;

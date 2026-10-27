@@ -1,0 +1,331 @@
+{
+  "environment": "Chrome headless with SwiftShader, isolated QA backend; Android-like memory capability override, not a physical Redmi Note 11",
+  "before": {
+    "villageHeapMB": 144,
+    "fieldHeapMB": 205,
+    "density": 3
+  },
+  "after": {
+    "village": {
+      "map": "vuong_gia_thon",
+      "renderer": 2,
+      "canvas": [
+        1688,
+        780
+      ],
+      "density": 2,
+      "sources": 104,
+      "rgbaMB": 135,
+      "pixelReadbackMB": 0,
+      "preFxTargets": 0,
+      "groundPages": [
+        [
+          1026,
+          1026
+        ],
+        [
+          1026,
+          1026
+        ],
+        [
+          1026,
+          1026
+        ],
+        [
+          1026,
+          812
+        ],
+        [
+          1026,
+          812
+        ],
+        [
+          1026,
+          812
+        ],
+        [
+          514,
+          1026
+        ],
+        [
+          514,
+          812
+        ]
+      ],
+      "largest": [
+        {
+          "key": "realm-crests-v1",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-sect",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-nature",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-village",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-buildings-v4",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-nature-v4",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-vistas-v4",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-architecture-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-nature-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-dawn-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-materials-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-materials-v4",
+          "w": 1448,
+          "h": 1086,
+          "bytes": 6290112
+        }
+      ],
+      "losses": 0,
+      "longTasks": [
+        406,
+        218,
+        1858,
+        219,
+        248,
+        248,
+        226,
+        4723,
+        6592
+      ],
+      "heapMB": 37,
+      "errors": null,
+      "elapsedMs": 21089
+    },
+    "field": {
+      "map": "rung_linh_thu",
+      "renderer": 2,
+      "canvas": [
+        1688,
+        780
+      ],
+      "density": 2,
+      "sources": 205,
+      "rgbaMB": 171,
+      "pixelReadbackMB": 0,
+      "preFxTargets": 0,
+      "groundPages": [
+        [
+          1026,
+          1026
+        ],
+        [
+          1026,
+          1026
+        ],
+        [
+          1026,
+          1026
+        ],
+        [
+          1026,
+          908
+        ],
+        [
+          1026,
+          908
+        ],
+        [
+          1026,
+          908
+        ],
+        [
+          706,
+          1026
+        ],
+        [
+          706,
+          908
+        ]
+      ],
+      "largest": [
+        {
+          "key": "realm-crests-v1",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-sect",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-nature",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-village",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-buildings-v4",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-nature-v4",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "world-vistas-v4",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-architecture-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-nature-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-dawn-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "village-materials-v3",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        },
+        {
+          "key": "court-props-v2",
+          "w": 1536,
+          "h": 1024,
+          "bytes": 6291456
+        }
+      ],
+      "losses": 0,
+      "longTasks": [
+        406,
+        218,
+        1858,
+        219,
+        248,
+        248,
+        226,
+        4723,
+        6592,
+        750,
+        244,
+        256,
+        243,
+        286,
+        280,
+        261,
+        415,
+        389,
+        203,
+        213,
+        212,
+        243,
+        240,
+        239,
+        236,
+        220,
+        864,
+        237,
+        244,
+        248,
+        237,
+        224,
+        220,
+        803,
+        227,
+        215,
+        218,
+        226,
+        213,
+        244,
+        244,
+        242,
+        208,
+        227,
+        225,
+        212,
+        424,
+        333,
+        300,
+        232,
+        267,
+        232,
+        744,
+        216,
+        232,
+        10215,
+        318,
+        239
+      ],
+      "heapMB": 41,
+      "errors": null
+    }
+  },
+  "note": "Heap samples are not total process RAM, peak RAM, or GPU memory. Startup time is environment-dependent and was not benchmarked under controlled CPU/network conditions."
+}

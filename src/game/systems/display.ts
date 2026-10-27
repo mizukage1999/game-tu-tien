@@ -41,6 +41,27 @@ export function adaptiveDensity(
   return preferredDensity(width, height, deviceRatio, quality);
 }
 
+/** Pick a fixed startup budget; never reallocate the buffer in response to FPS. */
+export function startupDensity(
+  width: number,
+  height: number,
+  ratio: number,
+  quality: 'light' | 'balanced' | 'sharp',
+  limits: { mobile: boolean; memory?: number; mode: 0 | 1 | 2; maxEdge?: number },
+) {
+  const budget =
+    limits.mode === 2
+      ? 1
+      : limits.mode === 1 || (limits.mobile && !!limits.memory && limits.memory <= 2)
+        ? 1.5
+        : limits.mobile && !!limits.memory && limits.memory <= 4
+          ? 2
+          : 3;
+  const edge =
+    limits.maxEdge && limits.maxEdge > 0 ? limits.maxEdge / Math.max(1, width, height) : Infinity;
+  return Math.max(0.5, Math.min(adaptiveDensity(width, height, ratio, quality), budget, edge));
+}
+
 export function worldZoom(width: number, height: number) {
   return Math.max(0.65, Math.min(1.5, height / 840, width / 1200));
 }
