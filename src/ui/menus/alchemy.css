@@ -1,0 +1,749 @@
+.alchemy-open > .journey-workspace {
+  overflow: hidden;
+  padding: 0;
+}
+.alchemy-panel {
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  color: #d5dfe2;
+  container: alchemy / size;
+}
+.alchemy-panel :is(h2, h3, h4, p) {
+  margin: 0;
+}
+.alchemy-panel h3 {
+  font:
+    bold 25px/1.2 Cambria,
+    Georgia,
+    serif;
+  color: #ffe1a1;
+}
+.alchemy-panel h4 {
+  font-size: 16px;
+  color: #efd29b;
+}
+.alchemy-panel p {
+  line-height: 1.55;
+  font-size: 14px;
+}
+.alchemy-panel small {
+  color: #adbfcb;
+}
+.alchemy-panel .enough {
+  color: #70e4b2;
+}
+.alchemy-panel .short {
+  color: #ff8f87;
+}
+.alchemy-panel button {
+  cursor: pointer;
+  font-family: inherit;
+}
+.alchemy-panel button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.alchemy-panel button:focus-visible {
+  outline: 2px solid #92deff;
+  outline-offset: -3px;
+}
+.alchemy-tabs {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.alchemy-tabs button,
+.alchemy-filters button {
+  border: 1px solid #a98a5055;
+  border-radius: 3px;
+  color: #b6c6d5;
+  background: linear-gradient(#132739, #07131e);
+}
+.alchemy-tabs button {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  padding: 6px;
+  font-size: 16px;
+}
+.alchemy-tabs button.active,
+.alchemy-filters button.active {
+  border-color: #f6cc7e;
+  color: #ffdf9e;
+  background: linear-gradient(#70502ccc, #17212b);
+  box-shadow:
+    inset 0 -2px #efbd65,
+    0 0 12px #efbd6525;
+}
+.alchemy-content {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.alchemy-furnace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr);
+  gap: 10px;
+}
+.alchemy-furnace-art {
+  min-height: 280px;
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #b68c4f9c;
+  background: #132231 url('/assets/journey/alchemy-room-v2.png') 48% center / cover;
+}
+.alchemy-furnace-art:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(#03101bc9, transparent 42%, #03101be3);
+}
+.alchemy-intro {
+  padding: 22px;
+  text-shadow: 0 2px 4px #000;
+}
+.alchemy-intro small {
+  letter-spacing: 2px;
+  color: #dec897;
+  font-size: 10px;
+}
+.alchemy-intro h2 {
+  font:
+    italic bold 44px/1.2 Cambria,
+    Georgia,
+    serif;
+  color: #ffdda0;
+  margin: 6px 0 10px;
+}
+.alchemy-furnace-actions {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 22px;
+  left: 12px;
+  right: 12px;
+}
+.alchemy-furnace-actions > button {
+  min-width: 210px;
+  min-height: 43px;
+  font-size: 19px;
+}
+.alchemy-furnace-actions > span {
+  font-size: 12px;
+  text-shadow: 0 2px #000;
+  color: #e8dbbc;
+}
+.alchemy-furnace-info,
+.alchemy-recipe-detail,
+.alchemy-herb-detail {
+  padding: 20px;
+  border: 1px solid #b08b5080;
+  background: linear-gradient(145deg, #122532f7, #030e17f5);
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.alchemy-furnace-info {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+.alchemy-furnace-info > small {
+  letter-spacing: 2px;
+  font-size: 10px;
+  color: #d8b97e;
+}
+.alchemy-furnace-info h3 em {
+  display: block;
+  margin-top: 6px;
+  color: #91d8bd;
+  font-size: 18px;
+}
+.alchemy-furnace-info .alchemy-note {
+  font-size: 12px;
+  color: #91a9b5;
+  border-top: 1px solid #c59f4d30;
+  padding-top: 12px;
+}
+.alchemy-furnace-level {
+  flex-shrink: 0;
+  height: 9px;
+  border: 1px solid #ba97575c;
+  background: #020c15;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.alchemy-furnace-level i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #2371be, #9ee4ee);
+}
+.alchemy-brew {
+  display: grid;
+  grid-template-columns: 108px minmax(145px, 0.8fr) minmax(260px, 2fr);
+  gap: 10px;
+  overflow: hidden;
+}
+.alchemy-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.alchemy-filters button {
+  flex: none;
+  min-height: 44px;
+  padding: 7px 3px;
+  font-size: 14px;
+}
+.alchemy-recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  min-width: 0;
+  min-height: 0;
+  scrollbar-width: thin;
+}
+.alchemy-recipe-list button {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+  min-height: 76px;
+  padding: 6px;
+  border: 1px solid #9d865144;
+  background: #071622;
+  border-radius: 3px;
+  color: #e0d2b1;
+}
+.alchemy-recipe-list button.selected,
+.alchemy-herb-grid button.selected {
+  border-color: #f0c371;
+  box-shadow: inset 0 0 0 1px #e8bb6033;
+  background: linear-gradient(110deg, #69522966, #081924);
+}
+.alchemy-recipe-list img {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.alchemy-recipe-list span {
+  min-width: 0;
+}
+.alchemy-recipe-list b {
+  display: block;
+  font-size: 15px;
+}
+.alchemy-recipe-list small {
+  display: block;
+  font-size: 12px;
+  margin-top: 6px;
+}
+.alchemy-recipe-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  overflow: hidden;
+}
+.alchemy-recipe-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.alchemy-recipe-body > * {
+  flex-shrink: 0;
+}
+.alchemy-recipe-detail > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid #ba96554d;
+  padding-bottom: 10px;
+  flex-shrink: 0;
+  z-index: 2;
+  background: #0c1b27;
+}
+.alchemy-recipe-detail > header span {
+  font-size: 12px;
+  white-space: nowrap;
+  color: #9cc1bd;
+}
+.alchemy-pill-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: radial-gradient(ellipse at 20% 50%, #29665740, transparent 70%);
+}
+.alchemy-pill-display > img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+.alchemy-pill-display > div {
+  flex: 1;
+  min-width: 0;
+}
+.alchemy-pill-display small {
+  color: #d1b783;
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+.alchemy-pill-display p {
+  margin: 8px 0;
+}
+.alchemy-pill-display span {
+  color: #88b0b6;
+  font-size: 12px;
+}
+.alchemy-materials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.alchemy-materials > div {
+  display: grid;
+  justify-items: center;
+  flex: 1 1 62px;
+  min-width: 0;
+  max-width: 110px;
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid #8c815655;
+  border-radius: 3px;
+  background: #03111be0;
+}
+.alchemy-materials img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+.alchemy-materials span {
+  color: #b7cad0;
+  font-size: 11px;
+  text-align: center;
+}
+.alchemy-materials b {
+  font:
+    12px Arial,
+    sans-serif;
+}
+.alchemy-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.alchemy-quantity > span {
+  margin-right: 5px;
+  font-size: 13px;
+  color: #ae9d77;
+}
+.alchemy-quantity :is(button, input) {
+  height: 30px;
+  border: 1px solid #b28a4f99;
+  border-radius: 3px;
+  background: #061420;
+  color: #efcf90;
+  padding: 2px 8px;
+  text-align: center;
+}
+.alchemy-quantity input {
+  width: 55px;
+  appearance: textfield;
+  font-size: 16px;
+}
+.alchemy-quantity input::-webkit-inner-spin-button {
+  appearance: none;
+}
+.alchemy-recipe-detail :is(.craft-availability, .craft-feedback) {
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  margin: 0;
+  background: #04111b;
+}
+.alchemy-recipe-detail > footer {
+  display: grid;
+  gap: 5px;
+  flex-shrink: 0;
+  margin-top: auto;
+  z-index: 2;
+  background: #091722;
+  padding: 7px 0;
+  box-shadow: 0 -5px 12px #091722;
+}
+.alchemy-brew-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.alchemy-recipe-detail > footer small {
+  font-size: 11px;
+  max-width: 50%;
+}
+.alchemy-recipe-detail > footer button {
+  min-width: 130px;
+  min-height: 39px;
+  font-size: 18px;
+}
+.alchemy-formulas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 12px;
+  padding: 16px;
+  min-height: 100%;
+  background: radial-gradient(ellipse at top, #23443755, transparent), #071420;
+  border: 1px solid #b4975955;
+}
+.alchemy-formulas > header,
+.alchemy-pill-cabinet > header {
+  grid-column: 1/-1;
+  padding: 4px 0 12px;
+}
+.alchemy-formulas > header h3,
+.alchemy-pill-cabinet > header h3 {
+  margin: 6px 0 8px;
+}
+.alchemy-formula {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 15px;
+  min-width: 0;
+  border: 1px solid #bd914a77;
+  background: linear-gradient(145deg, #1c303be6, #06121f);
+  color: #bdc8ca;
+  padding: 20px 12px;
+  border-radius: 4px;
+}
+.alchemy-formula-number {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  color: #ad8c4b;
+  font-size: 13px;
+}
+.alchemy-formula > img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+.alchemy-formula > h4 {
+  font-size: 19px;
+}
+.alchemy-formula > p {
+  font-size: 13px;
+}
+.alchemy-formula > span:last-child {
+  font-size: 12px;
+}
+.alchemy-pill-cabinet {
+  padding: 14px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  background: #081724;
+  border: 1px solid #b4975955;
+}
+.alchemy-pill-cabinet article {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 15px;
+  border: 1px solid #a38a4d55;
+  background: linear-gradient(90deg, #29443e55, transparent);
+}
+.alchemy-pill-cabinet article > img {
+  width: 85px;
+  height: 85px;
+  object-fit: contain;
+}
+.alchemy-pill-cabinet article > div {
+  flex: 1;
+}
+.alchemy-pill-cabinet h4 {
+  display: flex;
+  justify-content: space-between;
+}
+.alchemy-pill-cabinet p {
+  margin: 7px 0 10px;
+}
+.alchemy-pill-cabinet article > div > div {
+  display: flex;
+  gap: 8px;
+}
+.alchemy-herbs {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 10px;
+  overflow: hidden;
+}
+.alchemy-herb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  align-content: start;
+}
+.alchemy-herb-grid button {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 5px;
+  background: #071722;
+  border: 1px solid #b0965866;
+  border-radius: 3px;
+  color: #d4d9cc;
+}
+.alchemy-herb-grid img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.alchemy-herb-grid b {
+  font-size: 13px;
+}
+.alchemy-herb-grid span {
+  color: #7cdbad;
+  font-size: 13px;
+}
+.alchemy-herb-detail > img {
+  display: block;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin: 0 auto 10px;
+}
+.alchemy-herb-detail > :is(span, p, h4) {
+  display: block;
+  margin-top: 12px;
+}
+.alchemy-herb-detail > span {
+  font-size: 13px;
+  color: #7cdbad;
+}
+.alchemy-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  border-top: 1px solid #a28a4a35;
+  padding: 10px 0;
+  font-size: 13px;
+}
+.alchemy-source button {
+  flex: none;
+}
+.alchemy-herb-detail > button {
+  margin-top: 12px;
+}
+@container alchemy (max-width: 760px) {
+  .alchemy-tabs button {
+    font-size: 13px;
+  }
+  .alchemy-panel h3 {
+    font-size: 19px;
+  }
+  .alchemy-panel p {
+    font-size: 12px;
+  }
+  .alchemy-furnace {
+    grid-template-columns: minmax(0, 1.3fr) minmax(210px, 1fr);
+    gap: 6px;
+  }
+  .alchemy-intro {
+    padding: 14px;
+  }
+  .alchemy-intro h2 {
+    font-size: 32px;
+  }
+  .alchemy-furnace-info,
+  .alchemy-recipe-detail,
+  .alchemy-herb-detail {
+    padding: 10px;
+    gap: 9px;
+  }
+  .alchemy-brew {
+    grid-template-columns: 77px minmax(116px, 0.75fr) minmax(235px, 2fr);
+    gap: 6px;
+  }
+  .alchemy-filters {
+    gap: 6px;
+  }
+  .alchemy-filters button {
+    min-height: 36px;
+    font-size: 11px;
+  }
+  .alchemy-recipe-list button {
+    min-height: 60px;
+    gap: 5px;
+  }
+  .alchemy-recipe-list img {
+    width: 34px;
+    height: 34px;
+  }
+  .alchemy-recipe-list b {
+    font-size: 12px;
+  }
+  .alchemy-recipe-list small {
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  .alchemy-pill-display {
+    gap: 8px;
+  }
+  .alchemy-pill-display > img {
+    width: 75px;
+    height: 75px;
+  }
+  .alchemy-materials {
+    gap: 4px;
+  }
+  .alchemy-materials > div {
+    flex-basis: 49px;
+    padding: 4px 2px;
+  }
+  .alchemy-materials img {
+    width: 32px;
+    height: 32px;
+  }
+  .alchemy-materials span {
+    font-size: 10px;
+  }
+  .alchemy-recipe-detail > header {
+    padding-bottom: 7px;
+  }
+  .alchemy-recipe-detail > header span {
+    font-size: 10px;
+  }
+  .alchemy-recipe-detail > footer button {
+    font-size: 15px;
+    min-width: 100px;
+    min-height: 34px;
+  }
+  .alchemy-panel h4 {
+    font-size: 13px;
+  }
+  .alchemy-recipe-detail :is(.craft-availability, .craft-feedback) {
+    font-size: 11px;
+    padding: 4px;
+  }
+  .alchemy-formulas {
+    padding: 9px;
+    gap: 7px;
+  }
+  .alchemy-formula {
+    padding: 14px 8px;
+    gap: 9px;
+  }
+  .alchemy-formula > img {
+    width: 65px;
+    height: 65px;
+  }
+  .alchemy-formula > p {
+    font-size: 11px;
+  }
+  .alchemy-herb-grid {
+    gap: 5px;
+  }
+  .alchemy-herb-grid img {
+    width: 45px;
+    height: 45px;
+  }
+  .alchemy-herb-grid b {
+    font-size: 11px;
+  }
+}
+@container alchemy (max-height: 380px) {
+  .alchemy-furnace-art {
+    min-height: 240px;
+  }
+  .alchemy-recipe-detail {
+    gap: 7px;
+  }
+  .alchemy-pill-display > img {
+    width: 56px;
+    height: 56px;
+  }
+  .alchemy-pill-display p {
+    margin: 3px 0;
+  }
+  .alchemy-pill-display small {
+    display: none;
+  }
+  .alchemy-furnace-info {
+    gap: 9px;
+  }
+  .alchemy-recipe-detail > footer small {
+    display: none;
+  }
+  .alchemy-brew-actions {
+    justify-content: center;
+  }
+  .alchemy-formulas > header p,
+  .alchemy-pill-cabinet > header p {
+    display: none;
+  }
+}
+@container alchemy (max-width: 460px) {
+  .alchemy-furnace {
+    display: block;
+  }
+  .alchemy-furnace-info {
+    margin-top: 8px;
+  }
+  .alchemy-brew {
+    grid-template-columns: 100px minmax(0, 1fr);
+    overflow-y: auto;
+  }
+  .alchemy-filters {
+    grid-column: 1/-1;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .alchemy-filters button {
+    flex: 1;
+  }
+  .alchemy-recipe-list,
+  .alchemy-recipe-detail {
+    overflow: visible;
+  }
+  .alchemy-formulas {
+    grid-template-columns: 1fr;
+  }
+  .alchemy-herbs {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .alchemy-herb-grid,
+  .alchemy-herb-detail {
+    overflow: visible;
+  }
+}
+.hud.phone .alchemy-panel {
+  grid-template-rows: 31px minmax(0, 1fr);
+  gap: 6px;
+}

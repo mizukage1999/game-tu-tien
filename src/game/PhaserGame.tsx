@@ -61,7 +61,7 @@ function fitTurnedCanvas(game: Phaser.Game) {
     if (!scale.parent) return;
     const w = Math.max(1, parent.clientWidth);
     const h = Math.max(1, parent.clientHeight);
-    const density = adaptiveDensity(w, h, window.devicePixelRatio, settingsStore.getState().preferences.quality, performanceStore.getState().tier);
+    const density = adaptiveDensity(w, h, window.devicePixelRatio, settingsStore.getState().preferences.quality);
     const width = Math.round(w * density);
     const height = Math.round(h * density);
     if (scale.width === width && scale.height === height && game.registry.get('render-density') === density) return;
@@ -75,7 +75,6 @@ function fitTurnedCanvas(game: Phaser.Game) {
   const stopPreferences = settingsStore.subscribe((next, prev) => {
     if (next.preferences.quality !== prev.preferences.quality) apply();
   });
-  const stopPerformance = performanceStore.subscribe(apply);
   observer.observe(parent);
   window.addEventListener('resize', apply);
   apply();
@@ -84,7 +83,6 @@ function fitTurnedCanvas(game: Phaser.Game) {
   return () => {
     observer.disconnect();
     stopPreferences();
-    stopPerformance();
     window.removeEventListener('resize', apply);
     cancelAnimationFrame(raf);
   };
@@ -109,7 +107,9 @@ export function PhaserGame() {
       backgroundColor: '#18202e',
       scale: { mode: Phaser.Scale.NONE, width: host.current.clientWidth, height: host.current.clientHeight },
       physics: { default: 'arcade', arcade: { debug: false } },
-      render: { antialias: true, roundPixels: false },
+      // Linear texture filtering keeps painted sprites smooth. MSAA adds large
+      // framebuffer attachments on HiDPI phones but does not sharpen bitmap art.
+      render: { antialias: true, antialiasGL: false, roundPixels: false, batchSize: 2048 },
       input: { activePointers: 3 },
       fps: { target: 60, smoothStep: true },
       audio: { noAudio: true },

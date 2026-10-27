@@ -39,6 +39,7 @@ import { ensureHeroSpell, finishMapAssets, queueMapAssets } from '../art/runtime
 import { heroFor } from '../../data/heroes';
 import { dismissWorldPanel, worldInputBlocked } from '../systems/inputFocus';
 import { performanceStore } from '../../store/performanceStore';
+import { deferArenaReturn } from '../systems/arenaReturn';
 import { RemotePlayer } from '../entities/RemotePlayer';
 import { joinWorldChannel, type WorldChannel } from '../../net/worldChannel';
 import type { RemotePlayerState } from '../../net/presence';
@@ -123,6 +124,8 @@ export class WorldScene extends Phaser.Scene {
   private pointCooldowns = new Map<string, number>();
   private scenery: { image: Phaser.GameObjects.Image; bounds: Phaser.Geom.Rectangle; tweens: Phaser.Tweens.Tween[] }[] = [];
   private sceneryTimer = 0;
+  private cancelArenaReturn: (() => void) | null = null;
+  private inArena = false;
 
   constructor() {
     super('World');
@@ -311,6 +314,9 @@ export class WorldScene extends Phaser.Scene {
     this.game.events.emit('assets-ready');
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.cancelArenaReturn?.();
+      this.cancelArenaReturn = null;
+      this.inArena = false;
       this.cleanups.forEach((fn) => fn());
       this.cleanups = [];
     });
@@ -545,6 +551,36 @@ export class WorldScene extends Phaser.Scene {
     this.villageAtmosphere?.fit();
   }
 
+  private setArenaPaused(pause: boolean) {
+    this.cancelArenaReturn?.();
+    this.cancelArenaReturn = null;
+    this.input.keyboard?.resetKeys();
+    virtualInput.x = 0;
+    virtualInput.y = 0;
+    if (pause) {
+      this.inArena = true;
+      this.player.clearRoute();
+      this.player.setVelocity(0, 0);
+      this.stopMultiplayer?.();
+      this.scene.setVisible(false);
+      this.scene.pause();
+    } else if (this.inArena) {
+      this.cancelArenaReturn = deferArenaReturn(() => {
+        this.cancelArenaReturn = null;
+        if (!this.inArena || socialStore.getState().duel || !this.sys.isPaused()) return;
+        this.inArena = false;
+        // Clear the duel's held pointer and timing history, including long mobile
+        // background gaps. No game state, texture atlas or scene is rebuilt here.
+        for (const pointer of this.input.manager.pointers) pointer.reset();
+        this.game.loop.resetDelta();
+        this.fitZoom();
+        this.scene.setVisible(true);
+        this.scene.resume();
+        this.startMultiplayer(this.map);
+      });
+    }
+  }
+
   private buildHerbs() {
     for (const node of herbNodes(this.mapId)) {
       if (this.map.blocked[node.y]?.[node.x]) continue;
@@ -750,7 +786,7 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
       EventBus.on('cmd:home', () => this.visitHome()),
       EventBus.on('cmd:travel', (id: string) => this.travelTo(id)),
-      EventBus.on('cmd:duelPause',(pause:boolean)=>{this.input.keyboard?.resetKeys();virtualInput.x=0;virtualInput.y=0;if(pause){this.player.clearRoute();this.player.setVelocity(0,0);this.stopMultiplayer?.();this.scene.setVisible(false);this.scene.pause();}else {this.scene.setVisible(true);this.scene.resume();this.startMultiplayer(this.map);}}),
+      EventBus.on('cmd:duelPause', (pause) => this.setArenaPaused(pause)),
       EventBus.on('cmd:mapWalk',(tile:{x:number;y:number})=>{
         const s=gameStore.getState();if(s.status!=='alive'||s.tribulation||lifeProgress(s.player).retreat)return;
         const path=findPath(this.map.blocked,Math.floor(this.player.x/TILE),Math.floor(this.player.y/TILE),tile.x,tile.y,0);

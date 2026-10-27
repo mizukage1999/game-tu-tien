@@ -3,7 +3,7 @@ import { gameStore, newPlayer } from '../../store/gameStore';
 import { ITEMS, QUESTS } from '../../data';
 import { acceptQuest, applyEvent, type QuestLog } from './quest';
 import { deserialize, serialize } from './save';
-import { herbNodes, HOME_QUEST, immortalProgress, RECIPES, STORY_ORDER } from './immortal';
+import { herbNodes, HOME_QUEST, immortalProgress, RECIPES, recipeCapacity, recipeCheck, STORY_ORDER } from './immortal';
 import { renderDensity, worldZoom } from './display';
 import { getMap } from '../maps';
 import { findPath } from './path';
@@ -46,6 +46,25 @@ describe('immortal journey', () => {
     expect(log.main_duoc.status).toBe('active');
     const result = applyEvent(log, QUESTS, { type: 'gather', item: 'ngung_lo', qty: 1 });
     expect(result.log.main_duoc.status).toBe('ready');
+  });
+
+  it('crafts a batch atomically, counts every pill and rejects invalid or unaffordable quantities', () => {
+    const p = { ...newPlayer(), linhKhi: 25, inventory: { thanh_linh_thao: 10, ngung_lo: 5 } };
+    gameStore.setState({ player: p, quests: { main_dan: { status: 'active', progress: [0, 0] } } });
+    expect(recipeCapacity(p, 'hoi_xuan_dan')).toBe(5);
+    for (const quantity of [0, -1, 1.5, NaN, Infinity, 100, 6]) {
+      expect(recipeCheck(p, 'hoi_xuan_dan', quantity)).not.toBeNull();
+      gameStore.getState().craftPill('hoi_xuan_dan', quantity);
+      expect(gameStore.getState().player).toEqual(p);
+    }
+    gameStore.getState().craftPill('hoi_xuan_dan', 5);
+    const next = gameStore.getState().player;
+    expect(next.inventory).toEqual({ hoi_xuan_dan: 5 });
+    expect(next.linhKhi).toBe(0);
+    expect(immortalProgress(next).crafted.hoi_xuan_dan).toBe(5);
+    expect(gameStore.getState().craftFeedback?.text).toContain('×5');
+    expect(recipeCapacity(next, 'hoi_xuan_dan')).toBe(0);
+    expect(recipeCapacity(next, 'unknown')).toBe(0);
   });
 
   it('gives cultivation pills their effect exactly once', () => {

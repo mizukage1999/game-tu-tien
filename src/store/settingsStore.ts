@@ -1,7 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 
-export const SETTINGS_KEY = 'tu-tien-device-settings-v1';
+export const SETTINGS_KEY = 'tu-tien-device-settings-v2';
 export type RenderQuality = 'light' | 'balanced' | 'sharp';
 export interface DeviceSettings {
   quality: RenderQuality;
@@ -11,7 +11,7 @@ export interface DeviceSettings {
   hitEffects: boolean;
 }
 export const DEFAULT_SETTINGS: Readonly<DeviceSettings> = Object.freeze({
-  quality: 'balanced',
+  quality: 'sharp',
   brightness: 100,
   showDamage: true,
   showNames: true,
@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: Readonly<DeviceSettings> = Object.freeze({
 export function normalizeSettings(raw: unknown): DeviceSettings {
   const p = raw && typeof raw === 'object' ? (raw as Partial<DeviceSettings>) : {};
   return {
-    quality: p.quality === 'light' || p.quality === 'sharp' ? p.quality : 'balanced',
+    quality: p.quality === 'light' || p.quality === 'balanced' ? p.quality : 'sharp',
     brightness:
       typeof p.brightness === 'number' && Number.isFinite(p.brightness)
         ? Math.max(70, Math.min(130, Math.round(p.brightness)))
@@ -34,7 +34,10 @@ export function normalizeSettings(raw: unknown): DeviceSettings {
 }
 function loadSettings() {
   try {
-    return normalizeSettings(JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? 'null'));
+    const saved = localStorage.getItem(SETTINGS_KEY);
+    if (saved !== null) return normalizeSettings(JSON.parse(saved));
+    const old = normalizeSettings(JSON.parse(localStorage.getItem('tu-tien-device-settings-v1') ?? 'null'));
+    return { ...old, quality: old.quality === 'balanced' ? 'sharp' : old.quality };
   } catch {
     return { ...DEFAULT_SETTINGS };
   }

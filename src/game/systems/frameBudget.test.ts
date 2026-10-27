@@ -19,16 +19,19 @@ it('ignores hidden-tab gaps and does not reduce quality for normal 60 FPS timing
   for (const delta of [10000, NaN, -1, Infinity]) budget.sample(delta);
   expect(budget.tier).toBe(0);
 });
-it('keeps the back buffer inside its GPU budget without changing simulation or device preferences', () => {
+it('preserves Retina resolution while effects adapt, with a fixed 8 MP ceiling', () => {
   for (const [w, h] of [
     [844, 390],
     [1920, 1080],
     [3840, 2160],
   ]) {
-    const high = adaptiveDensity(w, h, 3, 'sharp', 0),
-      low = adaptiveDensity(w, h, 3, 'sharp', 2);
-    expect(low).toBeLessThan(high);
-    expect(low).toBeGreaterThanOrEqual(0.65);
-    expect(low * low * w * h).toBeLessThanOrEqual(Math.max(1_000_000, 0.65 ** 2 * w * h) + 1);
+    const sharp = adaptiveDensity(w, h, 3, 'sharp');
+    expect(sharp).toBeGreaterThanOrEqual(1);
+    expect(sharp * sharp * w * h).toBeLessThanOrEqual(Math.max(8_000_000, w * h) + 1);
   }
+  expect(adaptiveDensity(844, 390, 3, 'sharp')).toBe(3);
+  expect(adaptiveDensity(390, 844, 3, 'sharp')).toBe(3);
+  expect(adaptiveDensity(844, 390, 2.75, 'sharp')).toBe(2.75);
+  expect(adaptiveDensity(844, 390, 3, 'light')).toBe(1);
+  expect(adaptiveDensity(844, 390, NaN, 'sharp')).toBe(1);
 });

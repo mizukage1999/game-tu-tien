@@ -43,9 +43,9 @@ describe('device settings', () => {
     ).toEqual({ ...DEFAULT_SETTINGS, brightness: 130, showDamage: false });
     expect(normalizeSettings({ brightness: NaN })).toEqual(DEFAULT_SETTINGS);
     expect(preferredDensity(844, 390, 3, 'light')).toBe(1);
-    expect(preferredDensity(844, 390, 3, 'sharp')).toBe(2);
+    expect(preferredDensity(844, 390, 3, 'sharp')).toBe(3);
     const density = preferredDensity(2400, 1600, 3, 'sharp');
-    expect(2400 * 1600 * density ** 2).toBeLessThanOrEqual(4_000_001);
+    expect(2400 * 1600 * density ** 2).toBeLessThanOrEqual(8_000_001);
   });
   it('persists real display preferences and resets only those preferences, leaving the character intact', () => {
     const host = document.createElement('div'),

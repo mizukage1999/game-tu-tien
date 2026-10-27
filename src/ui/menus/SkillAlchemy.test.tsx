@@ -89,10 +89,11 @@ describe('skill selection and in-panel crafting', () => {
     });
     try {
       act(() => root.render(<Journey />));
-      let card = host.querySelector('.immortal-recipes article')!;
+      act(() => host.querySelector<HTMLButtonElement>('#alchemy-tab-brew')!.click());
+      let card = host.querySelector('.alchemy-recipe-detail')!;
       expect(card.querySelector('.craft-availability')?.textContent).toContain('Thiếu:');
       expect(card.querySelector('.craft-availability')?.textContent).toContain('×2');
-      expect(card.querySelector<HTMLButtonElement>('button')!.disabled).toBe(true);
+      expect(card.querySelector<HTMLButtonElement>('footer button')!.disabled).toBe(true);
       act(() =>
         gameStore.setState({
           player: {
@@ -102,9 +103,9 @@ describe('skill selection and in-panel crafting', () => {
           },
         }),
       );
-      card = host.querySelector('.immortal-recipes article')!;
+      card = host.querySelector('.alchemy-recipe-detail')!;
       expect(card.querySelector('.craft-availability')?.textContent).toContain('Đủ nguyên liệu');
-      act(() => card.querySelector<HTMLButtonElement>('button')!.click());
+      act(() => card.querySelector<HTMLButtonElement>('footer button')!.click());
       expect(card.querySelector('[role="status"]')?.textContent).toContain('Luyện thành');
       expect(gameStore.getState().player.inventory.hoi_xuan_dan).toBe(1);
       expect(card.querySelector('.craft-availability')?.textContent).toContain('Thiếu:');

@@ -53,11 +53,24 @@ export const RECIPES = [
   },
 ] as const;
 
-export function recipeCheck(player: PlayerSave, id: string): string | null {
+export function recipeCost(id: string, quantity = 1): Record<string, number> {
+  const recipe = RECIPES.find((r) => r.id === id);
+  return Object.fromEntries(Object.entries(recipe?.cost ?? {}).map(([key, amount]) => [key, amount * quantity]));
+}
+
+export function recipeCapacity(player: PlayerSave, id: string) {
+  if (!RECIPES.some(r => r.id === id)) return 0;
+  const cost = recipeCost(id);
+  return Math.max(0, Math.min(99, ...Object.entries(cost).map(([key, amount]) =>
+    Math.floor((key === 'linh_khi' ? player.linhKhi : player.inventory[key] ?? 0) / amount))));
+}
+
+export function recipeCheck(player: PlayerSave, id: string, quantity = 1): string | null {
   const recipe = RECIPES.find((r) => r.id === id);
   if (!recipe) return 'Không có đan phương này.';
+  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99) return 'Mỗi lần luyện từ 1 đến 99 viên.';
   if (player.level < recipe.level) return `Cần Lv.${recipe.level} để lĩnh ngộ đan phương.`;
-  return missingMaterials(player, recipe.cost);
+  return missingMaterials(player, recipeCost(id, quantity));
 }
 
 export const MOUNTS = [

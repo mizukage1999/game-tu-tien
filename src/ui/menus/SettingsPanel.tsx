@@ -206,8 +206,8 @@ export function SettingsPanel() {
           </button>
         )}
       </SettingRow>
-      <SettingRow title="Khung hình mục tiêu" hint="Tự giảm độ nét và hiệu ứng phụ khi máy hụt khung hình."><span className="settings-static-value">60 FPS · Tự tối ưu</span></SettingRow>
-      <SettingRow title="Độ nét hình ảnh" hint="Độ nét tối đa; game có thể hạ tạm thời để ưu tiên FPS.">
+      <SettingRow title="Khung hình mục tiêu" hint="Tự giảm hiệu ứng phụ khi máy chậm, giữ nguyên độ nét đã chọn."><span className="settings-static-value">60 FPS · Tự tối ưu</span></SettingRow>
+      <SettingRow title="Độ nét hình ảnh" hint="Sắc nét dùng độ phân giải Retina/HiDPI đến 3×; Nhẹ phù hợp máy ít bộ nhớ.">
         <select
           aria-label="Độ nét hình ảnh"
           value={prefs.quality}

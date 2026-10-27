@@ -22,7 +22,7 @@ export type GameEvent =
   | { type: 'skillUpgrade'; skill: string }
   | { type: 'dungeonClear'; dungeon: string }
   | { type: 'gather'; item: string; qty: number }
-  | { type: 'craft'; item: string }
+  | { type: 'craft'; item: string; qty?: number }
   | { type: 'mount'; mount: 'sword' | 'crane' }
   | { type: 'interact'; point: string };
 
@@ -91,7 +91,7 @@ function objectiveGain(obj: Objective, ev: GameEvent): number | 'set' | 0 {
     case 'gather':
       return ev.type === 'gather' && ev.item === obj.item ? ev.qty : 0;
     case 'craft':
-      return ev.type === 'craft' && ev.item === obj.item ? 1 : 0;
+      return ev.type === 'craft' && ev.item === obj.item ? (ev.qty ?? 1) : 0;
     case 'mount':
       return ev.type === 'mount' && ev.mount === obj.mount ? 1 : 0;
     case 'interact':

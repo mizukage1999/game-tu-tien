@@ -57,9 +57,12 @@ export function DuelOverlay() {
   live.current = duel;
   useEffect(() => {
     if (!nonce) return;
+    const heldKeys = keys.current;
     seq.current = 0;
     move.current = { x: 0, y: 0 };
     keys.current.clear();
+    cast.current = null;
+    drag.current = null;
     readyArena();
     let lastReady = Date.now();
     const tick = () => {
@@ -132,6 +135,10 @@ export function DuelOverlay() {
     const timer = setInterval(tick, 80);
     return () => {
       clearInterval(timer);
+      heldKeys.clear();
+      move.current = { x: 0, y: 0 };
+      cast.current = null;
+      drag.current = null;
       window.removeEventListener('keydown', key, true);
       window.removeEventListener('keyup', key, true);
       window.removeEventListener('blur', blur);
@@ -139,9 +146,10 @@ export function DuelOverlay() {
   }, [nonce]);
   if (!duel) return null;
   const s = duel.snapshot,
-    me = s.fighters.find((p) => p.userId === duel.localId)!,
-    loadout = me.loadout ?? DEFAULT_LOADOUT;
-  const enemy = s.fighters.find((p) => p.userId !== duel.localId)!;
+    me = s.fighters.find((p) => p.userId === duel.localId);
+  const enemy = s.fighters.find((p) => p.userId !== duel.localId);
+  if (!me || !enemy) return <div className="duel-screen"><p>Chưa nhận đủ thông tin trận đấu.</p><button className="btn" onClick={closeArena}>Trở về</button></div>;
+  const loadout = me.loadout ?? DEFAULT_LOADOUT;
   const seconds = Math.ceil(
     Math.max(0, s.remaining - (s.phase === 'countdown' ? 3000 - s.elapsed : 0)) / 1000,
   );

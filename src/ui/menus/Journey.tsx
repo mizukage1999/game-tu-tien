@@ -5,20 +5,17 @@ import {
   MOUNTS,
   mountUnlocked,
   flightProfile,
-  RECIPES,
-  recipeCheck,
 } from '../../game/systems/immortal';
 import { StoryChapters } from './StoryChapters';
 import { JourneyFeatureHeader } from './JourneyFeatureHeader';
-import { itemIconUrl } from '../../game/art/icons';
 import { itemName, useGame } from '../../store/gameStore';
 import { isChildhood } from '../../game/systems/origin';
-import { realmNameAtLevel } from '../../game/systems/progression';
 import { WorldAtlas } from './WorldAtlas';
 import './journey.css';
 import './journey-v2.css';
 import { HomeBoard, CompanionPanel } from './CultivatorLife';
 import { JourneyGlyph } from './JourneyGlyph';
+import { AlchemyPanel } from './AlchemyPanel';
 
 const TABS = [
   { id: 'story', label: 'Tiên Lộ' },
@@ -30,36 +27,13 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number]['id'];
 
-function Costs({ cost }: { cost: Record<string, number> }) {
-  const player = useGame((s) => s.player);
-  return (
-    <div className="immortal-costs">
-      {Object.entries(cost).map(([id, qty]) => {
-        const have = id === 'linh_khi' ? player.linhKhi : (player.inventory[id] ?? 0);
-        return (
-          <span key={id} className={have >= qty ? 'enough' : 'short'}>
-            {itemName(id)}{' '}
-            <b>
-              {have}/{qty}
-            </b>
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
 export function Journey() {
   const player = useGame((s) => s.player);
   const quests = useGame((s) => s.quests);
 
   const status = useGame((s) => s.status);
 
-  const craftPill = useGame((s) => s.craftPill);
-  const feedback = useGame((s) => s.craftFeedback);
-
   const selectMount = useGame((s) => s.selectMount);
-  const setMenu = useGame((s) => s.setMenu);
   const requestedTab = useGame((s) => s.journeySection);
   const childhood = isChildhood(player);
   const tab = childhood && !['story', 'world'].includes(requestedTab) ? 'story' : requestedTab;
@@ -71,7 +45,7 @@ export function Journey() {
 
   return (
     <div
-      className={`immortal-journey journey-shell${tab === 'world' ? ' atlas-open' : tab === 'story' ? ' story-open' : ' feature-open'}`}
+      className={`immortal-journey journey-shell${tab === 'world' ? ' atlas-open' : tab === 'story' ? ' story-open' : tab === 'alchemy' ? ' alchemy-open' : ' feature-open'}`}
     >
       <nav
         className="immortal-tabs journey-sidebar"
@@ -103,57 +77,7 @@ export function Journey() {
       >
         {tab === 'story' && <StoryChapters />}
         {tab === 'world' && <WorldAtlas />}
-        {tab === 'alchemy' && (
-          <>
-            <JourneyFeatureHeader
-              type="alchemy"
-              detail={`Đã luyện ${Object.values(progress.crafted).reduce((sum, n) => sum + n, 0)} viên · ${RECIPES.length} đan phương`}
-            />
-            <div className="immortal-recipes">
-              {RECIPES.map((recipe) => {
-                const reason = recipeCheck(player, recipe.id);
-                return (
-                  <article key={recipe.id} className="immortal-card">
-                    <div className="immortal-card-heading">
-                      <img className="journey-pill-icon" src={itemIconUrl(recipe.id)} alt="" />
-                      <div>
-                        <h4>{recipe.name}</h4>
-                        <small>
-                          Đã có {player.inventory[recipe.id] ?? 0} · Đã luyện{' '}
-                          {progress.crafted[recipe.id] ?? 0}
-                        </small>
-                      </div>
-                      <span className="immortal-tag">{realmNameAtLevel(recipe.level)}</span>
-                    </div>
-                    <p>{recipe.desc}</p>
-                    <Costs cost={recipe.cost} />
-                    <p className={`craft-availability ${reason ? 'short' : 'enough'}`}>
-                      {reason ?? 'Đủ nguyên liệu · Có thể khai lò.'}
-                    </p>
-                    {feedback?.id === recipe.id && (
-                      <p
-                        className={`craft-feedback ${feedback.ok ? 'enough' : 'short'}`}
-                        role="status"
-                      >
-                        {feedback.text}
-                      </p>
-                    )}
-                    <button
-                      className="btn gold"
-                      disabled={!!reason || status !== 'alive'}
-                      onClick={() => craftPill(recipe.id)}
-                    >
-                      Khai lò luyện đan
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-            <button className="btn" onClick={() => setMenu('bag')}>
-              Mở túi dùng đan dược
-            </button>
-          </>
-        )}
+        {tab === 'alchemy' && <AlchemyPanel />}
         {tab === 'home' && (
           <>
             <JourneyFeatureHeader
@@ -212,7 +136,7 @@ export function Journey() {
             </div>
           </>
         )}
-        {tab !== 'story' && tab !== 'world' && (
+        {tab !== 'story' && tab !== 'world' && tab !== 'alchemy' && (
           <div className="immortal-wallet">
             {['thanh_linh_thao', 'ngung_lo', 'linh_chi', 'yeu_dan'].map((id) => (
               <span key={id} style={{ color: ITEMS[id].color }}>

@@ -268,6 +268,7 @@ const CONTENT: Record<MenuTab, () => JSX.Element> = {
 
 export function Menus() {
   const menu = useGame((s) => s.menu);
+  const journeySection = useGame((s) => s.journeySection);
   const setMenu = useGame((s) => s.setMenu);
   if (!menu) return null;
   const Content = CONTENT[menu];
@@ -278,7 +279,7 @@ export function Menus() {
         <div className="menu-header">
           <h3>
             <img src={`/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu}.png`} alt="" aria-hidden="true" />
-            {menu === 'journey' ? <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : TITLES[menu]}
+            {menu === 'journey' ? journeySection === 'alchemy' ? 'Đan Phòng' : <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : TITLES[menu]}
           </h3>
           {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey'].includes(menu)&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">

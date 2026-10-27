@@ -161,7 +161,7 @@ export function closeArena() {
   arenaTimer = null;
   arenaEngine = null;
   socialStore.getState().setDuel(null);
-  EventBus.emit('cmd:duelPause', false);
+  if (live) EventBus.emit('cmd:duelPause', false);
 }
 export function practiceDuel() {
   if (!canDuel()) return;

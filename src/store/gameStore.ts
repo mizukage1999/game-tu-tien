@@ -146,7 +146,7 @@ export interface GameState {
   acceptQuest(id: string): void;
   turnInQuest(id: string): void;
   tryBreakthrough(): void;
-  craftPill(id: string): void;
+  craftPill(id: string, quantity?: number): void;
   harvestHerb(node: HerbNode, now?: number): boolean;
   upgradeHome(): void;
   harvestGarden(now?: number): void;
@@ -499,19 +499,19 @@ export const gameStore = createStore<GameState>()((set, get) => {
       s.toast(`Thiên kiếp giáng lâm! Né vùng sét và sống sót qua ${plan.waves} đợt.`, 'realm');
     },
 
-    craftPill(id) {
+    craftPill(id, quantity = 1) {
       const s = get();
       const reason = isChildhood(s.player) ? 'Đan đạo sẽ mở sau khi nhập môn.' :
-        s.status !== 'alive' ? 'Cần hồi phục trước khi luyện đan.' : recipeCheck(s.player,id);
+        s.status !== 'alive' ? 'Cần hồi phục trước khi luyện đan.' : recipeCheck(s.player,id,quantity);
       if (reason) { set({craftFeedback:{id,ok:false,text:reason}}); return s.toast(reason,'warn'); }
       const recipe = RECIPES.find((r) => r.id === id)!;
-      if (!s.removeItems(recipe.cost)) return;
+      if (!s.removeItems(Object.fromEntries(Object.entries(recipe.cost).map(([key, amount]) => [key, amount * quantity])))) return;
       const p = get().player;
       const progress = immortalProgress(p);
-      set({ player: { ...p, immortal: { ...progress, crafted: { ...progress.crafted, [id]: (progress.crafted[id] ?? 0) + 1 } } } });
-      get().addItem(id, 1);
-      get().questEvent({ type: 'craft', item: id });
-      set({craftFeedback:{id,ok:true,text:`Luyện thành ${recipe.name} ×1. Đã cất vào túi đồ.`}});
+      set({ player: { ...p, immortal: { ...progress, crafted: { ...progress.crafted, [id]: (progress.crafted[id] ?? 0) + quantity } } } });
+      get().addItem(id, quantity);
+      get().questEvent({ type: 'craft', item: id, qty: quantity });
+      set({craftFeedback:{id,ok:true,text:`Luyện thành ${recipe.name} ×${quantity}. Đã cất vào túi đồ.`}});
       get().toast(`Luyện thành ${recipe.name}!`, 'quest');
     },
 

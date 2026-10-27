@@ -100,6 +100,6 @@ it('retains the feature tabs and keeps adult activities closed during childhood'
   expect(host.querySelector<HTMLButtonElement>('#journey-tab-alchemy')!.disabled).toBe(true);
   expect(host.querySelector<HTMLButtonElement>('#journey-tab-world')!.disabled).toBe(false);
   act(() => gameStore.setState({ player: { ...gameStore.getState().player, admitted: true } }));
-  expect(host.querySelector('.immortal-recipes')).not.toBeNull();
+  expect(host.querySelector('.alchemy-panel')).not.toBeNull();
   expect(host.querySelector<HTMLButtonElement>('#journey-tab-alchemy')!.disabled).toBe(false);
 });
