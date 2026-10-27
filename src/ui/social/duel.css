@@ -209,9 +209,8 @@
   width: clamp(52px, 9cqw, 108px);
   text-align: center;
   transform: translate(-50%, -97%);
-  transition:
-    left 0.08s linear,
-    top 0.08s linear;
+  transition: transform 0.08s linear;
+  will-change: transform;
   pointer-events: none;
   z-index: 4;
 }

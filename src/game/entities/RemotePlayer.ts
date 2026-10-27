@@ -15,6 +15,7 @@ import { isoVector } from '../art/iso';
 import { flightRotation } from '../systems/flightVisual';
 import type { SkillId } from '../../data';
 import { RealmNameplate } from './RealmNameplate';
+import { worldInputBlocked } from '../systems/inputFocus';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -58,7 +59,7 @@ export class RemotePlayer {
     // Clicking a body opens their card. The label is also clickable so a
     // crowded spawn still lets you pick someone.
     this.sprite.setInteractive({ useHandCursor: true });
-    const open = () => socialStore.getState().openCard(state.userId);
+    const open = () => { if (!worldInputBlocked()) socialStore.getState().openCard(state.userId); };
     this.sprite.on('pointerdown', open);
     this.nameplate.clickable(open);
     this.applyPartyStyle();

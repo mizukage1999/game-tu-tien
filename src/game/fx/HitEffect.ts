@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { iso } from '../art/iso';
 import { settingsStore } from '../../store/settingsStore';
+import { performanceStore } from '../../store/performanceStore';
 
 /** White flash on the hit sprite. */
 export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, color = 0xffffff, ms = 90) {
@@ -44,6 +45,7 @@ export function impact(scene: Phaser.Scene, mapX: number, mapY: number, tint = 0
       onComplete: () => burst.destroy(),
     });
   }
+  if (performanceStore.getState().tier === 2) return;
   const spark = scene.add
     .image(x, y, 'fx_spark')
     .setBlendMode(Phaser.BlendModes.ADD)

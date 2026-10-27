@@ -119,6 +119,10 @@ export function generateArt(scene: Phaser.Scene) {
   }
   for (const [key, c] of Object.entries(buildLootTextures(lootSprites))) addCanvas(scene, key, c);
   createSkillFxAnimations(scene);
+  registerCharacterArt(scene);
+}
+
+export function registerCharacterArt(scene: Phaser.Scene) {
   for (const [art, cfg] of Object.entries(CHARACTERS)) {
     const rig = RIGS[cfg.rig];
     if (!scene.textures.exists(art)) buildCharacterSheet(scene, art, rig, cfg.rig, cfg.palette);

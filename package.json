@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/verify-runtime-assets.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "assets:optimize": "node scripts/optimize-runtime-assets.mjs",
+    "assets:verify": "node scripts/verify-runtime-assets.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

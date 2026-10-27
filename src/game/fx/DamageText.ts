@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { iso } from '../art/iso';
 import { settingsStore } from '../../store/settingsStore';
+import { performanceStore } from '../../store/performanceStore';
 
 export type DamageKind = 'enemy' | 'crit' | 'player' | 'heal' | 'info';
 
@@ -15,6 +16,7 @@ const STYLES: Record<DamageKind, { color: string; stroke: string; size: number }
 /** Pooled floating combat numbers. */
 export class DamageText {
   private pool: Phaser.GameObjects.Text[] = [];
+  private activeCount = 0;
 
   constructor(private scene: Phaser.Scene) {}
 
@@ -30,6 +32,7 @@ export class DamageText {
   }
 
   private release(t: Phaser.GameObjects.Text) {
+    this.activeCount--;
     t.setActive(false).setVisible(false);
     this.pool.push(t);
   }
@@ -37,6 +40,8 @@ export class DamageText {
   /** `x, y` arrive in map space; the number itself floats up the screen. */
   show(mapX: number, mapY: number, text: string, kind: DamageKind) {
     if (!settingsStore.getState().preferences.showDamage && ['enemy', 'player', 'crit'].includes(kind)) return;
+    if (this.activeCount >= [32, 20, 12][performanceStore.getState().tier]) return;
+    this.activeCount++;
     const st = STYLES[kind];
     const at = iso(mapX, mapY);
     const x = at.x;

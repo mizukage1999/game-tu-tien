@@ -206,7 +206,8 @@ export function SettingsPanel() {
           </button>
         )}
       </SettingRow>
-      <SettingRow title="Độ nét hình ảnh" hint="Điều chỉnh độ nét khi vẽ thế giới.">
+      <SettingRow title="Khung hình mục tiêu" hint="Tự giảm độ nét và hiệu ứng phụ khi máy hụt khung hình."><span className="settings-static-value">60 FPS · Tự tối ưu</span></SettingRow>
+      <SettingRow title="Độ nét hình ảnh" hint="Độ nét tối đa; game có thể hạ tạm thời để ưu tiên FPS.">
         <select
           aria-label="Độ nét hình ảnh"
           value={prefs.quality}

@@ -47,6 +47,8 @@ export function registerWorldStyle(scene: Phaser.Scene) {
     const bounds = new Map<number, [number, number, number, number]>();
     for (const entry of sheet.entries) {
       let region = bounds.get(entry.cell);
+      const registered = entry.keys.find(key => texture.has(key));
+      if (!region && registered) { const f = texture.get(registered); region = [f.cutX, f.cutY, f.cutWidth, f.cutHeight]; }
       if (!region) {
         // Roof spans and stair baselines are hand-checked on the architecture
         // sheet; square packing is used only where the source follows it.

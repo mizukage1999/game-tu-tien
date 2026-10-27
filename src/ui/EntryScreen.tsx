@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { optimizedAsset } from '../data/assetDelivery';
 import { getMap } from '../game/maps';
 import { heroName, isChildhood } from '../game/systems/origin';
 import { realmNameAtLevel } from '../game/systems/progression';
@@ -7,7 +8,7 @@ import './entry-screen.css';
 
 export function EntryScreen({ children, kind = '' }: { children: ReactNode; kind?: string }) {
   return (
-    <main className={`entry-screen entry-${kind}`}>
+    <main className={`entry-screen entry-${kind}`} style={{ backgroundImage: `url('${optimizedAsset('/assets/ui/login-v5.png')}')` }}>
       <div className="entry-vignette" aria-hidden="true" />
       <div className="entry-content">
         <header className="entry-brand">

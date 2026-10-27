@@ -1,0 +1,608 @@
+{
+  "encoder": "Chromium Canvas WebP",
+  "quality": 0.92,
+  "dimensionsPreserved": true,
+  "alphaVerified": true,
+  "files": [
+    {
+      "source": "/assets/maps/biome-props-v2.png",
+      "output": "/assets/optimized/maps-biome-props-v2.fee5eb37b256.webp",
+      "originalBytes": 3031541,
+      "encodedBytes": 773454,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "f3f1d8369ff5211240b0a67cbffa12064a3538a83ae6049f6335a0dcdef5b29e"
+    },
+    {
+      "source": "/assets/maps/city-people-v2.png",
+      "output": "/assets/optimized/maps-city-people-v2.f9040d9e92dd.webp",
+      "originalBytes": 1905403,
+      "encodedBytes": 510572,
+      "width": 1222,
+      "height": 1287,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "6c4e73b451ac56979d1a4a71704bc063add2a574fc0fccfa3a04c1fae411182b"
+    },
+    {
+      "source": "/assets/maps/court-props-v2.png",
+      "output": "/assets/optimized/maps-court-props-v2.5f8b8a3ee3be.webp",
+      "originalBytes": 2026779,
+      "encodedBytes": 381444,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "c94b1658d7d6036da1d0c0fd58ab4e6bca462b80c3ab252a6943b564f2cb149a"
+    },
+    {
+      "source": "/assets/maps/courtyard-architecture.png",
+      "output": "/assets/optimized/maps-courtyard-architecture.f6912137edf7.webp",
+      "originalBytes": 1486170,
+      "encodedBytes": 433066,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "071c61bcf4d4c31712b7dfdef2cf4aefdc314a980ffee03fc7603247ef03983d"
+    },
+    {
+      "source": "/assets/maps/dungeon-bosses-v3.png",
+      "output": "/assets/optimized/maps-dungeon-bosses-v3.782717c3f77b.webp",
+      "originalBytes": 2704312,
+      "encodedBytes": 713042,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "13e0e83b7a364c932c94d49ef297e81b26b613b75a182c5aee98d55d99dd3c79"
+    },
+    {
+      "source": "/assets/maps/hero-li-simple.png",
+      "output": "/assets/optimized/maps-hero-li-simple.13d02fe29c4c.webp",
+      "originalBytes": 2580328,
+      "encodedBytes": 648656,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "8ebbfc65fa4abc3287caae7c5b22693e9c539f76be66d9e6e7810026b183e3cd"
+    },
+    {
+      "source": "/assets/maps/hero-wang-simple.png",
+      "output": "/assets/optimized/maps-hero-wang-simple.afef6998c0ad.webp",
+      "originalBytes": 1631979,
+      "encodedBytes": 490202,
+      "width": 1774,
+      "height": 887,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "beceb4d19a50999668d97a242e8fc54bf788bc44380b252fbacc350bb4451bf5"
+    },
+    {
+      "source": "/assets/maps/mu-uyen-child.png",
+      "output": "/assets/optimized/maps-mu-uyen-child.26fba96b48b9.webp",
+      "originalBytes": 1558036,
+      "encodedBytes": 472898,
+      "width": 1774,
+      "height": 887,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "b01fe7997dca9910bd1325af4e3188d20ac547cf3f90d9a362b77cffece992be"
+    },
+    {
+      "source": "/assets/maps/sect-v2.png",
+      "output": "/assets/optimized/maps-sect-v2.bac4bc4a3360.webp",
+      "originalBytes": 3006453,
+      "encodedBytes": 714536,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "ab9524bb8447c87ecb21b883f70eed331f5005fd7e2a9f0bd52367db43f5b3d9"
+    },
+    {
+      "source": "/assets/maps/spirit-companions.png",
+      "output": "/assets/optimized/maps-spirit-companions.167393edd36f.webp",
+      "originalBytes": 2433709,
+      "encodedBytes": 552534,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "76d0f355fc8a9caab9c0e7893c03ced15d7ca234918c4f4df69fc04e0af18592"
+    },
+    {
+      "source": "/assets/maps/thiet-tru.png",
+      "output": "/assets/optimized/maps-thiet-tru.5d7a5a3f9529.webp",
+      "originalBytes": 1173842,
+      "encodedBytes": 358684,
+      "width": 1774,
+      "height": 887,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "670735298252c134d4cdd6558c745acd281ed766b04ae734fa7808953fd43c67"
+    },
+    {
+      "source": "/assets/maps/travel-people-v2.png",
+      "output": "/assets/optimized/maps-travel-people-v2.2b200616933b.webp",
+      "originalBytes": 1910680,
+      "encodedBytes": 287100,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "f15e2fc074e0560cd5664aac0d4c4d3e6e0cc319299f19869c4769cf41188a87"
+    },
+    {
+      "source": "/assets/maps/village-architecture-v3.png",
+      "output": "/assets/optimized/maps-village-architecture-v3.a0c0f7ed1a9c.webp",
+      "originalBytes": 2613168,
+      "encodedBytes": 542782,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "757ff73fdc4d0f387f039e6f58cb9c9e142c0a2b0b39710ef457d71cca26951f"
+    },
+    {
+      "source": "/assets/maps/village-dawn-v3.png",
+      "output": "/assets/optimized/maps-village-dawn-v3.2181011c658b.webp",
+      "originalBytes": 2120573,
+      "encodedBytes": 255778,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "f6e4cc34171ab38f071fe0a7fc77d1aa6bdc4fd97d6d55a91c16a487f7969fc7"
+    },
+    {
+      "source": "/assets/maps/village-materials-v3.png",
+      "output": "/assets/optimized/maps-village-materials-v3.fe32279640f9.webp",
+      "originalBytes": 3425928,
+      "encodedBytes": 639772,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "3f66d5ffa84b773a6b4575c23de48cdfd4b450a6a2833efc28df336ae2032ea5"
+    },
+    {
+      "source": "/assets/maps/village-nature-v3.png",
+      "output": "/assets/optimized/maps-village-nature-v3.708f26ad000c.webp",
+      "originalBytes": 2495328,
+      "encodedBytes": 647128,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "dafd0dceda0d7efbd0e7319c364c43603d4f712e18966a0daa6a7f25c468605e"
+    },
+    {
+      "source": "/assets/maps/wanderers.png",
+      "output": "/assets/optimized/maps-wanderers.21c201cdf8b6.webp",
+      "originalBytes": 2157445,
+      "encodedBytes": 389116,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "22817c1e505948b2e872961df1eab2f24c071063d31c653594fb861e376ff1cf"
+    },
+    {
+      "source": "/assets/maps/world-buildings-v4.png",
+      "output": "/assets/optimized/maps-world-buildings-v4.59d63cd45383.webp",
+      "originalBytes": 2560370,
+      "encodedBytes": 500552,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "6fe11ce76e8fd3c6c1200f7ee62ba29ec37a4f2c73e1954eb08524f4d6c48e63"
+    },
+    {
+      "source": "/assets/maps/world-chart-v4.png",
+      "output": "/assets/optimized/maps-world-chart-v4.6eb9068d380b.webp",
+      "originalBytes": 3835844,
+      "encodedBytes": 769190,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "498b0603b4fcb7155d40bcb8ae3abac1a544cc1d7a6681330daba0be55efe5bb"
+    },
+    {
+      "source": "/assets/maps/world-materials-v4.png",
+      "output": "/assets/optimized/maps-world-materials-v4.5d9186bf093e.webp",
+      "originalBytes": 4039989,
+      "encodedBytes": 805668,
+      "width": 1448,
+      "height": 1086,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "5f5c92d2c418c7ce50d5c5574e65e32dfa81cbc589b0c19657d56aec0a529fd3"
+    },
+    {
+      "source": "/assets/maps/world-nature-v4.png",
+      "output": "/assets/optimized/maps-world-nature-v4.ef5f49803112.webp",
+      "originalBytes": 2732589,
+      "encodedBytes": 669048,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "9898d67a708318ca4ccdf5becc1b9eb39bee83dfc0539f80ae7d1fa7d6d12087"
+    },
+    {
+      "source": "/assets/maps/world-nature.png",
+      "output": "/assets/optimized/maps-world-nature.4c4ad9464722.webp",
+      "originalBytes": 3053421,
+      "encodedBytes": 818626,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "6dfc2aa8a4c55af2447599bc4d9391ba40dba3e6e8e1849069b16e73b23d5b5e"
+    },
+    {
+      "source": "/assets/maps/world-people.png",
+      "output": "/assets/optimized/maps-world-people.c713be554b7c.webp",
+      "originalBytes": 2070406,
+      "encodedBytes": 310750,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "31b9fc30343c1febe85d6d232fd6d30b0397674707e25d78b185f9fcfaa967ef"
+    },
+    {
+      "source": "/assets/maps/world-props-v4.png",
+      "output": "/assets/optimized/maps-world-props-v4.a444d196d525.webp",
+      "originalBytes": 2595908,
+      "encodedBytes": 910178,
+      "width": 1448,
+      "height": 1086,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "e59cb900c7bee73eb57b17474a66332f3d0fd7da7f4d936072fec1e5423268c2"
+    },
+    {
+      "source": "/assets/maps/world-sect.png",
+      "output": "/assets/optimized/maps-world-sect.c616d6e7b9b6.webp",
+      "originalBytes": 3052406,
+      "encodedBytes": 826076,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "e4f972ac0762985c1bbcda071729cb78579bc2688937440817de879347ac7e96"
+    },
+    {
+      "source": "/assets/maps/world-village.png",
+      "output": "/assets/optimized/maps-world-village.3355120d2754.webp",
+      "originalBytes": 3124449,
+      "encodedBytes": 841994,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "95ead90755788aa9fd618a0f32251b5fc07574a252782b55ed827e7e690fdeaf"
+    },
+    {
+      "source": "/assets/maps/world-vistas-v4.png",
+      "output": "/assets/optimized/maps-world-vistas-v4.9afc5a4fada6.webp",
+      "originalBytes": 2933644,
+      "encodedBytes": 539772,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "d4ef680f1e2b767b565660a41f7a1e44cc40a619fd53f0db24ba0bed02fee20c"
+    },
+    {
+      "source": "/assets/monsters/boss-v6.png",
+      "output": "/assets/optimized/monsters-boss-v6.99c8a852bd8a.webp",
+      "originalBytes": 3150218,
+      "encodedBytes": 1094200,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "6e5c2d1177a1d436c5918429c9d4f1d90ca0eb7347a4afd1708050742521f563"
+    },
+    {
+      "source": "/assets/monsters/danger-v6.png",
+      "output": "/assets/optimized/monsters-danger-v6.a26ad787ea06.webp",
+      "originalBytes": 2671389,
+      "encodedBytes": 906562,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "4bfe7df30f41a4d58a2aea4958664b23eeb13fa9fae7b65b1d503bc6923c89fc"
+    },
+    {
+      "source": "/assets/monsters/elite-v6.png",
+      "output": "/assets/optimized/monsters-elite-v6.4e25f67e8f75.webp",
+      "originalBytes": 2893537,
+      "encodedBytes": 1023132,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "960056f0164b9b6dd84ebee576cfff1f5420bf7e397c0734196016b339a2a2c0"
+    },
+    {
+      "source": "/assets/monsters/spirit-v6.png",
+      "output": "/assets/optimized/monsters-spirit-v6.dfd0a713305d.webp",
+      "originalBytes": 2539884,
+      "encodedBytes": 864246,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "a52ec9fd137a265ee1c5214a516d3bea4582d6b188a4a4af37e1b6f386b1a7e2"
+    },
+    {
+      "source": "/assets/monsters/wild-v6.png",
+      "output": "/assets/optimized/monsters-wild-v6.7faa7378ad16.webp",
+      "originalBytes": 2389203,
+      "encodedBytes": 785248,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "33b9d4d810b4dc45c1e745b9484aaaf4f047bf5a088419f89ae3773c401cdbd2"
+    },
+    {
+      "source": "/assets/heroes-v8/adults.png",
+      "output": "/assets/optimized/heroes-v8-adults.23d3755de477.webp",
+      "originalBytes": 2714268,
+      "encodedBytes": 1025056,
+      "width": 1286,
+      "height": 1223,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "ff1974d8a8894b68082503a7ce9ad1fb22626e3f2f50d7df0f64da7dd0b84f5d"
+    },
+    {
+      "source": "/assets/heroes-v8/casting.png",
+      "output": "/assets/optimized/heroes-v8-casting.a43018827338.webp",
+      "originalBytes": 2927872,
+      "encodedBytes": 1072122,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "0850ca87a2984a768396a72127a013d6321d15d257e02fc21913acb6c879f85e"
+    },
+    {
+      "source": "/assets/heroes-v8/children.png",
+      "output": "/assets/optimized/heroes-v8-children.d5d5138ecd6e.webp",
+      "originalBytes": 2136158,
+      "encodedBytes": 758904,
+      "width": 1284,
+      "height": 1225,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "ebc766f4897eb2864f4cd16bdd380643cc32ed8297b74fb8eb4b115cf81db8e5"
+    },
+    {
+      "source": "/assets/heroes-v7/arena.png",
+      "output": "/assets/optimized/heroes-v7-arena.03aa6f339311.webp",
+      "originalBytes": 3168313,
+      "encodedBytes": 543716,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "365f2ced8da975ab29e3132b52b68d89694c9b676697abff8a3a363f60cb36c0"
+    },
+    {
+      "source": "/assets/heroes-v7/effects.png",
+      "output": "/assets/optimized/heroes-v7-effects.3ca70412d300.webp",
+      "originalBytes": 3338884,
+      "encodedBytes": 1278356,
+      "width": 1086,
+      "height": 1448,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "118b9cce85e3be7882ce9578b0a1f5ed0780f4f68b6ae138e60e7649637e5feb"
+    },
+    {
+      "source": "/assets/heroes-v7/poses.png",
+      "output": "/assets/optimized/heroes-v7-poses.320cd501a945.webp",
+      "originalBytes": 2591106,
+      "encodedBytes": 938540,
+      "width": 1086,
+      "height": 1448,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "b2c4f2a8b58cce9642e57449e1c632bbe66f31b49b5e924818ae8135af194118"
+    },
+    {
+      "source": "/assets/heroes-v7/roster.png",
+      "output": "/assets/optimized/heroes-v7-roster.018f4701a3e4.webp",
+      "originalBytes": 3167354,
+      "encodedBytes": 971868,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "3b18acee9d2eefdb16e261413f0bb5ea6aaf421730507f74a0ed7fcf439c202f"
+    },
+    {
+      "source": "/assets/heroes-v7/selection.png",
+      "output": "/assets/optimized/heroes-v7-selection.0f702b93a6fe.webp",
+      "originalBytes": 2688101,
+      "encodedBytes": 411894,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "718dac57a601f7366ae043b7a1e3390e88218a4b951f5b5a53226fc11efae574"
+    },
+    {
+      "source": "/assets/skills/wang-dich-linh-an-v1.png",
+      "output": "/assets/optimized/skills-wang-dich-linh-an-v1.49b91f828bec.webp",
+      "originalBytes": 1903838,
+      "encodedBytes": 633856,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "83838d5cb96f9327cb313b06ff65e5ae1da5e53cc225e707a02cc4584cf8fb2e"
+    },
+    {
+      "source": "/assets/skills/wang-dinh-than-v1.png",
+      "output": "/assets/optimized/skills-wang-dinh-than-v1.89263e2d83ec.webp",
+      "originalBytes": 1695743,
+      "encodedBytes": 570798,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "5a94d442f034cbdedc9049a61548596cd87eae7b4b7c3da46485698f0fa36b0c"
+    },
+    {
+      "source": "/assets/skills/wang-hoa-ma-chi-v1.png",
+      "output": "/assets/optimized/skills-wang-hoa-ma-chi-v1.74f25cd903ac.webp",
+      "originalBytes": 975269,
+      "encodedBytes": 361554,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "375b94640b405d7a24937d583e275d5257f744223638fd8114686de1a4985a1a"
+    },
+    {
+      "source": "/assets/skills/wang-hoang-tuyen-v1.png",
+      "output": "/assets/optimized/skills-wang-hoang-tuyen-v1.c441f0366e1b.webp",
+      "originalBytes": 1605603,
+      "encodedBytes": 537486,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "4e694e35fa6cf975da49721c834e5960b3a0b27a2311790346342e11367cc3cc"
+    },
+    {
+      "source": "/assets/skills/wang-tram-la-v1.png",
+      "output": "/assets/optimized/skills-wang-tram-la-v1.11119fd24db8.webp",
+      "originalBytes": 1579549,
+      "encodedBytes": 582122,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "aca951ebcfc94b25c1980e1b4e605fdd3ec3cd810efd3cb516231e551e61309c"
+    },
+    {
+      "source": "/assets/skills-schools-v1/diep_ly.png",
+      "output": "/assets/optimized/skills-schools-v1-diep_ly.96132b2fd5f4.webp",
+      "originalBytes": 2538569,
+      "encodedBytes": 1084418,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "fb4587a26e30c7ae189a56b3b0ca8a6102544b97dd931a9e7b244f58f8a9547d"
+    },
+    {
+      "source": "/assets/skills-schools-v1/hong_lien.png",
+      "output": "/assets/optimized/skills-schools-v1-hong_lien.ef2ff8148914.webp",
+      "originalBytes": 2783020,
+      "encodedBytes": 1094316,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "52e53723706f5a70918efe0ea109c8942be5b56508da6bfd989ce464611fe042"
+    },
+    {
+      "source": "/assets/skills-schools-v1/ly_mo_uyen.png",
+      "output": "/assets/optimized/skills-schools-v1-ly_mo_uyen.3b86b82e5498.webp",
+      "originalBytes": 2671208,
+      "encodedBytes": 1009174,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "9b71b43463374c83c48dd787820d234c2afe7319769f9782cd8cc06338df6c6d"
+    },
+    {
+      "source": "/assets/skills-schools-v1/quan_vo_tran.png",
+      "output": "/assets/optimized/skills-schools-v1-quan_vo_tran.141cf2e3a725.webp",
+      "originalBytes": 2829667,
+      "encodedBytes": 1033538,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "2844a38da60acd8e51a313de7a48ec62e792da296ea2208dd542099d23f42f5c"
+    },
+    {
+      "source": "/assets/skills-schools-v1/so_thien.png",
+      "output": "/assets/optimized/skills-schools-v1-so_thien.3e106028d7dc.webp",
+      "originalBytes": 2672957,
+      "encodedBytes": 1033756,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "5b453a28e5701b7e9c81f1cc5c1bcc2977afcb2d80852b752c30e95a8b1d813f"
+    },
+    {
+      "source": "/assets/skills-schools-v1/tham_nguyet.png",
+      "output": "/assets/optimized/skills-schools-v1-tham_nguyet.beff05f0d5e6.webp",
+      "originalBytes": 2777043,
+      "encodedBytes": 1123064,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "4fc0de66fd684ef6d58e84f8edb4394665297a0aa3ca7082e1ff790eb654bb1b"
+    },
+    {
+      "source": "/assets/skills-schools-v1/vu_minh.png",
+      "output": "/assets/optimized/skills-schools-v1-vu_minh.8c7324e622e4.webp",
+      "originalBytes": 2930235,
+      "encodedBytes": 1100434,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "cda0d46e994457be9e7d32e85ef06cc3862b3193295d8573077becfd0f4c590c"
+    },
+    {
+      "source": "/assets/skills-schools-v1/wang_lam.png",
+      "output": "/assets/optimized/skills-schools-v1-wang_lam.4bb42e613239.webp",
+      "originalBytes": 2684766,
+      "encodedBytes": 1107062,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "9dab642ad94e8c07ad0ebaafc49c0707ebbfad0c7ae1940c44a885ac0a0e4121"
+    },
+    {
+      "source": "/assets/sprites/beast-snow.png",
+      "output": "/assets/optimized/sprites-beast-snow.4416a9edc946.webp",
+      "originalBytes": 646088,
+      "encodedBytes": 246928,
+      "width": 480,
+      "height": 728,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "53829fa3fa2b76dc970225dcac580763a600c750aecfc5c3c504cb19ed2b64a4"
+    },
+    {
+      "source": "/assets/sprites/skills-ice.png",
+      "output": "/assets/optimized/sprites-skills-ice.e606ba4e0f89.webp",
+      "originalBytes": 1302332,
+      "encodedBytes": 528602,
+      "width": 1152,
+      "height": 768,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "a95c9648abbe459f58c5b1c5ae1f4ab3d1264cc37a025afc9912c9d4b6959e3e"
+    },
+    {
+      "source": "/assets/sprites/weapon-red.png",
+      "output": "/assets/optimized/sprites-weapon-red.79a948a679a6.webp",
+      "originalBytes": 55996,
+      "encodedBytes": 22904,
+      "width": 192,
+      "height": 116,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "c7b4d0a5c8d13cb5c00dedd6bb4ebc9f5057acd23cdc58b69da229f5dfb26699"
+    },
+    {
+      "source": "/assets/ui/cultivation/bag-items-v1.png",
+      "output": "/assets/optimized/ui-cultivation-bag-items-v1.3d17f4240243.webp",
+      "originalBytes": 3209391,
+      "encodedBytes": 1071190,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "b0e391da73ba87495c11f3eb86dcb077c57d428c5fed9d1151b5d3e378d211ae"
+    },
+    {
+      "source": "/assets/ui/cultivation/skill-icons-alpha-v2.png",
+      "output": "/assets/optimized/ui-cultivation-skill-icons-alpha-v2.f821b06da784.webp",
+      "originalBytes": 3394168,
+      "encodedBytes": 1208798,
+      "width": 1620,
+      "height": 971,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "7c35b352e4de1d04041619efb656790aea2c3e70c4dfa56a610a6cad9a395b01"
+    },
+    {
+      "source": "/assets/ui/cultivation/realm-crests-v1.png",
+      "output": "/assets/optimized/ui-cultivation-realm-crests-v1.99a73c805225.webp",
+      "originalBytes": 2482323,
+      "encodedBytes": 942204,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "a77d31dc82a1ca56266d74c918675547dd0237cfc4c4c49fad56e833c0b496e6"
+    },
+    {
+      "source": "/assets/ui/login-v5.png",
+      "output": "/assets/optimized/ui-login-v5.cf500171cb81.webp",
+      "originalBytes": 3164643,
+      "encodedBytes": 599522,
+      "width": 1672,
+      "height": 940,
+      "maxAlphaDifference": 0,
+      "sourceSha256": "ffd444ad724cfe38a5951f137db465bf7616f98231fae555efa28fef96f7aa5a"
+    }
+  ]
+}

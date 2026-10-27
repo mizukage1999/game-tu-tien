@@ -6,6 +6,7 @@ import { wangIconUrl } from './wangEffects';
 import { cultivationIconUrl } from './skillIcons';
 import { inventoryIconUrl } from './inventoryIcons';
 import { equipmentBaseId } from '../systems/equipment';
+import { optimizedAsset } from '../../data/assetDelivery';
 import { heroSpellIcon } from './heroSpellIcons';
 
 function drawEquipment(ctx: Ctx, slot: EquipSlot, color: string, s: number) {
@@ -563,7 +564,7 @@ export function itemIconUrl(id: string, s = 48) {
   if (sprite) return sprite;
   const key = itemSpriteTextureKey(id);
   const assetId = key?.slice('item-sprite-'.length);
-  if (assetId) return ITEM_SPRITE_ASSETS[assetId];
+  if (assetId) return optimizedAsset(ITEM_SPRITE_ASSETS[assetId]);
   return toUrl(`item:${id}:${s}`, s, (ctx) => drawItem(ctx, id, s));
 }
 

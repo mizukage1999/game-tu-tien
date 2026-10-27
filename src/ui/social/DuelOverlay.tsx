@@ -3,6 +3,8 @@ import { useSocial } from '../../store/socialStore';
 import { closeArena, readyArena, sendArenaInput } from '../../net/socialBridge';
 import { ARENA_H, ARENA_ROCKS, ARENA_W, type ArenaFighter } from '../../game/systems/arena';
 import { DEFAULT_LOADOUT } from '../../game/systems/skills';
+import { isTypingTarget } from '../../game/systems/typing';
+import { optimizedAsset } from '../../data/assetDelivery';
 import { SKILLS, type SkillId } from '../../data';
 import { skillSpriteUrl } from '../../game/art/icons';
 import './duel.css';
@@ -82,7 +84,7 @@ export function DuelOverlay() {
       cast.current = null;
     };
     const key = (e: KeyboardEvent) => {
-      if ((e.target as Element)?.closest('input,textarea,select')) return;
+      if (isTypingTarget(e.target)) return;
       const k = e.key.toLowerCase();
       if (
         ![
@@ -166,7 +168,7 @@ export function DuelOverlay() {
             <FighterCard fighter={enemy} enemy />
           </div>
         </header>
-        <div className="duel-battleground">
+        <div className="duel-battleground" style={{ backgroundImage: `url('${optimizedAsset('/assets/heroes-v7/arena.png')}')` }}>
           <div
             className="duel-stage"
             onPointerDown={(e) => {
@@ -235,7 +237,7 @@ export function DuelOverlay() {
                 <div
                   className={`duel-fighter ${p.userId === duel.localId ? 'mine' : 'enemy'} ${p.rootUntil > s.elapsed ? 'rooted' : ''}`}
                   key={p.userId}
-                  style={{ left: `${(p.x / ARENA_W) * 100}%`, top: `${(p.y / ARENA_H) * 100}%` }}
+                  style={{ left: 0, top: 0, transform: `translate3d(${(p.x / ARENA_W) * 100}cqw, ${(p.y / ARENA_H) * 100}cqh, 0) translate(-50%, -97%)` }}
                 >
                   <div className="duel-fighter-name">
                     <RealmBadge level={p.level} realm={p.realm} compact />

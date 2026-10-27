@@ -5,6 +5,8 @@ import { wangEffect } from '../../data/wangSkills';
 import type { SkillId } from '../../data';
 import { heroSpell, spellVisualId } from '../../data/heroSkills';
 import type { HeroId } from '../../data/heroes';
+import { ensureHeroSpell } from '../art/runtimeAssets';
+import { performanceStore } from '../../store/performanceStore';
 import { spellFrame, spellTexture } from '../../data/heroSpellArt';
 
 const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
@@ -19,7 +21,14 @@ export class SkillVfx {
 
   heroSpell(id: SkillId, from: Vec2, facing: Vec2, range: number) {
     const art = heroSpell(id);
-    if (!art || !this.scene.textures.exists(spellTexture(art.hero))) return;
+    if (!art) return;
+    if (!this.scene.textures.exists(spellTexture(art.hero))) {
+      const requested = performance.now();
+      void ensureHeroSpell(this.scene, art.hero).then(ready => {
+        if (ready && this.scene.sys.isActive() && performance.now() - requested < 1500) this.heroSpell(id, from, facing, range);
+      });
+      return;
+    }
     const directed = art.shape === 'line' || art.shape === 'cone';
     const center = directed ? {x:from.x+facing.x*range*.5,y:from.y+facing.y*range*.5} : from;
     const spot=iso(center.x,center.y), vector=isoVector(facing.x,facing.y);
@@ -102,7 +111,7 @@ export class SkillVfx {
       emitting: false,
     });
     em.setDepth(depth);
-    em.explode(count);
+    em.explode(Math.max(2, Math.ceil(count * [1, 0.55, 0.25][performanceStore.getState().tier])));
     this.scene.time.delayedCall(900, () => em.destroy());
   }
 

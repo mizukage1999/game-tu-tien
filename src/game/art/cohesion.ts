@@ -66,7 +66,7 @@ export function sceneryKey(key: string, village: boolean, ambient: string, mapId
   );
 }
 
-export function registerCohesiveArt(scene: Phaser.Scene) {
+export function registerVillageReferenceProps(scene: Phaser.Scene) {
   // The opening village is the visual reference. Retain its original small props.
   for (const [key, original] of Object.entries(COURTYARD_PROPS)) {
     const prop = { ...original, atlas: COURTYARD_ATLAS };
@@ -85,6 +85,10 @@ export function registerCohesiveArt(scene: Phaser.Scene) {
       );
     WORLD_PROPS[alias] = { ...prop };
   }
+}
+
+export function registerCohesiveArt(scene: Phaser.Scene) {
+  registerVillageReferenceProps(scene);
   const assignProps = (atlas: string, entries: [string, number][]) => {
     if (!scene.textures.exists(atlas)) return;
     const texture = scene.textures.get(atlas);

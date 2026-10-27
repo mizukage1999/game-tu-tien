@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { virtualInput } from '../game/EventBus';
+import { isTypingTarget } from '../game/systems/typing';
 
 const PHONE_QUERY = '(hover: none) and (pointer: coarse), (hover: none) and (max-width: 900px)';
 const PORTRAIT_QUERY = '(orientation: portrait)';
@@ -22,7 +23,23 @@ export function usePhoneLayout() {
 }
 
 export function usePortrait() {
-  return useMedia(PORTRAIT_QUERY);
+  const [portrait, setPortrait] = useState(() => window.matchMedia(PORTRAIT_QUERY).matches);
+  useEffect(() => {
+    const query = window.matchMedia(PORTRAIT_QUERY);
+    let width = document.documentElement.clientWidth || window.innerWidth;
+    const sync = () => {
+      const nextWidth = document.documentElement.clientWidth || window.innerWidth;
+      // A software keyboard changes viewport height, not the device orientation.
+      if (isTypingTarget(document.activeElement) && Math.abs(nextWidth - width) < 40) return;
+      width = nextWidth; setPortrait(query.matches);
+    };
+    const focus = () => { width = document.documentElement.clientWidth || window.innerWidth; };
+    const blur = () => { setTimeout(sync, 0); };
+    query.addEventListener('change', sync); window.addEventListener('resize', sync);
+    document.addEventListener('focusin', focus); document.addEventListener('focusout', blur);
+    return () => { query.removeEventListener('change', sync); window.removeEventListener('resize', sync); document.removeEventListener('focusin', focus); document.removeEventListener('focusout', blur); };
+  }, []);
+  return portrait;
 }
 
 /**
@@ -69,7 +86,7 @@ export function SwipeMove({ active, turned }: { active: boolean; turned: boolean
 
     const blocked = (target: EventTarget | null) =>
       target instanceof Element &&
-      !!target.closest('button, a, input, textarea, .panel-glass, .panel-ornate, .menu-backdrop, .minimap, .skill-bar, .exp-bar, .rotate-hint, .chat-log');
+      !!target.closest('button, a, input, textarea, [role="dialog"], .inspect-backdrop, .chat-screen, .duel-screen, .panel-glass, .panel-ornate, .menu-backdrop, .minimap, .skill-bar, .exp-bar, .rotate-hint, .chat-log');
 
     const stop = (e: PointerEvent) => {
       if (e.pointerId !== id) return;
@@ -109,11 +126,13 @@ export function SwipeMove({ active, turned }: { active: boolean; turned: boolean
   return null;
 }
 
-/** Browsers only honor this in fullscreen, and a locked phone ignores it. The CSS turn is the real fix. */
+/** Best effort only: CSS can rotate the game but cannot rotate the OS keyboard. */
 export function useTryLockLandscape(active: boolean) {
   useEffect(() => {
     if (!active) return;
-    const orientation = screen.orientation as ScreenOrientation & { lock?: (type: string) => Promise<void> };
-    orientation.lock?.('landscape').catch(() => undefined);
+    const orientation = screen.orientation as (ScreenOrientation & { lock?: (type: string) => Promise<void> }) | undefined;
+    const lock = () => { void orientation?.lock?.('landscape').catch(() => undefined); };
+    lock(); document.addEventListener('fullscreenchange', lock);
+    return () => document.removeEventListener('fullscreenchange', lock);
   }, [active]);
 }

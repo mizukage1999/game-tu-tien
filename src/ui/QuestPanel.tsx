@@ -8,9 +8,12 @@ import { usePhoneLayout } from './TouchPlay';
 import { originText } from '../game/systems/origin';
 import { useTrackedQuest } from './useTrackedQuest';
 import { OpeningGuide } from './OpeningGuide';
+import { PartyTracker } from './PartyTracker';
+import { useSocial } from '../store/socialStore';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
+  const hasParty = useSocial(s => !!s.partyId);
   const phone = usePhoneLayout();
   const setMenu = useGame((s) => s.setMenu);
   const player = useGame((s) => s.player);
@@ -30,7 +33,7 @@ export function QuestPanel() {
           Nhiệm Vụ
         </button>
         <button className={tab === 'team' ? 'active' : ''} onClick={() => setTab('team')}>
-          Đội
+          Đội{hasParty && <span className="party-dot" aria-label="Đã có tổ đội"> ●</span>}
         </button>
         <button className="quest-toggle" onClick={() => setOpen(!open)} aria-label="Thu gọn">
           {open ? '‹' : '›'}
@@ -69,7 +72,7 @@ export function QuestPanel() {
         {phone && <button className="quest-details" onClick={() => setMenu('journey')}>Tiên Lộ · Xem chi tiết ›</button>}
         </>
       )}
-      {open && tab === 'team' && <div className="muted pad">Bản demo offline chưa hỗ trợ tổ đội.</div>}
+      {open && tab === 'team' && <PartyTracker />}
     </div>
   );
 }

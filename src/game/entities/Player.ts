@@ -34,6 +34,7 @@ import type { Pose } from '../../net/presence';
 import { heroFor } from '../../data/heroes';
 import { directionalArt } from '../art/directionalHeroes';
 import { RealmNameplate } from './RealmNameplate';
+import { worldInputBlocked } from '../systems/inputFocus';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -167,6 +168,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private manualInput(): Vec2 {
+    if (worldInputBlocked()) return { x: 0, y: 0 };
     const k = this.keys;
     let x = (k.right.isDown || k.d.isDown ? 1 : 0) - (k.left.isDown || k.a.isDown ? 1 : 0);
     let y = (k.down.isDown || k.s.isDown ? 1 : 0) - (k.up.isDown || k.w.isDown ? 1 : 0);

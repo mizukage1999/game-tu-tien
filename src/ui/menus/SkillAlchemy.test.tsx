@@ -24,7 +24,7 @@ describe('skill selection and in-panel crafting', () => {
       act(() => root.render(<><Skills /><SkillBar /></>));
       expect(host.querySelectorAll('.cult-skill-card[data-skill^="hong_lien_"]')).toHaveLength(10);
       const tenth = host.querySelector<HTMLButtonElement>('.cult-skill-card[data-skill="hong_lien_10"]')!;
-      expect(tenth.querySelector('image')?.getAttribute('href')).toBe('/assets/skills-schools-v1/hong_lien.png');
+      expect(tenth.querySelector('image')?.getAttribute('href')).toMatch(/\/skills-schools-v1-hong_lien\.[a-f0-9]{12}\.webp$/);
       act(() => tenth.click());
       act(() => host.querySelectorAll<HTMLButtonElement>('.skill-loadout button')[3].click());
       act(() => host.querySelector<HTMLButtonElement>('[data-action="assign"]')!.click());

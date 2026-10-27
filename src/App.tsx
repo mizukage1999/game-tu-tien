@@ -11,8 +11,11 @@ import { usePhoneLayout, usePortrait, useTryLockLandscape } from './ui/TouchPlay
 import { refreshPremium, resetPremium } from './net/premium';
 import { gameStore } from './store/gameStore';
 import { StartScreen } from './ui/EntryScreen';
+import { usePerformanceTier } from './store/performanceStore';
+import { MobileViewport } from './ui/MobileViewport';
 
 export function App() {
+  const performanceTier = usePerformanceTier();
   const phone = usePhoneLayout();
   const portrait = usePortrait();
   const account = useAccount();
@@ -49,7 +52,8 @@ export function App() {
   }, [needsLogin, ready, entered, account.user?.id]);
 
   return (
-    <div className={`app${turned ? ' turned' : ''}`}>
+    <div className={`app${turned ? ' turned' : ''}`} data-performance={performanceTier}>
+      <MobileViewport />
       {needsLogin ? (
         account.booting ? null : (
           <AuthScreen />

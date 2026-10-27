@@ -7,6 +7,7 @@ import { SKILLS } from '../data';
 import { HeroFigure, HeroSpellGlyph, RosterPortrait } from './HeroArt';
 import './character-select.css';
 import { claimCharacterName } from '../net/characterName';
+import { optimizedAsset } from '../data/assetDelivery';
 
 function Radar({ values }: { values: readonly number[] }) {
   const point = (i: number, radius: number) =>
@@ -75,7 +76,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
     if (HEROES.some((h) => h.name === name)) setName(next.name);
   };
   return (
-    <main className="roster-entry" style={{ '--hero-color': hero.color } as CSSProperties}>
+    <main className="roster-entry" style={{ '--hero-color': hero.color, backgroundImage: `url('${optimizedAsset('/assets/heroes-v7/selection.png')}')` } as CSSProperties}>
       <header className="roster-header">
         <div>
           <small>NGHỊCH MỆNH TRƯỜNG SINH</small>

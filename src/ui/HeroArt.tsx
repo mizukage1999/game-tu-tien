@@ -1,4 +1,5 @@
 import { useId, type CSSProperties } from 'react';
+import { optimizedAsset } from '../data/assetDelivery';
 import { HERO_ASSETS, heroRow, type HeroId } from '../data/heroes';
 import { heroSpell } from '../data/heroSkills';
 import type { SkillId } from '../data';
@@ -46,7 +47,7 @@ function AtlasCrop({
       </defs>
       <image
         clipPath={`url(#${clip})`}
-        href={`${directory}/${source}.png`}
+        href={optimizedAsset(`${directory}/${source}.png`)}
         width={width}
         height={height}
       />

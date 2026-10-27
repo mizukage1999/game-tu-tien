@@ -35,6 +35,10 @@ import { canEnterField, fieldForLevel, FIELD_BANDS, killExp } from '../systems/s
 import { realmNameAtLevel } from '../systems/progression';
 import { saveGame } from '../systems/save';
 import { isTypingTarget } from '../systems/typing';
+import { ensureHeroSpell, finishMapAssets, queueMapAssets } from '../art/runtimeAssets';
+import { heroFor } from '../../data/heroes';
+import { dismissWorldPanel, worldInputBlocked } from '../systems/inputFocus';
+import { performanceStore } from '../../store/performanceStore';
 import { RemotePlayer } from '../entities/RemotePlayer';
 import { joinWorldChannel, type WorldChannel } from '../../net/worldChannel';
 import type { RemotePlayerState } from '../../net/presence';
@@ -117,6 +121,8 @@ export class WorldScene extends Phaser.Scene {
   private pointLabels: { point: WorldPoint; label: Phaser.GameObjects.Text }[] = [];
   private gardenVisuals: {art:Phaser.GameObjects.Image;label:Phaser.GameObjects.Text}[] = [];
   private pointCooldowns = new Map<string, number>();
+  private scenery: { image: Phaser.GameObjects.Image; bounds: Phaser.Geom.Rectangle; tweens: Phaser.Tweens.Tween[] }[] = [];
+  private sceneryTimer = 0;
 
   constructor() {
     super('World');
@@ -140,13 +146,24 @@ export class WorldScene extends Phaser.Scene {
     this.pointLabels = [];
     this.gardenVisuals = [];
     this.pointCooldowns.clear();
+    this.scenery = []; this.sceneryTimer = 0;
     this.syncTimer = this.secondTimer = this.saveTimer = 0;
     this.guideTimer = 0;
     this.levelWarned = false;
     this.remotes.clear();
   }
 
+  preload() {
+    const queued = queueMapAssets(this, this.mapId);
+    if (!queued) return;
+    this.game.events.emit('assets-loading');
+    const progress = (value: number) => this.game.events.emit('assets-progress', value * 0.9);
+    this.load.on(Phaser.Loader.Events.PROGRESS, progress);
+    this.load.once(Phaser.Loader.Events.COMPLETE, () => this.load.off(Phaser.Loader.Events.PROGRESS, progress));
+  }
+
   create() {
+    finishMapAssets(this);
     const map = (this.map = getMap(this.mapId));
     const state = gameStore.getState();
     if(state.player.hp<=0||state.status==='downed'){
@@ -182,6 +199,8 @@ export class WorldScene extends Phaser.Scene {
 
     this.buildTerrain(map);
     this.buildDecor(map);
+    this.scenery = (this.children.list.filter(child => child.type === 'Image' && (child as Phaser.GameObjects.Image).texture.key !== 'ground:active') as Phaser.GameObjects.Image[])
+      .filter(image => image.visible).map(image => ({ image, bounds: image.getBounds(), tweens: this.tweens.getTweensOf(image) }));
     publishWorldPreview(this, map);
 
     for (const n of map.npcs) {
@@ -247,10 +266,20 @@ export class WorldScene extends Phaser.Scene {
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitZoom, this);
     this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, this.fitZoom, this));
     cam.fadeIn(400);
-    if (this.game.renderer.type === Phaser.WEBGL) {
+    if (this.game.renderer.type === Phaser.WEBGL && performanceStore.getState().tier === 0) {
       cam.postFX.addVignette(0.5, 0.5, 0.92, map.ambient === 'fireflies' ? 0.42 : 0.28);
     }
     this.buildAmbient(map);
+    const emitters = this.children.list.filter(child => child.type === 'ParticleEmitter') as Phaser.GameObjects.Particles.ParticleEmitter[];
+    const frequencies = emitters.map(emitter => emitter.frequency);
+    const applyBudget = () => {
+      const tier = performanceStore.getState().tier;
+      emitters.forEach((emitter, i) => { if (frequencies[i] > 0) emitter.setFrequency(frequencies[i] * [1, 2.5, 5][tier]); });
+      if (tier > 0) cam.postFX?.clear();
+      this.sceneryTimer = 0;
+    };
+    applyBudget();
+    this.cleanups.push(performanceStore.subscribe(applyBudget));
 
     this.bindInput();
     this.bindStore();
@@ -278,6 +307,8 @@ export class WorldScene extends Phaser.Scene {
     }
     this.save();
     this.startMultiplayer(map);
+    this.game.events.emit('assets-progress', 1);
+    this.game.events.emit('assets-ready');
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.cleanups.forEach((fn) => fn());
@@ -615,6 +646,7 @@ export class WorldScene extends Phaser.Scene {
     if (gameStore.getState().online !== roster.length) gameStore.getState().patch({ online: roster.length });
     const seen = new Set<string>();
     for (const meta of roster) {
+      void ensureHeroSpell(this, heroFor(meta).id);
       seen.add(meta.key);
       const existing = this.remotes.get(meta.key);
       if (existing) existing.apply(meta);
@@ -643,9 +675,9 @@ export class WorldScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     if (!kb) return;
     const sync = (target: EventTarget | null) => {
-      const typing = isTypingTarget(target);
-      if (typing === !kb.enabled) return;
-      kb.enabled = !typing;
+      const blocked = isTypingTarget(target) || worldInputBlocked();
+      if (blocked === !kb.enabled) return;
+      kb.enabled = !blocked;
       kb.resetKeys();
     };
     const onFocusIn = (e: FocusEvent) => sync(e.target);
@@ -702,9 +734,9 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(() => window.removeEventListener('keydown', swallowGameKeys));
 
     this.cleanups.push(
-      EventBus.on('cmd:attack', () => this.player.attack()),
+      EventBus.on('cmd:attack', () => { if (!worldInputBlocked()) this.player.attack(); }),
       EventBus.on('cmd:save', () => this.save()),
-      EventBus.on('cmd:skill', (id: SkillId) => this.player.castSkill(id)),
+      EventBus.on('cmd:skill', (id: SkillId) => { if (!worldInputBlocked()) this.player.castSkill(id); }),
       EventBus.on('cmd:nearChat',text=>{
         if(this.shared)this.shared.chat(text);
         else {const p=gameStore.getState().player;chatStore.getState().add({id:crypto.randomUUID(),kind:'near',from:getAccountState().user?.id??'me',name:p.name,text,at:Date.now()});gameStore.getState().addLog(`${p.name}: ${text}`,'near');this.showSpeech(text);}
@@ -718,7 +750,7 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
       EventBus.on('cmd:home', () => this.visitHome()),
       EventBus.on('cmd:travel', (id: string) => this.travelTo(id)),
-      EventBus.on('cmd:duelPause',(pause:boolean)=>{this.input.keyboard?.resetKeys();virtualInput.x=0;virtualInput.y=0;if(pause){this.player.clearRoute();this.player.setVelocity(0,0);this.stopMultiplayer?.();this.scene.pause();}else {this.scene.resume();this.startMultiplayer(this.map);}}),
+      EventBus.on('cmd:duelPause',(pause:boolean)=>{this.input.keyboard?.resetKeys();virtualInput.x=0;virtualInput.y=0;if(pause){this.player.clearRoute();this.player.setVelocity(0,0);this.stopMultiplayer?.();this.scene.setVisible(false);this.scene.pause();}else {this.scene.setVisible(true);this.scene.resume();this.startMultiplayer(this.map);}}),
       EventBus.on('cmd:mapWalk',(tile:{x:number;y:number})=>{
         const s=gameStore.getState();if(s.status!=='alive'||s.tribulation||lifeProgress(s.player).retreat)return;
         const path=findPath(this.map.blocked,Math.floor(this.player.x/TILE),Math.floor(this.player.y/TILE),tile.x,tile.y,0);
@@ -729,6 +761,21 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private bindStore() {
+    window.addEventListener('keydown', dismissWorldPanel, true);
+    this.cleanups.push(() => window.removeEventListener('keydown', dismissWorldPanel, true));
+    const focus = () => {
+      const blocked = worldInputBlocked();
+      this.input.enabled = !blocked;
+      if (this.input.keyboard) {
+        this.input.keyboard.enabled = !blocked && !isTypingTarget(document.activeElement);
+        this.input.keyboard.resetKeys();
+      }
+      if (blocked) { virtualInput.x = 0; virtualInput.y = 0; }
+    };
+    let wasBlocked = !worldInputBlocked();
+    const syncFocus = () => { const blocked = worldInputBlocked(); if (blocked !== wasBlocked) { wasBlocked = blocked; focus(); } };
+    this.cleanups.push(gameStore.subscribe(syncFocus), socialStore.subscribe(syncFocus), chatStore.subscribe(syncFocus));
+    syncFocus();
     const unsub = gameStore.subscribe((s, prev) => {
       if (lifeProgress(s.player).retreat && !lifeProgress(prev.player).retreat) {
         this.player.stopMeditate();
@@ -769,6 +816,17 @@ export class WorldScene extends Phaser.Scene {
 
     this.camTarget.setPosition(isoX(this.player.x, this.player.y), isoY(this.player.x, this.player.y));
     this.villageAtmosphere?.update();
+    this.sceneryTimer -= dt;
+    if (this.sceneryTimer <= 0) {
+      this.sceneryTimer = 250;
+      const view = this.cameras.main.worldView, tier = performanceStore.getState().tier;
+      const visible = new Phaser.Geom.Rectangle(view.x - 160, view.y - 160, view.width + 320, view.height + 320);
+      for (const entry of this.scenery) {
+        const show = Phaser.Geom.Intersects.RectangleToRectangle(visible, entry.bounds);
+        entry.image.setVisible(show);
+        for (const tween of entry.tweens) { if (!show || tier === 2) tween.pause(); else tween.resume(); }
+      }
+    }
 
     if (this.target?.alive) {
       const ring = iso(this.target.x, this.target.y);
