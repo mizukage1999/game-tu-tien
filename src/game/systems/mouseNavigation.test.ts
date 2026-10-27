@@ -44,7 +44,7 @@ it('projects arena clicks independently of display density and keeps rock destin
   expect(arenaMousePoint(from, { left: 0, top: 0, width: 0, height: 0 }, from)).toBeNull();
 });
 it('steers a clicked arena destination around obstacles and slows to a stable stop', () => {
-  const goal = { x: 600, y: 200 }, point = { x: 100, y: 200 }, speed = 180;
+  const goal = { x: 600, y: 120 }, point = { x: 100, y: 120 }, speed = 180;
   let stopped = false;
   for (let i = 0; i < 150; i++) {
     const motion = arenaMouseMotion(point, goal, speed);

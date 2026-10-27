@@ -25,6 +25,12 @@ it('keeps desktop and mobile menus compact while making every feature reachable'
     act(() => host.querySelector<HTMLButtonElement>('.menu-btn-premium')!.click());
     expect(gameStore.getState().menu).toBe('premium');
     expect(host.querySelector('.top-menu-more')).toBeNull();
+    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
+    act(() => host.querySelector<HTMLButtonElement>('[aria-label="Bày Bán"]')!.click());
+    expect(gameStore.getState()).toMatchObject({ menu: 'shop', marketSection: 'stall' });
+    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
+    act(() => host.querySelector<HTMLButtonElement>('[aria-label="Giao Dịch"]')!.click());
+    expect(gameStore.getState()).toMatchObject({ menu: 'shop', marketSection: 'overview' });
   } finally {
     act(() => root.unmount());
     gameStore.setState(previous);

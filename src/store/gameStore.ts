@@ -121,6 +121,7 @@ export interface GameState {
   minimap: MinimapData;
   menu: MenuTab | null;
   journeySection: 'story'|'alchemy'|'home'|'mounts'|'world'|'companions';
+  marketSection: import('../game/systems/marketUi').MarketSection;
   homeSection: 'field'|'chamber'|'furnace'|'artifact';
   dungeon: DungeonHud | null;
   dungeonResult: DungeonResult | null;
@@ -287,6 +288,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     minimap: { player: { x: 0, y: 0 }, monsters: [], npcs: [], loot: [] },
     menu: null,
     journeySection: 'story',
+    marketSection: 'overview',
     homeSection: 'field',
     dungeon: null,
     dungeonResult: null,
@@ -654,7 +656,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
 
     setMenu(menu) {
-      set({ menu, ...(menu === 'journey' ? {journeySection:'story' as const} : {}) });
+      set({ menu, ...(menu === 'journey' ? {journeySection:'story' as const} : {}), ...(menu === 'shop' ? {marketSection:'overview' as const} : {}) });
     },
     setDialog(dialogNpc) {
       set({ dialogNpc });

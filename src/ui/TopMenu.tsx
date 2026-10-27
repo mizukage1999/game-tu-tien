@@ -1,8 +1,9 @@
 import { useGame, type MenuTab } from '../store/gameStore';
 import { isChildhood } from '../game/systems/origin';
 import { useState } from 'react';
+import type { MarketSection } from '../game/systems/marketUi';
 
-const ITEMS: { id: MenuTab; label: string }[] = [
+const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'character', label: 'Nhân Vật' },
   { id: 'bag', label: 'Túi Đồ' },
   { id: 'cultivate', label: 'Tu Luyện' },
@@ -13,6 +14,8 @@ const ITEMS: { id: MenuTab; label: string }[] = [
   { id: 'social', label: 'Bạn Bè' },
   { id: 'sect', label: 'Tông Môn' },
   { id: 'premium', label: 'Tiên Ngọc' },
+  { id: 'shop', label: 'Giao Dịch', marketSection: 'overview' },
+  { id: 'shop', label: 'Bày Bán', marketSection: 'stall' },
   { id: 'settings', label: 'Cài Đặt' },
 ];
 
@@ -37,13 +40,15 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
   const [more, setMore] = useState(false);
   const menu = useGame((s) => s.menu);
   const setMenu = useGame((s) => s.setMenu);
+  const marketSection = useGame((s) => s.marketSection);
+  const patch = useGame((s) => s.patch);
   const childhood = useGame((s) => isChildhood(s.player));
   const common: MenuTab[] = phone
     ? ['character', 'bag', 'journey', 'skills']
     : ['character', 'bag', 'skills', 'journey', 'sect'];
   const button = (it: (typeof ITEMS)[number]) => (
     <button
-      key={it.id}
+      key={`${it.id}-${it.marketSection ?? ''}`}
       aria-label={it.label}
       disabled={childhood && ['character', 'cultivate', 'skills'].includes(it.id)}
       title={
@@ -51,10 +56,11 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
           ? 'Mở sau khi nhập môn'
           : it.label
       }
-      className={`menu-btn menu-btn-${it.id} ${menu === it.id ? 'active' : ''}`}
+      className={`menu-btn menu-btn-${it.id} ${menu === it.id && (!it.marketSection || marketSection === it.marketSection) ? 'active' : ''}`}
       onClick={() => {
         setMore(false);
-        setMenu(menu === it.id ? null : it.id);
+        setMenu(menu === it.id && (!it.marketSection || marketSection === it.marketSection) ? null : it.id);
+        if (it.marketSection) patch({ marketSection: it.marketSection });
       }}
     >
       <span className="menu-glyph">
