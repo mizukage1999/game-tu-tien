@@ -5,7 +5,7 @@
 ## Phạm vi hoạt động
 
 - **Mua bán:** dùng danh sách, số lượng và giá thật của NPC Tiền Đa Bảo. Có tìm kiếm không dấu, lọc loại/phẩm chất, yêu thích và phân trang. Mua qua hành động mua hàng hiện có của game.
-- **Bày bán:** chọn vật phẩm thật trong túi, số lượng, đơn giá Linh Thạch và thời gian. Lưu/sửa/xóa bản nháp theo tài khoản trên thiết bị. Không thu phí hoặc lấy đồ khỏi túi khi lưu nháp.
+- **Bày bán:** chọn vật phẩm thật trong túi, số lượng, đơn giá Tiên Ngọc hoặc Linh Thạch và thời gian. Bản nháp mới mặc định Tiên Ngọc; bản nháp cũ giữ đơn vị Linh Thạch. Lưu/sửa/xóa bản nháp theo tài khoản trên thiết bị. Không thu phí, cấp ngọc hoặc lấy đồ khỏi túi khi lưu nháp.
 - **Trực tiếp:** xem trước hai bên, chọn người chơi trực tuyến, chuẩn bị tối đa 8 loại vật phẩm và số Linh Thạch. Chức năng xác nhận trao đổi chưa mở; không gửi lời mời hoặc chuyển đồ.
 - **Lịch sử:** ghi lại các lần mua NPC thành công qua giao diện này trên thiết bị, tối đa 50 giao dịch.
 

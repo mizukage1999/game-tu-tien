@@ -2,6 +2,7 @@ import { ITEMS, NPCS } from '../../data';
 import type { PlayerSave } from './save';
 
 export type MarketSection = 'overview' | 'buy' | 'stall' | 'direct' | 'history';
+export type StallCurrency = 'linh_thach' | 'tien_ngoc';
 export interface StallDraft {
   id: string;
   item: string;
@@ -9,6 +10,7 @@ export interface StallDraft {
   price: number;
   hours: number;
   at: number;
+  currency?: StallCurrency;
 }
 export interface MarketPurchase {
   id: string;
@@ -41,12 +43,13 @@ export function stallDraftReason(
   quantity: number,
   price: number,
   hours: number,
+  currency: StallCurrency = 'linh_thach',
 ): string | null {
   if (!ITEMS[item] || (p.inventory[item] ?? 0) < 1) return 'Chọn vật phẩm có trong túi.';
   if (!integer(quantity, 9999) || quantity > (p.inventory[item] ?? 0))
     return 'Số lượng vượt quá số vật phẩm trong túi.';
   if (!integer(price, 999999999) || !Number.isSafeInteger(quantity * price))
-    return 'Nhập đơn giá từ 1 đến 999.999.999 Linh Thạch.';
+    return `Nhập đơn giá từ 1 đến 999.999.999 ${currency === 'tien_ngoc' ? 'Tiên Ngọc' : 'Linh Thạch'}.`;
   if (!STALL_HOURS.includes(hours)) return 'Chọn thời gian bày bán.';
   return null;
 }
@@ -63,10 +66,12 @@ export function parseMarketData(raw: string | null): MarketLocalData {
           !!ITEMS[d.item] &&
           integer(d.quantity, 9999) &&
           integer(d.price, 999999999) &&
+          (d.currency === undefined || d.currency === 'linh_thach' || d.currency === 'tien_ngoc') &&
           STALL_HOURS.includes(d.hours) &&
           integer(d.at, Number.MAX_SAFE_INTEGER),
       )
-      .slice(0, 30);
+      .slice(0, 30)
+      .map((d: StallDraft) => ({ ...d, currency: d.currency ?? 'linh_thach' }));
     const purchases: MarketPurchase[] = (Array.isArray(value.purchases) ? value.purchases : [])
       .filter(
         (d: MarketPurchase) =>

@@ -91,3 +91,8 @@ export function inventoryIconUrl(id: string) {
   const index = inventoryIconIndex(id);
   return index === undefined ? undefined : urls.get(index);
 }
+/** Static UI pages can crop the atlas without booting the game renderer. */
+export function inventoryIconRegion(id: string) {
+  const index = inventoryIconIndex(id);
+  return index === undefined ? undefined : REGIONS[index];
+}

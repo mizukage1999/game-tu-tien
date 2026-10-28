@@ -10,6 +10,7 @@ import {
   type MarketLocalData,
   type MarketSection,
   type StallDraft,
+  type StallCurrency,
 } from '../../game/systems/marketUi';
 import {
   inventoryGroup,
@@ -97,6 +98,8 @@ function MarketSession() {
     [quantity, setQuantity] = useState(1),
     [price, setPrice] = useState(1),
     [hours, setHours] = useState(12);
+  const [currency, setCurrency] = useState<StallCurrency>('tien_ngoc');
+  const currencyName = currency === 'tien_ngoc' ? 'Tiên Ngọc' : 'Linh Thạch';
   const [stallTab, setStallTab] = useState('create'),
     [editId, setEditId] = useState<string | null>(null),
     [partner, setPartner] = useState(''),
@@ -147,7 +150,7 @@ function MarketSession() {
     Object.entries(offer.price).every(
       ([id, n]) => (id === 'linh_khi' ? p.linhKhi : (p.inventory[id] ?? 0)) >= n,
     );
-  const draftReason = stallDraftReason(p, item, quantity, price, hours);
+  const draftReason = stallDraftReason(p, item, quantity, price, hours, currency);
   function saveDraft() {
     if (draftReason) return setNotice(draftReason);
     if (!editId && local.drafts.length >= 30)
@@ -159,6 +162,7 @@ function MarketSession() {
       price,
       hours,
       at: Date.now(),
+      currency,
     };
     persist({ ...local, drafts: [draft, ...local.drafts.filter((d) => d.id !== draft.id)] });
     setEditId(null);
@@ -490,7 +494,18 @@ function MarketSession() {
                       />
                     </label>
                     <label>
-                      Đơn giá · Linh Thạch
+                      Loại tiền
+                      <select
+                        aria-label="Tiền bày bán"
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value as StallCurrency)}
+                      >
+                        <option value="tien_ngoc">Tiên Ngọc</option>
+                        <option value="linh_thach">Linh Thạch</option>
+                      </select>
+                    </label>
+                    <label>
+                      Đơn giá · {currencyName}
                       <input
                         aria-label="Đơn giá"
                         type="number"
@@ -504,7 +519,7 @@ function MarketSession() {
                       <span>Tổng giá</span>
                       <b>
                         {money(Number.isFinite(price * quantity) ? price * quantity : 0)}{' '}
-                        <small>Linh Thạch</small>
+                        <small>{currencyName}</small>
                       </b>
                     </div>
                     <fieldset>
@@ -545,7 +560,9 @@ function MarketSession() {
                     <div>
                       <b>{itemName(d.item)}</b>
                       <p>
-                        ×{d.quantity} · {money(d.price)} Linh Thạch / món · {d.hours} giờ
+                        ×{d.quantity} · {money(d.price)}{' '}
+                        {d.currency === 'tien_ngoc' ? 'Tiên Ngọc' : 'Linh Thạch'} / món · {d.hours}{' '}
+                        giờ
                       </p>
                       <small>Chưa đăng bán</small>
                     </div>
@@ -556,6 +573,7 @@ function MarketSession() {
                         setQuantity(d.quantity);
                         setPrice(d.price);
                         setHours(d.hours);
+                        setCurrency(d.currency ?? 'linh_thach');
                         setEditId(d.id);
                         setStallTab('create');
                         setNotice('');

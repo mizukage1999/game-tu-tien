@@ -1,0 +1,1340 @@
+.hud .menu-window.menu-premium {
+  width: min(1450px, calc(100% - 24px));
+  height: min(900px, calc(100% - 24px));
+  max-height: none;
+  color: #d9e1df;
+  border: 1px solid #c19b58;
+  border-radius: 4px;
+  overflow: hidden;
+  background:
+    linear-gradient(95deg, #04111fc9, #04111fbd),
+    url('/assets/ui/cultivation/ui-night-v1.png') center/cover;
+  box-shadow:
+    0 20px 80px #000c,
+    inset 0 0 0 3px #06141e,
+    inset 0 0 0 4px #b48d3b66;
+}
+.hud .menu-premium > .menu-header {
+  padding: 8px 16px;
+  flex-shrink: 0;
+  gap: 14px;
+}
+.hud .menu-premium > .menu-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font:
+    italic 700 30px Cambria,
+    Georgia,
+    serif;
+  color: #f3d292;
+  white-space: nowrap;
+}
+.hud .menu-premium > .menu-header h3 img {
+  width: 46px;
+  height: 46px;
+}
+.hud .menu-premium > .menu-header .close {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ae8f4e;
+  border-radius: 5px;
+  font-size: 30px;
+  color: #f0cd82;
+  background: #0a1e2bdd;
+}
+.hud .menu-premium > .menu-content {
+  padding: 12px;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.jade-shell {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+  width: 100%;
+  min-height: 0;
+  font-family: Cambria, Georgia, serif;
+}
+.jade-shell button {
+  font-family: inherit;
+  cursor: pointer;
+}
+.jade-shell .cult-btn {
+  flex: none;
+}
+.jade-shell button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.jade-shell button:focus-visible {
+  outline: 2px solid #9bf5d4;
+  outline-offset: -3px;
+}
+.jade-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #aa8e4b66;
+  background: #061621c9;
+}
+.jade-sidebar > small {
+  padding: 15px 8px;
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: #a48e62;
+}
+.jade-sidebar nav {
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.jade-sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 61px;
+  padding: 9px;
+  text-align: left;
+  color: #aac0cd;
+  font-size: 14px;
+  border: 1px solid transparent;
+  border-bottom-color: #a88a4d33;
+  background: transparent;
+}
+.jade-sidebar button.active {
+  color: #ffe3ac;
+  border-color: #edc274;
+  background: linear-gradient(100deg, #8363319e, #102d30);
+  box-shadow: inset 3px 0 #f3c474;
+}
+.jade-sidebar i {
+  font-size: 24px;
+  color: #d6b67b;
+  font-style: normal;
+  width: 25px;
+  text-align: center;
+}
+.jade-sidebar > p {
+  margin-top: auto;
+  padding: 16px 6px;
+  font-size: 11px;
+  line-height: 1.8;
+  text-align: center;
+  color: #92815c;
+  font-style: italic;
+}
+.jade-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  gap: 10px;
+}
+.jade-pages,
+.jade-subtabs,
+.jade-shop-toolbar nav {
+  display: flex;
+  gap: 7px;
+  flex: none;
+}
+.jade-pages button,
+.jade-subtabs button,
+.jade-shop-toolbar nav button {
+  flex: 1;
+  min-width: 0;
+  min-height: 43px;
+  padding: 6px;
+  border: 1px solid #a8894b70;
+  border-radius: 3px;
+  background: #091d2cda;
+  color: #b6c9d3;
+  font-size: 15px;
+  white-space: nowrap;
+}
+.jade-pages button.active,
+.jade-subtabs button.active,
+.jade-shop-toolbar nav button.active {
+  border-color: #efcc81;
+  color: #ffe5b4;
+  background: linear-gradient(130deg, #8d652f9c, #132933);
+  box-shadow:
+    inset 0 0 0 2px #bd903a33,
+    0 0 10px #d49e3b22;
+}
+.jade-subtabs button {
+  min-height: 36px;
+  font-size: 13px;
+}
+.jade-message {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid #977e4755;
+  background: #172a36dd;
+  color: #b8c8cc;
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 !important;
+}
+.jade-message button {
+  flex: none;
+  color: #eed5a7;
+  padding: 4px 8px;
+  background: #173c49;
+  border: 1px solid #8d9c7666;
+}
+.jade-message.error {
+  color: #efb2a6;
+  border-color: #ce8b6870;
+}
+.jade-message.success {
+  color: #91e4bd;
+  border-color: #55c7a166;
+}
+.jade-message.preview {
+  color: #ddc896;
+  background: #55402344;
+}
+.jade-overview {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.jade-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr minmax(290px, 0.85fr);
+  align-items: center;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid #bc985b99;
+  background:
+    linear-gradient(180deg, #03101b22, transparent 65%, #03101be8),
+    url('/assets/ui/premium-sanctum-v1.png') center/cover;
+}
+.jade-hero-title {
+  align-self: start;
+  padding: 22px 24px;
+  text-shadow: 0 2px 6px #000;
+}
+.jade-hero-title small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #d2ba83;
+}
+.jade-hero-title h2 {
+  color: #ffdf9b;
+  font:
+    italic 700 clamp(32px, 4.5vw, 62px)/1.15 Cambria,
+    Georgia,
+    serif;
+  margin: 7px 0 10px;
+}
+.jade-hero-title p {
+  font-size: 14px;
+  color: #b3d6d3;
+}
+.jade-balance-card {
+  margin: 20px 22px 85px 0;
+  padding: 22px;
+  border: 1px solid #d1aa6999;
+  border-radius: 3px;
+  background: #051722e8;
+  box-shadow:
+    inset 0 0 0 3px #a2894133,
+    0 12px 30px #0007;
+}
+.jade-balance-card .cult-heading {
+  font-size: 17px;
+}
+.jade-balance {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+.jade-balance > .jade-coin {
+  width: 46px;
+  height: 46px;
+}
+.jade-balance strong {
+  color: #61efd0;
+  font:
+    34px Arial,
+    sans-serif;
+  letter-spacing: 1px;
+}
+.jade-balance button {
+  margin-left: auto;
+  background: #182d38;
+  border: 1px solid #b99855;
+  border-radius: 4px;
+  font-size: 25px;
+  color: #f6cb78;
+  width: 34px;
+  height: 34px;
+}
+.jade-coin {
+  display: inline-grid;
+  place-items: center;
+  vertical-align: middle;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid #74e9b7;
+  background: conic-gradient(from 20deg, #58ffc0, #14926c, #a3ffda, #1dba85, #58ffc0);
+  box-shadow:
+    inset 2px 1px 2px #d5ffe699,
+    inset -3px -2px 3px #064e39,
+    0 0 8px #35dc9c44;
+  transform: rotate(-15deg);
+}
+.jade-coin i {
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  background: #063b31;
+  border: 1px solid #afffda;
+  box-shadow: 1px 2px 2px #026044;
+}
+.jade-wallet-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #a48e4a33;
+  font-size: 13px;
+  color: #a6c6c8;
+}
+.jade-wallet-line b {
+  color: #c9e9dd;
+  font-weight: 400;
+}
+.jade-balance-card > p {
+  font-size: 12px;
+  color: #91adaf;
+  line-height: 1.6;
+  margin: 14px 0;
+}
+.jade-balance-card > button {
+  min-height: 34px;
+  width: 100%;
+  font-size: 13px;
+}
+.jade-hero-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 18px;
+  background: #03131fce;
+  border-top: 1px solid #bb9b5955;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #c7cbb7;
+  text-align: center;
+}
+.jade-quick-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  flex: none;
+}
+.jade-quick-links > button {
+  display: grid;
+  grid-template-columns: 65px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 95px;
+  padding: 10px;
+  min-width: 0;
+  border: 1px solid #bc975a99;
+  border-radius: 3px;
+  color: #f0d19a;
+  background: linear-gradient(135deg, #183e455c, #061625);
+  text-align: left;
+}
+.jade-bundle {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.jade-quick-links .jade-bundle {
+  width: 65px;
+  height: 65px;
+}
+.jade-quick-links b {
+  font-size: 14px;
+  font-weight: 500;
+}
+.jade-quick-links > button > span {
+  font-size: 24px;
+  color: #c5a25e;
+}
+.jade-pack-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-content: start;
+  scrollbar-width: thin;
+}
+.jade-pack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 14px 12px;
+  border: 1px solid #b48f4b99;
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 50% 40%, #16605255, transparent 70%), #061722df;
+  box-shadow: inset 0 0 0 2px #bf9e3e13;
+}
+.jade-pack h3 {
+  font-size: 19px;
+  color: #f1d597;
+  font-weight: 500;
+}
+.jade-pack .jade-bundle {
+  height: clamp(90px, 14vw, 155px);
+  margin: 5px 0;
+}
+.jade-bonus {
+  display: block;
+  padding: 4px 9px;
+  color: #f8cfb1;
+  background: linear-gradient(90deg, transparent, #8b262b, transparent);
+  font-size: 12px;
+}
+.jade-bonus.none {
+  background: none;
+  color: #97c8b4;
+}
+.jade-pack > strong {
+  margin: 11px 0;
+  color: #f9dd9b;
+  font:
+    20px Cambria,
+    serif;
+}
+.jade-pack > strong small {
+  font-size: 11px;
+}
+.jade-pack > button {
+  width: 100%;
+  min-height: 34px;
+  font-size: 13px;
+  opacity: 0.72 !important;
+}
+.jade-months {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.85fr;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.jade-month {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 15px;
+  text-align: center;
+  border: 1px solid #7db9f2;
+  border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 45%, #136fc58c, transparent 70%), #0b1933e8;
+}
+.jade-month.gold {
+  border-color: #dbb261;
+  background: radial-gradient(ellipse at 50% 45%, #92722666, transparent 70%), #1d1c20e8;
+}
+.jade-month > span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #adc7d5;
+}
+.jade-month h2 {
+  font:
+    italic 700 28px Cambria,
+    serif;
+  margin-top: 12px;
+  color: #e1efff;
+}
+.jade-month.gold h2 {
+  color: #f5dcaa;
+}
+.jade-month .jade-bundle {
+  flex: 1;
+  min-height: 120px;
+  max-height: 290px;
+  margin: 12px 0;
+}
+.jade-month p {
+  color: #b0c3cd;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.jade-month > strong {
+  font:
+    26px Cambria,
+    serif;
+  color: #efd39b;
+  margin: 15px 0;
+}
+.jade-month > button {
+  width: 85%;
+  min-height: 40px;
+}
+.jade-benefits {
+  padding: 25px 18px;
+  border: 1px solid #ad8b4755;
+  background: #061823e8;
+}
+.jade-benefits p {
+  padding: 17px 0;
+  border-bottom: 1px solid #8b864c33;
+  color: #b4d6ca;
+  font-size: 14px;
+}
+.jade-benefits > small {
+  display: block;
+  font-size: 11px;
+  color: #a2a89b;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.jade-benefits .jade-bundle {
+  height: 170px;
+  margin-top: 20px;
+}
+.jade-coming {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  border: 1px solid #bc985b77;
+  background: radial-gradient(ellipse, #145c4a44, transparent 70%), #061623da;
+  padding: 20px;
+  text-align: center;
+}
+.jade-coming .jade-bundle {
+  max-width: 270px;
+  height: 180px;
+  flex: none;
+}
+.jade-coming h2 {
+  color: #e9d29c;
+  font:
+    italic 700 32px Cambria,
+    serif;
+  margin: 10px 0;
+}
+.jade-coming p {
+  color: #a9c5c6;
+  font-size: 14px;
+}
+.jade-coming > span {
+  color: #ddb785;
+  border: 1px solid #ab8a4d66;
+  padding: 6px 14px;
+  margin: 18px 0;
+  font-size: 12px;
+}
+.jade-coming > button {
+  min-height: 35px;
+  padding: 5px 20px;
+}
+.jade-shop-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex: none;
+}
+.jade-shop-toolbar nav {
+  flex: 1;
+}
+.jade-shop-toolbar nav button {
+  font-size: 13px;
+  min-height: 35px;
+}
+.jade-shop-toolbar > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #7ae2bf;
+  padding: 7px 14px;
+  border: 1px solid #75ae8d55;
+  background: #07251edb;
+  font-size: 15px;
+}
+.jade-shop-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 12px;
+}
+.jade-product-grid {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
+  scrollbar-width: thin;
+}
+.jade-product {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 30px 12px 14px;
+  border: 1px solid #96774577;
+  border-radius: 3px;
+  background: linear-gradient(145deg, #153d4255, #061622ee);
+  color: #d2dacb;
+}
+.jade-product.selected {
+  border-color: #f0d38a;
+  box-shadow: inset 0 0 0 2px #c8a44e66;
+}
+.jade-product-status {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  font-size: 9px;
+  color: #c0aa8d;
+  padding: 3px 5px;
+  border: 1px solid #ba945b55;
+  background: #162736;
+}
+.jade-product-status.live {
+  color: #89e9bc;
+  border-color: #6dd49a77;
+  background: #063725;
+}
+.jade-product > img {
+  width: 85%;
+  max-width: 100px;
+  height: 100px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px #3fa48033);
+}
+.jade-product h3 {
+  color: #e2cfaa;
+  font-size: 15px;
+  line-height: 1.4;
+  margin: 8px 0;
+  font-weight: 500;
+}
+.jade-product > b,
+.jade-product-detail footer b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #74e9be;
+  font:
+    18px Arial,
+    sans-serif;
+}
+.jade-product > small {
+  margin-top: 10px;
+  color: #8ca7aa;
+  font-size: 10px;
+}
+.jade-product-detail {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #c0a16a99;
+  background: #061822e8;
+}
+.jade-product-description {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px;
+  scrollbar-width: thin;
+}
+.jade-product-description > img {
+  display: block;
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin: 0 auto 18px;
+  filter: drop-shadow(0 0 15px #40b78844);
+}
+.jade-product-description > small {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #97c3bc;
+}
+.jade-product-description h2 {
+  color: #eed49a;
+  font:
+    italic 700 27px Cambria,
+    serif;
+  margin: 10px 0;
+}
+.jade-product-description p {
+  color: #a7bdc1;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.jade-product-description dl {
+  display: grid;
+  gap: 11px;
+  margin-top: 20px;
+}
+.jade-product-description dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid #96854733;
+  font-size: 12px;
+}
+.jade-product-description dt {
+  color: #9eb7bc;
+}
+.jade-product-description dd {
+  color: #87ddba;
+}
+.jade-product-detail > footer {
+  padding: 16px;
+  border-top: 1px solid #ba965b77;
+  flex: none;
+  background: #10292e;
+}
+.jade-product-detail footer > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #a7c1bd;
+}
+.jade-product-detail footer button {
+  width: 100%;
+  min-height: 42px;
+  font-size: 17px;
+}
+.jade-product-detail footer > small {
+  display: block;
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.5;
+  color: #a9bbab;
+  margin-top: 10px;
+}
+.jade-history {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #b28f5177;
+  background: #061823de;
+}
+.jade-history > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  align-items: center;
+  flex: none;
+  border-bottom: 1px solid #b29b5944;
+}
+.jade-history header small {
+  font-size: 11px;
+  color: #89aeae;
+  display: block;
+  margin-top: 6px;
+}
+.jade-history header button {
+  padding: 7px 15px;
+  min-height: 33px;
+}
+.jade-history-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.jade-history table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.jade-history th {
+  position: sticky;
+  top: 0;
+  text-align: left;
+  background: #112732;
+  color: #dbbf87;
+  font-weight: 500;
+  padding: 12px 15px;
+  border-bottom: 1px solid #aa8a4b77;
+}
+.jade-history td {
+  padding: 16px 15px;
+  color: #a9bfc4;
+  border-bottom: 1px solid #9e884633;
+  line-height: 1.5;
+}
+.jade-history td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+.jade-history td[colspan] {
+  padding: 60px 15px;
+  text-align: center;
+}
+.jade-history td.positive {
+  color: #85e2b9;
+}
+.jade-history td.negative {
+  color: #ecaa9a;
+}
+.jade-earn {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  overflow-y: auto;
+}
+.jade-earn-intro {
+  padding: 24px;
+  text-align: center;
+  border: 1px solid #ba9b6477;
+  background: radial-gradient(ellipse, #13564755, transparent 75%), #061823de;
+}
+.jade-earn-intro .jade-bundle {
+  height: 210px;
+  margin: 0 auto 16px;
+  max-width: 350px;
+}
+.jade-earn-intro > small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #8fcfbb;
+}
+.jade-earn-intro h2 {
+  color: #e9cd94;
+  font:
+    italic 700 30px Cambria,
+    serif;
+  margin: 12px 0;
+}
+.jade-earn-intro p {
+  color: #adc6c3;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.jade-earn-intro button {
+  min-height: 42px;
+  width: 100%;
+}
+.jade-earn-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.jade-earn-steps > article {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid #b3945755;
+  background: #081d28e8;
+}
+.jade-earn-steps > article > b {
+  color: #75d4af;
+  font:
+    32px Cambria,
+    serif;
+}
+.jade-earn-steps h3 {
+  color: #e6c994;
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+.jade-earn-steps p {
+  color: #a4bfc3;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.jade-admin {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 30px;
+  border: 1px solid #b7986077;
+  background: #061823e8;
+}
+.jade-admin > p {
+  color: #9bb9bb;
+  font-size: 13px;
+  margin: 18px 0;
+}
+.jade-admin label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #d2c59f;
+  margin: 18px 0;
+  font-size: 14px;
+  max-width: 550px;
+}
+.jade-admin input {
+  padding: 10px;
+  border: 1px solid #a3894e88;
+  border-radius: 3px;
+  color: #c7e3d9;
+  background: #122c36;
+  font-size: 16px;
+}
+.jade-admin button {
+  min-height: 40px;
+  padding: 8px 20px;
+}
+@media (max-width: 1100px) {
+  .jade-quick-links > button {
+    grid-template-columns: 45px 1fr;
+    padding: 8px;
+    gap: 5px;
+  }
+  .jade-quick-links .jade-bundle {
+    width: 45px;
+    height: 50px;
+  }
+  .jade-quick-links > button > span {
+    display: none;
+  }
+  .jade-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .jade-months {
+    grid-template-columns: 1fr 1fr;
+  }
+  .jade-benefits {
+    grid-column: 1/-1;
+  }
+  .jade-benefits .jade-bundle {
+    display: none;
+  }
+}
+.hud.phone .menu-window.menu-premium {
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+}
+.hud.phone .menu-premium > .menu-header {
+  padding: 4px 9px;
+  gap: 8px;
+}
+.hud.phone .menu-premium > .menu-header h3 {
+  font-size: 22px;
+  gap: 7px;
+}
+.hud.phone .menu-premium > .menu-header h3 img {
+  width: 30px;
+  height: 30px;
+}
+.hud.phone .menu-premium > .menu-header .close {
+  width: 30px;
+  height: 30px;
+  font-size: 24px;
+}
+.hud.phone .menu-premium > .menu-content {
+  padding: 5px;
+}
+.hud.phone .jade-shell {
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 6px;
+}
+.hud.phone .jade-sidebar > small,
+.hud.phone .jade-sidebar > p {
+  display: none;
+}
+.hud.phone .jade-sidebar button {
+  min-height: 41px;
+  padding: 5px 4px;
+  gap: 4px;
+  font-size: 10px;
+}
+.hud.phone .jade-sidebar i {
+  width: 17px;
+  font-size: 17px;
+}
+.hud.phone .jade-main {
+  gap: 6px;
+}
+.hud.phone .jade-pages,
+.hud.phone .jade-subtabs {
+  gap: 5px;
+}
+.hud.phone .jade-pages button {
+  min-height: 30px;
+  padding: 3px;
+  font-size: 11px;
+}
+.hud.phone .jade-subtabs button {
+  min-height: 28px;
+  font-size: 10px;
+  padding: 4px;
+}
+.hud.phone .jade-message {
+  padding: 5px 8px;
+  font-size: 9px;
+}
+.hud.phone .jade-overview {
+  gap: 6px;
+}
+.hud.phone .jade-hero {
+  grid-template-columns: 1fr minmax(230px, 0.9fr);
+}
+.hud.phone .jade-hero-title {
+  padding: 10px 14px;
+}
+.hud.phone .jade-hero-title small {
+  font-size: 6px;
+  letter-spacing: 1.3px;
+}
+.hud.phone .jade-hero-title h2 {
+  font-size: 32px;
+  margin: 3px 0 5px;
+}
+.hud.phone .jade-hero-title p {
+  font-size: 10px;
+}
+.hud.phone .jade-balance-card {
+  margin: 8px 10px 43px 0;
+  padding: 9px 12px;
+}
+.hud.phone .jade-balance-card .cult-heading {
+  font-size: 12px;
+}
+.hud.phone .jade-balance {
+  gap: 8px;
+  margin: 9px 0;
+}
+.hud.phone .jade-balance > .jade-coin {
+  width: 28px;
+  height: 28px;
+}
+.hud.phone .jade-balance strong {
+  font-size: 23px;
+}
+.hud.phone .jade-balance button {
+  width: 25px;
+  height: 25px;
+  font-size: 21px;
+}
+.hud.phone .jade-wallet-line {
+  font-size: 9px;
+  padding: 5px 0;
+}
+.hud.phone .jade-balance-card > p {
+  display: none;
+}
+.hud.phone .jade-balance-card > button {
+  min-height: 25px;
+  font-size: 10px;
+  margin-top: 7px;
+}
+.hud.phone .jade-hero-caption {
+  padding: 5px;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.hud.phone .jade-quick-links {
+  gap: 6px;
+}
+.hud.phone .jade-quick-links > button {
+  grid-template-columns: 35px 1fr;
+  padding: 5px;
+  min-height: 53px;
+}
+.hud.phone .jade-quick-links .jade-bundle {
+  width: 35px;
+  height: 40px;
+}
+.hud.phone .jade-quick-links b {
+  font-size: 10px;
+}
+.hud.phone .jade-pack-grid {
+  gap: 7px;
+}
+.hud.phone .jade-pack {
+  padding: 8px;
+}
+.hud.phone .jade-pack h3 {
+  font-size: 13px;
+}
+.hud.phone .jade-pack .jade-bundle {
+  height: 78px;
+  margin: 2px 0;
+}
+.hud.phone .jade-bonus {
+  padding: 3px 5px;
+  font-size: 9px;
+}
+.hud.phone .jade-pack > strong {
+  font-size: 16px;
+  margin: 7px 0;
+}
+.hud.phone .jade-pack > button {
+  min-height: 26px;
+  font-size: 10px;
+}
+.hud.phone .jade-months {
+  gap: 7px;
+}
+.hud.phone .jade-month {
+  padding: 12px;
+}
+.hud.phone .jade-month > span {
+  font-size: 7px;
+}
+.hud.phone .jade-month h2 {
+  font-size: 21px;
+  margin-top: 6px;
+}
+.hud.phone .jade-month .jade-bundle {
+  min-height: 75px;
+  height: 85px;
+  max-height: 100px;
+  margin: 5px 0;
+}
+.hud.phone .jade-month p {
+  font-size: 10px;
+}
+.hud.phone .jade-month > strong {
+  font-size: 20px;
+  margin: 9px 0;
+}
+.hud.phone .jade-month > button {
+  min-height: 30px;
+  font-size: 12px;
+}
+.hud.phone .jade-benefits {
+  padding: 12px;
+}
+.hud.phone .jade-benefits p {
+  padding: 8px 0;
+  font-size: 11px;
+}
+.hud.phone .jade-benefits > small {
+  font-size: 9px;
+}
+.hud.phone .jade-coming {
+  padding: 10px;
+  justify-content: flex-start;
+}
+.hud.phone .jade-coming .jade-bundle {
+  width: 170px;
+  height: 95px;
+}
+.hud.phone .jade-coming h2 {
+  font-size: 25px;
+  margin: 5px 0;
+}
+.hud.phone .jade-coming p {
+  font-size: 11px;
+}
+.hud.phone .jade-coming > span {
+  margin: 9px 0;
+  font-size: 10px;
+  padding: 4px 10px;
+}
+.hud.phone .jade-shop-toolbar {
+  gap: 6px;
+}
+.hud.phone .jade-shop-toolbar nav {
+  gap: 5px;
+}
+.hud.phone .jade-shop-toolbar nav button {
+  min-height: 29px;
+  padding: 3px;
+  font-size: 9px;
+}
+.hud.phone .jade-shop-toolbar > span {
+  padding: 4px 6px;
+  font-size: 12px;
+  gap: 4px;
+}
+.hud.phone .jade-coin {
+  width: 16px;
+  height: 16px;
+}
+.hud.phone .jade-shop-layout {
+  gap: 6px;
+  grid-template-columns: 1fr 1fr;
+}
+.hud.phone .jade-product-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.hud.phone .jade-product {
+  padding: 23px 7px 10px;
+}
+.hud.phone .jade-product > img {
+  width: 55px;
+  height: 55px;
+}
+.hud.phone .jade-product-status {
+  top: 5px;
+  right: 5px;
+  font-size: 7px;
+  padding: 2px 4px;
+}
+.hud.phone .jade-product h3 {
+  font-size: 11px;
+  margin: 6px 0;
+}
+.hud.phone .jade-product > b {
+  font-size: 13px;
+  gap: 5px;
+}
+.hud.phone .jade-product > small {
+  font-size: 8px;
+  margin-top: 6px;
+}
+.hud.phone .jade-product-description {
+  padding: 12px;
+}
+.hud.phone .jade-product-description > img {
+  width: 65px;
+  height: 65px;
+  margin-bottom: 8px;
+}
+.hud.phone .jade-product-description > small {
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+.hud.phone .jade-product-description h2 {
+  font-size: 21px;
+  margin: 7px 0;
+}
+.hud.phone .jade-product-description p {
+  font-size: 10px;
+}
+.hud.phone .jade-product-description dl {
+  gap: 7px;
+  margin-top: 10px;
+}
+.hud.phone .jade-product-description dl > div {
+  padding-bottom: 5px;
+  font-size: 10px;
+}
+.hud.phone .jade-product-detail > footer {
+  padding: 8px;
+}
+.hud.phone .jade-product-detail footer > span {
+  font-size: 10px;
+  margin-bottom: 7px;
+}
+.hud.phone .jade-product-detail footer b {
+  font-size: 14px;
+}
+.hud.phone .jade-product-detail footer button {
+  min-height: 30px;
+  font-size: 12px;
+}
+.hud.phone .jade-product-detail footer > small {
+  font-size: 8px;
+  margin-top: 6px;
+}
+.hud.phone .jade-history > header {
+  padding: 9px;
+}
+.hud.phone .jade-history .cult-heading {
+  font-size: 14px;
+}
+.hud.phone .jade-history header small {
+  font-size: 9px;
+}
+.hud.phone .jade-history header button {
+  min-height: 28px;
+  font-size: 10px;
+}
+.hud.phone .jade-history table {
+  font-size: 10px;
+}
+.hud.phone .jade-history th {
+  padding: 8px;
+}
+.hud.phone .jade-history td {
+  padding: 12px 8px;
+}
+.hud.phone .jade-earn {
+  gap: 7px;
+}
+.hud.phone .jade-earn-intro {
+  padding: 12px;
+}
+.hud.phone .jade-earn-intro .jade-bundle {
+  height: 90px;
+  margin-bottom: 7px;
+}
+.hud.phone .jade-earn-intro > small {
+  font-size: 7px;
+}
+.hud.phone .jade-earn-intro h2 {
+  font-size: 22px;
+  margin: 9px 0;
+}
+.hud.phone .jade-earn-intro p {
+  font-size: 10px;
+  margin-bottom: 12px;
+}
+.hud.phone .jade-earn-intro button {
+  min-height: 31px;
+  font-size: 12px;
+}
+.hud.phone .jade-earn-steps {
+  gap: 7px;
+}
+.hud.phone .jade-earn-steps > article {
+  padding: 12px;
+  gap: 9px;
+}
+.hud.phone .jade-earn-steps > article > b {
+  font-size: 23px;
+}
+.hud.phone .jade-earn-steps h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+.hud.phone .jade-earn-steps p {
+  font-size: 10px;
+}
+.hud.phone .jade-admin {
+  padding: 15px;
+}
+.hud.phone .jade-admin label {
+  font-size: 12px;
+  margin: 12px 0;
+}

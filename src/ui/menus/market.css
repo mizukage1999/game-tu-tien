@@ -580,7 +580,8 @@
   font-size: 15px;
   color: #b3c3cc;
 }
-.market-listing-fields > label input {
+.market-listing-fields > label input,
+.market-listing-fields > label select {
   width: 47%;
   text-align: right;
   font-family: Arial, sans-serif;

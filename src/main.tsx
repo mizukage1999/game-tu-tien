@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client';
 import './ui/hud.css';
-import { bootOnline } from './net/boot';
 
 // StrictMode is omitted on purpose: it would boot the Phaser game twice in development.
 
@@ -17,7 +16,15 @@ declare global {
  * loaded, because the store reads localStorage once, at import time.
  */
 async function main() {
+  if (/^\/admin(?:\/(?:index\.html)?)?$/.test(window.location.pathname)) {
+    const { AdminApp } = await import('./admin/AdminApp');
+    window.__APP_READY = true;
+    createRoot(document.getElementById('root')!).render(<AdminApp />);
+    window.__RENDERED = true;
+    return;
+  }
   try {
+    const { bootOnline } = await import('./net/boot');
     await bootOnline();
   } catch (err) {
     console.error('[net] boot failed', err);

@@ -91,7 +91,13 @@ it('saves, edits and removes a stall draft without reserving items or spending c
   const before = gameStore.getState().player;
   click('[data-action="save-draft"]');
   let saved = parseMarketData(localStorage.getItem(marketStorageKey(saveKey())));
-  expect(saved.drafts[0]).toMatchObject({ item: 'linh_chi', quantity: 3, price: 120, hours: 12 });
+  expect(saved.drafts[0]).toMatchObject({
+    item: 'linh_chi',
+    quantity: 3,
+    price: 120,
+    hours: 12,
+    currency: 'tien_ngoc',
+  });
   expect(gameStore.getState().player).toBe(before);
   click('.market-drafts article button:first-of-type');
   field('Đơn giá', '150');
@@ -161,6 +167,11 @@ it('rejects malformed drafts, unavailable inventory and invalid prices', () => {
   ] as const)
     expect(stallDraftReason(player, item, quantity, price, hours)).not.toBeNull();
   expect(parseMarketData('{broken')).toEqual({ drafts: [], purchases: [], favorites: [] });
+  const old = { id: 'old', item: 'linh_chi', quantity: 1, price: 5, hours: 6, at: 1 };
+  expect(parseMarketData(JSON.stringify({ drafts: [old] })).drafts[0].currency).toBe('linh_thach');
+  expect(
+    parseMarketData(JSON.stringify({ drafts: [{ ...old, currency: 'forged' }] })).drafts,
+  ).toHaveLength(0);
   expect(
     parseMarketData(
       JSON.stringify({
