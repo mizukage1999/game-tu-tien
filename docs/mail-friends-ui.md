@@ -1,6 +1,6 @@
 # Mail and friends UI
 
-Mail keeps only **Tất cả**. It uses a new illustrated parchment and the shared navy/gold frame, wallet and responsive sizing. There is no mailbox source or claim API in this project; the screen deliberately remains empty and never creates sample mail, rewards or inactive claim/delete controls.
+Mail keeps only **Tất cả**. It uses an illustrated parchment and the shared navy/gold frame, wallet and responsive sizing. The [Alphatest mailbox](alphatest-mail.md) now connects to authenticated server mail: one letter per account, with a gift claimable after admission. Offline visitors see a sign-in message. Issued rewards are never fabricated locally.
 
 The social menu is now named **Bạn Bè** in both navigation and window title. It has only **Bạn bè** and **Lời mời**. The friend list uses the real saved references and live presence, with accent-insensitive name search, presence filters, online-first sorting, character portraits and profile selection. Level, realm and map are shown only when presence is available. Missing/disconnected profiles show unknown fields instead of fabricated stats or a guessed character.
 

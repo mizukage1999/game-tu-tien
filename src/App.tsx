@@ -14,6 +14,7 @@ import { StartScreen } from './ui/EntryScreen';
 import { usePerformanceTier } from './store/performanceStore';
 import { MobileViewport } from './ui/MobileViewport';
 import { bootStorage, consumeBootRetry } from './game/systems/gameBoot';
+import { refreshMail, resetMail } from './net/gameMail';
 
 export function App() {
   const performanceTier = usePerformanceTier();
@@ -26,6 +27,11 @@ export function App() {
   const [ready, setReady] = useState(() => loadGame() !== null);
   const [entered, setEntered] = useState(() => consumeBootRetry(bootStorage()));
   useTryLockLandscape(phone);
+  useEffect(() => {
+    resetMail();
+    if (accountId) void refreshMail();
+    return resetMail;
+  }, [accountId]);
   useEffect(() => {
     resetPremium();
     if (!ready) return;

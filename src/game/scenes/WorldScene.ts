@@ -874,6 +874,19 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private bindStore() {
+    let rewardPaused = false;
+    this.cleanups.push(gameStore.subscribe((s) => {
+      if (s.rewardPending && this.sys.isActive()) {
+        rewardPaused = true;
+        this.player.clearRoute();
+        this.player.setVelocity(0, 0);
+        this.scene.pause();
+      } else if (!s.rewardPending && rewardPaused) {
+        rewardPaused = false;
+        this.game.loop.resetDelta();
+        this.scene.resume();
+      }
+    }));
     window.addEventListener('keydown', dismissWorldPanel, true);
     this.cleanups.push(() => window.removeEventListener('keydown', dismissWorldPanel, true));
     const focus = () => {

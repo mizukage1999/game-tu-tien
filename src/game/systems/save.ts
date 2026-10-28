@@ -47,6 +47,8 @@ export interface FriendRef {
 }
 
 export interface PlayerSave {
+  /** Server receipt revision prevents delayed autosaves from undoing mail rewards. */
+  mailRevision?: number;
   pkMode?: PkMode;
   heroId?: HeroId;
   practice?: Partial<Record<PracticeAction, number>>;

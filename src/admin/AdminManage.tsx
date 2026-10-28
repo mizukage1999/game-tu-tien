@@ -12,6 +12,7 @@ import {
 } from './AdminUI';
 
 const LOG_KINDS: Record<string, string> = {
+  alphatest: 'Phát thư Alphatest',
   jade_grant: 'Cấp Tiên Ngọc',
   jade_exchange: 'Đổi pháp bảo',
   event_plan: 'Kế hoạch sự kiện',

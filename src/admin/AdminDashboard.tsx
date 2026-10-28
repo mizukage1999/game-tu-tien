@@ -8,8 +8,18 @@ import { AdminBosses, AdminItems, AdminQuests, ADMIN_ITEM_COUNT } from './AdminC
 import { AdminEvents, AdminJade, AdminLogs } from './AdminManage';
 import { useAdminRequest } from './useAdminRequest';
 import { AdminPanel, adminNumber, adminTime } from './AdminUI';
+import { AdminAlphatest } from './AdminAlphatest';
 type Tab =
-  'overview' | 'accounts' | 'items' | 'logs' | 'quests' | 'boss' | 'events' | 'jade' | 'settings';
+  | 'overview'
+  | 'accounts'
+  | 'items'
+  | 'logs'
+  | 'quests'
+  | 'boss'
+  | 'events'
+  | 'jade'
+  | 'settings'
+  | 'alphatest';
 const TABS: readonly [Tab, string, AdminIconName][] = [
   ['overview', 'Tổng quan', 'overview'],
   ['accounts', 'Tài khoản', 'accounts'],
@@ -18,6 +28,7 @@ const TABS: readonly [Tab, string, AdminIconName][] = [
   ['quests', 'Nhiệm vụ', 'quests'],
   ['boss', 'Săn Boss', 'boss'],
   ['events', 'Sự kiện', 'events'],
+  ['alphatest', 'Alphatest', 'events'],
   ['jade', 'Cấp Tiên Ngọc', 'jade'],
   ['settings', 'Cài đặt', 'settings'],
 ];
@@ -197,6 +208,7 @@ export function AdminDashboard({
         {tab === 'logs' && <AdminLogs revision={revision} />}
         {tab === 'jade' && <AdminJade key={target} initialTarget={target} onSaved={refresh} />}
         {tab === 'events' && <AdminEvents revision={revision} onSaved={refresh} />}
+        {tab === 'alphatest' && <AdminAlphatest revision={revision} onSaved={refresh} />}
         {tab === 'settings' && (
           <AdminPanel title="Kết nối và quyền quản trị" icon="settings">
             <div className="admin-settings">

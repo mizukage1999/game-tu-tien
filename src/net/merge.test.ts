@@ -24,6 +24,14 @@ function save(savedAt: number, level: number): SaveData {
 }
 
 describe('pickNewer', () => {
+  it('keeps the server reward receipt even when the browser clock is ahead', () => {
+    const local = save(999999, 10),
+      cloud = save(2000, 99);
+    cloud.player.mailRevision = 1;
+    expect(pickNewer(local, cloud)).toBe(cloud);
+    local.player.mailRevision = 2;
+    expect(pickNewer(local, cloud)).toBe(cloud);
+  });
   it('returns the cloud save when it is newer', () => {
     const local = save(1000, 3);
     const cloud = save(2000, 5);

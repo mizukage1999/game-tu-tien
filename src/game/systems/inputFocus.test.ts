@@ -51,3 +51,15 @@ it('lets Escape close the current menu while leaving typing and inspection to th
   expect(dismissWorldPanel(event)).toBe(false);
   expect(socialStore.getState().card).toBe('peer');
 });
+it('holds the active mail panel and world input until a reward claim finishes', () => {
+  gameStore.setState({ menu: 'mail', dialogNpc: null, rewardPending: true });
+  socialStore.setState({ card: null, duel: null });
+  chatStore.setState({ open: false });
+  expect(worldInputBlocked()).toBe(true);
+  expect(dismissWorldPanel({ key: 'Escape', target: null, preventDefault() {} })).toBe(true);
+  gameStore.getState().setMenu(null);
+  expect(gameStore.getState().menu).toBe('mail');
+  gameStore.setState({ rewardPending: false });
+  gameStore.getState().setMenu(null);
+  expect(gameStore.getState().menu).toBeNull();
+});

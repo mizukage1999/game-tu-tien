@@ -1,17 +1,33 @@
+﻿import { useEffect, useState } from 'react';
 import { useGame } from '../../store/gameStore';
+import { useAccount } from '../../net/session';
+import { claimMail, readMail, refreshMail, useMail } from '../../net/gameMail';
+import { itemIconUrl } from '../../game/art/icons';
 import { CorrespondenceIcon } from '../social/CorrespondenceIcon';
 import '../social/correspondence.css';
+import '../social/mail.css';
 
-/** No mail source is connected yet; never render sample letters or claimable rewards. */
 export function MailPanel() {
-  const name = useGame((s) => s.player.name);
+  const player = useGame((s) => s.player),
+    account = useAccount();
+  const { mails, loading, loaded, busy, error } = useMail((s) => s);
+  const [selected, setSelected] = useState('');
+  const mail = mails.find((m) => m.id === selected) ?? mails[0];
+  useEffect(() => {
+    void refreshMail();
+  }, []);
+  const mailId = mail?.id,
+    readAt = mail?.read_at;
+  useEffect(() => {
+    if (mailId && !readAt) void readMail(mailId);
+  }, [mailId, readAt]);
   return (
-    <div className="cult-correspondence cult-mail">
+    <div className="cult-correspondence cult-mail alpha-mail">
       <nav className="cult-side correspondence-nav" aria-label="Mục thư">
         <button className="active" aria-current="page">
           <CorrespondenceIcon kind="mail" />
           <span>Tất cả</span>
-          <small>0</small>
+          <small>{mails.length}</small>
         </button>
         <div className="correspondence-side-note">
           <span>THƯ TÍN</span>Một phong thư,
@@ -22,30 +38,125 @@ export function MailPanel() {
       <section className="correspondence-list" aria-label="Danh sách thư">
         <header className="correspondence-list-heading">
           <h4>Hộp thư</h4>
-          <span>0 thư</span>
+          <button
+            className="btn"
+            disabled={loading || busy || !account.user}
+            onClick={() => void refreshMail()}
+            aria-label="Làm mới hộp thư"
+          >
+            ↻
+          </button>
         </header>
-        <div className="correspondence-empty">
-          <CorrespondenceIcon kind="mail" />
-          <h4>Hộp thư trống</h4>
-          <p>Hiện chưa có thư nào.</p>
+        <div className="mail-rows">
+          {mails.map((m) => (
+            <button
+              key={m.id}
+              className={`mail-row ${m.id === mail?.id ? 'selected' : ''}`}
+              onClick={() => setSelected(m.id)}
+              disabled={busy}
+            >
+              <CorrespondenceIcon kind="mail" />
+              <span>
+                <b>{m.title}</b>
+                <small>
+                  {m.claimed_at
+                    ? 'Đã nhận quà'
+                    : !m.read_at
+                      ? 'Thư mới · Có quà'
+                      : 'Có quà đính kèm'}
+                </small>
+              </span>
+              <i>{m.claimed_at ? '✓' : '✦'}</i>
+            </button>
+          ))}
+          {!mails.length && (
+            <div className="correspondence-empty">
+              <CorrespondenceIcon kind="mail" />
+              <h4>
+                {loading ? 'Đang tải thư…' : !account.user ? 'Cần đăng nhập' : 'Hộp thư trống'}
+              </h4>
+              <p>
+                {!account.user
+                  ? 'Đăng nhập tài khoản online để nhận thư Alphatest.'
+                  : loaded
+                    ? 'Hiện chưa có thư nào.'
+                    : ''}
+              </p>
+            </div>
+          )}
         </div>
-        <footer className="correspondence-list-foot">Tất cả thư của bạn</footer>
+        <footer className="correspondence-list-foot">
+          {mails.length} thư · Quà một lần / tài khoản
+        </footer>
       </section>
-      <section className="cult-letter" aria-label="Nội dung thư">
+      <section className="cult-letter" aria-label="Nội dung thư" aria-busy={busy}>
         <div className="cult-letter-scroll">
-          <span className="cult-letter-eyebrow">THƯ TÍN GIANG HỒ</span>
-          <h2>Chưa có thư mới</h2>
+          <span className="cult-letter-eyebrow">BAN ĐIỀU HÀNH CỬU HUYỀN</span>
+          <h2>{mail?.title ?? 'Chờ một phong thư'}</h2>
           <p className="cult-letter-recipient">
-            Đạo hữu: <b>{name}</b>
+            Đạo hữu: <b>{player.name}</b>
           </p>
           <div className="cult-letter-rule" />
-          <div className="cult-letter-empty">
-            <CorrespondenceIcon kind="mail" />
-            <h3>Chờ một phong thư</h3>
-            <p>Nội dung thư và vật phẩm đính kèm sẽ hiển thị ở đây khi bạn nhận được thư.</p>
-          </div>
-          <p className="cult-letter-poem">Sơn hà vạn dặm, thư gửi người hữu duyên.</p>
+          {mail && (
+            <>
+              <p className="mail-body">{mail.body}</p>
+              <h4 className="mail-attachment-title">✦ Quà đính kèm</h4>
+              <div className="mail-rewards">
+                <div>
+                  <i className="mail-level">99</i>
+                  <b>Cấp {mail.rewards.targetLevel}</b>
+                  <small>EXP đủ lên cấp 99</small>
+                </div>
+                <div>
+                  <i className="cult-jade-icon">◈</i>
+                  <b>{mail.rewards.jade.toLocaleString('vi-VN')}</b>
+                  <small>Tiên Ngọc</small>
+                </div>
+                <div>
+                  <img src={itemIconUrl('linh_thach', 48)} alt="" />
+                  <b>{mail.rewards.linhThach.toLocaleString('vi-VN')}</b>
+                  <small>Linh Thạch</small>
+                </div>
+                <div>
+                  <img src={itemIconUrl('linh_khi', 48)} alt="" />
+                  <b>{mail.rewards.linhKhi.toLocaleString('vi-VN')}</b>
+                  <small>Linh Khí</small>
+                </div>
+              </div>
+            </>
+          )}
         </div>
+        <footer className="mail-claim-footer">
+          {error && (
+            <p role="alert" className="mail-error">
+              {error}
+            </p>
+          )}
+          {mail && (
+            <>
+              <p role="status">
+                {mail.claimed_at
+                  ? 'Đã nhận trọn bộ quà Alphatest.'
+                  : player.admitted
+                    ? 'Đã nhập môn · Có thể nhận quà.'
+                    : 'Hoàn thành nhập môn để mở phần thưởng.'}
+              </p>
+              <button
+                className="btn gold mail-claim"
+                disabled={busy || !!mail.claimed_at || !player.admitted || !account.user}
+                onClick={() => void claimMail(mail.id)}
+              >
+                {busy
+                  ? 'Đang nhận…'
+                  : mail.claimed_at
+                    ? 'Đã nhận'
+                    : player.admitted
+                      ? 'Nhận quà Alphatest'
+                      : '🔒 Chưa nhập môn'}
+              </button>
+            </>
+          )}
+        </footer>
       </section>
     </div>
   );

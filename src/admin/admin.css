@@ -1341,3 +1341,34 @@
     height: 70px;
   }
 }
+.admin-alpha-body {
+  padding: 22px;
+  max-width: 850px;
+  color: #c3cfda;
+  line-height: 1.7;
+}
+.admin-alpha-body h3 {
+  color: #f9d38d;
+  margin-top: 0;
+}
+.admin-alpha-body dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.admin-alpha-body dl > div {
+  border: 1px solid #aa864b55;
+  padding: 12px;
+  border-radius: 6px;
+  background: #091b2b;
+}
+.admin-alpha-body dd {
+  margin: 5px 0 0;
+  color: #f9d38d;
+  font-size: 23px;
+}
+@media (max-width: 600px) {
+  .admin-alpha-body dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

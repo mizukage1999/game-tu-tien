@@ -9,6 +9,7 @@ let activeUser: string | null = null;
 let pushing = false;
 let queued: { userId: string; data: SaveData } | null = null;
 let lastError: string | null = null;
+let completion: Promise<void> = Promise.resolve();
 
 export async function pullCloudSave(userId: string): Promise<SaveData | null> {
   if (!supabase) return null;
@@ -30,18 +31,20 @@ async function pushNow(userId: string, data: SaveData) {
   if (!supabase) return;
   const instance = activeSessionId(userId);
   if (!instance || activeUser !== userId) return;
-  const { error } = await supabase.rpc('save_game_snapshot', {
-    p_instance_id: instance,
-    p_snapshot: data,
-  });
-  if (activeSessionId(userId) !== instance || activeUser !== userId) return;
-  if (error) {
-    lastError = error.message;
-    setAccountState({ status: 'error', error: `Chưa lưu được lên cloud: ${error.message}` });
-    return;
+  try {
+    const { error } = await supabase.rpc('save_game_snapshot', {
+      p_instance_id: instance,
+      p_snapshot: data,
+    });
+    if (activeSessionId(userId) !== instance || activeUser !== userId) return;
+    if (error) throw error;
+    lastError = null;
+    setAccountState({ status: 'saved', error: null });
+  } catch (error) {
+    if (activeSessionId(userId) !== instance || activeUser !== userId) return;
+    lastError = String((error as { message?: string })?.message ?? 'Mất kết nối server.');
+    setAccountState({ status: 'error', error: `Chưa lưu được lên cloud: ${lastError}` });
   }
-  lastError = null;
-  setAccountState({ status: 'saved', error: null });
 }
 
 /**
@@ -55,6 +58,10 @@ async function pushSave(userId: string, data: SaveData) {
     return;
   }
   pushing = true;
+  let finish!: () => void;
+  completion = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
   setAccountState({ status: 'syncing' });
   try {
     await pushNow(userId, data);
@@ -65,12 +72,24 @@ async function pushSave(userId: string, data: SaveData) {
     }
   } finally {
     pushing = false;
+    finish();
   }
+}
+
+/** A server reward may only read a snapshot after the complete save queue commits. */
+export async function flushCloudSave(userId: string) {
+  const instance = activeSessionId(userId);
+  if (!supabase || !instance || activeUser !== userId) throw new Error('SESSION_REPLACED');
+  while (pushing) await completion;
+  if (activeUser !== userId || activeSessionId(userId) !== instance)
+    throw new Error('SESSION_REPLACED');
+  if (lastError) throw new Error(lastError);
 }
 
 /** Registers the sync sink. Called once per sign-in, before the game boots. */
 export function attachCloudSync(userId: string) {
   activeUser = userId;
+  lastError = null;
   setSaveSink((data) => {
     if (activeUser) void pushSave(activeUser, data);
   });

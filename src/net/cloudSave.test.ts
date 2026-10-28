@@ -24,7 +24,13 @@ vi.mock('../game/systems/save', () => ({
   loadGame: () => fake.local,
   writeSnapshot: fake.write,
 }));
-import { attachCloudSync, detachCloudSync, hydrateFromCloud, deleteCloudSave } from './cloudSave';
+import {
+  attachCloudSync,
+  detachCloudSync,
+  hydrateFromCloud,
+  deleteCloudSave,
+  flushCloudSave,
+} from './cloudSave';
 beforeEach(() => {
   fake.instance = 'instance-a';
   fake.local = null;
@@ -37,6 +43,52 @@ afterEach(() => detachCloudSync());
 const settle = async () => {
   for (let i = 0; i < 12; i++) await Promise.resolve();
 };
+it('waits for both in-flight and queued saves before a mailbox reward', async () => {
+  let resolve!: (r: { error: null }) => void;
+  fake.rpc.mockReturnValueOnce(
+    new Promise((r) => {
+      resolve = r;
+    }),
+  );
+  fake.sink!({ savedAt: 1 } as SaveData);
+  fake.sink!({ savedAt: 2 } as SaveData);
+  let done = false;
+  const waiting = flushCloudSave('user').then(() => {
+    done = true;
+  });
+  await settle();
+  expect(done).toBe(false);
+  resolve({ error: null });
+  await waiting;
+  expect(fake.rpc).toHaveBeenCalledTimes(2);
+  expect(fake.rpc.mock.calls[1][1].p_snapshot.savedAt).toBe(2);
+});
+it('blocks claim after a failed save and handles thrown network errors', async () => {
+  fake.rpc.mockRejectedValueOnce(new Error('network lost'));
+  fake.sink!({ savedAt: 1 } as SaveData);
+  await expect(flushCloudSave('user')).rejects.toThrow('network lost');
+  fake.sink!({ savedAt: 2 } as SaveData);
+  await expect(flushCloudSave('user')).resolves.toBeUndefined();
+  fake.instance = null;
+  await expect(flushCloudSave('user')).rejects.toThrow('SESSION_REPLACED');
+});
+it('still flushes the new account queue when an old account request throws', async () => {
+  let reject!: (error: Error) => void;
+  fake.rpc.mockImplementationOnce(
+    () =>
+      new Promise((_, r) => {
+        reject = r;
+      }),
+  );
+  fake.sink!({ savedAt: 1 } as SaveData);
+  detachCloudSync();
+  attachCloudSync('new-user');
+  fake.sink!({ savedAt: 2 } as SaveData);
+  reject(new Error('old account network lost'));
+  await expect(flushCloudSave('new-user')).resolves.toBeUndefined();
+  expect(fake.rpc).toHaveBeenCalledTimes(2);
+  expect(fake.rpc.mock.calls[1][1].p_snapshot.savedAt).toBe(2);
+});
 
 it('sends the owning instance on every cloud write and reset', async () => {
   const data = { savedAt: 1 } as SaveData;

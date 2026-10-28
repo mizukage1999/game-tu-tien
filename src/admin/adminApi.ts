@@ -1,4 +1,5 @@
 import { supabase } from '../net/supabase';
+import type { AlphaCampaign } from '../data/alphatest';
 
 export interface AdminAccount {
   id: string;
@@ -63,6 +64,8 @@ export function adminError(error: unknown) {
     return 'Tài khoản không có quyền quản trị.';
   if (message.includes('PLAN_CONFLICT'))
     return 'Kế hoạch đã được thay đổi ở nơi khác. Hãy tải lại trước khi lưu.';
+  if (message.includes('CAMPAIGN_CONFLICT'))
+    return 'Đợt Alphatest đã thay đổi ở nơi khác. Hãy làm mới trước khi lưu.';
   if (message.includes('ACCOUNT_NOT_FOUND')) return 'Không tìm thấy tài khoản.';
   if (r?.code === 'PGRST202' || message.includes('Could not find the function'))
     return 'Cần cài supabase/admin-dashboard.sql trên server để tải dữ liệu quản trị.';
@@ -71,11 +74,20 @@ export function adminError(error: unknown) {
 async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {
   if (!supabase) throw new Error('Chưa cấu hình kết nối server.');
   const { data, error } = await supabase.rpc(name, args);
+  if (
+    error &&
+    name.includes('alphatest') &&
+    (error.code === 'PGRST202' || error.message.includes('Could not find the function'))
+  )
+    throw new Error('Cần cài supabase/alphatest-mail.sql trên server để quản lý Alphatest.');
   if (error) throw error;
   if (data === null) throw new Error('Server chưa trả dữ liệu.');
   return data as T;
 }
 export const adminApi = {
+  alphatest: () => rpc<AlphaCampaign>('admin_alphatest_status'),
+  setAlphatest: (enabled: boolean, version: number) =>
+    rpc<AlphaCampaign>('admin_set_alphatest_delivery', { p_enabled: enabled, p_version: version }),
   allowed: () => rpc<boolean>('is_game_admin'),
   overview: () => rpc<AdminOverview>('admin_dashboard_overview'),
   accounts: (query: string, activity: string, offset: number, limit: number) =>

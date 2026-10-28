@@ -97,6 +97,7 @@ export interface DungeonResult {
 }
 
 export interface GameState {
+  rewardPending: boolean;
   recordPractice(action: PracticeAction): void;
   player: PlayerSave;
   stats: DerivedStats;
@@ -266,6 +267,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
   return {
     player: startPlayer,
+    rewardPending: false,
     stats: playerStats(startPlayer),
     status: 'alive',
     downedRemaining: 0,
@@ -656,6 +658,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
 
     setMenu(menu) {
+      if (get().rewardPending) return;
       set({ menu, ...(menu === 'journey' ? {journeySection:'story' as const} : {}), ...(menu === 'shop' ? {marketSection:'overview' as const} : {}) });
     },
     setDialog(dialogNpc) {

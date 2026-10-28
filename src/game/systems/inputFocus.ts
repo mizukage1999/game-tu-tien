@@ -9,6 +9,7 @@ export function worldInputBlocked() {
     social = socialStore.getState();
   return !!(
     game.menu ||
+    game.rewardPending ||
     game.dialogNpc ||
     game.dungeonResult ||
     social.card ||
@@ -31,6 +32,7 @@ export function dismissWorldPanel(event: Pick<KeyboardEvent, 'key' | 'target' | 
   )
     return false;
   event.preventDefault();
+  if (game.rewardPending) return true;
   game.patch({ menu: null, dialogNpc: null });
   return true;
 }

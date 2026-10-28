@@ -1,0 +1,218 @@
+.alpha-mail .cult-letter {
+  display: flex;
+  flex-direction: column;
+}
+.alpha-mail .cult-letter-scroll {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  padding: 28px 32px 16px;
+}
+.alpha-mail .cult-letter h2 {
+  max-width: 88%;
+  font-size: clamp(24px, 2.2vw, 36px);
+}
+.mail-rows {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.mail-row {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  padding: 15px 10px;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid #b88e4744;
+  background: #07121ce6;
+  color: #ecdbb6;
+}
+.mail-row.selected {
+  border-color: #edb95c;
+  background: linear-gradient(120deg, #69401899, #091722);
+  box-shadow: inset 0 0 10px #fca93f30;
+}
+.mail-row span {
+  flex: 1;
+  min-width: 0;
+}
+.mail-row b {
+  display: block;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.mail-row small {
+  display: block;
+  color: #bcaf98;
+  font-size: 11px;
+  margin-top: 6px;
+}
+.mail-row i {
+  color: #f4c674;
+  font-style: normal;
+}
+.mail-body {
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 90%;
+  white-space: pre-line;
+}
+.mail-attachment-title {
+  color: #674017;
+  margin: 8px 0;
+}
+.mail-rewards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.mail-rewards > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #9d733d;
+  border-radius: 5px;
+  padding: 10px 4px;
+  background: #f9e7bd99;
+}
+.mail-rewards img,
+.mail-rewards i {
+  height: 48px;
+  width: 48px;
+  object-fit: contain;
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  margin-bottom: 7px;
+  font-style: normal;
+}
+.mail-rewards .mail-level {
+  color: #935721;
+  font:
+    bold 30px Cambria,
+    serif;
+  border: 1px solid #b1803f;
+  border-radius: 50%;
+}
+.mail-rewards b {
+  font-size: 15px;
+}
+.mail-rewards small {
+  font-size: 11px;
+  text-align: center;
+  margin-top: 3px;
+}
+.mail-claim-footer {
+  flex-shrink: 0;
+  padding: 12px 24px 18px;
+  text-align: center;
+  border-top: 1px solid #9e774966;
+  background: #eee0c1e6;
+}
+.mail-claim-footer p {
+  margin: 0 0 7px;
+  font-size: 13px;
+}
+.mail-claim-footer .mail-error {
+  color: #a21f1f;
+  font-size: 12px;
+}
+.mail-claim {
+  min-height: 44px;
+  min-width: 190px;
+  font-size: 17px;
+}
+.mail-claim:disabled {
+  filter: saturate(0.4);
+  opacity: 0.7;
+  cursor: default;
+}
+.hud-mail-notice {
+  position: absolute;
+  top: 125px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  border: 1px solid #bd8d44;
+  border-radius: 6px;
+  background: #091a29e6;
+  padding: 7px 12px;
+  color: #ffe2a5;
+  box-shadow: 0 0 15px #c68c3040;
+}
+.hud-mail-notice .correspondence-icon {
+  width: 27px;
+  height: 27px;
+}
+.hud-mail-notice b {
+  border-radius: 50%;
+  background: #b83127;
+  padding: 2px 5px;
+  font-size: 10px;
+  color: white;
+}
+.hud.phone .alpha-mail .cult-letter-scroll {
+  padding: 15px 17px 8px;
+}
+.hud.phone .alpha-mail .cult-letter h2 {
+  font-size: 22px;
+  margin: 5px 0 8px;
+}
+.hud.phone .mail-body {
+  font-size: 11px;
+  line-height: 1.5;
+  max-width: 100%;
+  margin: 9px 0;
+}
+.hud.phone .mail-row {
+  padding: 10px 7px;
+  gap: 5px;
+}
+.hud.phone .mail-row b {
+  font-size: 11px;
+}
+.hud.phone .mail-row small {
+  font-size: 9px;
+}
+.hud.phone .mail-attachment-title {
+  font-size: 12px;
+}
+.hud.phone .mail-rewards {
+  gap: 5px;
+}
+.hud.phone .mail-rewards > div {
+  padding: 5px 2px;
+}
+.hud.phone .mail-rewards img,
+.hud.phone .mail-rewards i {
+  width: 32px;
+  height: 32px;
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.hud.phone .mail-rewards b {
+  font-size: 11px;
+}
+.hud.phone .mail-rewards small {
+  font-size: 9px;
+}
+.hud.phone .mail-claim-footer {
+  padding: 7px 12px;
+}
+.hud.phone .mail-claim-footer p {
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+.hud.phone .mail-claim {
+  min-height: 32px;
+  font-size: 13px;
+}
+.hud.phone .hud-mail-notice {
+  top: 85px;
+  padding: 5px 9px;
+  font-size: 11px;
+}

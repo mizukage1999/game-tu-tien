@@ -118,6 +118,8 @@ Canvas mobile dùng mật độ tối đa 2×, giảm hệ số trên màn hình
 
 ## Cấu trúc
 
+Thư quà Alphatest và cách cài server: [docs/alphatest-mail.md](docs/alphatest-mail.md).
+
 ```
 src/
   data/          JSON: quái, vật phẩm, kỹ năng, cảnh giới, nhiệm vụ, NPC, animation

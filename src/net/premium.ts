@@ -50,6 +50,11 @@ function applyStatus(raw: unknown) {
     error: null,
   });
 }
+/** Only apply a status returned by the authenticated server after a reward commit. */
+export function acceptConfirmedPremium(raw: unknown) {
+  statusRequest++;
+  applyStatus(raw);
+}
 export function resetPremium() {
   epoch++;
   premiumStore.setState({
