@@ -35,6 +35,10 @@ it('keeps desktop and mobile menus compact while making every feature reachable'
     act(() => host.querySelector<HTMLButtonElement>('[aria-label="Săn Boss"]')!.click());
     expect(gameStore.getState().menu).toBe('boss');
     expect(host.querySelector('.top-menu-more')).toBeNull();
+    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
+    act(() => host.querySelector<HTMLButtonElement>('[aria-label="Bảng Xếp Hạng"]')!.click());
+    expect(gameStore.getState().menu).toBe('ranking');
+    expect(host.querySelector('.top-menu-more')).toBeNull();
   } finally {
     act(() => root.unmount());
     gameStore.setState(previous);

@@ -18,6 +18,7 @@ const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'shop', label: 'Bày Bán', marketSection: 'stall' },
   { id: 'settings', label: 'Cài Đặt' },
   { id: 'boss', label: 'Săn Boss' },
+  { id: 'ranking', label: 'Bảng Xếp Hạng' },
 ];
 
 const MENU_ICONS: Record<MenuTab, string> = {
@@ -36,6 +37,7 @@ const MENU_ICONS: Record<MenuTab, string> = {
   premium: 'shop',
   map: 'journey',
   boss: 'dungeon',
+  ranking: 'ranking',
 };
 
 export function TopMenu({ phone = false }: { phone?: boolean }) {
@@ -69,7 +71,7 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
         <img
           className="menu-icon"
           src={
-            it.id === 'quests'
+            it.id === 'ranking' ? '/assets/ui/menu-ranking.svg' : it.id === 'quests'
               ? '/assets/ui/menu-quests-original.svg'
               : `/assets/ui/menu-${MENU_ICONS[it.id]}.png`
           }

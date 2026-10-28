@@ -1587,6 +1587,8 @@ kbd {
   flex-direction: column;
   padding: 16px 20px;
   text-align: center;
+  font-size: 12px;
+  line-height: 1.45;
   pointer-events: auto;
   animation: dungeon-result-in 0.2s;
 }
@@ -1598,8 +1600,8 @@ kbd {
 .dungeon-result h3 {
   margin: 0 0 4px;
   font-family: var(--serif);
-  font-size: 22px;
-  letter-spacing: 1px;
+  font-size: 18px;
+  letter-spacing: 0.5px;
 }
 .dungeon-result h3.win {
   color: #ffd84a;
@@ -1610,6 +1612,7 @@ kbd {
 .dungeon-result h4 {
   margin: 12px 0 6px;
   color: var(--gold);
+  font-size: 13px;
 }
 .dungeon-result .reward-list {
   justify-content: center;
@@ -1620,6 +1623,12 @@ kbd {
   gap: 10px;
   margin-top: 14px;
 }
+.dungeon-result-actions .btn { font-size: 12px; }
+.hud.phone .dungeon-result { font-size: 11px; }
+.hud.phone .dungeon-result h3 { font-size: 16px; }
+.hud.phone .dungeon-result h4 { font-size: 12px; }
+.hud.phone .dungeon-result .reward { font-size: 11px; }
+.hud.phone .dungeon-result-actions .btn { font-size: 11px; min-height: 34px; }
 @media (max-width: 1100px) {
   .target-frame {
     top: 66px;
