@@ -3,6 +3,7 @@ import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
 import { addGroundTextures, clearGroundTextures, GROUND_PREFIX } from '../art/groundTextures';
+import { publishBossSightings } from '../../store/bossHuntStore';
 import { buildVillageGround } from '../art/villageGround';
 import { VillageAtmosphere } from '../art/VillageAtmosphere';
 import { buildWorldGround } from '../art/worldGround';
@@ -161,6 +162,7 @@ export class WorldScene extends Phaser.Scene {
     this.remotes.clear();
     this.mouseWalk = null;
     this.worldBuilt = false;
+    publishBossSightings({ mapId: '', sightings: [] });
     this.mouseMarker = null;
   }
 
@@ -1102,6 +1104,7 @@ export class WorldScene extends Phaser.Scene {
       if (JSON.stringify(hud) !== JSON.stringify(s.dungeon)) patch.dungeon = hud;
     }
 
+    if (s.menu === 'boss') publishBossSightings({ mapId: this.map.id, sightings: this.monsters.filter(m => !m.hideStrength).map((m, i) => ({ id: m.netId || `local:${i}`, type: m.type, homeX: m.brain.home.x, homeY: m.brain.home.y, hp: m.hp, maxHp: m.def.hp, alive: m.alive, respawnAt: m.respawnAt, generation: m.generation })) });
     patch.minimap = {
       player: { x: p.x, y: p.y },
       monsters: this.monsters.filter((m) => m.alive).map((m) => ({ x: m.x, y: m.y, boss: !!m.def.boss && !m.hideStrength, ...(!m.hideStrength ? { level: m.def.level, name: m.def.name } : {}) })),

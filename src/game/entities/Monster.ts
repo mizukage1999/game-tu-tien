@@ -275,7 +275,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   private die() {
-    if(this.world.shared)this.respawnAt=this.def.respawnMs>0?Date.now()+this.def.respawnMs:0;
+    this.respawnAt=!this.arena&&this.def.respawnMs>0?Date.now()+this.def.respawnMs:0;
     this.alive = false;
     this.attacking = false;
     const body = this.body as Phaser.Physics.Arcade.Body;

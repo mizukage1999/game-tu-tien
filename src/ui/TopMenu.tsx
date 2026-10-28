@@ -17,6 +17,7 @@ const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'shop', label: 'Giao Dịch', marketSection: 'overview' },
   { id: 'shop', label: 'Bày Bán', marketSection: 'stall' },
   { id: 'settings', label: 'Cài Đặt' },
+  { id: 'boss', label: 'Săn Boss' },
 ];
 
 const MENU_ICONS: Record<MenuTab, string> = {
@@ -34,6 +35,7 @@ const MENU_ICONS: Record<MenuTab, string> = {
   sect: 'quests',
   premium: 'shop',
   map: 'journey',
+  boss: 'dungeon',
 };
 
 export function TopMenu({ phone = false }: { phone?: boolean }) {
