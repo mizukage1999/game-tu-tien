@@ -49,7 +49,7 @@ export const RANKING_CATEGORIES = [
     label: 'Săn Boss',
     metric: 'Boss hạ gục',
     unit: 'boss',
-    hint: 'Bảng thành tích săn boss sẽ được nối ở bước sau.',
+    hint: 'Số boss đã hạ có đóng góp, tính từ khi mở Tiên Bảng toàn server.',
   },
   {
     id: 'pets',
@@ -74,10 +74,12 @@ export interface RankingEntry {
   contribution: number;
   reputation: number;
   title: string;
-  /** Presentation samples only until persistent boss / five-elements records exist. */
   bossKills?: number;
+  /** No five-elements score exists until that gameplay system records one. */
   elementScore?: number;
   element?: string;
+  serverRank?: number | null;
+  updatedAt?: string;
 }
 
 export function personalRankingEntry(
@@ -94,6 +96,7 @@ export function personalRankingEntry(
     inspection: data,
     contribution: a.contribution,
     reputation: a.reputation,
+    bossKills: Math.max(0, Math.min(10000000, Math.floor(player.achievements?.bossKills || 0))),
     title: data.child
       ? 'Thiếu niên Vương Gia Thôn'
       : `${SECT_RANKS[data.rank]?.name ?? 'Đệ tử'} · ${heroFor(player).school}`,

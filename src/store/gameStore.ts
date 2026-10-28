@@ -159,6 +159,7 @@ export interface GameState {
   /** Validates and spends a daily attempt. Called by the world scene before entering. */
   beginDungeon(id: string): boolean;
   finishDungeon(id: string, success: boolean, elapsedMs: number): void;
+  recordBossVictory(): void;
   setMenu(menu: MenuTab | null): void;
   setDialog(npc: string | null): void;
   setAuto(on: boolean): void;
@@ -635,6 +636,12 @@ export const gameStore = createStore<GameState>()((set, get) => {
       });
       s.addLog(`Tiến vào phó bản ${def.name}`);
       return true;
+    },
+
+    recordBossVictory() {
+      const player = get().player, previous = player.achievements?.bossKills;
+      const count = typeof previous === 'number' && Number.isFinite(previous) ? Math.max(0, Math.floor(previous)) : 0;
+      set({ player: { ...player, achievements: { bossKills: Math.min(10000000, count + 1) } } });
     },
 
     finishDungeon(id, success, elapsedMs) {

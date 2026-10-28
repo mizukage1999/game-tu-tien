@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { newPlayer } from '../../store/gameStore';
+import { gameStore, newPlayer } from '../../store/gameStore';
 import {
   personalRankingEntry,
   rankEntries,
@@ -8,6 +8,20 @@ import {
 } from './rankingUi';
 import { battlePower } from './adventure';
 import { playerStats } from './progression';
+import { deserialize, serialize } from './save';
+
+it('records boss victories without changing rewards and preserves the counter through saves',()=>{
+ const before=gameStore.getState();
+ try {
+  const p={...newPlayer(),inventory:{linh_thach:21},exp:123};
+  gameStore.setState({player:p});
+  gameStore.getState().recordBossVictory();gameStore.getState().recordBossVictory();
+  const after=gameStore.getState().player;
+  expect(after.achievements?.bossKills).toBe(2);expect(after.inventory).toEqual(p.inventory);expect(after.exp).toBe(123);
+  const restored=deserialize(serialize({player:after,quests:{},mapId:'vuong_gia_thon',pos:null}));
+  expect(restored?.player.achievements?.bossKills).toBe(2);
+ } finally {gameStore.setState(before);}
+});
 
 it('uses the actual player stats and saved achievements without inventing untracked results', () => {
   const p = {
@@ -26,7 +40,7 @@ it('uses the actual player stats and saved achievements without inventing untrac
   expect(rankingScore(entry, 'power')).toBe(battlePower(stats));
   expect(rankingScore(entry, 'dungeons')).toBe(5);
   expect(rankingScore(entry, 'pets')).toBe(0);
-  expect(rankingScore(entry, 'boss')).toBeUndefined();
+  expect(rankingScore(entry, 'boss')).toBe(0);
   expect(rankingScore(entry, 'elements')).toBeUndefined();
   expect(JSON.stringify(p)).toBe(before);
 });
@@ -58,5 +72,5 @@ it('keeps explicit preview data deterministic, separate, and searchable with Vie
   rankEntries(entries, 'level');
   expect(entries).toEqual(first);
   const own = personalRankingEntry(newPlayer(), playerStats(newPlayer()), {}, 'vuong_gia_thon');
-  expect(rankEntries([own], 'boss')).toEqual([]);
+  expect(rankingScore(own, 'boss')).toBe(0);
 });

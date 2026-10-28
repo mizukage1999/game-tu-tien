@@ -234,6 +234,30 @@
   min-height: 0;
   gap: 10px;
 }
+.ranking-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 7px 10px;
+  border: 1px solid #bc8a4666;
+  color: #ead6ad;
+  background: #34281cbf;
+  font-size: 12px;
+}
+.ranking-notice button {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border: 1px solid #bb945b;
+  border-radius: 3px;
+  color: #ffe0a4;
+  background: #5a4124;
+}
+.hud.phone .ranking-notice {
+  padding: 4px 6px;
+  font-size: 9px;
+}
 .ranking-center {
   display: flex;
   flex-direction: column;

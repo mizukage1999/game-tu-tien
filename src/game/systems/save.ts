@@ -53,6 +53,8 @@ export interface PlayerSave {
   pkMode?: PkMode;
   heroId?: HeroId;
   practice?: Partial<Record<PracticeAction, number>>;
+  /** Boss victories recorded from this version onward; old saves start at zero. */
+  achievements?: { bossKills: number };
   name: string;
   /** Missing on saves from before character creation; those keep the original look. */
   sex?: Sex;

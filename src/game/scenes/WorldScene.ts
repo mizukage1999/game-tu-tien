@@ -1379,6 +1379,7 @@ export class WorldScene extends Phaser.Scene {
     const qualifies = eligible.includes(getAccountState().user?.id ?? '');
     if (!success || qualifies) s.finishDungeon(this.run.id, success, this.run.elapsed);
     else s.toast('Chưa đủ đóng góp để nhận thưởng. Cần trực tiếp đánh, khống chế hoặc hỗ trợ đồng đội.', 'warn');
+    if (success && qualifies) s.recordBossVictory();
     completePartyDungeon(); this.save();
   }
 
@@ -1902,7 +1903,7 @@ export class WorldScene extends Phaser.Scene {
     if(!m.playerContribution)return;
     const s = gameStore.getState();
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
-    if (m.def.boss) this.cameras.main.shake(500, 0.012);
+    if (m.def.boss) { s.recordBossVictory(); this.cameras.main.shake(500, 0.012); }
     const exp = award?.exp ?? killExp(m.def);
     this.damageText.show(m.x, m.y - 86, `+${exp} EXP`, 'info');
     s.gainExp(exp);

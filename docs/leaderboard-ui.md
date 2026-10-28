@@ -1,18 +1,19 @@
-# Bảng Xếp Hạng — giao diện
+# Bảng Xếp Hạng
 
-Theo lựa chọn **giao diện trước, toàn server sau**. Mở từ **Thêm → Bảng Xếp Hạng** trên PC/mobile.
+Mở từ **Thêm → Bảng Xếp Hạng** trên PC/mobile. Đã nối giao diện với RPC toàn server; cần cài [`supabase/leaderboard.sql`](../supabase/leaderboard.sql) trên Supabase để kích hoạt. Xem [hướng dẫn server](leaderboard-server.md).
 
-- **Của tôi** là mặc định: đọc chỉ số, trang bị, linh thú, cống hiến và số lần vượt phó bản từ nhân vật đang chơi. Thứ hạng ghi **Chờ mở**, không tự nhận hạng nhất server.
-- **Xem mẫu** hiển thị 16 hồ sơ minh họa cho bục top 3, tìm kiếm tên tiếng Việt, hai trang danh sách và khung thông tin. Chế độ minh họa được ghi rõ tại thanh công cụ và khung chi tiết.
-- Các tab: Lực Chiến, Cấp Độ, Cảnh Giới, Tông Môn, Phó Bản, Săn Boss, Linh Thú, Ngũ Hành. Tông Môn hiện trình bày cống hiến cá nhân. Săn Boss và Ngũ Hành chưa có số liệu thật nên để trống trong Của tôi; có dữ liệu minh họa khi Xem mẫu.
+- **Toàn server** là mặc định: cả online lẫn offline, lấy tiến trình đã lưu trên server. Tìm tên không dấu và chuyển trang giữ nguyên thứ hạng toàn server; top 3 luôn là top toàn server.
+- **Của tôi** hiển thị vị trí thực của bạn, kể cả ngoài trang đầu. Khi chưa kết nối được, hồ sơ trên thiết bị hiển thị hạng **—** và ghi rõ nguồn.
+- Các tab thật: Lực Chiến, Cấp Độ, Cảnh Giới, Tông Môn (cống hiến cá nhân), Phó Bản, Săn Boss, Linh Thú. Ngũ Hành chờ mở vì chưa có chỉ số gameplay được lưu. Dữ liệu mẫu không còn xuất hiện trong giao diện người chơi.
 - Chọn người trên bục hoặc nút Xem để xem Thông tin / Trang bị / Linh thú / Ngũ hành. Mở Nhân Vật từ hồ sơ cá nhân đi đến tính năng hiện có.
 - Màn hình tự co trên mobile; danh sách, chi tiết và thanh tab có vùng cuộn riêng. Màn hình rất hẹp chuyển sang bố cục dọc.
-- Không gọi API BXH, không đọc save của người khác, không sửa save, không cấp quà hoặc thay đổi thành tích khi xem. Chưa có xếp hạng toàn server hoặc phần thưởng thứ hạng.
+- Giao diện làm mới mỗi 30 giây khi đang mở và tab trình duyệt hiển thị; mỗi trang 8 người. Nút làm mới chủ động lưu nhân vật rồi đọc lại BXH. Không có phần thưởng thứ hạng.
 
 ## Xác minh
 
-- 11 kiểm thử liên quan qua: đọc chỉ số thật, tách dữ liệu minh họa, tìm tên không dấu, phân trang, chọn người, các tab chi tiết và mở từ menu Thêm; lint và build qua.
-- Chrome/Canvas với backend giả lập: bố cục PC 1440×900, mobile 844×390 và 640×360; xác minh khung nằm trong màn hình, vùng chính không tràn ngang, chuyển trang/tìm kiếm/xem trang bị/linh thú/chuyển nguồn hoạt động, không có exception chưa xử lý.
+- Kiểm thử SQL bằng PostgreSQL trong bộ nhớ, so sánh công thức với game trên 8 hệ và 8 mốc cấp, kiểm tra dữ liệu offline, quyền riêng tư, khóa tài khoản, phân trang và đồng bộ save.
+- Kiểm thử React cho danh sách toàn server, hạng cá nhân, lỗi mạng, tìm kiếm, đổi tab, hủy request cũ và làm mới.
+- Chrome/Canvas nối RPC PostgreSQL cục bộ: 16 hồ sơ offline và 1 người đang chơi; kiểm tra top 3, hạng 9 ở trang hai, tìm tên không dấu, trang bị công khai, hạng 17 của bản thân và làm mới qua save. Bố cục được kiểm tra ở 1440×900, 844×390 và 640×360, không tràn khung hoặc có lỗi chưa xử lý.
 - Mô phỏng trình duyệt không thay thế kiểm tra trên điện thoại thật.
 
 ## Asset

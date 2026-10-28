@@ -1,11 +1,9 @@
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { EQUIP_SLOTS, ITEMS, ZONE_NAMES, rarityOf } from '../../data';
 import { heroFor } from '../../data/heroes';
 import { COMPANIONS } from '../../game/systems/life';
 import {
   personalRankingEntry,
-  rankEntries,
-  rankingPreviewEntries,
   rankingScore,
   RANKING_CATEGORIES,
   type RankingCategory,
@@ -17,10 +15,11 @@ import { HeroFigure, HeroDirectionalPose, RosterPortrait, ChildHeroPortrait } fr
 import { RealmBadge } from '../RealmBadge';
 import { CultHeading, SkillGlyph } from './CultivationUI';
 import { SectGlyph } from './SectGlyph';
+import { useLeaderboard } from '../useLeaderboard';
+import { LEADERBOARD_PAGE_SIZE } from '../../net/leaderboard';
 import './ranking.css';
 
-const PREVIEWS = rankingPreviewEntries();
-const PAGE_SIZE = 8;
+const PAGE_SIZE = LEADERBOARD_PAGE_SIZE;
 const number = (n: number) => n.toLocaleString('vi-VN');
 type DetailTab = 'overview' | 'equipment' | 'pets' | 'elements';
 
@@ -81,14 +80,14 @@ function RankCrest({
   return (
     <span
       className={`ranking-crest place-${Math.min(rank, 3)} ${small ? 'small' : ''} ${personal ? 'personal' : ''}`}
-      aria-label={personal ? 'Nhân vật của bạn' : `Hạng ${rank} minh họa`}
+      aria-label={personal ? 'Chưa xếp hạng' : `Hạng ${rank}`}
     >
       <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
         <path d="m40 3 9 11 14 1 2 14 11 11-11 11-2 14-14 1-9 11-9-11-14-1-2-14L4 40l11-11 2-14 14-1L40 3Z" />
         <circle cx="40" cy="40" r="25" />
         <path d="M22 60C6 47 9 29 19 20M58 60c16-13 13-31 3-40M17 48l-8-5m8-6-6-7m9-2-3-9M63 48l8-5m-8-6 6-7m-9-2 3-9M29 67l11 4 11-4" />
       </svg>
-      <b>{personal ? (small ? '—' : 'Bạn') : rank}</b>
+      <b>{personal ? '—' : rank}</b>
     </span>
   );
 }
@@ -108,24 +107,17 @@ function scoreLabel(entry: RankingEntry, category: RankingCategory) {
 function Podium({
   entries,
   category,
-  preview,
   selected,
   select,
 }: {
   entries: RankingEntry[];
   category: RankingCategory;
-  preview: boolean;
   selected?: string;
   select: (id: string) => void;
 }) {
   return (
-    <div
-      className={`ranking-podium ${preview ? 'preview' : 'personal'}`}
-      aria-label={preview ? 'Bục top 3 minh họa' : 'Hồ sơ nhân vật'}
-    >
-      <span className="ranking-podium-caption">
-        {preview ? 'VINH DANH TAM GIÁP · MINH HỌA' : 'HÀNH TRÌNH CỦA BẠN'}
-      </span>
+    <div className="ranking-podium" aria-label="Bục top 3 toàn server">
+      <span className="ranking-podium-caption">VINH DANH TAM GIÁP · TOÀN SERVER</span>
       {[2, 1, 3].map((rank) => {
         const entry = entries[rank - 1];
         return entry ? (
@@ -137,9 +129,11 @@ function Podium({
           >
             <div className="ranking-figure">
               <Figure entry={entry} />
-              <span className="ranking-podium-mobile-portrait"><Portrait entry={entry}/></span>
+              <span className="ranking-podium-mobile-portrait">
+                <Portrait entry={entry} />
+              </span>
             </div>
-            <RankCrest rank={rank} personal={!preview} />
+            <RankCrest rank={rank} />
             <span className="ranking-nameplate">
               <strong>{entry.name}</strong>
               <span>{scoreLabel(entry, category)}</span>
@@ -153,7 +147,7 @@ function Podium({
         ) : (
           <div key={rank} className={`ranking-spot ranking-vacant spot-${rank}`} aria-hidden="true">
             <span>✧</span>
-            <small>Chờ mở Tiên Bảng</small>
+            <small>Chờ ghi danh</small>
           </div>
         );
       })}
@@ -199,14 +193,14 @@ function RankingDetails({
   entry,
   category,
   rank,
-  preview,
+  isSelf,
   tab,
   setTab,
 }: {
   entry: RankingEntry;
   category: RankingCategory;
   rank: number;
-  preview: boolean;
+  isSelf: boolean;
   tab: DetailTab;
   setTab: (t: DetailTab) => void;
 }) {
@@ -219,9 +213,9 @@ function RankingDetails({
         <div className="ranking-feature-art">
           <Figure entry={entry} />
         </div>
-        <RankCrest rank={rank} personal={!preview} />
+        <RankCrest rank={rank} personal={!entry.serverRank} />
         <div className="ranking-feature-info">
-          <small>{preview ? 'NHÂN VẬT MINH HỌA' : 'NHÂN VẬT CỦA BẠN'}</small>
+          <small>{isSelf ? 'NHÂN VẬT CỦA BẠN' : 'HỒ SƠ TIÊN BẢNG'}</small>
           <h2>{entry.name}</h2>
           <span>
             Lv.{data.level} · {hero.school}
@@ -281,7 +275,7 @@ function RankingDetails({
               {data.child && <p>Chiêu thức mở sau nhập môn.</p>}
             </div>
             <div className="ranking-honor">
-              <small>{preview ? 'Danh hiệu minh họa' : 'Thân phận hiện tại'}</small>
+              <small>Thân phận hiện tại</small>
               <strong>✦ {entry.title} ✦</strong>
             </div>
           </>
@@ -320,22 +314,21 @@ function RankingDetails({
         {tab === 'elements' && (
           <div className="ranking-detail-empty">
             <span className="ranking-five-elements">金 木 水 火 土</span>
-            <h3>{preview ? `Ngũ hành minh họa · ${entry.element}` : 'Ngũ Hành'}</h3>
-            <p>
-              {preview
-                ? 'Chỉ số trong chế độ xem mẫu dùng để trình bày giao diện.'
-                : 'Chỉ số ngũ hành sẽ hiển thị khi hệ thống được mở.'}
-            </p>
+            <h3>Ngũ Hành</h3>
+            <p>Chỉ số ngũ hành sẽ hiển thị khi hệ thống được mở.</p>
           </div>
         )}
       </div>
       <footer className="ranking-detail-footer">
-        {preview ? (
-          <span>Thông tin minh họa · Toàn server sẽ mở sau</span>
-        ) : (
+        {isSelf ? (
           <button className="cult-btn gold" onClick={() => setMenu('character')}>
             Mở Nhân Vật <span aria-hidden="true">›</span>
           </button>
+        ) : (
+          <span>
+            Tiến trình đã lưu ·{' '}
+            {entry.updatedAt ? new Date(entry.updatedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'}
+          </span>
         )}
       </footer>
     </aside>
@@ -353,20 +346,29 @@ export function RankingPanel() {
     () => personalRankingEntry(player, stats, quests, mapId),
     [player, stats, quests, mapId],
   );
-  const [preview, setPreview] = useState(false),
+  const [ownOnly, setOwnOnly] = useState(false),
     [category, setCategory] = useState<RankingCategory>('power');
   const [query, setQuery] = useState(''),
     [page, setPage] = useState(0),
     [selected, setSelected] = useState<string>();
   const [detailTab, setDetailTab] = useState<DetailTab>('overview');
-  const entries = preview ? PREVIEWS : [personal],
-    all = rankEntries(entries, category),
-    filtered = rankEntries(entries, category, query);
-  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)),
-    activePage = Math.min(page, pages - 1),
-    visible = filtered.slice(activePage * PAGE_SIZE, (activePage + 1) * PAGE_SIZE);
-  const selectedEntry = filtered.find((e) => e.id === selected) ?? visible[0],
+  const board = useLeaderboard(category, query, page),
+    data = board.data;
+  const own = data?.self ?? personal;
+  const visible = ownOnly ? [own] : (data?.rows ?? []);
+  const total = ownOnly ? 1 : (data?.total ?? 0);
+  const pages = Math.max(1, Math.min(12501, Math.ceil(total / PAGE_SIZE))),
+    activePage = ownOnly ? 0 : page;
+  const pageNumbers = Array.from(
+    { length: Math.min(5, pages) },
+    (_, i) => Math.max(0, Math.min(activePage - 2, pages - 5)) + i,
+  );
+  const candidates = [...visible, ...(data?.top ?? []), own];
+  const selectedEntry = candidates.find((e) => e.id === selected) ?? visible[0],
     definition = RANKING_CATEGORIES.find((c) => c.id === category)!;
+  useEffect(() => {
+    if (data && page >= pages) setPage(pages - 1);
+  }, [data, page, pages]);
   const select = (id: string) => {
     setSelected(id);
     setDetailTab('overview');
@@ -379,7 +381,7 @@ export function RankingPanel() {
     setDetailTab('overview');
   };
   const switchMode = (value: boolean) => {
-    setPreview(value);
+    setOwnOnly(value);
     setPage(0);
     setQuery('');
     setSelected(undefined);
@@ -434,33 +436,55 @@ export function RankingPanel() {
         </nav>
         <div className="ranking-controls">
           <p role="status">
-            <span className={preview ? 'preview-dot' : ''} />
-            {preview ? 'Dữ liệu minh họa' : 'Chỉ số nhân vật của bạn'}
-            <small>BXH toàn server mở sau</small>
+            <span />
+            {board.loading
+              ? 'Đang cập nhật Tiên Bảng…'
+              : data
+                ? 'Bảng xếp hạng toàn server'
+                : 'Chưa kết nối Tiên Bảng'}
+            <small>
+              {data
+                ? `${number(data.population)} nhân vật · theo tiến trình đã lưu`
+                : 'Gồm cả người chơi offline'}
+            </small>
           </p>
           <div className="ranking-modes" aria-label="Nguồn hiển thị">
             <button
-              aria-pressed={!preview}
-              className={!preview ? 'active' : ''}
+              aria-pressed={!ownOnly}
+              className={!ownOnly ? 'active' : ''}
               onClick={() => switchMode(false)}
+            >
+              Toàn server
+            </button>
+            <button
+              aria-pressed={ownOnly}
+              className={ownOnly ? 'active' : ''}
+              onClick={() => switchMode(true)}
             >
               Của tôi
             </button>
             <button
-              aria-pressed={preview}
-              className={preview ? 'active' : ''}
-              onClick={() => switchMode(true)}
+              aria-label="Làm mới bảng xếp hạng"
+              onClick={board.refresh}
+              disabled={board.loading}
             >
-              Xem mẫu
+              ↻
             </button>
           </div>
         </div>
+        {board.error && (
+          <div className="ranking-notice" role="alert">
+            <span>{board.error}</span>
+            <button onClick={board.refresh} disabled={board.loading}>
+              Thử lại
+            </button>
+          </div>
+        )}
         <div className="ranking-board">
           <div className="ranking-center">
             <Podium
-              entries={all.slice(0, 3)}
+              entries={data?.top ?? []}
               category={category}
-              preview={preview}
               selected={selectedEntry?.id}
               select={select}
             />
@@ -469,7 +493,11 @@ export function RankingPanel() {
                 <span>
                   {definition.metric}
                   <small title={definition.hint}>
-                    {preview ? `${filtered.length} hồ sơ minh họa` : 'Thứ hạng: Chờ mở'}
+                    {ownOnly
+                      ? own.serverRank
+                        ? `Hạng ${number(own.serverRank)} toàn server`
+                        : 'Chưa xếp hạng'
+                      : `${number(total)} nhân vật`}
                   </small>
                 </span>
                 <label className="ranking-search">
@@ -478,6 +506,7 @@ export function RankingPanel() {
                     aria-label="Tìm tên nhân vật"
                     placeholder="Tìm tên nhân vật…"
                     value={query}
+                    disabled={ownOnly}
                     onChange={(e) => {
                       setQuery(e.target.value);
                       setPage(0);
@@ -515,7 +544,7 @@ export function RankingPanel() {
                   </thead>
                   <tbody>
                     {visible.map((entry) => {
-                      const rank = all.findIndex((e) => e.id === entry.id) + 1,
+                      const rank = entry.serverRank,
                         p = entry.inspection;
                       return (
                         <tr
@@ -524,14 +553,24 @@ export function RankingPanel() {
                           className={selectedEntry?.id === entry.id ? 'selected' : ''}
                         >
                           <td>
-                            {preview ? rank <= 3 ? <RankCrest rank={rank} small /> : rank : '—'}
+                            {rank ? (
+                              rank <= 3 ? (
+                                <RankCrest rank={rank} small />
+                              ) : (
+                                number(rank)
+                              )
+                            ) : (
+                              '—'
+                            )}
                           </td>
                           <td>
                             <div className="ranking-player-name">
                               <Portrait entry={entry} />
                               <span>
                                 {entry.name}
-                                {!preview && <small>Bạn</small>}
+                                {(entry.id === board.userId || entry.id === personal.id) && (
+                                  <small>Bạn</small>
+                                )}
                               </span>
                             </div>
                           </td>
@@ -562,39 +601,55 @@ export function RankingPanel() {
                 {!visible.length && (
                   <div className="ranking-list-empty">
                     <RankingIcon />
-                    <b>{query ? 'Không tìm thấy nhân vật' : 'Chưa có thành tích cho bảng này'}</b>
-                    <p>{query ? 'Thử tên khác hoặc xóa tìm kiếm.' : definition.hint}</p>
-                    {!query && (
-                      <button className="cult-btn" onClick={() => switchMode(true)}>
-                        Xem giao diện mẫu
-                      </button>
-                    )}
+                    <b>
+                      {board.loading
+                        ? 'Đang tải thứ hạng…'
+                        : board.error
+                          ? 'Chưa tải được Tiên Bảng'
+                          : data?.supported === false
+                            ? 'Ngũ Hành chưa mở'
+                            : query
+                              ? 'Không tìm thấy nhân vật'
+                              : 'Chưa có thành tích cho bảng này'}
+                    </b>
+                    <p>
+                      {board.error
+                        ? 'Chọn Của tôi để xem hồ sơ cá nhân hoặc thử làm mới.'
+                        : query
+                          ? 'Thử tên khác hoặc xóa tìm kiếm.'
+                          : definition.hint}
+                    </p>
                   </div>
                 )}
               </div>
               <footer className="ranking-pagination">
                 <small>
-                  {preview ? 'Chế độ xem mẫu' : 'Hồ sơ cá nhân'} · {filtered.length} nhân vật
+                  {ownOnly
+                    ? data?.self
+                      ? 'Hồ sơ đã lưu trên server'
+                      : 'Hồ sơ trên thiết bị'
+                    : `Trang ${activePage + 1}/${pages} · ${number(total)} nhân vật`}
                 </small>
                 <nav aria-label="Phân trang bảng xếp hạng">
                   <button
                     aria-label="Trang trước"
-                    disabled={activePage === 0}
+                    disabled={ownOnly || board.loading || activePage === 0}
                     onClick={() => {
                       setPage(activePage - 1);
-                      select(filtered[(activePage - 1) * PAGE_SIZE].id);
+                      setSelected(undefined);
                     }}
                   >
                     ‹
                   </button>
-                  {Array.from({ length: pages }, (_, i) => (
+                  {pageNumbers.map((i) => (
                     <button
                       key={i}
                       aria-label={`Trang ${i + 1}`}
                       aria-current={i === activePage ? 'page' : undefined}
+                      disabled={board.loading || ownOnly}
                       onClick={() => {
                         setPage(i);
-                        select(filtered[i * PAGE_SIZE]?.id ?? '');
+                        setSelected(undefined);
                       }}
                     >
                       {i + 1}
@@ -602,10 +657,10 @@ export function RankingPanel() {
                   ))}
                   <button
                     aria-label="Trang sau"
-                    disabled={activePage === pages - 1}
+                    disabled={ownOnly || board.loading || activePage >= pages - 1}
                     onClick={() => {
                       setPage(activePage + 1);
-                      select(filtered[(activePage + 1) * PAGE_SIZE].id);
+                      setSelected(undefined);
                     }}
                   >
                     ›
@@ -614,21 +669,24 @@ export function RankingPanel() {
               </footer>
             </div>
             <div className="ranking-own-strip">
-              <Portrait entry={personal} />
+              <Portrait entry={own} />
               <div>
-                <strong>{personal.name}</strong>
-                <span>{personal.inspection.realm}</span>
+                <strong>{own.name}</strong>
+                <span>
+                  {own.inspection.realm} ·{' '}
+                  {own.serverRank ? `Hạng ${number(own.serverRank)}` : 'Chưa xếp hạng'}
+                </span>
               </div>
-              <b>{scoreLabel(personal, category)}</b>
-              <button onClick={() => switchMode(false)}>Của tôi</button>
+              <b>{scoreLabel(own, category)}</b>
+              <button onClick={() => switchMode(true)}>Của tôi</button>
             </div>
           </div>
           {selectedEntry ? (
             <RankingDetails
               entry={selectedEntry}
               category={category}
-              rank={all.findIndex((e) => e.id === selectedEntry.id) + 1}
-              preview={preview}
+              rank={selectedEntry.serverRank ?? 0}
+              isSelf={selectedEntry.id === board.userId || selectedEntry.id === personal.id}
               tab={detailTab}
               setTab={setDetailTab}
             />
