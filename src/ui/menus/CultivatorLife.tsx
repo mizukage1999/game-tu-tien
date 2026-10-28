@@ -15,6 +15,7 @@ import {
 import { itemIconUrl } from '../../game/art/icons';
 import './life.css';
 import { adventure } from '../../game/systems/adventure';
+import { cultivationYield } from '../../data/cultivationBalance';
 const BEAST_SOURCES={snow_fox:'Linh Thú · Linh Thú Lâm',gold_tiger:'Thạch Linh Thú · Bí Cảnh Thạch Linh',white_crane:'Tinh anh · Hàn Băng Nguyên',jade_deer:'Thanh Mộc Thú · Rừng Linh Thú',shadow_wolf:'Tinh anh · U Minh Trạch',red_fox:'Hỏa Hồ · Linh Thú Lâm'};
 const BEAST_SKILLS={snow_fox:'Hàn tức: sát thương và làm chậm',gold_tiger:'Hổ khiếu: đòn công kích mạnh',white_crane:'Linh vũ: hồi sinh lực và MP',jade_deer:'Mộc giáp: tạo khiên hộ chủ',shadow_wolf:'Ảnh tập: công kích và giữ chân',red_fox:'Hồ hỏa: sát thương lan'};
 
@@ -105,6 +106,7 @@ export function HomeBoard() {
                   <span>Luống {i + 1}</span>
                   {c && <img src={itemIconUrl(c.id)} alt="" />}
                   <b>{c?.name ?? 'Đất trống'}</b>
+                  {c && <small>Thu hoạch ×{(c.qty + l.facilities.field - 1) * Math.min(64, cultivationYield(p.level))}</small>}
                   <small>
                     {plot
                       ? remaining

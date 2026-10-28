@@ -1,10 +1,16 @@
-import { SKILLS, MONSTERS, type SkillId } from '../data';
+import { SKILLS, MONSTERS, ITEMS, type SkillId } from '../data';
+import type { SharedAward } from '../game/systems/contribution';
+import type { DungeonRun } from '../game/systems/dungeon';
+import { DUNGEONS } from '../data';
 import type { HeroId } from '../data/heroes';
 import { heroSpell, heroSpellHit } from '../data/heroSkills';
 import { signatureHit } from '../game/systems/skillHit';
 import type { EffectiveSkill } from '../game/systems/skills';
 
 export type PkMode = 'peace' | 'sect' | 'all';
+export function isSanctuary(mapId: string): boolean {
+  return ['vuong_gia_thon', 'ngoai_mon', 'dai_thua_vien', 'linh_son_tong', 'sect_archive', 'sect_sacred', 'dinh_ta', 'dong_phu'].includes(mapId);
+}
 export function parsePkMode(value: unknown): PkMode {
   return value === 'sect' || value === 'all' ? value : 'peace';
 }
@@ -49,6 +55,8 @@ export type WorldEvent =
       combo: number;
     }
   | { t: 'monsters'; seq: number; monsters: WorldMonsterState[] }
+  | { t: 'dungeon-run'; seq: number; room: string; run: DungeonRun; eligible: string[]; waiting: boolean }
+  | { t: 'support'; seq: number; to: string; kind: 'heal' | 'shield'; amount: number; duration: number }
   | {
       t: 'damage';
       seq: number;
@@ -59,7 +67,7 @@ export type WorldEvent =
       y: number;
       rootMs: number;
     }
-  | { t: 'kill'; id: string; generation: number; killer: string }
+  | { t: 'kill'; id: string; generation: number; killer: string; awards?: SharedAward[] }
   | { t: 'aux-hit'; seq: number; id: string; amount: number }
   | {
       t: 'monster-attack';
@@ -108,6 +116,16 @@ export function parseWorldEvent(raw: unknown): WorldEvent | null {
   if (!raw || typeof raw !== 'object') return null;
   const e = raw as WorldEvent;
   switch (e.t) {
+    case 'dungeon-run':
+      return seq(e.seq) && text(e.room, 80) && e.run && Object.prototype.hasOwnProperty.call(DUNGEONS, e.run.id) &&
+        ['intro', 'wave', 'boss', 'cleared', 'failed'].includes(e.run.phase) &&
+        Number.isInteger(e.run.wave) && num(e.run.wave, -1, 20) &&
+        [e.run.timeLeft, e.run.elapsed].every(v => num(v, 0, 3600000)) && num(e.run.introLeft, -100, 10000) &&
+        (e.run.nextIn === null || num(e.run.nextIn, -100, 10000)) && typeof e.waiting === 'boolean' &&
+        Array.isArray(e.eligible) && e.eligible.length <= 3 && e.eligible.every(id => text(id, 80)) ? e : null;
+    case 'support':
+      return seq(e.seq) && text(e.to, 100) && ['heal', 'shield'].includes(e.kind) &&
+        num(e.amount, 0, 10000000) && num(e.duration, 0, 30000) ? e : null;
     case 'cast':
       return seq(e.seq) &&
         Object.prototype.hasOwnProperty.call(SKILLS, e.skill) &&
@@ -149,7 +167,12 @@ export function parseWorldEvent(raw: unknown): WorldEvent | null {
         ? e
         : null;
     case 'kill':
-      return text(e.id, 80) && seq(e.generation) && text(e.killer, 100) ? e : null;
+      return text(e.id, 80) && seq(e.generation) && text(e.killer, 100) &&
+        (e.awards === undefined || (Array.isArray(e.awards) && e.awards.length <= 32 &&
+          new Set(e.awards.map(a => a?.to)).size === e.awards.length && e.awards.every(a =>
+            a && text(a.to, 100) && seq(a.exp) && a.exp <= 10000000 &&
+            Array.isArray(a.drops) && a.drops.length <= 64 && a.drops.every(d =>
+              d && Object.prototype.hasOwnProperty.call(ITEMS, d.item) && seq(d.qty) && d.qty > 0 && d.qty <= 1000000)) )) ? e : null;
     case 'aux-hit':
       return seq(e.seq) && text(e.id, 80) && num(e.amount, 0, 1000000) ? e : null;
     case 'monster-attack':
@@ -173,10 +196,10 @@ export function parseWorldEvent(raw: unknown): WorldEvent | null {
 }
 
 export function mayPk(
-  attacker: { mode?: PkMode; sect?: string; child?: boolean },
+  attacker: { mode?: PkMode; sect?: string; child?: boolean; mapId?: string },
   target: { sect?: string; child?: boolean },
 ) {
-  if (attacker.child || target.child) return false;
+  if (attacker.child || target.child || (attacker.mapId && isSanctuary(attacker.mapId))) return false;
   return (
     attacker.mode === 'all' ||
     (attacker.mode === 'sect' && !!attacker.sect && !!target.sect && attacker.sect !== target.sect)

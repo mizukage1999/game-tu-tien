@@ -14,6 +14,7 @@ import { Menus } from './menus/Menus';
 import { PlayerCard } from './PlayerCard';
 import { DuelOverlay } from './social/DuelOverlay';
 import { InviteNotice } from './social/InviteNotice';
+import { PartyDungeonNotice } from './social/PartyDungeonNotice';
 import { MailNotice } from './social/MailNotice';
 import { ChatWindow } from './social/ChatWindow';
 import { DungeonPanel, DungeonResultOverlay } from './DungeonPanel';
@@ -58,6 +59,7 @@ export function Hud() {
       <DungeonResultOverlay />
       <DuelOverlay />
       <InviteNotice />
+      <PartyDungeonNotice />
       <MailNotice />
       <ChatWindow />
       <PlayerCard />

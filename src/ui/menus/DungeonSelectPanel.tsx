@@ -28,6 +28,7 @@ import { itemIconUrl } from '../../game/art/icons';
 import { itemName, useGame } from '../../store/gameStore';
 import { CultHeading } from './CultivationUI';
 import './dungeon-select.css';
+import { offerPartyDungeon } from '../../net/partyDungeon';
 
 export function DungeonScenery({ art }: { art: number }) {
   return (
@@ -153,7 +154,9 @@ export function DungeonSelectPanel() {
   const setMenu = useGame((s) => s.setMenu);
   const [group, setGroup] = useState<DungeonGroup>('all'),
     [band, setBand] = useState('all');
-  const [selected, setSelected] = useState(DUNGEON_CATALOG[0].key);
+  const [selected, setSelected] = useState(() => quests.first_return?.status === 'done'
+    ? ([...DUNGEON_CATALOG].reverse().find(e => e.tier && e.tier <= player.level)?.key ?? DUNGEON_CATALOG[0].key)
+    : DUNGEON_CATALOG[0].key);
   const [difficulties, setDifficulties] = useState<Record<string, DifficultyId>>({});
   const [rewardTab, setRewardTab] = useState<'clear' | 'first' | 'drops'>('clear');
   const range = DUNGEON_LEVELS.find((b) => b.id === band)!;
@@ -447,7 +450,9 @@ export function DungeonSelectPanel() {
             <p className="dungeon-tactics">
               {def.practice
                 ? 'Quan sát vùng báo chiêu, dùng lướt để né đòn rồi phản công.'
-                : 'Boss cuồng nộ khi còn dưới 50% HP. Chuẩn bị đan dược và né vùng báo chiêu.'}{' '}
+                : MONSTERS[def.boss].level >= 70
+                  ? 'Boss triệu hồi hộ vệ khi còn 50% HP. Diệt hộ vệ để phá lá chắn giảm 75% sát thương; dùng lướt né đòn.'
+                  : 'Boss triệu hồi khi còn 50% HP. Chuẩn bị đan dược và né vùng báo chiêu.'}{' '}
               Cấp chỉ là đề nghị.
             </p>
           </div>
@@ -459,6 +464,7 @@ export function DungeonSelectPanel() {
                   : `Lượt hôm nay: ${left}/${def.attemptsPerDay}`)}
             </p>
             <div>
+              {!!def.tier && !def.practice && <button className="cult-btn" disabled={!!reason} onClick={() => offerPartyDungeon(id)}>Mời đội · 2–3 người</button>}
               {run ? (
                 <button className="cult-btn" onClick={() => EventBus.emit('cmd:leaveDungeon')}>
                   Rời phó bản

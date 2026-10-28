@@ -108,16 +108,16 @@ it('shows the selected difficulty daily limit and re-enables entry on another di
   expect(host.querySelector<HTMLButtonElement>('[data-action="enter-dungeon"]')!.disabled).toBe(
     false,
   );
-  expect(host.querySelector('.dungeon-record')!.textContent).toContain('1/8');
+  expect(host.querySelector('.dungeon-record')!.textContent).toContain(`1/${DUNGEON_CATALOG.length}`);
 });
 it('filters the real catalog, resets empty filters and never hides access behind a recommended level', () => {
   named('.dungeon-level-filters', 'Lv.81+');
-  expect(host.querySelectorAll('[data-dungeon]')).toHaveLength(1);
+  expect(host.querySelectorAll('[data-dungeon]')).toHaveLength(2);
   expect(host.querySelector('[data-dungeon="tier_90"]')).not.toBeNull();
   named('.dungeon-sidebar', 'Cốt truyện');
   expect(host.querySelectorAll('[data-dungeon]')).toHaveLength(0);
   named('.dungeon-destinations', 'Xem tất cả');
-  expect(host.querySelectorAll('[data-dungeon]')).toHaveLength(8);
+  expect(host.querySelectorAll('[data-dungeon]')).toHaveLength(DUNGEON_CATALOG.length);
   named('.dungeon-sidebar', 'Sư môn');
   expect(host.querySelectorAll('[data-dungeon]')).toHaveLength(2);
 });

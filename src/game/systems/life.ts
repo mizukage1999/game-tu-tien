@@ -1,6 +1,6 @@
 import type { PlayerSave } from './save';
 import { missingMaterials } from './crafting';
-import { BREAKTHROUGH_PILL_RECIPE } from '../../data/cultivationBalance';
+import { cultivationYield, BREAKTHROUGH_PILL_RECIPE } from '../../data/cultivationBalance';
 
 export const DAY_MS = 30_000;
 export type Facility = 'field' | 'chamber' | 'furnace' | 'array';
@@ -240,7 +240,7 @@ export function performLifeAction(
       const plot = life.plots[action.plot],
         crop = CROPS.find((c) => c.id === plot?.herb);
       if (!plot || !crop || plot.readyDay > life.days) return fail('Linh thảo chưa chín.');
-      gain(crop.id, crop.qty + life.facilities.field - 1);
+      gain(crop.id, (crop.qty + life.facilities.field - 1) * Math.min(64, cultivationYield(p.level)));
       gain(crop.seed, 1);
       life.plots[action.plot] = null;
       message = `Đã thu hoạch ${crop.name}, nhận lại hạt giống.`;

@@ -1,4 +1,5 @@
 import type { Duelist } from '../game/systems/duel';
+import { parsePartyDungeonPacket, type PartyDungeonPacket } from '../game/systems/partyDungeon';
 import type { FriendRef, Sex } from '../game/systems/save';
 import { SKILLS, type SkillId } from '../data';
 import { isHeroId, type HeroId } from '../data/heroes';
@@ -36,6 +37,7 @@ export interface SocialPresence extends PublicProfile {
 }
 
 export type SocialMessage =
+  | { t: 'dungeon'; to: string; from: string; packet: PartyDungeonPacket }
   | { t: 'inspect:ask'; to: string; from: string; nonce: string }
   | { t: 'inspect:result'; to: string; from: string; nonce: string; inspection: PlayerInspection }
   | {
@@ -138,6 +140,10 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
   const t = text(m.t, 20);
   const to = text(m.to, 64);
   if (!to) return null;
+  if (t === 'dungeon') {
+    const from = text(m.from, 64), packet = parsePartyDungeonPacket(m.packet);
+    return from && packet ? { t, to, from, packet } : null;
+  }
   if (t === 'inspect:ask' || t === 'inspect:result') {
     const from = text(m.from, 64),
       nonce = text(m.nonce, 64);

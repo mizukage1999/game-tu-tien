@@ -7,7 +7,7 @@ const CORE: Record<string, [number, number, string]> = {
   linh_son_tong: [48, 24, '♜'], dinh_ta: [25, 36, '⌂'], rung_linh_thu: [21, 77, '♧'],
   thac_ngoc: [70, 35, '≈'], bi_canh_thach_linh: [84, 17, '✦'],
 };
-const FIELDS: [number, number][] = [[11, 64], [36, 46], [78, 75], [17, 89], [89, 55], [70, 16], [16, 18], [90, 38], [64, 70], [91, 88]];
+const FIELDS: [number, number][] = [[11, 64], [36, 46], [78, 75], [17, 89], [89, 55], [70, 16], [16, 18], [90, 38], [64, 70], [91, 88], [35, 16], [77, 91]];
 export const ATLAS_PLACES: AtlasPlace[] = [
   ...NEW_MAPS.map(m => ({ id: m.id, name: m.name, group: m.group, desc: m.desc, x: CORE[m.id][0], y: CORE[m.id][1], icon: CORE[m.id][2], primary: true })),
   { id: 'dai_thua_vien', name: 'Đại Thừa Viện', group: 'Sơn môn', desc: 'Sân viện đệ tử, dược viên, thương nhân và Linh Đài.', x: 53, y: 53, icon: '⌂', primary: true },

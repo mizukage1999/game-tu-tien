@@ -4,7 +4,8 @@ import { EXPLORATION_ORDER, PROLOGUE_ORDER, WORLD_QUESTS } from '../../data/worl
 import { OPENING_QUESTS } from '../../data/openingAdventure';
 import { REALMS } from '../../data';
 import { missingMaterials } from './crafting';
-import { BREAKTHROUGH_PILL_RECIPE } from '../../data/cultivationBalance';
+import { BREAKTHROUGH_PILL_RECIPE, cultivationYield } from '../../data/cultivationBalance';
+import { FIELD_BANDS } from './scale';
 
 export type MountId = 'sword' | 'crane';
 export interface ImmortalProgress {
@@ -127,6 +128,9 @@ export interface HerbNode {
 
 /** All nodes use open, reachable tiles. Field nodes are added on the entrance path. */
 export function herbNodes(mapId: string): HerbNode[] {
+  if (FIELD_BANDS.some(b => b.id === mapId && b.generated))
+    return ([['linh_chi', 7, 14], ['ngung_lo', 9, 16], ['linh_chi', 14, 14], ['ngung_lo', 17, 16]] as const)
+      .map(([item, x, y], i) => ({ id: `${mapId}:${i}`, item, x, y }));
   const points: [HerbNode['item'], number, number][] =
     mapId === 'dai_thua_vien'
       ? [
@@ -169,6 +173,11 @@ export function herbNodes(mapId: string): HerbNode[] {
     ],
   };
   return (extra[mapId] ?? points).map(([item, x, y], i) => ({ id: `${mapId}:${i}`, item, x, y }));
+}
+
+export function herbYield(mapId: string, item: HerbNode['item']) {
+  const level = FIELD_BANDS.find(b => b.id === mapId)?.minLevel ?? 1;
+  return (item === 'thanh_linh_thao' ? 2 : 1) * cultivationYield(level);
 }
 
 export const HARVEST_COOLDOWN_MS = 25_000;

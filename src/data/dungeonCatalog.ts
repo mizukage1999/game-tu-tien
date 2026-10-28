@@ -20,7 +20,7 @@ export const DUNGEON_CATALOG: DungeonEntry[] = [
     name: tier.name,
     group: 'trial' as const,
     tier: tier.level,
-    art: i + 1,
+    art: Math.min(5, i + 1),
   })),
   ...Object.entries(DUNGEONS)
     // Quest-linked aliases retain tier metadata but have their own entry ids,

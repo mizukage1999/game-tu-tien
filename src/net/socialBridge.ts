@@ -16,6 +16,7 @@ import { WhisperCrypto } from './whisperCrypto';
 import { chatStore } from '../store/chatStore';
 import { inspectionStore } from '../store/inspectionStore';
 import { buildInspection } from './inspection';
+import { attachPartyDungeonTransport, receivePartyDungeon } from './partyDungeon';
 
 let channel: SocialChannel | null = null;
 let stopSocial: (() => void) | null = null;
@@ -226,6 +227,7 @@ function acceptDuel(invite: SocialInvite) {
 }
 
 function handleMessage(message: SocialMessage) {
+  if (message.t === 'dungeon') { receivePartyDungeon(message.from, message.packet); return; }
   const social = socialStore.getState();
   const game = gameStore.getState();
   if (message.t === 'inspect:ask') {
@@ -446,7 +448,9 @@ export function startSocial(): () => void {
     }
   });
 
+  const offPartyDungeon = attachPartyDungeonTransport((to, packet) => channel?.send({ t: 'dungeon', to, from: myRef().userId, packet }));
   const cleanup = () => {
+    offPartyDungeon();
     closeArena();
     offRoster();
     offMessage();

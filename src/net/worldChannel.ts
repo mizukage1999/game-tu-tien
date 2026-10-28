@@ -23,6 +23,7 @@ export interface WorldChannelOptions {
   sex: Sex;
   realm: string;
   party?: string | null;
+  room?: { id: string; leader: string; members: string[] };
   pose: Pose;
 }
 
@@ -42,8 +43,8 @@ export interface WorldChannel {
 
 /**
  * One Realtime channel per map: presence carries identity (joined once), broadcast
- * carries movement (~10 updates/s). Dungeons are instanced per player, so callers
- * skip them instead of sharding the channel further.
+ * carries movement (~10 updates/s). Party dungeons use a separate instance topic
+ * with an explicit member list and a fixed leader; solo dungeons skip the channel.
  */
 export function joinWorldChannel(
   opts: WorldChannelOptions,
@@ -55,13 +56,16 @@ export function joinWorldChannel(
   // Rejoining another map must still be distinguishable from an old connection.
   const selfKey = `${opts.userId}:${Math.random().toString(36).slice(2, 8)}`;
   const joinedAt = Date.now();
-  const elect = () =>
+  const elect = () => opts.room
+    ? (opts.room.leader === opts.userId ? selfKey : roster.find(p => p.userId === opts.room!.leader)?.key ?? null)
+    :
     [
       { key: selfKey, joinedAt },
       ...roster.map((p) => ({ key: p.key, joinedAt: p.joinedAt ?? 0 })),
     ].sort((a, b) => a.joinedAt - b.joinedAt || a.key.localeCompare(b.key))[0].key;
-  resetSupabaseChannel(client, `world:${opts.mapId}`);
-  const channel = client.channel(`world:${opts.mapId}`, {
+  const topic = opts.room ? `instance:${opts.room.id}` : `world:${opts.mapId}`;
+  resetSupabaseChannel(client, topic);
+  const channel = client.channel(topic, {
     config: { presence: { key: selfKey }, broadcast: { self: false } },
   });
 
@@ -82,7 +86,8 @@ export function joinWorldChannel(
   const readPresence = () => {
     if (closed) return;
     const state = channel.presenceState() as Record<string, unknown[] | undefined>;
-    roster = uniqueWorldPlayers(mergePresence(roster, parseRoster(state, selfKey, Date.now())), opts.userId);
+    roster = uniqueWorldPlayers(mergePresence(roster, parseRoster(state, selfKey, Date.now())), opts.userId)
+      .filter(p => !opts.room || opts.room.members.includes(p.userId));
     authority = elect();
     emit();
   };
@@ -168,6 +173,8 @@ export function joinWorldChannel(
       if (closed || !ready) return;
       const now = Date.now();
       if (!shouldPublish(lastPose, pose, now - lastSentAt)) return;
+      const active = pruneStale(roster, now);
+      if (active.length !== roster.length) { roster = active; authority = elect(); emit(); }
       lastPose = pose;
       lastSentAt = now;
       void channel.send({ type: 'broadcast', event: 'pose', payload: { key: selfKey, ...pose } });

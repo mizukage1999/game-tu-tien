@@ -60,6 +60,7 @@ function pair() {
   const makeWorld = () => {
     const w = {
       map: {
+        id: 'linh_thu_lam',
         width: 30,
         height: 30,
         blocked: Array.from({ length: 30 }, () => Array(30).fill(false)),
@@ -79,6 +80,8 @@ function pair() {
       rewardMonster: vi.fn(),
       damageText: { show: vi.fn() },
       showSpeech: vi.fn(),
+      partyRunSnapshot: () => null,
+      applyPartyRunSnapshot: vi.fn(),
       monsters: [] as unknown[],
       shared: null as SharedWorld | null,
     };
@@ -95,7 +98,8 @@ function pair() {
       playerContribution: false,
       rootTimer: 0,
       slowTimer: 0,
-      def: { hp: 180, def: 0 },
+      def: { hp: 180, def: 0, level: 10, exp: 100, loot: [] },
+      damageTaken: (n: number) => n,
       distanceTo: (p: { x: number; y: number }) => Math.hypot(m.x - p.x, m.y - p.y),
       networkState: (): WorldMonsterState => ({
         id: m.netId,
@@ -245,6 +249,41 @@ describe('two clients in a shared combat map', () => {
     vi.advanceTimersByTime(1);
     expect(hit).toHaveBeenCalledOnce();
     a.destroy();
+  });
+  it('credits two active fighters instead of awarding only the last hit, with no idle spectator reward', () => {
+    vi.useFakeTimers();
+    const { a, b, aw, bw } = pair();
+    a.attack('basic'); vi.advanceTimersByTime(1);
+    b.attack('wang_lam_1'); vi.advanceTimersByTime(500);
+    expect(aw.m.alive).toBe(false);
+    expect(aw.w.rewardMonster).toHaveBeenCalledOnce();
+    expect(bw.w.rewardMonster).toHaveBeenCalledOnce();
+    const awardA = aw.w.rewardMonster.mock.calls[0][1], awardB = bw.w.rewardMonster.mock.calls[0][1];
+    expect(awardA.to).toBe('a'); expect(awardB.to).toBe('b');
+    expect(awardA.exp + awardB.exp).toBeGreaterThan(0);
+    a.killed(aw.m as never);
+    expect(aw.w.rewardMonster).toHaveBeenCalledOnce();
+    a.destroy(); b.destroy();
+  });
+  it('synchronizes the dungeon phase and only allows active members to collect the clear, without per-kill farming', () => {
+    vi.useFakeTimers();
+    const { a, b, aw, bw, actors } = pair();
+    Object.assign(aw.w, { cooperativeRun: {id:'room'}, partyWaiting:false });
+    Object.assign(bw.w, { cooperativeRun: {id:'room'}, partyWaiting:false });
+    for (const actor of actors) Object.assign(actor, { pkMode: 'all' });
+    expect(a.opponent(500)).toBeUndefined();
+    aw.m.hp = aw.m.def.hp = 10000;
+    for (let i=0; i<3; i++) { a.attack('basic'); b.attack('basic'); vi.advanceTimersByTime(600); }
+    expect(aw.w.player.takeHit).not.toHaveBeenCalled();
+    expect(bw.w.player.takeHit).not.toHaveBeenCalled();
+    expect(a.activePartyMembers().sort()).toEqual(['a','b']);
+    Object.assign(aw.w, {partyRunSnapshot: () => ({room:'room',waiting:false,run:{id:'tier_30_de',phase:'boss',wave:2,timeLeft:180000,elapsed:20000,introLeft:0,nextIn:null}})});
+    a.tick(150);
+    expect(bw.w.applyPartyRunSnapshot).toHaveBeenCalledWith(expect.objectContaining({room:'room',eligible:['a','b'],run:expect.objectContaining({phase:'boss'})}));
+    aw.m.hp = 1; a.attack('basic'); vi.advanceTimersByTime(1);
+    expect(aw.w.rewardMonster).not.toHaveBeenCalled();
+    expect(bw.w.rewardMonster).not.toHaveBeenCalled();
+    a.destroy(); b.destroy();
   });
 });
 // Importing the real store exercises the same definitions used by both clients.

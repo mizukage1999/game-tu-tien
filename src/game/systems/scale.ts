@@ -1,4 +1,5 @@
 import type { DungeonDef, LootEntry, MonsterDef, QuestRewards, RarityId } from '../../data';
+import { cultivationClearMaterials } from '../../data/cultivationBalance';
 
 /** Normal-monster experience. Higher level always yields more exp. */
 export function expForMonsterLevel(level: number) {
@@ -49,7 +50,9 @@ export const FIELD_BANDS: FieldBand[] = [
   { id: 'han_bang_nguyen', name: 'Hàn Băng Nguyên', minLevel: 61, maxLevel: 70, mob: 'field_han_bang_nguyen', elite: 'field_han_bang_nguyen_elite', generated: true, art: 'beast_snow', terrain: 'stone', ambient: 'snow', trees: ['tree_pine'], glow: 'cold' },
   { id: 'viem_duong_dia', name: 'Viêm Dương Địa', minLevel: 71, maxLevel: 80, mob: 'field_viem_duong_dia', elite: 'field_viem_duong_dia_elite', generated: true, art: 'beast_fire', terrain: 'dirt', ambient: 'embers', trees: ['rock'], glow: 'warm' },
   { id: 'tu_van_phong', name: 'Tử Vân Phong', minLevel: 81, maxLevel: 90, mob: 'field_tu_van_phong', elite: 'field_tu_van_phong_elite', generated: true, art: 'beast_fire', terrain: 'darkgrass', ambient: 'fireflies', trees: ['tree_pine_b'], glow: 'cold' },
-  { id: 'thien_kiep_nhai', name: 'Thiên Kiếp Nhai', minLevel: 91, maxLevel: 99, mob: 'field_thien_kiep_nhai', elite: 'field_thien_kiep_nhai_elite', generated: true, art: 'beast_fire', terrain: 'stone', ambient: 'embers', trees: ['rock'], glow: 'warm' },
+  { id: 'thien_kiep_nhai', name: 'Thiên Kiếp Nhai', minLevel: 91, maxLevel: 100, mob: 'field_thien_kiep_nhai', elite: 'field_thien_kiep_nhai_elite', generated: true, art: 'beast_fire', terrain: 'stone', ambient: 'embers', trees: ['rock'], glow: 'warm' },
+  { id: 'tinh_niet_hai', name: 'Tịnh Niết Hải', minLevel: 101, maxLevel: 110, mob: 'field_tinh_niet_hai', elite: 'field_tinh_niet_hai_elite', generated: true, art: 'beast_snow', terrain: 'darkgrass', ambient: 'snow', trees: ['tree_pine_b'], glow: 'cold' },
+  { id: 'toai_niet_dai', name: 'Toái Niết Đài', minLevel: 111, maxLevel: 120, mob: 'field_toai_niet_dai', elite: 'field_toai_niet_dai_elite', generated: true, art: 'beast_fire', terrain: 'stone', ambient: 'embers', trees: ['rock'], glow: 'warm' },
 ];
 
 export function fieldForLevel(level: number) {
@@ -80,6 +83,7 @@ export const DUNGEON_TIERS = [
   { level: 50, name: 'Lôi Đình Cổ Điện', map: 'pb_loi_dinh', art: 'beast_snow' as const, bossArt: 'beast_frost_king' as const },
   { level: 70, name: 'U Minh Lang Địa', map: 'pb_u_minh', art: 'beast_fire' as const, bossArt: 'beast_fire_king' as const },
   { level: 90, name: 'Huyền Thiên Kiếp Đài', map: 'pb_thien_kiep', art: 'beast_snow' as const, bossArt: 'beast_fire_king' as const },
+  { level: 110, name: 'Toái Niết Thí Luyện', map: 'pb_thien_kiep', art: 'beast_snow' as const, bossArt: 'beast_fire_king' as const },
 ];
 
 export function dungeonId(level: number, diff: DifficultyId) {
@@ -158,9 +162,10 @@ export function buildScaledContent(): { monsters: Record<string, MonsterDef>; du
       const mobId = `dg_${tier.level}_${diff.id}`;
       const bossId = `dg_${tier.level}_${diff.id}_boss`;
       monsters[mobId] = makeMob(`${tier.name} Hộ Vệ`, level, tier.art, diff.stat, false);
-      const bossIndex=DUNGEON_TIERS.indexOf(tier);
+      const bossIndex=Math.min(4,DUNGEON_TIERS.indexOf(tier));
       const boss = makeMob(['Hàn Sương Lang Vương','Xích Diễm Hổ Hoàng','Lôi Dực Kỳ Lân','U Ảnh Ma Lang','Huyền Thiên Thủ Hộ'][bossIndex], level + 2, `dungeon_boss_${bossIndex}`, diff.stat * 1.35, true);
       boss.scale = 1.7;
+      if (tier.level === 110) boss.name = 'Toái Niết Chấp Chưởng';
       boss.hp = Math.round(boss.hp * (diff.id==='de'?8:12));
       boss.atk = Math.round(boss.atk*1.2);
       boss.exp = expForMonsterLevel(level) * 6;
@@ -174,13 +179,13 @@ export function buildScaledContent(): { monsters: Record<string, MonsterDef>; du
       const rewards: QuestRewards = {
         exp: expForMonsterLevel(level) * 8,
         linhKhi: Math.round(tier.level * 40 * reward),
-        items: { linh_thach: Math.max(2, Math.round((tier.level / 5) * reward)), kiem_pho: diff.levelAdd >= 5 ? 3 : 1,tinh_luyen_thach:diff.levelAdd>=5?2:1,huyen_thiet:3+bossIndex },
+        items: { linh_thach: Math.max(2, Math.round((tier.level / 5) * reward)), kiem_pho: diff.levelAdd >= 5 ? 3 : 1,tinh_luyen_thach:diff.levelAdd>=5?2:1,huyen_thiet:3+bossIndex, ...cultivationClearMaterials(tier.level, reward) },
       };
       const counts = [3, 4, 5].map((n) => n + Math.floor(diff.levelAdd / 4));
       dungeons[dungeonId(tier.level, diff.id)] = {
         name: `${tier.name} · ${diff.name}`,
         map: tier.map,
-        desc: `Phó bản thử luyện, độ khó ${diff.name}. Yêu thú hung hiểm, cần chuẩn bị hành trang.`,
+        desc: `Phó bản thử luyện, độ khó ${diff.name}.${tier.level >= 70 ? ' Khi boss triệu hồi, diệt hộ vệ để phá lá chắn giảm 75% sát thương.' : ' Chuẩn bị đan dược và né vùng báo chiêu.'}`,
         minLevel: tier.level,
         recommendedPower:Math.round((600+tier.level*100)*diff.stat),
         attemptsPerDay: diff.attempts,

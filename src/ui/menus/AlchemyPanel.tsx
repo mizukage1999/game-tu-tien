@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { ITEMS, ZONE_NAMES } from '../../data';
 import { EventBus } from '../../game/EventBus';
+import { FIELD_BANDS } from '../../game/systems/scale';
 import { itemIconUrl } from '../../game/art/icons';
 import {
   HOME_QUEST,
   RECIPES,
   herbNodes,
+  herbYield,
   immortalProgress,
   recipeCapacity,
   recipeCheck,
@@ -95,7 +97,9 @@ export function AlchemyPanel() {
     patch({ menu: null });
     EventBus.emit('cmd:travel', id);
   }
-  const sources = GATHER_MAPS.filter((id) => herbNodes(id).some((n) => n.item === herb));
+  const sources = [...GATHER_MAPS, ...FIELD_BANDS.filter(b => b.generated).map(b => b.id)]
+    .filter(id => herbNodes(id).some(n => n.item === herb))
+    .sort((a, b) => Math.abs((FIELD_BANDS.find(f => f.id === a)?.minLevel ?? 1) - p.level) - Math.abs((FIELD_BANDS.find(f => f.id === b)?.minLevel ?? 1) - p.level));
   const recipes = RECIPES.filter(
     (r) =>
       filter === 'all' ||
@@ -415,7 +419,7 @@ export function AlchemyPanel() {
               {sources.length ? (
                 sources.map((id) => (
                   <div className="alchemy-source" key={id}>
-                    <span>Hái tại {ZONE_NAMES[id] ?? id}</span>
+                    <span>Hái tại {ZONE_NAMES[id] ?? id} · ×{herbYield(id, herb as 'linh_chi' | 'ngung_lo' | 'thanh_linh_thao')}</span>
                     <button className="cult-btn" onClick={() => travel(id)}>
                       Đi đến
                     </button>
@@ -424,7 +428,7 @@ export function AlchemyPanel() {
               ) : (
                 <p>
                   {herb === 'yeu_dan'
-                    ? 'Đánh quái tinh anh và boss. Vật phẩm hiếm, không bảo đảm rơi mỗi lần.'
+                    ? 'Săn tinh anh và boss ở vùng cùng cấp; vùng cao cho nhiều Yêu Đan hơn. Vượt phó bản từ cấp đề nghị 30 có thưởng nguyên liệu chắc chắn.'
                     : 'Nhận qua nhiệm vụ, đánh quái và khám phá.'}
                 </p>
               )}

@@ -1,4 +1,5 @@
 import type { DungeonDef, WaveSpawn } from '../../data';
+import { activityDay } from './activityDay';
 
 export const INTRO_MS = 2500;
 export const WAVE_GAP_MS = 1800;
@@ -82,14 +83,14 @@ export function tickRun(run: DungeonRun, def: DungeonDef, dt: number, aliveEnemi
 }
 
 export interface DungeonRecord {
-  /** Local date (YYYY-MM-DD) the run counters belong to. */
+  /** Vietnam date (YYYY-MM-DD) the run counters belong to. */
   day: string;
   runs: Record<string, number>;
   clears: Record<string, number>;
 }
 
 export function todayKey(d = new Date()) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return activityDay(d);
 }
 
 export function emptyRecord(day = todayKey()): DungeonRecord {

@@ -59,7 +59,7 @@ it('grants no high realm until every required wave and the whole timer are finis
   state.finishTribulation(true);
   expect(gameStore.getState().player.realmIndex).toBe(7);
 });
-it('failure retains the original realm and EXP and never restores consumed ingredients', () => {
+it('failure retains the original realm and EXP and returns half the paid pills', () => {
   gameStore.getState().tryBreakthrough();
   gameStore.getState().finishTribulation(false);
   const state = gameStore.getState();
@@ -67,7 +67,7 @@ it('failure retains the original realm and EXP and never restores consumed ingre
   expect(state.player).toMatchObject({
     realmIndex: 6,
     exp: expToNext(70),
-    inventory: { pha_canh_dan: 1 },
+    inventory: { pha_canh_dan: 33 },
   });
 });
 it('uses the same material, childhood and location gates as the menu', () => {
@@ -115,7 +115,7 @@ it.each(REALMS.slice(0, -1).map((realm, index) => ({ realm, index, pills: 2 ** i
     gameStore.getState().finishTribulation(false);
     expect(gameStore.getState().player.realmIndex).toBe(index);
     expect(breakthroughPillCount(index)).toBe(pills);
-    expect(gameStore.getState().player.inventory.pha_canh_dan).toBeUndefined();
+    expect(gameStore.getState().player.inventory.pha_canh_dan ?? 0).toBe(Math.floor(pills / 2));
   },
 );
 

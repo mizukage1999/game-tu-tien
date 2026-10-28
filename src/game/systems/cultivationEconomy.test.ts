@@ -31,7 +31,11 @@ it('rolls at most one Yêu Đan entry per monster, with better rewards from dang
     expect(cores.length).toBeLessThanOrEqual(1);
     if (!cores.length) continue;
     const core = cores[0];
-    if (!def.boss) expect(core.qty).toEqual([1, 1]);
+    if (!def.boss) {
+      expect(core.qty[0]).toBeGreaterThanOrEqual(1);
+      expect(core.qty[1]).toBe(core.qty[0]);
+      if (def.level <= 30) expect(core.qty).toEqual([1, 1]);
+    }
     expect(rollLoot([core], () => 0)).toEqual([{ item: 'yeu_dan', qty: core.qty[0] }]);
     expect(rollLoot([core], () => core.chance)).toEqual([]);
   }

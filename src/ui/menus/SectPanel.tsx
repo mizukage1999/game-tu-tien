@@ -11,7 +11,7 @@ import {
   sectRank,
   type AdventureAction,
 } from '../../game/systems/adventure';
-import { lifeProgress } from '../../game/systems/life';
+import { activityDayNumber } from '../../game/systems/activityDay';
 import { isChildhood } from '../../game/systems/origin';
 import { realmNameAtLevel } from '../../game/systems/progression';
 import { EventBus } from '../../game/EventBus';
@@ -146,7 +146,7 @@ export function SectPanel() {
     childhood = isChildhood(player);
   const atSect = ['dai_thua_vien', 'linh_son_tong'].includes(map);
   const canAct = status === 'alive' && !tribulation && !childhood;
-  const doneToday = a.missionDay === lifeProgress(player).days ? a.completedMissions : [];
+  const doneToday = a.missionDay === activityDayNumber() ? a.completedMissions : [];
   const rankPct = nextRank
     ? (100 * (a.reputation - SECT_RANKS[rank].reputation)) /
       (nextRank.reputation - SECT_RANKS[rank].reputation)
@@ -250,7 +250,7 @@ export function SectPanel() {
           : 'Đã đạt cấp bậc cao nhất.'}
       </p>
       <ul className="sect-benefits">
-        <li>Nhận nhiệm vụ Chấp Sự mỗi ngày game</li>
+        <li>Nhận nhiệm vụ Chấp Sự hằng ngày</li>
         <li>Nội Môn mở Tàng Kinh Các</li>
         <li>Chân Truyền mở Linh Địa Hậu Sơn</li>
       </ul>
@@ -404,10 +404,10 @@ export function SectPanel() {
             <section className="sect-framed sect-quest-board">
               <div className="sect-section-heading">
                 <CultHeading>Nhiệm vụ Chấp Sự</CultHeading>
-                <span>Ngày game {lifeProgress(player).days + 1}</span>
+                <span>Làm mới lúc 00:00 · giờ Việt Nam</span>
               </div>
               <p className="chronicle-muted">
-                Mỗi nhiệm vụ một lần mỗi ngày game. Nhận và trả tại tông môn; chỉ nhận một nhiệm vụ
+                Mỗi nhiệm vụ một lần mỗi ngày, làm mới lúc 00:00 giờ Việt Nam. Nhận và trả tại tông môn; chỉ nhận một nhiệm vụ
                 cùng lúc.
               </p>
               {!atSect && (

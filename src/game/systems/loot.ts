@@ -27,6 +27,13 @@ export function rollDungeonGear(table: LootEntry[], rng: Rng = Math.random): Loo
   return rollLoot(table, rng).map((d) => ({ item: materializeDrop(d.item,rng), qty: d.qty }));
 }
 
+export function monsterDrops(def: { loot: LootEntry[]; boss?: unknown }, arena: boolean, rng: Rng = Math.random): LootRoll[] {
+  const drops = rollDungeonGear(def.loot, rng);
+  if (!arena && rng() < 0.25) drops.push({ item: 'huyen_thiet', qty: 1 });
+  if (def.boss && rng() < 0.3) drops.push({ item: rng() < 0.5 ? 'cong_thuc_ngoc' : 'cong_thuc_pha_canh', qty: 1 });
+  return drops;
+}
+
 export const LOOT_LIFETIME_MS = 60000;
 export const PICKUP_RADIUS = 46;
 export const MAGNET_RADIUS = 90;

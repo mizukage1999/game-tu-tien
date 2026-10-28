@@ -3,6 +3,7 @@ import type { PlayerSave } from './save';
 import { lifeProgress, type CompanionId } from './life';
 import { enhanceCost, enhanceChance, enhancementLevel, MAX_ENHANCEMENT } from './enhancement';
 import { equipmentBaseId, findOwnedEquipment, normalizeEquipment } from './equipment';
+import { activityDayNumber } from './activityDay';
 export { enhanceCost, enhanceChance, MAX_ENHANCEMENT } from './enhancement';
 
 export interface SectMission {
@@ -150,11 +151,11 @@ export function adventureAction(
     case 'mission': {
       if (!atSect) return fail('Hãy gặp Chấp Sự tại tông môn để nhận nhiệm vụ.');
       if (a.mission) return fail('Hãy hoàn thành nhiệm vụ đang nhận.');
-      const day = lifeProgress(p).days,
+      const day = activityDayNumber(),
         def = SECT_MISSIONS.find((m) => m.id === action.id);
       if (!def) return fail('Nhiệm vụ không tồn tại.');
       const done = a.missionDay === day ? a.completedMissions : [];
-      if (done.includes(def.id)) return fail('Nhiệm vụ này đã làm trong ngày game.');
+      if (done.includes(def.id)) return fail('Nhiệm vụ này đã làm hôm nay. Làm mới lúc 00:00 giờ Việt Nam.');
       a.missionDay = day;
       a.completedMissions = done;
       a.mission = { id: def.id, progress: 0, target: def.target };
@@ -168,7 +169,9 @@ export function adventureAction(
         return fail('Chưa hoàn thành nhiệm vụ.');
       a.reputation += def.reputation;
       a.contribution += def.contribution;
-      a.completedMissions = [...a.completedMissions, def.id];
+      const day = activityDayNumber();
+      a.completedMissions = [...(a.missionDay === day ? a.completedMissions : []), def.id];
+      a.missionDay = day;
       a.mission = null;
       exp = 100 + p.level * 20;
       message = `Nhận ${def.reputation} danh vọng, ${def.contribution} cống hiến.`;

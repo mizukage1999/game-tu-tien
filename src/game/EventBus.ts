@@ -1,4 +1,5 @@
 import type { SkillId } from '../data';
+import type { PartyRunTicket } from './systems/partyDungeon';
 
 export interface BusEvents {
   'cmd:adminBossReset': {map:string;monster:string};
@@ -14,6 +15,8 @@ export interface BusEvents {
   'cmd:target': void;
   'cmd:respawnMap': void;
   'cmd:enterDungeon': string;
+  'cmd:enterPartyDungeon': PartyRunTicket;
+  'cmd:abortPartyDungeon': string;
   'cmd:leaveDungeon': void;
   'cmd:questGo': string;
   'cmd:home': void;

@@ -104,7 +104,7 @@ export class Companion {
     }
   }
   private hit(target:Monster,amount:number){
-    if(this.world.shared?.authority)target.lastAttacker=this.world.shared.channel.selfKey;
+    if(this.world.shared){this.world.shared.auxiliary(target,amount);return;}
     target.hit(amount,false,this.pos);
   }
 }

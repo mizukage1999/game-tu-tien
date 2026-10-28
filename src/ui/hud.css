@@ -1582,11 +1582,19 @@ kbd {
   top: 50%;
   transform: translate(-50%, -50%);
   width: min(420px, 92vw);
+  max-height: calc(100% - 24px);
+  display: flex;
+  flex-direction: column;
   padding: 16px 20px;
   text-align: center;
   pointer-events: auto;
-  animation: toast-in 0.3s;
+  animation: dungeon-result-in 0.2s;
 }
+@keyframes dungeon-result-in { from { opacity: 0; } to { opacity: 1; } }
+.dungeon-result > h3,
+.dungeon-result > p,
+.dungeon-result-actions { flex-shrink: 0; }
+.dungeon-result-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .dungeon-result h3 {
   margin: 0 0 4px;
   font-family: var(--serif);

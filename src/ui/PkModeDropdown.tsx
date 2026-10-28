@@ -4,7 +4,7 @@ import type { PkMode } from '../net/worldProtocol';
 import './pk-mode.css';
 
 export const PK_MODES = [
-  { id: 'peace', label: 'Hòa bình', hint: 'Không chủ động PK' },
+  { id: 'peace', label: 'Hòa bình', hint: 'Không chủ động PK. Ngoài vùng an toàn vẫn có thể bị tấn công.' },
   { id: 'sect', label: 'Tông môn', hint: 'PK người khác tông môn' },
   { id: 'all', label: 'Toàn bộ', hint: 'PK mọi người, cả đồng môn' },
 ] as const;

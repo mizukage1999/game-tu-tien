@@ -1,4 +1,5 @@
 import { FIELD_BANDS, type FieldBand } from '../systems/scale';
+import { herbNodes } from '../systems/immortal';
 import { MapBuilder, type MapDef } from './MapBuilder';
 import { dungeonMap, DUNGEON_MAPS, ngocAnTrial } from './dungeonMaps';
 import { daiThuaVien } from './courtyard';
@@ -191,7 +192,7 @@ function fieldMap(band: FieldBand): MapDef {
       [33, 15],
     ]),
   ];
-  b.reserve([...monsters, { x: 3, y: 15 }]);
+  b.reserve([...monsters, ...herbNodes(band.id), { x: 3, y: 15 }]);
   b.place('lantern', 2, 13, { glow: band.glow });
   b.place('lantern', 2, 17, { glow: band.glow });
   b.sprinkle(band.trees, 28, [band.terrain, 'grass', 'path'], [

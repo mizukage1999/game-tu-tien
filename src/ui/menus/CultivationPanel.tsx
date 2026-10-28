@@ -323,7 +323,8 @@ export function CultivationPanel() {
                   Thiên Kiếp.
                 </p>
                 <small>
-                  Nguyên liệu tiêu hao khi bắt đầu. Thất bại giữ nguyên cảnh giới và EXP.
+                  Nguyên liệu tiêu hao khi bắt đầu. Thất bại giữ nguyên cảnh giới và EXP,
+                  hoàn lại 50% số đan (làm tròn xuống); linh khí và linh thạch đã dùng.
                 </small>
               </div>
               <p className={`training-inline-note ${blocker ? 'short' : 'enough'}`} role="status">

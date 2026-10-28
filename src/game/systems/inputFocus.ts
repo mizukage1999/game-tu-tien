@@ -2,6 +2,7 @@ import { gameStore } from '../../store/gameStore';
 import { socialStore } from '../../store/socialStore';
 import { chatStore } from '../../store/chatStore';
 import { isTypingTarget } from './typing';
+import { partyDungeonStore } from '../../net/partyDungeon';
 
 /** UI actions may deliberately open another card; world actors may not steal it. */
 export function worldInputBlocked() {
@@ -9,6 +10,8 @@ export function worldInputBlocked() {
     social = socialStore.getState();
   return !!(
     game.menu ||
+    partyDungeonStore.getState().phase === 'forming' ||
+    partyDungeonStore.getState().waiting ||
     game.rewardPending ||
     game.dialogNpc ||
     game.dungeonResult ||

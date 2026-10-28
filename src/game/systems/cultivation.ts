@@ -9,6 +9,10 @@ export interface ZoneDef {
 
 export const BASE_MEDITATE_RATE = 0.5;
 
+export function failedTribulationRefund(realm: number) {
+  return Math.floor(breakthroughPillCount(realm) / 2);
+}
+
 /** Higher realms add actual lightning waves, rather than a random success roll. */
 export function tribulationPlan(realmIndex: number) {
   const target = Math.max(1, Math.min(11, Math.floor(realmIndex) + 1));

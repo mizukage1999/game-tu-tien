@@ -71,10 +71,10 @@ export function DungeonResultOverlay() {
     <div className="dungeon-result panel-ornate">
       <h3 className={r.success ? 'win' : 'lose'}>{r.success ? 'Vượt Ải Thành Công' : 'Khiêu Chiến Thất Bại'}</h3>
       <p className="muted">
-        {def.name} · {r.success ? `Thời gian ${clock(sec)}` : 'Đã hết thời gian'}
+        {def.name} · {r.success ? `Thời gian ${clock(sec)}` : 'Chưa hoàn thành thử thách'}
       </p>
       {r.success && (
-        <>
+        <div className="dungeon-result-body">
           <h4>Phần thưởng</h4>
           <RewardList rewards={r.rewards} />
           {r.dropped.length > 0 ? (
@@ -91,13 +91,13 @@ export function DungeonResultOverlay() {
               <RewardList rewards={r.firstClear} />
             </>
           )}
-          <p className="muted">Vật phẩm thủ lĩnh rơi ra vẫn còn trên mặt đất.</p>
-        </>
+          <p className="muted">Phần thưởng vượt ải đã vào túi đồ.</p>
+        </div>
       )}
       <div className="dungeon-result-actions">
         {r.success && (
           <button className="btn" onClick={() => patch({ dungeonResult: null })}>
-            Ở lại nhặt đồ
+            Ở lại
           </button>
         )}
         <button className="btn gold" onClick={() => EventBus.emit('cmd:leaveDungeon')}>

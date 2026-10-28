@@ -30,17 +30,18 @@ import type { LifeStatus } from '../game/systems/respawn';
 import type { Vec2 } from '../game/types';
 import { ADMISSION_QUEST, PROLOGUE_ORDER } from '../data/world';
 import { isChildhood } from '../game/systems/origin';
-import { breakthroughBlocker, tribulationPlan } from '../game/systems/cultivation';
+import { breakthroughBlocker, failedTribulationRefund, tribulationPlan } from '../game/systems/cultivation';
 import { heroFor, type HeroId } from '../data/heroes';
 import { heroDefaultLoadout } from '../data/heroSkills';
 import { advanceLife, lifeProgress, performLifeAction, type LifeAction } from '../game/systems/life';
 import { startVillageChapter } from '../game/systems/storyStart';
 import { adventureAction, beastVictory, sectEvent, type AdventureAction } from '../game/systems/adventure';
+import { recoverPartyRun } from '../game/systems/partyDungeon';
 import { chooseSkill, skillUnlocked } from '../game/systems/skills';
 import { premiumStore } from '../net/premium';
 import { equipmentBaseId, equipmentInstanceId, findOwnedEquipment, isIndividualEquipment, normalizeEquipment } from '../game/systems/equipment';
 import {
-  GARDEN_COOLDOWN_MS, herbCooldownMs, HOME_MAX_LEVEL, HOME_QUEST,
+  GARDEN_COOLDOWN_MS, herbCooldownMs, herbYield, HOME_MAX_LEVEL, HOME_QUEST,
   homeUpgradeCost, immortalProgress, mountUnlocked, RECIPES, recipeCheck,
   type HerbNode, type MountId,
 } from '../game/systems/immortal';
@@ -216,8 +217,10 @@ export const questNames = {
 
 const previousSave = loadGame();
 const save = previousSave ? startVillageChapter(previousSave) : null;
+const interruptedParty = save?.player.partyRun;
+if (save) save.player = recoverPartyRun(save.player);
 // Persist the one-time chapter entry before autosave or cloud sync starts.
-if (save && save !== previousSave) saveGame(save);
+if (save && (save !== previousSave || interruptedParty)) saveGame(save);
 const startPlayer: PlayerSave = save?.player ?? {
   ...newPlayer({ name: 'Vương Lâm', sex: 'male' }),
   origin: 'vuong_gia_thon', admitted: false, inventory: {},
@@ -523,7 +526,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const s = get();
       const progress = immortalProgress(s.player);
       if (s.status !== 'alive' || (progress.harvestReadyAt[node.id] ?? 0) > now) return false;
-      const qty = node.item === 'thanh_linh_thao' ? 2 : 1;
+      const qty = herbYield(s.mapId, node.item);
       set({ player: { ...s.player, immortal: {
         ...progress,
         gathered: { ...progress.gathered, [node.item]: (progress.gathered[node.item] ?? 0) + qty },
@@ -641,7 +644,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       if (!success) {
         set({ dungeonResult: { id, success, elapsedMs, rewards: {}, firstClear: null, dropped: [] } });
         s.toast(`Khiêu chiến ${def.name} thất bại!`, 'warn');
-        s.addLog(`Hết thời gian, khiêu chiến ${def.name} thất bại.`);
+        s.addLog(`Chưa hoàn thành khiêu chiến ${def.name}.`);
         return;
       }
       const { record, first } = recordClear(s.player.dungeons, id);
@@ -723,7 +726,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const s=get(),trial=s.tribulation;if(!trial)return;
       if(success&&(trial.remaining>0||trial.strikes<tribulationPlan(trial.realm).waves))return;
       set({tribulation:null});
-      if(!success)return s.toast('Độ kiếp thất bại. Hãy chuẩn bị lại đan dược và trang bị.','warn');
+      if(!success){const refund=failedTribulationRefund(trial.realm);if(refund)s.addItem('pha_canh_dan',refund);s.toast(`Độ kiếp thất bại.${refund ? ` Thu hồi ${refund} Phá Cảnh Đan.` : ''} Linh khí và linh thạch đã tiêu hao.`, 'warn');return;}
       if(s.player.realmIndex!==trial.realm||s.status!=='alive')return;
       const p={...s.player};applyBreakthrough(p);const stats=playerStats(p);set({player:{...p,hp:stats.maxHp,mp:stats.maxMp},stats});
       s.addItem('thien_loi_tinh',1);s.toast(`Vượt thiên kiếp: ${realmNameAtLevel(p.level)}!`,'realm');s.questEvent({type:'level',level:p.level});

@@ -8,6 +8,7 @@ import { usePhoneLayout } from './TouchPlay';
 import { originText } from '../game/systems/origin';
 import { useTrackedQuest } from './useTrackedQuest';
 import { OpeningGuide } from './OpeningGuide';
+import { AdventureGuide } from './AdventureGuide';
 import { PartyTracker } from './PartyTracker';
 import { useSocial } from '../store/socialStore';
 
@@ -69,6 +70,7 @@ export function QuestPanel() {
           })}
         </ul>
         <OpeningGuide />
+        <AdventureGuide />
         {phone && <button className="quest-details" onClick={() => setMenu('journey')}>Tiên Lộ · Xem chi tiết ›</button>}
         </>
       )}

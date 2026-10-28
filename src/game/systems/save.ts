@@ -71,6 +71,8 @@ export interface PlayerSave {
   /** Missing in saves from before skill upgrades; every skill then counts as level 1. */
   skills?: SkillLevels;
   dungeons?: DungeonRecord;
+  partyRun?: { id: string; dungeon: string; day: string };
+  partyRunReceipts?: string[];
   /** Missing in saves from before social existed; those players start with no friends. */
   friends?: FriendRef[];
   /** Optional so saves made before the story/alchemy update remain playable. */

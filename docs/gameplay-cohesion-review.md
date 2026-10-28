@@ -1,5 +1,7 @@
 # Rà soát hành trình chơi Cửu Huyền — 28/10/2026
 
+Các điều chỉnh sau rà soát được ghi riêng tại [Điều chỉnh hành trình chơi](gameplay-cohesion-update.md); phần dưới giữ nguyên kết quả tại thời điểm kiểm tra.
+
 ## Nhận định
 
 Game đã có tuyến nhập môn và vòng chơi cá nhân có thể nối tiếp nhau. Phần mở đầu có cốt truyện, dẫn đường, chỉ dẫn điều khiển, thử luyện đầu tiên có boss báo chiêu và phần thưởng chắc chắn. Đây là nền đủ để tổ chức một đợt chơi thử có hướng dẫn.

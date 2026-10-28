@@ -246,9 +246,15 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  damageTaken(amount: number) {
+    return this.def.boss && this.def.level >= 70 && this.summoned && this.def.boss.summon &&
+      this.world.monsters.some(m => m !== this && m.alive && m.type === this.def.boss!.summon!.type)
+      ? Math.max(1, Math.ceil(amount * 0.25)) : amount;
+  }
   hit(amount: number, crit: boolean, from: Vec2, source: 'player'|'wanderer' = 'player') {
     if (!this.alive) return;
     if(this.world.shared&&!this.world.shared.authority){if(source==='player')this.world.shared.auxiliary(this,amount);return;}
+    amount = this.damageTaken(amount);
     if(source==='player'&&this.world.shared&&!this.lastAttacker)this.lastAttacker=this.world.shared.channel.selfKey;
     if(source==='player')this.playerContribution=true;
     this.hp = Math.max(0, this.hp - amount);

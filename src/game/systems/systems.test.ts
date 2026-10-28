@@ -253,14 +253,15 @@ describe('world scale', () => {
     expect(expForMonsterLevel(90)).toBeGreaterThan(expForMonsterLevel(20));
     expect(fieldForLevel(1).id).toBe('linh_thu_lam');
     expect(fieldForLevel(15).minLevel).toBe(11);
-    expect(fieldForLevel(99).maxLevel).toBe(99);
+    expect(fieldForLevel(99).maxLevel).toBe(100);
+    expect(fieldForLevel(120).maxLevel).toBe(120);
     expect(canEnterField(15, { min: 11, max: 20 }).ok).toBe(true);
     expect(canEnterField(15, { min: 1, max: 10 }).ok).toBe(true);
     expect(canEnterField(9, { min: 11, max: 20 }).ok).toBe(true);
   });
 
   it('builds a map for every level band and a dungeon for every difficulty', () => {
-    expect(FIELD_BANDS.map((b) => b.minLevel)).toEqual([1, 11, 21, 31, 41, 51, 61, 71, 81, 91]);
+    expect(FIELD_BANDS.map((b) => b.minLevel)).toEqual([1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101, 111]);
     for (const band of FIELD_BANDS) {
       const map = getMap(band.id);
       expect(map.level).toEqual({ min: band.minLevel, max: band.maxLevel });

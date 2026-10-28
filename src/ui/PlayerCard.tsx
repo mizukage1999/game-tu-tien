@@ -607,7 +607,7 @@ function InspectionCard({ id }: { id: string }) {
                         '✦',
                         'Phụng sự tông môn',
                         data.progress.missions,
-                        'nhiệm vụ trong ngày game',
+                        'nhiệm vụ hôm nay',
                       ],
                       ['❧', 'Tìm kiếm linh thảo', data.progress.gathered, 'lần thu hái'],
                       ['♜', 'Luyện chế đan dược', data.progress.crafted, 'lần chế tạo'],

@@ -31,7 +31,11 @@ import type { MapDef, PortalDef, WorldPoint } from '../maps/MapBuilder';
 import { computeDamage, inAttackArc } from '../systems/combat';
 import { meditateGain, tribulationPlan, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
-import { rollDungeonGear } from '../systems/loot';
+import { monsterDrops } from '../systems/loot';
+import { todayKey } from '../systems/dungeon';
+import { resolvePartyRun, type PartyRunTicket } from '../systems/partyDungeon';
+import { cancelPartyDungeon, completePartyDungeon, partyDungeonStore } from '../../net/partyDungeon';
+import type { SharedAward } from '../systems/contribution';
 import { questDestination, routeOnMap, trackedQuest, trackQuest, trackTravel, trackedTravel, type QuestStop } from '../systems/questNav';
 import { canEnterField, fieldForLevel, FIELD_BANDS, killExp } from '../systems/scale';
 import { realmNameAtLevel } from '../systems/progression';
@@ -70,6 +74,7 @@ interface WorldData {
   spawn?: [number, number];
   pos?: Vec2 | null;
   dungeonId?: string;
+  partyRun?: PartyRunTicket;
 }
 
 const WORLD_CHAT = [
@@ -86,6 +91,11 @@ const WORLD_CHAT = [
 const hash = (x: number, y: number) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
 
 export class WorldScene extends Phaser.Scene {
+  get cooperativeRun() { return this.spawnData.partyRun; }
+  partyWaiting = true;
+  private partyStarted = false;
+  private partyMissingAt = 0;
+  private partyEnteredAt = 0;
   shared:SharedWorld|null=null;
   private stopMultiplayer:(()=>void)|null=null;
   map!: MapDef;
@@ -138,6 +148,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   init(data: WorldData) {
+    this.partyWaiting = true; this.partyStarted = false; this.partyMissingAt = 0; this.partyEnteredAt = Date.now();
     this.mapId = data.mapId ?? 'dai_thua_vien';
     this.spawnData = data;
     this.monsters = [];
@@ -655,12 +666,12 @@ export class WorldScene extends Phaser.Scene {
   // ---- other players -----------------------------------------------------
 
   /**
-   * Joins this map's channel so other humans show up. Dungeons are instanced per
-   * player, and offline builds have no session, so both skip silently.
+   * Public maps share one channel; a party dungeon joins only its private room.
+   * Solo dungeons and offline play skip multiplayer.
    */
   private startMultiplayer(map: MapDef) {
     if(this.channel)return;
-    if (map.arena || map.private) return;
+    if ((map.arena || map.private) && !this.cooperativeRun) return;
     const user = getAccountState().user;
     if (!user) return;
     const p = gameStore.getState().player;
@@ -672,6 +683,7 @@ export class WorldScene extends Phaser.Scene {
       heroId: p.heroId,
       realm: realmNameAtLevel(p.level),
       party: socialStore.getState().partyId,
+      ...(this.cooperativeRun ? { room: { id: this.cooperativeRun.id, leader: this.cooperativeRun.leader, members: this.cooperativeRun.members.map(m => m.userId) } } : {}),
       pose: this.player.networkPose(),
     });
     if (!channel) return;
@@ -804,6 +816,8 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:meditate', () => this.toggleMeditate()),
       EventBus.on('cmd:target', () => this.cycleTarget()),
       EventBus.on('cmd:enterDungeon', (id: string) => this.enterDungeon(id)),
+      EventBus.on('cmd:enterPartyDungeon', ticket => this.enterPartyDungeon(ticket)),
+      EventBus.on('cmd:abortPartyDungeon', id => { if (this.cooperativeRun?.id === id) this.abortPartyDungeon(); }),
       EventBus.on('cmd:leaveDungeon', () => this.leaveDungeon()),
       EventBus.on('cmd:questGo', (id: string) => this.onQuestGo(id)),
       EventBus.on('cmd:home', () => this.visitHome()),
@@ -907,7 +921,7 @@ export class WorldScene extends Phaser.Scene {
     };
     let wasBlocked = !worldInputBlocked();
     const syncFocus = () => { const blocked = worldInputBlocked(); if (blocked !== wasBlocked) { wasBlocked = blocked; focus(); } };
-    this.cleanups.push(gameStore.subscribe(syncFocus), socialStore.subscribe(syncFocus), chatStore.subscribe(syncFocus));
+    this.cleanups.push(gameStore.subscribe(syncFocus), socialStore.subscribe(syncFocus), chatStore.subscribe(syncFocus), partyDungeonStore.subscribe(syncFocus));
     syncFocus();
     const unsub = gameStore.subscribe((s, prev) => {
       if (lifeProgress(s.player).retreat && !lifeProgress(prev.player).retreat) {
@@ -930,6 +944,7 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     if (!this.worldBuilt) return;
     const dt = Math.min(delta, 50);
+    this.tickPartyConnection();
     this.updateTribulation(dt);
     this.player.update(dt);
     this.companion.update(dt);
@@ -939,11 +954,11 @@ export class WorldScene extends Phaser.Scene {
     if (this.guideTimer <= 0) { this.guideTimer = 500; this.drawRouteGuide(); }
     this.tickMultiplayer(dt);
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
-    for (const m of this.monsters) m.update(dt, this.shared?.authority?this.shared.target(m):targetable);
+    for (const m of this.monsters) if (!this.cooperativeRun || !this.partyWaiting) m.update(dt, this.shared?.authority?this.shared.target(m):targetable);
     for (const l of this.loot.getChildren() as LootDrop[]) {
       if (l.tick(dt, this.player.feet)) this.collectLoot(l);
     }
-    if (this.run && this.map.arena) {
+    if (this.run && this.map.arena && (!this.cooperativeRun || (this.shared?.authority && !this.partyWaiting))) {
       const alive = this.monsters.reduce((n, m) => n + (m.alive ? 1 : 0), 0);
       for (const ev of tickRun(this.run, DUNGEONS[this.run.id], dt, alive)) this.onRunEvent(ev);
     }
@@ -1110,7 +1125,7 @@ export class WorldScene extends Phaser.Scene {
       const boss = this.monsters.find((m) => m.def.boss && m.alive);
       const hud: DungeonHud = {
         id: this.run.id,
-        name: def.name,
+        name: this.cooperativeRun && this.partyWaiting ? `${def.name} · Chờ đồng đội kết nối` : def.name,
         phase: this.run.phase,
         wave: Math.max(0, this.run.wave + 1),
         waves: def.waves.length,
@@ -1189,7 +1204,7 @@ export class WorldScene extends Phaser.Scene {
 
   returnToSect(){
     const s=gameStore.getState();s.finishTribulation(false);this.cancelQuestNav();s.setAuto(false);
-    if(this.run&&!runOver(this.run))s.finishDungeon(this.run.id,false,this.run.elapsed);
+    if(this.run&&!runOver(this.run)){if(this.cooperativeRun)this.settlePartyRun(false,[]);else s.finishDungeon(this.run.id,false,this.run.elapsed);}
     const mapId=isChildhood(s.player)?'vuong_gia_thon':adventure(s.player).boundSect;
     this.time.delayedCall(SECT_RETURN_DELAY_MS,()=>{
       const fresh=gameStore.getState();fresh.restore(fresh.stats.maxHp,fresh.stats.maxMp);
@@ -1306,6 +1321,65 @@ export class WorldScene extends Phaser.Scene {
     this.player.stopMeditate();
     s.patch({ dungeonReturn: { mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } } });
     this.goTo({ mapId: def.map, dungeonId: id });
+  }
+
+  private enterPartyDungeon(ticket: PartyRunTicket) {
+    const s = gameStore.getState(), me = getAccountState().user?.id;
+    if (this.map.arena || this.transitioning || !me || !ticket.members.some(m => m.userId === me) ||
+      s.player.partyRun || s.player.partyRunReceipts?.includes(ticket.id) || !s.beginDungeon(ticket.dungeon)) {
+      cancelPartyDungeon(); return;
+    }
+    this.cancelQuestNav(); this.player.stopMeditate();
+    s.patch({ dungeonReturn: { mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } },
+      player: { ...gameStore.getState().player, partyRun: { id: ticket.id, dungeon: ticket.dungeon, day: todayKey() } } });
+    this.save();
+    this.goTo({ mapId: DUNGEONS[ticket.dungeon].map, dungeonId: ticket.dungeon, partyRun: ticket });
+  }
+
+  private tickPartyConnection() {
+    const ticket = this.cooperativeRun;
+    if (!ticket || !this.run || runOver(this.run)) return;
+    if (partyDungeonStore.getState().ticket?.id !== ticket.id) { this.abortPartyDungeon(); return; }
+    const me = getAccountState().user?.id, now = Date.now();
+    const present = this.channel?.connected && ticket.members.every(m => m.userId === me || this.shared?.roster.some(p => p.userId === m.userId));
+    this.partyWaiting = !present;
+    if (partyDungeonStore.getState().waiting !== this.partyWaiting) partyDungeonStore.setState({ waiting: this.partyWaiting });
+    if (present) { this.partyStarted = true; this.partyMissingAt = 0; }
+    else {
+      if (!this.partyMissingAt) this.partyMissingAt = now;
+      if ((this.partyStarted && now - this.partyMissingAt > 15000) || (!this.partyStarted && now - this.partyEnteredAt > 30000)) this.abortPartyDungeon();
+    }
+  }
+
+  private abortPartyDungeon() {
+    if (!this.cooperativeRun || !this.run || runOver(this.run)) return;
+    const s = gameStore.getState();
+    this.run.phase = 'failed';
+    s.patch({ player: resolvePartyRun(s.player, this.cooperativeRun.id, true) });
+    completePartyDungeon(); this.save();
+    s.toast('Phó bản tổ đội gián đoạn. Đã hoàn lượt; chưa nhận thưởng.', 'warn');
+    this.leaveDungeon();
+  }
+
+  partyRunSnapshot() {
+    return this.cooperativeRun && this.run ? { room: this.cooperativeRun.id, run: { ...this.run }, waiting: this.partyWaiting } : null;
+  }
+  applyPartyRunSnapshot(packet: { room: string; run: DungeonRun; eligible: string[]; waiting: boolean }) {
+    if (!this.cooperativeRun || !this.run || packet.room !== this.cooperativeRun.id || packet.run.id !== this.run.id || runOver(this.run)) return;
+    this.run = { ...packet.run }; this.partyWaiting = packet.waiting;
+    if (runOver(this.run)) {
+      this.settlePartyRun(this.run.phase === 'cleared', packet.eligible);
+      this.openExit();
+    }
+  }
+  private settlePartyRun(success: boolean, eligible: string[]) {
+    const ticket = this.cooperativeRun, s = gameStore.getState();
+    if (!ticket || !this.run || s.player.partyRun?.id !== ticket.id) return;
+    s.patch({ player: resolvePartyRun(s.player, ticket.id, false) });
+    const qualifies = eligible.includes(getAccountState().user?.id ?? '');
+    if (!success || qualifies) s.finishDungeon(this.run.id, success, this.run.elapsed);
+    else s.toast('Chưa đủ đóng góp để nhận thưởng. Cần trực tiếp đánh, khống chế hoặc hỗ trợ đồng đội.', 'warn');
+    completePartyDungeon(); this.save();
   }
 
   private onQuestGo(id: string) {
@@ -1481,6 +1555,10 @@ export class WorldScene extends Phaser.Scene {
     if (!this.map.arena || this.transitioning) return;
     const s = gameStore.getState();
     if (this.run && !runOver(this.run)) s.addLog(`Rời khỏi ${DUNGEONS[this.run.id].name} giữa chừng.`);
+    if (this.cooperativeRun && s.player.partyRun?.id === this.cooperativeRun.id) {
+      s.patch({ player: resolvePartyRun(s.player, this.cooperativeRun.id, false) });
+      completePartyDungeon(); this.save();
+    }
     const back = s.dungeonReturn ?? { mapId: 'dai_thua_vien', pos: null };
     this.goTo({ mapId: back.mapId, pos: back.pos });
   }
@@ -1509,7 +1587,8 @@ export class WorldScene extends Phaser.Scene {
         break;
       }
       case 'cleared': {
-        s.finishDungeon(run.id, true, run.elapsed);
+        if (this.cooperativeRun) this.settlePartyRun(true, this.shared?.activePartyMembers() ?? []);
+        else s.finishDungeon(run.id, true, run.elapsed);
         this.save();
         this.vfx.ascend(this.player, true);
         this.cameras.main.flash(400, 255, 230, 160);
@@ -1518,7 +1597,8 @@ export class WorldScene extends Phaser.Scene {
       }
       case 'failed': {
         for (const m of this.monsters) m.vanish();
-        s.finishDungeon(run.id, false, run.elapsed);
+        if (this.cooperativeRun) this.settlePartyRun(false, []);
+        else s.finishDungeon(run.id, false, run.elapsed);
         this.openExit();
         break;
       }
@@ -1537,8 +1617,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private spawnMonster(type: string, x: number, y: number) {
-    const m = new Monster(this, type, x, y, { arena: true });
+    const original = MONSTERS[type], size = this.cooperativeRun?.members.length ?? 1;
+    const m = new Monster(this, type, x, y, { arena: true, definition: size > 1 ? { ...original, hp: Math.round(original.hp * (size === 2 ? 1.8 : 2.6)) } : original });
     this.monsters.push(m);
+    this.shared?.registerMonster(m);
     const at = iso(x, y);
     const ring = this.add
       .image(at.x, at.y, 'portal')
@@ -1816,19 +1898,17 @@ export class WorldScene extends Phaser.Scene {
     if(this.shared){this.shared.killed(m);return;}
     this.rewardMonster(m);
   }
-  rewardMonster(m:Monster){
+  rewardMonster(m:Monster, award?: SharedAward){
     if(!m.playerContribution)return;
     const s = gameStore.getState();
     s.addLog(`Đánh bại ${m.def.name}`, 'combat');
     if (m.def.boss) this.cameras.main.shake(500, 0.012);
-    const exp = killExp(m.def);
+    const exp = award?.exp ?? killExp(m.def);
     this.damageText.show(m.x, m.y - 86, `+${exp} EXP`, 'info');
     s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
     s.beastVictory(m.type);
-    const drops = rollDungeonGear(m.def.loot);
-    if (!this.map.arena && Math.random() < .25) drops.push({ item: 'huyen_thiet', qty: 1 });
-    if (m.def.boss && Math.random() < .3) drops.push({ item: Math.random() < .5 ? 'cong_thuc_ngoc' : 'cong_thuc_pha_canh', qty: 1 });
+    const drops = award?.drops ?? monsterDrops(m.def, !!this.map.arena);
     drops.forEach((d, i) => {
       const a = (i / Math.max(1, drops.length)) * Math.PI * 2 + Math.random();
       const r = 26 + Math.random() * 22;
