@@ -9,6 +9,7 @@ import { AdminEvents, AdminJade, AdminLogs } from './AdminManage';
 import { useAdminRequest } from './useAdminRequest';
 import { AdminPanel, adminNumber, adminTime } from './AdminUI';
 import { AdminAlphatest } from './AdminAlphatest';
+import { AdminOperations } from './AdminOperations';
 type Tab =
   | 'overview'
   | 'accounts'
@@ -19,7 +20,8 @@ type Tab =
   | 'events'
   | 'jade'
   | 'settings'
-  | 'alphatest';
+  | 'alphatest'
+  | 'operations';
 const TABS: readonly [Tab, string, AdminIconName][] = [
   ['overview', 'Tổng quan', 'overview'],
   ['accounts', 'Tài khoản', 'accounts'],
@@ -31,6 +33,7 @@ const TABS: readonly [Tab, string, AdminIconName][] = [
   ['alphatest', 'Alphatest', 'events'],
   ['jade', 'Cấp Tiên Ngọc', 'jade'],
   ['settings', 'Cài đặt', 'settings'],
+  ['operations', 'Điều hành server', 'settings'],
 ];
 export function AdminDashboard({
   user,
@@ -45,6 +48,7 @@ export function AdminDashboard({
     [revision, setRevision] = useState(0),
     [auto, setAuto] = useState(false),
     [target, setTarget] = useState(''),
+    [operationTarget, setOperationTarget] = useState(''),
     [now, setNow] = useState(Date.now);
   const {
     data: overview,
@@ -66,6 +70,10 @@ export function AdminDashboard({
   const grant = (username: string) => {
     setTarget(username);
     setTab('jade');
+  };
+  const manage = (id: string) => {
+    setOperationTarget(id);
+    setTab('operations');
   };
   const label =
     typeof user.user_metadata?.username === 'string'
@@ -164,7 +172,7 @@ export function AdminDashboard({
         )}
         {tab === 'overview' && (
           <div className="admin-overview-grid">
-            <AdminAccounts revision={revision} onGrant={grant} />
+            <AdminAccounts revision={revision} onGrant={grant} onManage={manage} />
             <AdminLogs revision={revision} compact onAll={() => setTab('logs')} />
             <AdminItems compact />
             <AdminPanel title="Thao tác nhanh" icon="settings" className="admin-quick-panel">
@@ -201,7 +209,9 @@ export function AdminDashboard({
             </AdminPanel>
           </div>
         )}
-        {tab === 'accounts' && <AdminAccounts revision={revision} onGrant={grant} />}
+        {tab === 'accounts' && (
+          <AdminAccounts revision={revision} onGrant={grant} onManage={manage} />
+        )}
         {tab === 'items' && <AdminItems />}
         {tab === 'quests' && <AdminQuests />}
         {tab === 'boss' && <AdminBosses />}
@@ -209,6 +219,14 @@ export function AdminDashboard({
         {tab === 'jade' && <AdminJade key={target} initialTarget={target} onSaved={refresh} />}
         {tab === 'events' && <AdminEvents revision={revision} onSaved={refresh} />}
         {tab === 'alphatest' && <AdminAlphatest revision={revision} onSaved={refresh} />}
+        {tab === 'operations' && (
+          <AdminOperations
+            key={operationTarget}
+            initialTarget={operationTarget}
+            revision={revision}
+            onSaved={refresh}
+          />
+        )}
         {tab === 'settings' && (
           <AdminPanel title="Kết nối và quyền quản trị" icon="settings">
             <div className="admin-settings">

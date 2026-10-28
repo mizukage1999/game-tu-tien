@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js';
 import { onlineEnabled } from './config';
 import { supabase } from './supabase';
 import { setAccountState } from './session';
+import { refreshServerControl, serverControlStore } from './serverControl';
 import { attachCloudSync, detachCloudSync, hydrateFromCloud } from './cloudSave';
 import {
   activateSession,
@@ -17,6 +18,11 @@ let epoch = 0;
 let replaced = false;
 
 function onReplaced() {
+  void refreshServerControl()
+    .then((data) => {
+      if (data) serverControlStore.setState(data);
+    })
+    .catch(() => {});
   replaced = true;
   epoch++;
   detachCloudSync();
@@ -41,6 +47,11 @@ async function applySession(user: User | null) {
     if (!(await activateSession(userId, onReplaced))) return;
   } catch (error) {
     if (version !== epoch) return;
+    if (String((error as { message?: string })?.message).includes('GAME_ACCESS_BLOCKED')) {
+      const control = await refreshServerControl();
+      if (version !== epoch) return;
+      if (control) serverControlStore.setState(control);
+    }
     stopActiveSession();
     detachCloudSync();
     console.warn('[net] account session unavailable', error);

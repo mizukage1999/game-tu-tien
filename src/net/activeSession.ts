@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import { SessionLease, type LeaseBackend } from './sessionLease';
 
-export const SESSION_REPLACED = 'Tài khoản đã đăng nhập ở nơi khác. Phiên chơi này đã đăng xuất.';
+export const SESSION_REPLACED = 'Phiên chơi đã kết thúc do đăng nhập mới hoặc dữ liệu được admin cập nhật. Hãy tải lại game để đồng bộ.';
 let current: { userId: string; lease: SessionLease; ready: Promise<boolean> } | undefined;
 
 export function activeSessionId(userId: string) {

@@ -1372,3 +1372,85 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.admin-ops-body,
+.admin-ops-review {
+  padding: 20px;
+  color: #c8d5e2;
+  line-height: 1.6;
+}
+.admin-ops-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.admin-ops-form label,
+.admin-ops-review label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  color: #efd4a5;
+}
+.admin-ops-form input,
+.admin-ops-form select,
+.admin-ops-form textarea,
+.admin-ops-review input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #9e7c465c;
+  border-radius: 4px;
+  color: #dce9f1;
+  background: #061421;
+  font: inherit;
+}
+.admin-ops-wide,
+.admin-ops-form > p,
+.admin-ops-target {
+  grid-column: 1/-1;
+}
+.admin-ops-target {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+}
+.admin-ops-target label {
+  flex: 1;
+}
+.admin-ops-form textarea[aria-label='Save JSON'] {
+  font:
+    12px/1.5 Consolas,
+    monospace;
+  min-height: 260px;
+  resize: vertical;
+}
+.admin-ops-review pre {
+  max-height: 300px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 12px;
+  background: #03101a;
+  border: 1px solid #b387424d;
+}
+.admin-ops-review > button {
+  margin: 18px 10px 0 0;
+}
+.admin-ops-review small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 650px) {
+  .admin-ops-form {
+    grid-template-columns: 1fr;
+  }
+  .admin-ops-target {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-ops-body,
+  .admin-ops-review {
+    padding: 12px;
+  }
+}

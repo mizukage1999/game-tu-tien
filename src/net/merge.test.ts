@@ -24,6 +24,12 @@ function save(savedAt: number, level: number): SaveData {
 }
 
 describe('pickNewer', () => {
+  it('uses admin changes even when a stale browser save has a future timestamp', () => {
+    const local = save(99999999, 10),
+      cloud = save(10, 99);
+    cloud.player.adminRevision = 1;
+    expect(pickNewer(local, cloud)).toBe(cloud);
+  });
   it('keeps the server reward receipt even when the browser clock is ahead', () => {
     const local = save(999999, 10),
       cloud = save(2000, 99);

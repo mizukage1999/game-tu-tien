@@ -1,0 +1,3 @@
+[functions.admin-auth]
+# The function verifies the bearer token with Auth.getUser and checks is_game_admin.
+verify_jwt = false

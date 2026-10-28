@@ -84,6 +84,7 @@ async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> 
   if (data === null) throw new Error('Server chưa trả dữ liệu.');
   return data as T;
 }
+export {rpc as adminRpc};
 export const adminApi = {
   alphatest: () => rpc<AlphaCampaign>('admin_alphatest_status'),
   setAlphatest: (enabled: boolean, version: number) =>

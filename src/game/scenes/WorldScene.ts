@@ -790,6 +790,10 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(
       EventBus.on('cmd:attack', () => { if (!worldInputBlocked()) this.player.attack(); }),
       EventBus.on('cmd:save', () => this.save()),
+      EventBus.on('cmd:adminBossReset', ({map,monster}) => {
+        if(map!==this.map.id || this.map.arena || (this.shared&&!this.shared.authority))return;
+        this.monsters.filter(m=>m.type===monster&&m.def.boss).forEach(m=>m.adminReset());
+      }),
       EventBus.on('cmd:skill', (id: SkillId) => { if (!worldInputBlocked()) this.player.castSkill(id); }),
       EventBus.on('cmd:nearChat',text=>{
         if(this.shared)this.shared.chat(text);

@@ -293,7 +293,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       duration: 500,
       onComplete: () => this.setVisible(false),
     });
-    if (!this.world.shared && !this.arena && this.def.respawnMs > 0) this.world.time.delayedCall(this.def.respawnMs, () => this.respawn());
+    const generation=this.generation;
+    if (!this.world.shared && !this.arena && this.def.respawnMs > 0) this.world.time.delayedCall(this.def.respawnMs, () => {if(!this.alive&&this.generation===generation)this.respawn();});
   }
 
   /** Removes the monster without rewards (dungeon failed / left). */
@@ -305,6 +306,13 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.realmPlate?.setVisible(false);
     this.bar.clear();
     this.world.tweens.add({ targets: [this, this.art, this.shadow], alpha: 0, duration: 500, onComplete: () => this.setVisible(false) });
+  }
+
+  adminReset() {
+    this.world.tweens.killTweensOf([this,this.art,this.shadow]);
+    this.summoned=false;
+    this.slamTimer=(this.def.boss?.slamInterval??0)*.6;
+    this.respawn();
   }
 
   private respawn() {

@@ -1,6 +1,7 @@
 import type { SkillId } from '../data';
 
 export interface BusEvents {
+  'cmd:adminBossReset': {map:string;monster:string};
   'cmd:nearChat':string;
   'chat:whisper':{from:string;text:string};
   'cmd:save': void;

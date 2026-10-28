@@ -5,7 +5,7 @@ import { CreateCharacter } from './ui/CreateCharacter';
 import { loadGame } from './game/systems/save';
 import { AuthScreen } from './ui/AuthScreen';
 import { onlineEnabled } from './net/config';
-import { getAccountState, useAccount } from './net/session';
+import { getAccountState, setAccountState, useAccount } from './net/session';
 import { startSocial } from './net/socialBridge';
 import { usePhoneLayout, usePortrait, useTryLockLandscape } from './ui/TouchPlay';
 import { refreshPremium, resetPremium } from './net/premium';
@@ -15,18 +15,39 @@ import { usePerformanceTier } from './store/performanceStore';
 import { MobileViewport } from './ui/MobileViewport';
 import { bootStorage, consumeBootRetry } from './game/systems/gameBoot';
 import { refreshMail, resetMail } from './net/gameMail';
+import { useServerControl, watchServerControl } from './net/serverControl';
+import { detachCloudSync } from './net/cloudSave';
+import { disableSaving } from './game/systems/save';
+import './ui/server-control.css';
 
 export function App() {
   const performanceTier = usePerformanceTier();
   const phone = usePhoneLayout();
   const portrait = usePortrait();
   const account = useAccount();
+  const control = useServerControl();
   const needsLogin = onlineEnabled && !account.user;
   const turned = phone && portrait && !needsLogin;
   const accountId = account.user?.id;
   const [ready, setReady] = useState(() => loadGame() !== null);
   const [entered, setEntered] = useState(() => consumeBootRetry(bootStorage()));
   useTryLockLandscape(phone);
+  useEffect(() => {
+    if (!accountId) return;
+    return watchServerControl(
+      () => gameStore.getState().mapId,
+      () => {
+        detachCloudSync();
+        disableSaving();
+        setAccountState({
+          user: null,
+          booting: false,
+          status: 'idle',
+          error: 'Phiên chơi đã dừng theo thông báo server.',
+        });
+      },
+    );
+  }, [accountId]);
   useEffect(() => {
     resetMail();
     if (accountId) void refreshMail();
@@ -61,7 +82,22 @@ export function App() {
   return (
     <div className={`app${turned ? ' turned' : ''}`} data-performance={performanceTier}>
       <MobileViewport />
-      {needsLogin ? (
+      {control.blocked || (control.maintenance && !control.admin) ? (
+        <div className="server-gate">
+          <section>
+            <h1>{control.blocked ? 'Tài khoản đang bị khóa' : 'Máy chủ đang bảo trì'}</h1>
+            <p>
+              {control.blocked
+                ? 'Vui lòng liên hệ quản trị viên.'
+                : control.message || 'Vui lòng quay lại sau.'}
+            </p>
+            <button className="btn gold" onClick={() => location.reload()}>
+              Thử kết nối lại
+            </button>
+            <a href="/admin/">Quản trị</a>
+          </section>
+        </div>
+      ) : needsLogin ? (
         account.booting ? null : (
           <AuthScreen />
         )
@@ -76,7 +112,12 @@ export function App() {
           <Hud />
         </>
       ) : (
-        <CreateCharacter onDone={() => { setReady(true); setEntered(true); }} />
+        <CreateCharacter
+          onDone={() => {
+            setReady(true);
+            setEntered(true);
+          }}
+        />
       )}
     </div>
   );

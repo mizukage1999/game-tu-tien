@@ -12,6 +12,17 @@ import {
 } from './AdminUI';
 
 const LOG_KINDS: Record<string, string> = {
+  auth_pending: 'Auth đang chờ',
+  auth_create: 'Tạo tài khoản',
+  auth_delete: 'Xóa tài khoản',
+  auth_ban: 'Khóa tài khoản',
+  auth_unban: 'Mở khóa tài khoản',
+  item_grant: 'Cấp vật phẩm',
+  item_remove: 'Xóa vật phẩm',
+  save_edit: 'Sửa save',
+  maintenance: 'Bảo trì',
+  boss_reset: 'Reset boss',
+  dungeon_reset: 'Reset phó bản',
   alphatest: 'Phát thư Alphatest',
   jade_grant: 'Cấp Tiên Ngọc',
   jade_exchange: 'Đổi pháp bảo',

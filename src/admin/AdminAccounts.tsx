@@ -16,9 +16,11 @@ import {
 export function AdminAccounts({
   revision,
   onGrant,
+  onManage,
 }: {
   revision: number;
   onGrant: (username: string) => void;
+  onManage?: (id: string) => void;
 }) {
   const [input, setInput] = useState(''),
     [query, setQuery] = useState(''),
@@ -148,6 +150,15 @@ export function AdminAccounts({
                     </td>
                     <td>
                       <div className="admin-row-actions">
+                        {onManage && (
+                          <button
+                            className="admin-button icon-only"
+                            aria-label={`Quản lý ${a.username}`}
+                            onClick={() => onManage(a.id)}
+                          >
+                            <AdminIcon name="settings" />
+                          </button>
+                        )}
                         <button
                           className="admin-button icon-only"
                           aria-label={`Xem ${a.username}`}

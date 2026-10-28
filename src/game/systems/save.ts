@@ -47,6 +47,7 @@ export interface FriendRef {
 }
 
 export interface PlayerSave {
+  adminRevision?: number;
   /** Server receipt revision prevents delayed autosaves from undoing mail rewards. */
   mailRevision?: number;
   pkMode?: PkMode;

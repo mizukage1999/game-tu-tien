@@ -11,6 +11,7 @@ import type { SaveData } from '../game/systems/save';
 export function pickNewer(local: SaveData | null, cloud: SaveData | null): SaveData | null {
   if (!local) return cloud;
   if (!cloud) return local;
+  if ((local.player?.adminRevision ?? 0) !== (cloud.player?.adminRevision ?? 0)) return cloud;
   // Mail rewards are committed by the server. A newer browser clock cannot
   // restore a pre-reward snapshot (or an old character after a reset).
   if ((local.player?.mailRevision ?? 0) !== (cloud.player?.mailRevision ?? 0)) return cloud;
