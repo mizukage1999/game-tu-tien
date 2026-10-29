@@ -32,6 +32,9 @@ export interface PendingAuth {
 }
 export interface OperationsStatus {
   maintenance: boolean;
+  maintenance_at?: string | null;
+  maintenance_notice_seconds?: number;
+  item_delivery?: 'mail' | 'unavailable';
   message: string;
   bosses: { id: string; map: string; monster: string }[];
   pending_auth: PendingAuth[];
@@ -50,6 +53,7 @@ export const operationsError = (error: unknown) => {
     PROTECTED_ADMIN: 'Không thể xóa hoặc khóa tài khoản quản trị.',
     INSUFFICIENT_ITEM: 'Không đủ số lượng vật phẩm để xóa.',
     SAVE_NOT_FOUND: 'Tài khoản chưa có nhân vật/save.',
+    MAIL_DELIVERY_NOT_INSTALLED: 'Cần cài supabase/admin-delivery.sql để gửi vật phẩm qua thư.',
     INVALID_ADMIN_SAVE: 'Save không hợp lệ. Giữ tên, revision thư và kiểm tra cấp/cảnh giới.',
     INVALID_ADMIN_INVENTORY: 'Túi đồ chứa vật phẩm hoặc số lượng không hợp lệ.',
     INVALID_ADMIN_EQUIPMENT: 'Trang bị không đúng ô hoặc không còn trong túi.',

@@ -15,7 +15,7 @@ import { usePerformanceTier } from './store/performanceStore';
 import { MobileViewport } from './ui/MobileViewport';
 import { bootStorage, consumeBootRetry } from './game/systems/gameBoot';
 import { refreshMail, resetMail } from './net/gameMail';
-import { useServerControl, watchServerControl } from './net/serverControl';
+import { maintenanceBlocks, useServerControl, watchServerControl } from './net/serverControl';
 import { detachCloudSync } from './net/cloudSave';
 import { disableSaving } from './game/systems/save';
 import './ui/server-control.css';
@@ -50,8 +50,18 @@ export function App() {
   }, [accountId]);
   useEffect(() => {
     resetMail();
-    if (accountId) void refreshMail();
-    return resetMail;
+    if (!accountId) return resetMail;
+    void refreshMail();
+    const refresh = () => {
+      if (document.visibilityState === 'visible') void refreshMail();
+    };
+    const timer = window.setInterval(refresh, 30000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+      resetMail();
+    };
   }, [accountId]);
   useEffect(() => {
     resetPremium();
@@ -82,7 +92,7 @@ export function App() {
   return (
     <div className={`app${turned ? ' turned' : ''}`} data-performance={performanceTier}>
       <MobileViewport />
-      {control.blocked || (control.maintenance && !control.admin) ? (
+      {control.blocked || maintenanceBlocks(control) ? (
         <div className="server-gate">
           <section>
             <h1>{control.blocked ? 'Tài khoản đang bị khóa' : 'Máy chủ đang bảo trì'}</h1>

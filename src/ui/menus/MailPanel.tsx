@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { useGame } from '../../store/gameStore';
+import { itemName, useGame } from '../../store/gameStore';
 import { useAccount } from '../../net/session';
 import { claimMail, readMail, refreshMail, useMail } from '../../net/gameMail';
 import { itemIconUrl } from '../../game/art/icons';
@@ -13,6 +13,8 @@ export function MailPanel() {
   const { mails, loading, loaded, busy, error } = useMail((s) => s);
   const [selected, setSelected] = useState('');
   const mail = mails.find((m) => m.id === selected) ?? mails[0];
+  const admissionRequired = mail?.campaign_id === 'alphatest-v1';
+  const canClaim = !admissionRequired || !!player.admitted;
   useEffect(() => {
     void refreshMail();
   }, []);
@@ -77,7 +79,7 @@ export function MailPanel() {
               </h4>
               <p>
                 {!account.user
-                  ? 'Đăng nhập tài khoản online để nhận thư Alphatest.'
+                  ? 'Đăng nhập tài khoản online để nhận thư và vật phẩm.'
                   : loaded
                     ? 'Hiện chưa có thư nào.'
                     : ''}
@@ -86,7 +88,7 @@ export function MailPanel() {
           )}
         </div>
         <footer className="correspondence-list-foot">
-          {mails.length} thư · Quà một lần / tài khoản
+          {mails.length} thư · Mỗi thư nhận một lần
         </footer>
       </section>
       <section className="cult-letter" aria-label="Nội dung thư" aria-busy={busy}>
@@ -102,26 +104,41 @@ export function MailPanel() {
               <p className="mail-body">{mail.body}</p>
               <h4 className="mail-attachment-title">✦ Quà đính kèm</h4>
               <div className="mail-rewards">
-                <div>
-                  <i className="mail-level">99</i>
-                  <b>Cấp {mail.rewards.targetLevel}</b>
-                  <small>EXP đủ lên cấp 99</small>
-                </div>
-                <div>
-                  <i className="cult-jade-icon">◈</i>
-                  <b>{mail.rewards.jade.toLocaleString('vi-VN')}</b>
-                  <small>Tiên Ngọc</small>
-                </div>
-                <div>
-                  <img src={itemIconUrl('linh_thach', 48)} alt="" />
-                  <b>{mail.rewards.linhThach.toLocaleString('vi-VN')}</b>
-                  <small>Linh Thạch</small>
-                </div>
-                <div>
-                  <img src={itemIconUrl('linh_khi', 48)} alt="" />
-                  <b>{mail.rewards.linhKhi.toLocaleString('vi-VN')}</b>
-                  <small>Linh Khí</small>
-                </div>
+                {!!mail.rewards.targetLevel && (
+                  <div>
+                    <i className="mail-level">{mail.rewards.targetLevel}</i>
+                    <b>Cấp {mail.rewards.targetLevel}</b>
+                    <small>EXP đủ lên cấp {mail.rewards.targetLevel}</small>
+                  </div>
+                )}
+                {!!mail.rewards.jade && (
+                  <div>
+                    <i className="cult-jade-icon">◈</i>
+                    <b>{mail.rewards.jade.toLocaleString('vi-VN')}</b>
+                    <small>Tiên Ngọc</small>
+                  </div>
+                )}
+                {!!mail.rewards.linhThach && (
+                  <div>
+                    <img src={itemIconUrl('linh_thach', 48)} alt="" />
+                    <b>{mail.rewards.linhThach.toLocaleString('vi-VN')}</b>
+                    <small>Linh Thạch</small>
+                  </div>
+                )}
+                {!!mail.rewards.linhKhi && (
+                  <div>
+                    <img src={itemIconUrl('linh_khi', 48)} alt="" />
+                    <b>{mail.rewards.linhKhi.toLocaleString('vi-VN')}</b>
+                    <small>Linh Khí</small>
+                  </div>
+                )}
+                {Object.entries(mail.rewards.items ?? {}).map(([id, qty]) => (
+                  <div key={id}>
+                    <img src={itemIconUrl(id, 48)} alt="" />
+                    <b>{qty.toLocaleString('vi-VN')}</b>
+                    <small>{itemName(id)}</small>
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -136,22 +153,24 @@ export function MailPanel() {
             <>
               <p role="status">
                 {mail.claimed_at
-                  ? 'Đã nhận trọn bộ quà Alphatest.'
-                  : player.admitted
-                    ? 'Đã nhập môn · Có thể nhận quà.'
+                  ? 'Đã nhận toàn bộ vật phẩm trong thư.'
+                  : canClaim
+                    ? 'Vật phẩm sẽ vào túi khi bạn bấm nhận.'
                     : 'Hoàn thành nhập môn để mở phần thưởng.'}
               </p>
               <button
                 className="btn gold mail-claim"
-                disabled={busy || !!mail.claimed_at || !player.admitted || !account.user}
+                disabled={busy || !!mail.claimed_at || !canClaim || !account.user}
                 onClick={() => void claimMail(mail.id)}
               >
                 {busy
                   ? 'Đang nhận…'
                   : mail.claimed_at
                     ? 'Đã nhận'
-                    : player.admitted
-                      ? 'Nhận quà Alphatest'
+                    : canClaim
+                      ? admissionRequired
+                        ? 'Nhận quà Alphatest'
+                        : 'Nhận vật phẩm'
                       : '🔒 Chưa nhập môn'}
               </button>
             </>

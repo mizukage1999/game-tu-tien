@@ -84,6 +84,8 @@ it('previews all packs, monthly cards and future products without creating curre
   expect(premiumStore.getState().balance).toBe(500);
   expect(gameStore.getState().player).toBe(before);
   expect(host.querySelector('[data-jade-page=admin]')).toBeNull();
+  await act(async () => premiumStore.setState({ admin: true, loaded: true }));
+  expect(host.querySelector('[data-jade-page=admin]')).toBeNull();
 });
 it('exchanges the real entitlement through the server once and synchronizes the confirmed inventory', async () => {
   await click('[data-jade-page=shop]');
@@ -94,7 +96,7 @@ it('exchanges the real entitlement through the server once and synchronizes the 
   expect(host.querySelector<HTMLButtonElement>('[data-action=exchange-jade]')!.disabled).toBe(true);
   expect(host.querySelector('[role=status]')!.textContent).toContain('Đã đổi');
 });
-it('displays account ledger rows and links to stall drafts without inventing sales proceeds', async () => {
+it('displays account ledger rows and keeps the screen focused on jade without stall navigation', async () => {
   fake.limit.mockResolvedValue({
     data: [
       {
@@ -111,8 +113,8 @@ it('displays account ledger rows and links to stall drafts without inventing sal
   expect(host.querySelector('tbody')!.textContent).toContain('Đổi pháp bảo đã xác nhận');
   const before = gameStore.getState().player;
   await click('[data-jade-page=earn]');
-  await click('[data-action=jade-stall]');
-  expect(gameStore.getState()).toMatchObject({ menu: 'shop', marketSection: 'stall' });
+  expect(host.querySelector('[data-action=jade-stall]')).toBeNull();
+  expect(host.querySelector('.jade-sidebar')).toBeNull();
   expect(gameStore.getState().player).toBe(before);
   expect(premiumStore.getState().balance).toBe(500);
 });

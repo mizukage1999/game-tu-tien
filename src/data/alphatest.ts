@@ -20,7 +20,7 @@ export interface GameMail {
   created_at: string;
   read_at: string | null;
   claimed_at: string | null;
-  rewards: AlphaRewards;
+  rewards: Partial<AlphaRewards> & { items?: Record<string, number> };
 }
 export interface AlphaCampaign {
   id: string;

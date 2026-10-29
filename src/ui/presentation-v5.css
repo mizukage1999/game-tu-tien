@@ -199,6 +199,12 @@
   height: 40px;
   object-fit: contain;
 }
+.hud-v5 .menu-sprite {
+  display: block;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: transparent;
+}
 .hud-v5 .menu-label {
   font:
     11px Georgia,

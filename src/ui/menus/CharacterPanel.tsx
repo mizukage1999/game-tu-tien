@@ -16,11 +16,9 @@ import {
   expToNext,
   realmNameAtLevel,
 } from '../../game/systems/progression';
-import { skillLoadout } from '../../game/systems/skills';
-import { COMPANIONS, lifeProgress } from '../../game/systems/life';
-import { SkillGlyph, EquipGlyph, CultHeading, CultMeter, CultLock } from './CultivationUI';
+import { EquipGlyph, CultHeading, CultMeter, CultLock } from './CultivationUI';
 import { childProfileUrl } from '../../game/art/skillIcons';
-import { HeroFigure,HeroDirectionalPose } from '../HeroArt';
+import { HeroFigure, HeroDirectionalPose } from '../HeroArt';
 
 const SLOT_SYMBOLS: Record<EquipSlot, string> = {
   weapon: '⚔',
@@ -97,15 +95,13 @@ export function CharacterPanel() {
     setMenu = useGame((s) => s.setMenu),
     equip = useGame((s) => s.equip),
     unequip = useGame((s) => s.unequip),
-    act = useGame((s) => s.adventureAction),
-    patch = useGame((s) => s.patch);
+    act = useGame((s) => s.adventureAction);
   const [tab, setTab] = useState<'attributes' | 'equipment'>('attributes'),
     [selectedSlot, setSelectedSlot] = useState<EquipSlot>('weapon');
   const [notice, setNotice] = useState('');
   const child = isChildhood(p),
     realm = child ? 'Phàm Nhân' : realmNameAtLevel(p.level),
-    a = adventure(p),
-    life = lifeProgress(p);
+    a = adventure(p);
   const selectedId = p.equipment[selectedSlot],
     slotDef = EQUIP_SLOTS.find((s) => s.id === selectedSlot)!;
   const enhancement = enhancementLevel(selectedId ? a.enhancements[selectedId] : 0),
@@ -113,8 +109,6 @@ export function CharacterPanel() {
   const candidate = Object.keys(p.inventory).filter(
     (id) => (p.inventory[id] ?? 0) > 0 && ITEMS[id]?.slot === selectedSlot,
   );
-  const companion = COMPANIONS.find((c) => c.id === life.companion),
-    loadout = skillLoadout(p);
   const paperdoll = child
     ? childProfileUrl(p.sex ?? 'female')
     : `/assets/ui/cultivation/${p.sex === 'male' ? 'wang' : 'li'}-full-v1.png`;
@@ -124,7 +118,7 @@ export function CharacterPanel() {
     setNotice('');
   };
   return (
-    <div className="cult-character">
+    <div className="cult-character cult-character-focused">
       <nav className="cult-side" aria-label="Mục nhân vật">
         <button
           className={tab === 'attributes' ? 'active' : ''}
@@ -137,23 +131,6 @@ export function CharacterPanel() {
           <i>♜</i>
           <span>Trang bị</span>
         </button>
-        <button onClick={() => setMenu('skills')}>
-          <i>⚔</i>
-          <span>Kỹ năng</span>
-        </button>
-        <button
-          onClick={() => {
-            patch({ journeySection: 'companions' });
-            setMenu('journey');
-          }}
-        >
-          <i>♘</i>
-          <span>Linh thú</span>
-        </button>
-        <button onClick={() => setMenu('sect')}>
-          <i>✦</i>
-          <span>Tông môn</span>
-        </button>
         <div className="cult-side-caption">
           Một đời cầu đạo
           <br />
@@ -164,16 +141,24 @@ export function CharacterPanel() {
         <span className="cult-hero-seal" aria-hidden="true">
           道
         </span>
-        {p.heroId ? child ? <HeroDirectionalPose id={p.heroId} child className="cult-hero-art child"/> : <HeroFigure id={p.heroId} className="cult-hero-art" /> : <img
-          className={`cult-hero-art ${child ? 'child' : ''}`}
-          src={
-            paperdoll ??
-            (p.sex === 'male'
-              ? '/assets/sprites/wang-lin-portrait.png'
-              : '/assets/sprites/li-mu-uyen-portrait.png')
-          }
-          alt={heroName(p)}
-        />}
+        {p.heroId ? (
+          child ? (
+            <HeroDirectionalPose id={p.heroId} child className="cult-hero-art child" />
+          ) : (
+            <HeroFigure id={p.heroId} className="cult-hero-art" />
+          )
+        ) : (
+          <img
+            className={`cult-hero-art ${child ? 'child' : ''}`}
+            src={
+              paperdoll ??
+              (p.sex === 'male'
+                ? '/assets/sprites/wang-lin-portrait.png'
+                : '/assets/sprites/li-mu-uyen-portrait.png')
+            }
+            alt={heroName(p)}
+          />
+        )}
         <div className="cult-paperdoll-caption">
           <span>{child ? 'VƯƠNG GIA THÔN' : 'NGƯỜI TU ĐẠO'}</span>
           <h2>{heroName(p)}</h2>
@@ -365,7 +350,8 @@ export function CharacterPanel() {
                     <button
                       className="cult-btn gold"
                       disabled={
-                        status !== 'alive' || enhancement >= MAX_ENHANCEMENT ||
+                        status !== 'alive' ||
+                        enhancement >= MAX_ENHANCEMENT ||
                         (p.inventory[ENHANCEMENT_STONE] ?? 0) < cost
                       }
                       onClick={() => {
@@ -407,7 +393,9 @@ export function CharacterPanel() {
                     >
                       <EquipGlyph id={id} />
                       <span>
-                        <b>{itemName(id)} +{enhancementLevel(a.enhancements[id])}</b>
+                        <b>
+                          {itemName(id)} +{enhancementLevel(a.enhancements[id])}
+                        </b>
                         <small>{bonusText(ITEMS[id].bonus)}</small>
                       </span>
                       <em>{check.ok ? 'Trang bị' : `Lv.${ITEMS[id].reqLevel}`}</em>
@@ -422,38 +410,6 @@ export function CharacterPanel() {
           )}
         </div>
       </section>
-      <div className="cult-profile-bottom">
-        <section className="cult-framed cult-profile-skills">
-          <CultHeading>
-            Kỹ năng <button onClick={() => setMenu('skills')}>Tất cả kỹ năng ›</button>
-          </CultHeading>
-          <div>
-            {[...loadout, 'than_phap' as const].map((id) => (
-              <button key={id} title="Mở bảng kỹ năng" onClick={() => setMenu('skills')}>
-                <SkillGlyph id={id} />
-              </button>
-            ))}
-          </div>
-        </section>
-        <section className="cult-framed cult-profile-companion">
-          <CultHeading>Linh thú</CultHeading>
-          <b>{companion?.name ?? 'Chưa kết khế ước'}</b>
-          <small>
-            {companion
-              ? `Bậc ${life.companions[companion.id]?.rank ?? 1} · Đồng hành cùng chủ nhân`
-              : 'Giao chiến với yêu thú để nhận dấu ấn thu phục.'}
-          </small>
-          <button
-            className="cult-text-link"
-            onClick={() => {
-              patch({ journeySection: 'companions' });
-              setMenu('journey');
-            }}
-          >
-            Xem linh thú ›
-          </button>
-        </section>
-      </div>
     </div>
   );
 }

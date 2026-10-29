@@ -17,6 +17,8 @@ Không cần cấu hình gì thì game chạy **offline** như cũ, tiến trìn
 
 Mở **/admin/** trên cùng địa chỉ game. Dashboard có tra cứu tài khoản/túi đồ, danh mục vật phẩm/nhiệm vụ/boss, cấp Tiên Ngọc có xác nhận, kế hoạch sự kiện và nhật ký quản trị. Cần chạy [supabase/admin-dashboard.sql](supabase/admin-dashboard.sql) sau phần schema và Tiên Ngọc, rồi đăng nhập bằng tài khoản thuộc game_admins. Xem [hướng dẫn cài đặt và phạm vi hoạt động](docs/admin-dashboard.md).
 
+Luồng quà admin qua Thư và báo trước bảo trì 60 giây: cài thêm [supabase/admin-delivery.sql](supabase/admin-delivery.sql) sau các migration điều hành hiện có. Xem [chi tiết cập nhật menu và nhận quà](docs/admin-mail-menu-v2.md).
+
 ## Tài khoản và save online
 
 1. Tạo project tại [supabase.com](https://supabase.com), rồi mở **SQL Editor** và chạy toàn bộ [`supabase/schema.sql`](supabase/schema.sql)

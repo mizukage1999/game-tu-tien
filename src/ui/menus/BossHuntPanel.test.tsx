@@ -67,6 +67,7 @@ afterEach(() => {
 });
 
 it('uses real spawns and chooses a real travel or local navigation action without spending or granting anything', () => {
+  expect(host.querySelector('.hunt-side')).toBeNull();
   const entry = bossCatalog().find((e) => e.category === 'world')!,
     map = getMap(entry.mapId);
   expect(

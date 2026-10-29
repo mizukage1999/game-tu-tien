@@ -8,7 +8,7 @@ export function MailNotice() {
   const mails = useMail((s) => s.mails),
     admitted = useGame((s) => s.player.admitted),
     menu = useGame((s) => s.menu);
-  const pending = mails.filter((m) => !m.read_at || (admitted && !m.claimed_at));
+  const pending = mails.filter((m) => !m.read_at || ((admitted || m.campaign_id!=='alphatest-v1') && !m.claimed_at));
   if (!pending.length || menu || duel) return null;
   return (
     <button
@@ -17,7 +17,7 @@ export function MailNotice() {
       aria-label="Mở thư mới"
     >
       <CorrespondenceIcon kind="mail" />
-      <span>{admitted ? 'Quà Alphatest' : 'Thư mới'}</span>
+      <span>Thư mới</span>
       <b>{pending.length}</b>
     </button>
   );

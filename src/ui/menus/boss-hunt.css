@@ -1035,3 +1035,5 @@
 .hud.phone .hunt-no-results {
   grid-column: span 1;
 }
+
+.hud .boss-hunt-shell.feature-focused { grid-template-columns: minmax(0, 1fr); gap: 0; }

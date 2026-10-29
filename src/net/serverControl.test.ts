@@ -3,7 +3,14 @@ const fake = vi.hoisted(() => ({ rpc: vi.fn(), emit: vi.fn() }));
 vi.mock('./supabase', () => ({ supabase: { rpc: fake.rpc } }));
 vi.mock('../game/EventBus', () => ({ EventBus: { emit: fake.emit } }));
 import { watchServerControl, serverControlStore } from './serverControl';
-const normal = { maintenance: false, admin: false, blocked: false, message: '', boss_resets: [] };
+const normal = {
+  maintenance: false,
+  maintenance_at: null,
+  admin: false,
+  blocked: false,
+  message: '',
+  boss_resets: [],
+};
 let stop: (() => void) | undefined;
 beforeEach(() => {
   vi.useFakeTimers();
@@ -51,6 +58,20 @@ it('does not treat lost network as a maintenance or account ban', async () => {
   stop = watchServerControl(() => '', blocked);
   await vi.advanceTimersByTimeAsync(4001);
   expect(blocked).not.toHaveBeenCalled();
+});
+it('keeps players in game during the announcement period and blocks only at the deadline', async () => {
+  const blocked = vi.fn();
+  const maintenance_at = new Date(Date.now() + 60000).toISOString();
+  fake.rpc.mockResolvedValue({
+    data: { ...normal, maintenance: true, maintenance_at, message: 'Lưu tiến trình trước bảo trì' },
+    error: null,
+  });
+  stop = watchServerControl(() => '', blocked);
+  await vi.advanceTimersByTimeAsync(58000);
+  expect(blocked).not.toHaveBeenCalled();
+  expect(serverControlStore.getState().maintenance_at).toBe(maintenance_at);
+  await vi.advanceTimersByTimeAsync(2001);
+  expect(blocked).toHaveBeenCalledOnce();
 });
 it('ignores a control response after the account watcher has stopped', async () => {
   let resolve!: (r: unknown) => void;

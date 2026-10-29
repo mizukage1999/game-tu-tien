@@ -9,6 +9,7 @@ export interface BossReset {
 }
 export interface ServerControl {
   maintenance: boolean;
+  maintenance_at?: string | null;
   blocked: boolean;
   admin: boolean;
   message: string;
@@ -22,11 +23,28 @@ export const serverControlStore = createStore<ServerControl>(() => ({
   boss_resets: [],
 }));
 export const useServerControl = () => useStore(serverControlStore);
+export function maintenancePending(
+  control: Pick<ServerControl, 'maintenance' | 'maintenance_at'>,
+  now = Date.now(),
+) {
+  return (
+    control.maintenance && !!control.maintenance_at && Date.parse(control.maintenance_at) > now
+  );
+}
+export function maintenanceBlocks(
+  control: Pick<ServerControl, 'maintenance' | 'maintenance_at' | 'admin'>,
+  now = Date.now(),
+) {
+  return control.maintenance && !control.admin && !maintenancePending(control, now);
+}
 export async function refreshServerControl(map = ''): Promise<ServerControl | null> {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc('game_control_status', { p_map: map });
   if (error || !data) return null;
-  return data as ServerControl;
+  return {
+    ...data,
+    maintenance_at: typeof data.maintenance_at === 'string' ? data.maintenance_at : null,
+  } as ServerControl;
 }
 /** Polling also works when Realtime is disabled. Never infer a ban from a network error. */
 export function watchServerControl(map: () => string, onBlocked: () => void) {
@@ -42,7 +60,7 @@ export function watchServerControl(map: () => string, onBlocked: () => void) {
         data = await refreshServerControl(current);
       if (stopped || !data) return;
       serverControlStore.setState(data);
-      if (data.blocked || (data.maintenance && !data.admin)) {
+      if (data.blocked || maintenanceBlocks(data)) {
         onBlocked();
         return;
       }

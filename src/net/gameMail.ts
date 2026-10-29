@@ -40,7 +40,7 @@ function mailError(error: unknown) {
   if (m.includes('MAIL_REWARD_STALE'))
     return 'Phần thưởng đã được xử lý ở phiên khác. Hãy đăng nhập lại để đồng bộ.';
   if (e?.code === 'PGRST202' || m.includes('Could not find the function'))
-    return 'Server chưa mở thư Alphatest. Admin cần cài alphatest-mail.sql.';
+    return 'Máy chủ chưa mở tính năng nhận quà qua thư. Vui lòng liên hệ quản trị viên.';
   return m;
 }
 const owns = (user: string, version: number) =>
@@ -128,7 +128,10 @@ export async function readMail(id: string) {
 export async function claimMail(id: string): Promise<boolean> {
   const user = getAccountState().user?.id;
   if (!supabase || !user || mailStore.getState().busy || premiumStore.getState().busy) return false;
-  if (!gameStore.getState().player.admitted) {
+  if (
+    mailStore.getState().mails.find((m) => m.id === id)?.campaign_id === 'alphatest-v1' &&
+    !gameStore.getState().player.admitted
+  ) {
     mailStore.setState({ error: 'Hãy hoàn thành nhập môn rồi quay lại nhận quà.' });
     return false;
   }
@@ -144,12 +147,19 @@ export async function claimMail(id: string): Promise<boolean> {
     if (!owns(user, version) || activeSessionId(user) !== instance) return false;
     if (recovered.snapshot) applyReceipt(recovered.snapshot, recovered.premium);
     mailStore.setState({ mails: recovered.mails, loaded: true });
-    if (recovered.mails.find((m) => m.id === id)?.claimed_at) return true;
+    const letter = recovered.mails.find((m) => m.id === id);
+    if (!letter) throw new Error('Không tìm thấy thư này. Hãy làm mới hộp thư.');
+    if (letter.claimed_at) return true;
+    const alphatest = letter.campaign_id === 'alphatest-v1';
+    if (alphatest && !gameStore.getState().player.admitted) throw new Error('ADMISSION_REQUIRED');
     EventBus.emit('cmd:save');
     await bounded(flushCloudSave(user));
     if (!owns(user, version) || activeSessionId(user) !== instance) return false;
     const { data, error } = await bounded(
-      supabase.rpc('claim_alphatest_mail', { p_mail: id, p_instance_id: instance }),
+      supabase.rpc(alphatest ? 'claim_alphatest_mail' : 'claim_game_mail', {
+        p_mail: id,
+        p_instance_id: instance,
+      }),
     );
     if (!owns(user, version) || activeSessionId(user) !== instance) return false;
     if (error) throw error;
@@ -162,7 +172,12 @@ export async function claimMail(id: string): Promise<boolean> {
     EventBus.emit('cmd:save');
     gameStore
       .getState()
-      .toast('Đã nhận quà Alphatest: cấp 99, Tiên Ngọc, Linh Thạch và Linh Khí.', 'quest');
+      .toast(
+        alphatest
+          ? 'Đã nhận quà Alphatest: cấp 99, Tiên Ngọc, Linh Thạch và Linh Khí.'
+          : 'Đã nhận vật phẩm đính kèm trong thư.',
+        'quest',
+      );
     return true;
   } catch (error) {
     if (owns(user, version)) mailStore.setState({ error: mailError(error) });

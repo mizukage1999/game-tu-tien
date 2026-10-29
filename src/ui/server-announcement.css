@@ -1,0 +1,76 @@
+.server-announcement {
+  position: absolute;
+  z-index: 85;
+  left: 50%;
+  top: 23%;
+  transform: translateX(-50%);
+  width: min(760px, 76%);
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid #e8b95699;
+  border-radius: 4px;
+  color: #ffe5a6;
+  background: linear-gradient(90deg, #25190ce0, #070e16ed, #25190ce0);
+  box-shadow: 0 3px 18px #0008;
+  pointer-events: none;
+  overflow: hidden;
+  font:
+    600 14px/1.3 Arial,
+    sans-serif;
+}
+.server-announcement-icon {
+  color: #ffc968;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.server-announcement-window {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.server-announcement-text {
+  display: inline-block;
+  min-width: 100%;
+  white-space: nowrap;
+  animation: server-notice-scroll var(--notice-duration, 20s) linear infinite;
+}
+.server-announcement-countdown {
+  min-width: 39px;
+  color: #ffcf65;
+  text-align: right;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+@keyframes server-notice-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.hud.phone .server-announcement {
+  top: 26%;
+  height: 30px;
+  width: 78%;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .server-announcement-text {
+    animation: none;
+    white-space: normal;
+    font-size: 11px;
+  }
+  .server-announcement {
+    height: auto;
+    min-height: 38px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+}

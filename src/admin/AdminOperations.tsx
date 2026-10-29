@@ -15,7 +15,7 @@ const LABELS: Record<CommandKind, string> = {
   auth_delete: 'Xóa tài khoản Auth',
   auth_ban: 'Khóa tài khoản',
   auth_unban: 'Mở khóa tài khoản',
-  item_grant: 'Cấp vật phẩm',
+  item_grant: 'Gửi vật phẩm qua thư',
   item_remove: 'Xóa vật phẩm',
   save_edit: 'Sửa save nhân vật',
   maintenance: 'Bảo trì toàn server',
@@ -99,6 +99,10 @@ export function AdminOperations({
     setSuccess('');
     try {
       if (reason.trim().length < 3) throw new Error('Hãy ghi lý do ít nhất 3 ký tự.');
+      if (kind === 'item_grant' && status?.item_delivery !== 'mail')
+        throw new Error('MAIL_DELIVERY_NOT_INSTALLED');
+      if (kind === 'maintenance' && enabled && status?.maintenance_notice_seconds !== 60)
+        throw new Error('Cần cài supabase/admin-delivery.sql để thông báo bảo trì trước 60 giây.');
       if (needsTarget && (!UUID.test(target) || (!resume && readTarget !== target)))
         throw new Error('Hãy tải thông tin tài khoản trước khi thao tác.');
       if (isAuth && kind !== 'auth_create' && read?.protected) throw new Error('PROTECTED_ADMIN');
@@ -143,7 +147,9 @@ export function AdminOperations({
     setFailure('');
     try {
       await operationsApi.execute(review);
-      setSuccess(`Đã thực hiện: ${LABELS[review.kind]}. Mã: ${review.id}`);
+      setSuccess(
+        `Đã thực hiện: ${LABELS[review.kind]}.${review.kind === 'item_grant' ? ' Người chơi vào Thư để nhận vật phẩm.' : ''} Mã: ${review.id}`,
+      );
       setReview(null);
       setRead(null);
       setReadTarget('');
@@ -195,9 +201,10 @@ export function AdminOperations({
       {status && (
         <div className="admin-ops-body">
           <p>
-            Server: <b>{status.maintenance ? 'Đang bảo trì' : 'Đang mở'}</b>. Sửa save/cấp hoặc xóa
-            đồ sẽ ngắt phiên chơi của tài khoản bị tác động. Reset lượt không xóa thành tích hay
-            thưởng lần đầu.
+            Server: <b>{status.maintenance ? 'Đã lên lịch / đang bảo trì' : 'Đang mở'}</b>. Quà vật
+            phẩm gửi qua thư, người chơi tự nhận và tiếp tục chơi. Sửa save hoặc xóa đồ sẽ ngắt
+            phiên chơi của tài khoản bị tác động. Reset lượt không xóa thành tích hay thưởng lần
+            đầu.
           </p>
           <form className="admin-ops-form" onSubmit={prepare}>
             <label>
@@ -379,7 +386,7 @@ export function AdminOperations({
                     onChange={(e) => setEnabled(e.target.value === 'on')}
                   >
                     <option value="off">Mở server</option>
-                    <option value="on">Bật bảo trì</option>
+                    <option value="on">Thông báo và bảo trì sau 60 giây</option>
                   </select>
                 </label>
                 <label>

@@ -59,6 +59,8 @@ beforeEach(() => {
   Object.values(fake).forEach((f) => f.mockReset());
   fake.status.mockResolvedValue({
     maintenance: false,
+    maintenance_notice_seconds: 60,
+    item_delivery: 'mail',
     message: '',
     bosses: [{ id: 'map:boss', map: 'map', monster: 'boss' }],
     pending_auth: [],
@@ -93,6 +95,16 @@ it('reviews an item grant before applying and retries the same request id after 
   await button('Thử lại cùng yêu cầu');
   expect(fake.execute.mock.calls[1][0].id).toBe(first.id);
   expect(host.textContent).toContain('Đã thực hiện');
+});
+it('refuses to fall back to directly granting inventory when the server mail migration is missing', async () => {
+  fake.status.mockResolvedValue({ maintenance: false, message: '', bosses: [], pending_auth: [] });
+  await render();
+  await button('Tải thông tin');
+  await field('Lý do thao tác', 'Tặng quà kiểm tra');
+  await submit();
+  expect(fake.execute).not.toHaveBeenCalled();
+  expect(host.querySelector('[role=dialog]')).toBeNull();
+  expect(host.textContent).toContain('admin-delivery.sql');
 });
 it('requires typing the exact target id before hard Auth deletion', async () => {
   await render();

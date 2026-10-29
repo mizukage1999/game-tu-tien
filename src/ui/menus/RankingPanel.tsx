@@ -10,7 +10,7 @@ import {
   type RankingEntry,
 } from '../../game/systems/rankingUi';
 import { itemIconUrl } from '../../game/art/icons';
-import { useGame, type MenuTab } from '../../store/gameStore';
+import { useGame } from '../../store/gameStore';
 import { HeroFigure, HeroDirectionalPose, RosterPortrait, ChildHeroPortrait } from '../HeroArt';
 import { RealmBadge } from '../RealmBadge';
 import { CultHeading, SkillGlyph } from './CultivationUI';
@@ -340,8 +340,6 @@ export function RankingPanel() {
     stats = useGame((s) => s.stats),
     quests = useGame((s) => s.quests),
     mapId = useGame((s) => s.mapId);
-  const setMenu = useGame((s) => s.setMenu),
-    patch = useGame((s) => s.patch);
   const personal = useMemo(
     () => personalRankingEntry(player, stats, quests, mapId),
     [player, stats, quests, mapId],
@@ -387,43 +385,11 @@ export function RankingPanel() {
     setSelected(undefined);
     setDetailTab('overview');
   };
-  const go = (menu: MenuTab, section?: 'companions') => {
-    setMenu(menu);
-    if (section) patch({ journeySection: section });
-  };
   return (
-    <section className="ranking-shell" aria-label="Bảng Xếp Hạng">
-      <aside className="ranking-side">
-        <small>TIÊN BẢNG</small>
-        <nav aria-label="Tính năng">
-          {(
-            [
-              ['character', 'Nhân Vật', 'character'],
-              ['cultivate', 'Tu Luyện', 'cultivate'],
-              ['ranking', 'Bảng Xếp Hạng', 'ranking'],
-              ['sect', 'Tông Môn', 'sect'],
-              ['boss', 'Săn Boss', 'boss'],
-              ['dungeon', 'Phó Bản', 'dungeon'],
-              ['companions', 'Linh Thú', 'pets'],
-              ['skills', 'Kỹ Năng', 'skills'],
-              ['premium', 'Tiên Ngọc', 'premium'],
-            ] as const
-          ).map(([id, label, icon]) => (
-            <button
-              className={id === 'ranking' ? 'active' : ''}
-              key={id}
-              onClick={() => (id === 'companions' ? go('journey', 'companions') : go(id))}
-            >
-              <RankingIcon kind={icon} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="ranking-side-art" aria-hidden="true" />
-      </aside>
+    <section className="ranking-shell feature-focused" aria-label="Bảng Xếp Hạng">
       <div className="ranking-main">
         <nav className="ranking-tabs" aria-label="Loại bảng xếp hạng">
-          {RANKING_CATEGORIES.map((c) => (
+          {RANKING_CATEGORIES.filter((c) => c.id !== 'dungeons' && c.id !== 'elements').map((c) => (
             <button
               key={c.id}
               className={category === c.id ? 'active' : ''}

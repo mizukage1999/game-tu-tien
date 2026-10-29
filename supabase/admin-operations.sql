@@ -5,6 +5,7 @@ create table if not exists public.game_server_control (
  message text not null default '', version integer not null default 0
 );
 insert into public.game_server_control(id) values(true) on conflict do nothing;
+alter table public.game_server_control add column if not exists maintenance_at timestamptz;
 create table if not exists public.game_account_blocks (
  user_id uuid primary key references auth.users(id) on delete cascade,
  reason text not null, created_at timestamptz not null default now()
@@ -70,7 +71,7 @@ create or replace function public.game_access_allowed(p_user uuid) returns boole
 language sql stable security definer set search_path=public,pg_temp as $$
  select p_user is not null and exists(select 1 from auth.users where id=p_user)
  and not exists(select 1 from public.game_account_blocks where user_id=p_user)
- and (not (select maintenance from public.game_server_control where id) or exists(select 1 from public.game_admins where user_id=p_user));
+ and (not (select maintenance from public.game_server_control where id) or (select maintenance_at>clock_timestamp() from public.game_server_control where id) or exists(select 1 from public.game_admins where user_id=p_user));
 $$;
 revoke all on function public.game_access_allowed(uuid) from public,anon,authenticated;
 create or replace function public.claim_game_session(p_instance_id uuid) returns boolean
@@ -114,7 +115,7 @@ end $$;
 create or replace function public.admin_operations_status() returns jsonb
 language plpgsql security definer set search_path=public,pg_temp as $$ begin
  perform public.admin_dashboard_require_access();
- return (select to_jsonb(c)||jsonb_build_object('bosses',coalesce((select jsonb_agg(data||jsonb_build_object('id',id)) from public.game_admin_catalog where kind='boss'),'[]'::jsonb),
+ return (select to_jsonb(c)||jsonb_build_object('item_delivery',case when to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then 'unavailable' else 'mail' end,'maintenance_notice_seconds',60,'bosses',coalesce((select jsonb_agg(data||jsonb_build_object('id',id)) from public.game_admin_catalog where kind='boss'),'[]'::jsonb),
  'pending_auth',coalesce((select jsonb_agg(to_jsonb(j)) from (select id,kind,target,payload,reason,created_at from public.admin_commands where actor=auth.uid() and status='pending' and kind like 'auth_%' order by created_at limit 50) j),'[]'::jsonb)) from public.game_server_control c where id);
 end $$;
 create or replace function public.admin_read_snapshot(p_user uuid) returns jsonb
@@ -172,8 +173,12 @@ declare cmd public.admin_commands; s public.saves; d jsonb; p jsonb; inv jsonb; 
  insert into public.admin_commands(id,actor,kind,target,payload,reason) values(p_id,auth.uid(),p_kind,p_user,p_payload,p_reason);
  if p_kind='maintenance' then
   if p_user is not null or jsonb_typeof(p_payload->'enabled') is distinct from 'boolean' or length(coalesce(p_payload->>'message',''))>500 then raise exception 'INVALID_COMMAND'; end if;
-  update public.game_server_control set maintenance=(p_payload->>'enabled')::boolean,message=coalesce(p_payload->>'message',''),version=version+1 where id;
-  if (p_payload->>'enabled')::boolean then delete from public.game_sessions where user_id not in(select user_id from public.game_admins); end if;
+  update public.game_server_control set maintenance=(p_payload->>'enabled')::boolean,message=coalesce(p_payload->>'message',''),
+   maintenance_at=case when (p_payload->>'enabled')::boolean then clock_timestamp()+interval '60 seconds' else null end,version=version+1 where id;
+ elsif p_kind='item_grant' then
+  if to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then raise exception 'MAIL_DELIVERY_NOT_INSTALLED'; end if;
+  v_result:=public.admin_queue_item_mail(p_id,p_user,p_payload,p_reason);
+  affected:=1;
  elsif p_kind='boss_reset' then
   if p_user is not null or not exists(select 1 from public.game_admin_catalog where kind='boss' and id=(p_payload->>'map')||':'||(p_payload->>'monster')) then raise exception 'INVALID_BOSS'; end if;
   insert into public.game_boss_resets(map_id,monster_id) values(p_payload->>'map',p_payload->>'monster') on conflict(map_id,monster_id) do update set revision=game_boss_resets.revision+1;
@@ -188,7 +193,7 @@ declare cmd public.admin_commands; s public.saves; d jsonb; p jsonb; inv jsonb; 
    if p_user is not null and (p_token is null or md5(s.data::text)<>p_token) then raise exception 'SAVE_CONFLICT'; end if;
    insert into public.admin_save_backups(command_id,user_id,data) values(p_id,r.user_id,s.data);
    d:=s.data; p:=d->'player'; inv:=coalesce(p->'inventory','{}'::jsonb);
-   if p_kind in ('item_grant','item_remove') then
+   if p_kind='item_remove' then
     item:=p_payload->>'item'; base:=split_part(item,'~',1);
     select data into meta from public.game_admin_catalog where kind='item' and id=base;
     if meta is null or coalesce(p_payload->>'quantity','')!~'^\d{1,6}$' then raise exception 'INVALID_ITEM'; end if;
@@ -196,25 +201,18 @@ declare cmd public.admin_commands; s public.saves; d jsonb; p jsonb; inv jsonb; 
     if qty not between 1 and 100000 or (meta ? 'slot' and qty>100) then raise exception 'INVALID_QUANTITY'; end if;
     if base='tien_phap_bao' then
      if qty<>1 or item<>base then raise exception 'INVALID_QUANTITY'; end if;
-     if p_kind='item_grant' then
-      insert into public.premium_entitlements(user_id,item_id) values(r.user_id,base) on conflict do nothing;
-      inv:=inv||jsonb_build_object(base,1);
-     else delete from public.premium_entitlements where user_id=r.user_id and item_id=base; inv:=inv-base; end if;
+     delete from public.premium_entitlements where user_id=r.user_id and item_id=base; inv:=inv-base;
     elsif base='linh_khi' then
      n:=coalesce((p->>'linhKhi')::bigint,0);
-     if p_kind='item_remove' and n<qty then raise exception 'INSUFFICIENT_ITEM'; end if;
-     p:=p||jsonb_build_object('linhKhi',n+case when p_kind='item_grant' then qty else -qty end);
-    elsif p_kind='item_grant' and meta ? 'slot' then
-     if item<>base then raise exception 'INVALID_ITEM'; end if;
-     for n in 1..qty loop key:=base||'~'||replace(gen_random_uuid()::text,'-',''); inv:=inv||jsonb_build_object(key,1); end loop;
+     if n<qty then raise exception 'INSUFFICIENT_ITEM'; end if;
+     p:=p||jsonb_build_object('linhKhi',n-qty);
     else
      n:=coalesce((inv->>item)::bigint,0);
-     if p_kind='item_remove' and n<qty then raise exception 'INSUFFICIENT_ITEM'; end if;
-     n:=n+case when p_kind='item_grant' then qty else -qty end;
-     if n>999999999 then raise exception 'INVALID_QUANTITY'; end if;
+     if n<qty then raise exception 'INSUFFICIENT_ITEM'; end if;
+     n:=n-qty;
      inv:=case when n=0 then inv-item else inv||jsonb_build_object(item,n) end;
     end if;
-    if p_kind='item_remove' and not inv ? item then
+    if not inv ? item then
      p:=jsonb_set(p,'{equipment}',coalesce((select jsonb_object_agg(e.key,e.value) from jsonb_each(coalesce(p->'equipment','{}')) e where e.value#>>'{}'<>item),'{}'));
      if jsonb_typeof(p#>'{adventure,enhancements}')='object' then p:=jsonb_set(p,'{adventure,enhancements}',(p#>'{adventure,enhancements}')-item); end if;
     end if;
@@ -236,7 +234,7 @@ declare cmd public.admin_commands; s public.saves; d jsonb; p jsonb; inv jsonb; 
   end loop;
   if affected=0 and p_kind<>'dungeon_reset' then raise exception 'SAVE_NOT_FOUND'; end if;
  end if;
- v_result:=jsonb_build_object('ok',true,'affected',affected,'command',p_id);
+ v_result:=coalesce(v_result,'{}'::jsonb)||jsonb_build_object('ok',true,'affected',affected,'command',p_id);
  update public.admin_commands set result=v_result where id=p_id;
  insert into public.admin_audit_logs(actor,kind,message,details) values(auth.uid(),p_kind,p_reason,jsonb_build_object('command',p_id,'target',p_user,'affected',affected,'payload',case when p_kind='save_edit' then jsonb_build_object('backup',true) else p_payload end));
  return v_result;

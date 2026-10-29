@@ -98,7 +98,7 @@ afterEach(async () => {
 it('blocks unadmitted characters and never locally invents a reward', async () => {
   gameStore.setState({ player: { ...gameStore.getState().player, admitted: false } });
   expect(await claimMail(letter.id)).toBe(false);
-  expect(fake.rpc).not.toHaveBeenCalled();
+  expect(fake.rpc.mock.calls.map((c) => c[0])).toEqual(['game_mail_inbox']);
   expect(premiumStore.getState().balance).toBe(0);
   expect(gameStore.getState().player.level).toBe(1);
 });
@@ -245,4 +245,49 @@ it('shows one letter category, an admission lock and a disabled received state',
   });
   expect(host.querySelector<HTMLButtonElement>('.mail-claim')?.disabled).toBe(true);
   expect(host.querySelector('.mail-claim')?.textContent).toBe('Đã nhận');
+});
+it('claims an admin attachment explicitly before admission without applying Alphatest rewards', async () => {
+  const player = { ...gameStore.getState().player, admitted: false };
+  gameStore.setState({ player });
+  const adminLetter: GameMail = {
+    ...letter,
+    campaign_id: 'admin-grant:request',
+    title: 'Vật phẩm từ Ban Điều Hành',
+    rewards: { items: { hoi_xuan_dan: 5 } },
+  };
+  mailStore.setState({ mails: [adminLetter] });
+  const snapshot: SaveData = {
+    v: 1,
+    savedAt: 1,
+    mapId: 'vuong_gia_thon',
+    pos: null,
+    quests: {},
+    player: {
+      ...player,
+      mailRevision: 1,
+      inventory: { ...player.inventory, hoi_xuan_dan: (player.inventory.hoi_xuan_dan ?? 0) + 5 },
+    },
+  };
+  fake.rpc.mockImplementation(async (name: string) => ({
+    error: null,
+    data:
+      name === 'game_mail_inbox'
+        ? { mails: [adminLetter], snapshot: null }
+        : {
+            snapshot,
+            mail: { ...adminLetter, claimed_at: '2026-10-29T00:00:00Z' },
+            premium: { balance: 0, admin: false, items: [] },
+          },
+  }));
+  expect(gameStore.getState().player.inventory.hoi_xuan_dan).toBe(player.inventory.hoi_xuan_dan);
+  expect(await claimMail(adminLetter.id)).toBe(true);
+  expect(fake.rpc).toHaveBeenCalledWith('claim_game_mail', {
+    p_mail: adminLetter.id,
+    p_instance_id: 'instance',
+  });
+  expect(gameStore.getState().player.level).toBe(player.level);
+  expect(gameStore.getState().player.inventory.hoi_xuan_dan).toBe(
+    (player.inventory.hoi_xuan_dan ?? 0) + 5,
+  );
+  expect(premiumStore.getState().balance).toBe(0);
 });

@@ -130,9 +130,15 @@ it('selects public profiles without modifying the player and leaves unimplemente
   named('.ranking-detail-tabs', 'Trang bị');
   expect(host.querySelectorAll('.ranking-equipment .ranking-item')).toHaveLength(6);
   expect(host.querySelector('.ranking-detail-footer')!.textContent).toContain('Tiến trình đã lưu');
-  named('.ranking-tabs', 'Ngũ Hành');
-  expect(host.querySelectorAll('[data-ranking]')).toHaveLength(0);
-  expect(host.querySelector('.ranking-list-empty')!.textContent).toContain('Ngũ Hành chưa mở');
+  expect(host.querySelector('.ranking-side')).toBeNull();
+  expect([...host.querySelectorAll('.ranking-tabs button')].map((b) => b.textContent)).toEqual([
+    'Lực Chiến',
+    'Cấp Độ',
+    'Cảnh Giới',
+    'Tông Môn',
+    'Săn Boss',
+    'Linh Thú',
+  ]);
   expect(gameStore.getState().player).toBe(player);
 });
 it('shows connection errors with a retry and a truthful local profile fallback', () => {

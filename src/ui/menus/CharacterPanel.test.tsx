@@ -24,6 +24,11 @@ it('keeps enhancement, unequip and re-equip working through the character paper-
   gameStore.setState({ player: p, stats: playerStats(p) });
   try {
     act(() => root.render(<CharacterPanel />));
+    expect([...host.querySelectorAll('nav button')].map((b) => b.textContent)).toEqual([
+      '☯Thuộc tính',
+      '♜Trang bị',
+    ]);
+    expect(host.querySelector('.cult-profile-bottom')).toBeNull();
     act(() => host.querySelector<HTMLButtonElement>('[data-slot="weapon"]')!.click());
     const enhance = host.querySelector<HTMLButtonElement>(
       '.cult-equipment-detail .cult-action-row .gold',

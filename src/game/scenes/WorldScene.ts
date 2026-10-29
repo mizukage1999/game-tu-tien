@@ -59,7 +59,6 @@ import { mapGateReason, portalGateReason } from '../systems/worldAccess';
 import { worldZoom } from '../systems/display';
 import { routeDots } from '../systems/routeDots';
 import { findPath } from '../systems/path';
-import { storyOrder } from '../systems/immortal';
 import { wangEffect } from '../../data/wangSkills';
 import { heroSpell, heroSpellHit } from '../../data/heroSkills';
 import { SharedWorld } from '../systems/SharedWorld';
@@ -836,9 +835,11 @@ export class WorldScene extends Phaser.Scene {
     const marker = this.add.ellipse(0, 0, 32, 16, 0xe8c075, .12).setStrokeStyle(2, 0xf3d28c).setDepth(90020).setVisible(false);
     this.mouseMarker = marker;
     const click = (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
-      if (pointer.wasTouch || !pointer.leftButtonDown() || over.length || worldInputBlocked() || isTypingTarget(document.activeElement) || this.transitioning) return;
+      if (pointer.wasTouch || !pointer.leftButtonDown() || worldInputBlocked() || isTypingTarget(document.activeElement) || this.transitioning) return;
       const s = gameStore.getState();
       if (s.status !== 'alive' || lifeProgress(s.player).retreat) return;
+      this.cancelQuestNav(); s.setAuto(false); this.player.setVelocity(0, 0);
+      if (over.length) return;
       const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
       // NPCs and monsters are painted sprites in screen space, unlike their
       // physics bodies. Test their drawn bounds before treating the tap as ground.
@@ -871,10 +872,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private startMouseWalk(point: Vec2, npc?: Npc) {
-    const route = mouseWalkPath(this.map.blocked, TILE, this.player.feet, point);
-    if (!route) { gameStore.getState().toast('Không tìm được đường tới vị trí này.', 'info'); return; }
     this.cancelQuestNav();
     gameStore.getState().setAuto(false);
+    const route = mouseWalkPath(this.map.blocked, TILE, this.player.feet, point);
+    if (!route) { gameStore.getState().toast('Không tìm được đường tới vị trí này.', 'info'); return; }
     this.mouseWalk = { point, npc };
     this.player.setRoute(route.points);
     const spot = iso(route.target.x, route.target.y), marker = this.mouseMarker!;
@@ -1019,7 +1020,7 @@ export class WorldScene extends Phaser.Scene {
       const map = getMap(travel);
       stop = { mapId: travel, tile: { x: map.playerSpawn[0], y: map.playerSpawn[1] }, label: map.name };
     } else {
-      const id = trackedQuest() ?? storyOrder(s.player).find(id => s.quests[id] && s.quests[id].status !== 'done');
+      const id = trackedQuest();
       if (!id) return;
       const nav = questDestination(id, s.quests, s.player.level, this.map.id, from);
       if (nav.kind !== 'go') return;
@@ -1506,6 +1507,7 @@ export class WorldScene extends Phaser.Scene {
     this.player?.clearRoute();
     this.mouseWalk = null;
     this.mouseMarker?.setVisible(false);
+    this.routeGuide?.clear();
   }
 
   repathQuest() {

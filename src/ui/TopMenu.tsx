@@ -2,6 +2,7 @@ import { useGame, type MenuTab } from '../store/gameStore';
 import { isChildhood } from '../game/systems/origin';
 import { useState } from 'react';
 import type { MarketSection } from '../game/systems/marketUi';
+import { MenuSprite } from './MenuSprite';
 
 const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'character', label: 'Nhân Vật' },
@@ -15,30 +16,11 @@ const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'sect', label: 'Tông Môn' },
   { id: 'premium', label: 'Tiên Ngọc' },
   { id: 'shop', label: 'Giao Dịch', marketSection: 'overview' },
-  { id: 'shop', label: 'Bày Bán', marketSection: 'stall' },
-  { id: 'settings', label: 'Cài Đặt' },
+  { id: 'dungeon', label: 'Phó Bản' },
   { id: 'boss', label: 'Săn Boss' },
   { id: 'ranking', label: 'Bảng Xếp Hạng' },
+  { id: 'settings', label: 'Cài Đặt' },
 ];
-
-const MENU_ICONS: Record<MenuTab, string> = {
-  character: 'character',
-  bag: 'bag',
-  cultivate: 'cultivate',
-  skills: 'skills',
-  dungeon: 'dungeon',
-  mail: 'mail',
-  quests: 'quests',
-  shop: 'shop',
-  social: 'social',
-  settings: 'settings',
-  journey: 'cultivate',
-  sect: 'quests',
-  premium: 'shop',
-  map: 'journey',
-  boss: 'dungeon',
-  ranking: 'ranking',
-};
 
 export function TopMenu({ phone = false }: { phone?: boolean }) {
   const [more, setMore] = useState(false);
@@ -63,22 +45,16 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
       className={`menu-btn menu-btn-${it.id} ${menu === it.id && (!it.marketSection || marketSection === it.marketSection) ? 'active' : ''}`}
       onClick={() => {
         setMore(false);
-        setMenu(menu === it.id && (!it.marketSection || marketSection === it.marketSection) ? null : it.id);
+        setMenu(
+          menu === it.id && (!it.marketSection || marketSection === it.marketSection)
+            ? null
+            : it.id,
+        );
         if (it.marketSection) patch({ marketSection: it.marketSection });
       }}
     >
       <span className="menu-glyph">
-        <img
-          className="menu-icon"
-          src={
-            it.id === 'ranking' ? '/assets/ui/menu-ranking.svg' : it.id === 'quests'
-              ? '/assets/ui/menu-quests-original.svg'
-              : `/assets/ui/menu-${MENU_ICONS[it.id]}.png`
-          }
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-        />
+        <MenuSprite kind={it.id} />
       </span>
       <span className="menu-label">{it.label}</span>
     </button>
@@ -92,7 +68,9 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
         aria-expanded={more}
         onClick={() => setMore(!more)}
       >
-        <span className="menu-glyph menu-more-glyph">⋯</span>
+        <span className="menu-glyph">
+          <MenuSprite kind="more" />
+        </span>
         <span className="menu-label">Thêm</span>
       </button>
       {more && (

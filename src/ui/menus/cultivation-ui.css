@@ -2016,3 +2016,6 @@
 .cult-profile-skills > div{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
 .cult-profile-skills > div > button{min-width:0}
 .cult-profile-skills .cult-skill-glyph{max-width:100%}
+
+.hud .cult-character.cult-character-focused { grid-template-rows: minmax(0, 1fr); }
+.hud .cult-character.cult-character-focused > .cult-side { grid-row: 1; }

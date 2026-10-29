@@ -84,6 +84,7 @@ try {
     'alphatest-mail',
     'admin-operations',
     'admin-catalog',
+    'admin-delivery',
   ])
     await db.exec(fs.readFileSync(`supabase/${file}.sql`, 'utf8'));
   for (const [id, name] of [
@@ -126,8 +127,17 @@ try {
   await identity(admin);
   const before = await read(),
     grantId = crypto.randomUUID();
-  await apply('item_grant', { item: 'hoi_xuan_dan', quantity: 5 }, user, grantId, before.token);
-  check((await read()).snapshot.player.inventory.hoi_xuan_dan === 8, 'grant adds to inventory');
+  const delivery = await apply(
+    'item_grant',
+    { item: 'hoi_xuan_dan', quantity: 5 },
+    user,
+    grantId,
+    before.token,
+  );
+  check(
+    delivery.delivery === 'mail' && (await read()).snapshot.player.inventory.hoi_xuan_dan === 3,
+    'grant creates a mail without changing inventory',
+  );
   const retry = await apply(
     'item_grant',
     { item: 'hoi_xuan_dan', quantity: 5 },
@@ -136,8 +146,10 @@ try {
     before.token,
   );
   check(
-    retry.duplicate && (await read()).snapshot.player.inventory.hoi_xuan_dan === 8,
-    'same request credits only once',
+    retry.duplicate &&
+      retry.mail === delivery.mail &&
+      (await read()).snapshot.player.inventory.hoi_xuan_dan === 3,
+    'same request sends only one letter and never credits the bag',
   );
   await deny(
     'select public.admin_apply_command($1,\'item_grant\',$2,\'{"item":"hoi_xuan_dan","quantity":9}\',\'Kiểm tra admin\',$2::uuid::text,$3)',
@@ -147,15 +159,57 @@ try {
   );
   await identity(user);
   check(
-    (await scalar('select public.check_game_session($1)', [instance])) === false,
-    'inventory change evicts stale playing session',
+    (await scalar('select public.check_game_session($1)', [instance])) === true,
+    'sending a gift preserves the playing session',
   );
   await lease();
+  const receipt = await scalar('select public.claim_game_mail($1,$2)', [delivery.mail, instance]);
+  check(
+    receipt.snapshot.player.inventory.hoi_xuan_dan === 8,
+    'only claiming the letter credits inventory',
+  );
+  check(
+    (await scalar('select public.claim_game_mail($1,$2)', [delivery.mail, instance]))
+      .already_claimed,
+    'claiming twice does not duplicate the gift',
+  );
   await deny(
     'select public.save_game_snapshot($1,$2::jsonb)',
     [instance, JSON.stringify(snap())],
-    /ADMIN_SAVE_STALE/,
-    'old cache cannot undo an admin edit after logging in again',
+    /MAIL_REWARD_STALE/,
+    'old cache cannot undo the claimed mail reward',
+  );
+  await identity(other);
+  await lease();
+  await deny(
+    'select public.claim_game_mail($1,$2)',
+    [delivery.mail, instance],
+    /MAIL_NOT_FOUND/,
+    'a player cannot claim another account gift',
+  );
+  await deny(
+    'select public.admin_queue_item_mail($1,$2,$3,$4)',
+    [crypto.randomUUID(), other, { item: 'hoi_xuan_dan', quantity: 5 }, 'not admin'],
+    /permission denied/,
+    'players cannot call the private gift queue directly',
+  );
+  await db.exec('reset role');
+  await db.query(
+    "update public.saves set data=jsonb_set(data,'{player,admitted}','false') where user_id=$1",
+    [other],
+  );
+  await identity(admin);
+  const childDelivery = await apply('item_grant', { item: 'linh_khi', quantity: 25 }, other);
+  await identity(other);
+  const childReceipt = await scalar('select public.claim_game_mail($1,$2)', [
+    childDelivery.mail,
+    instance,
+  ]);
+  check(
+    !childReceipt.snapshot.player.admitted &&
+      childReceipt.snapshot.player.linhKhi === 525 &&
+      childReceipt.snapshot.player.level === 10,
+    'admin mail can be received before admission without applying Alphatest levels or jade',
   );
   await identity(admin);
   let current = await read();
@@ -165,7 +219,10 @@ try {
     /INSUFFICIENT_ITEM/,
     'removing too much rolls back',
   );
-  await apply('item_grant', { item: 'thanh_khe_kiem', quantity: 2 });
+  const gearDelivery = await apply('item_grant', { item: 'thanh_khe_kiem', quantity: 2 });
+  await identity(user);
+  await scalar('select public.claim_game_mail($1,$2)', [gearDelivery.mail, instance]);
+  await identity(admin);
   current = await read();
   const swords = Object.keys(current.snapshot.player.inventory).filter((k) =>
     k.startsWith('thanh_khe_kiem~'),
@@ -186,8 +243,14 @@ try {
       current.snapshot.player.inventory[swords[1]] === 1,
     'removal unequips only that instance and removes its enhancement',
   );
-  await apply('item_grant', { item: 'tien_phap_bao', quantity: 1 });
+  const premiumDelivery = await apply('item_grant', { item: 'tien_phap_bao', quantity: 1 });
   await identity(user);
+  check(
+    !(await scalar('select public.premium_status()')).items.includes('tien_phap_bao'),
+    'unclaimed premium mail grants no entitlement',
+  );
+  await lease();
+  await scalar('select public.claim_game_mail($1,$2)', [premiumDelivery.mail, instance]);
   check(
     (await scalar('select public.premium_status()')).items.includes('tien_phap_bao'),
     'premium equipment grant records real server ownership',
@@ -283,6 +346,18 @@ try {
   await lease();
   await identity(admin);
   await apply('maintenance', { enabled: true, message: 'Kiểm tra bảo trì' }, null);
+  await identity(user);
+  const notice = await scalar('select public.game_control_status()');
+  check(
+    notice.maintenance &&
+      Date.parse(notice.maintenance_at) > Date.now() &&
+      (await scalar('select public.check_game_session($1)', [instance])),
+    'maintenance warns online players before closing access',
+  );
+  await db.exec('reset role');
+  await db.exec(
+    "update public.game_server_control set maintenance_at=clock_timestamp()-interval '1 second'",
+  );
   await identity(user);
   check(
     (await scalar('select public.check_game_session($1)', [instance])) === false,

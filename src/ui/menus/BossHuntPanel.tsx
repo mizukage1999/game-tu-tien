@@ -22,7 +22,7 @@ import { lifeProgress } from '../../game/systems/life';
 import { getMap } from '../../game/maps';
 import { EventBus } from '../../game/EventBus';
 import { itemIconUrl } from '../../game/art/icons';
-import { itemName, useGame, type MenuTab } from '../../store/gameStore';
+import { itemName, useGame } from '../../store/gameStore';
 import {
   bossSighting,
   bossStatus,
@@ -142,16 +142,6 @@ function Health({ sighting }: { sighting: BossSighting }) {
     </div>
   );
 }
-const SIDE: [MenuTab | 'stall', string, string][] = [
-  ['character', 'Nhân vật', '♙'],
-  ['cultivate', 'Tu luyện', '♨'],
-  ['journey', 'Tiên lộ', '♧'],
-  ['dungeon', 'Phó bản', '◇'],
-  ['boss', 'Săn Boss', '♛'],
-  ['shop', 'Giao dịch', '⚖'],
-  ['stall', 'Bày bán', '▤'],
-];
-
 export function BossHuntPanel() {
   const player = useGame((s) => s.player),
     here = useGame((s) => s.mapId),
@@ -159,8 +149,7 @@ export function BossHuntPanel() {
     status = useGame((s) => s.status),
     run = useGame((s) => s.dungeon),
     tribulation = useGame((s) => s.tribulation),
-    setMenu = useGame((s) => s.setMenu),
-    patch = useGame((s) => s.patch);
+    setMenu = useGame((s) => s.setMenu);
   const snapshot = useBossSightings();
   const [catalog] = useState(bossCatalog),
     [category, setCategory] = useState<BossCategory>('world'),
@@ -283,33 +272,7 @@ export function BossHuntPanel() {
     </section>
   );
   return (
-    <section className="boss-hunt-shell" aria-label="Săn Boss">
-      <aside className="hunt-side">
-        <small>TIÊN ĐỒ</small>
-        <nav aria-label="Tính năng">
-          {SIDE.map(([id, name, glyph]) => (
-            <button
-              key={id}
-              className={id === 'boss' ? 'active' : ''}
-              disabled={isChildhood(player) && ['character', 'cultivate'].includes(id)}
-              onClick={() => {
-                if (id === 'stall') {
-                  setMenu('shop');
-                  patch({ marketSection: 'stall' });
-                } else setMenu(id);
-              }}
-            >
-              <i>{glyph}</i>
-              <span>{name}</span>
-            </button>
-          ))}
-        </nav>
-        <span className="hunt-side-note">
-          Tru yêu hộ đạo
-          <br />
-          Uy chấn sơn hà
-        </span>
-      </aside>
+    <section className="boss-hunt-shell feature-focused" aria-label="Săn Boss">
       <div className="hunt-main">
         <nav className="hunt-categories" aria-label="Loại boss">
           {BOSS_CATEGORIES.map(([id, name]) => (
