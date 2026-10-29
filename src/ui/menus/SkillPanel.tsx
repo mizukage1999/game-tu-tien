@@ -31,6 +31,8 @@ const ORDER: SkillId[] = [
   'dinh_than_thuat',
   'tram_la_quyet',
   'dich_linh_an',
+  'tich_diet_chi',
+  'luyen_hon_thuat',
   'bang_tam_tram',
   'phi_kiem',
   'han_bang_tran',

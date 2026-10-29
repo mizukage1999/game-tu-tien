@@ -12,7 +12,7 @@ const signature = (
   name,
   kind,
   character: 'male',
-  key: '2–4',
+  key: '2–7',
   mpCost,
   cooldownMs,
   multiplier,
@@ -40,7 +40,7 @@ export const WANG_SKILLS = {
     20000,
     0.65,
     165,
-    'Hoàng Tuyền xoáy quanh vị trí thi triển trong 4 giây, gây 8 đợt sát thương, làm chậm và giảm 20% phòng ngự.',
+    'Cổng U Minh trồi lên tại vị trí thi triển, nước Hoàng Tuyền và hồn ảnh lan ra trong 4 giây, gây 8 đợt sát thương, làm chậm và giảm 20% phòng ngự.',
   ),
   dinh_than_thuat: signature(
     'Định Thân Thuật',
@@ -69,6 +69,30 @@ export const WANG_SKILLS = {
     115,
     'Chưởng ấn vàng giáng xuống trước mặt, sát thương phạm vi nhỏ và choáng nhẹ 0,35 giây trong PK.',
   ),
+  tich_diet_chi: {
+    ...signature(
+      'Tịch Diệt Chỉ',
+      'projectile',
+      230,
+      18000,
+      4.6,
+      410,
+      'Triệu ma thủ chỉ thẳng vào mục tiêu đầu tiên, bỏ qua 50% phòng ngự. Có 25% cơ hội gây choáng 0,35 giây. Có thể né ngang trong thời gian xuất chiêu.',
+    ),
+    unlockLevel: 30,
+  },
+  luyen_hon_thuat: {
+    ...signature(
+      'Luyện Hồn Thuật',
+      'nova',
+      320,
+      24000,
+      0.55,
+      180,
+      'Đặt hồn phiên phía trước, gây 6 đợt sát thương mỗi 0,6 giây và giảm 20% phòng ngự trong vùng. Hút 20% sát thương thành sinh lực, tối đa 2% HP tối đa mỗi đợt.',
+    ),
+    unlockLevel: 35,
+  },
 } satisfies Record<string, SkillDef>;
 
 export type WangSkillId = keyof typeof WANG_SKILLS;
@@ -77,7 +101,8 @@ export interface WangEffectArt {
   url: string;
   duration: number;
   grid?: { columns: number; rows: number; frames: number; cell: number };
-  motion?: 'crescent' | 'beam' | 'bind' | 'vortex';
+  sourceSize?: { width: number; height: number };
+  motion?: 'crescent' | 'beam' | 'bind' | 'vortex' | 'palm' | 'finger' | 'banner' | 'gate';
 }
 export const WANG_V2_GRID = { columns: 6, rows: 4, frames: 24, cell: 160 } as const;
 export const WANG_ICON_ATLAS = '/assets/skills/wang-signature-icons-v2.png';
@@ -87,6 +112,18 @@ export const WANG_ICON_ORDER = [
   'dinh_than_thuat',
   'dao_hoa_hoang_tuyen',
 ] as const;
+export const WANG_RITUAL_ICON_ATLAS = '/assets/skills/wang-ritual-icons-v1.png';
+export const WANG_RITUAL_ICON_ORDER = ['dich_linh_an', 'tich_diet_chi', 'luyen_hon_thuat'] as const;
+export const WANG_GATE_ICON = '/assets/skills/wang-hoang-tuyen-icon-v3.png';
+export function wangIconArt(id: string) {
+  if (id === 'dao_hoa_hoang_tuyen')
+    return { url: WANG_GATE_ICON, index: 0, size: 1254, columns: 1 };
+  const old = WANG_ICON_ORDER.findIndex((skill) => skill === id);
+  const index = old >= 0 ? old : WANG_RITUAL_ICON_ORDER.findIndex((skill) => skill === id);
+  return index < 0
+    ? undefined
+    : { url: old >= 0 ? WANG_ICON_ATLAS : WANG_RITUAL_ICON_ATLAS, index, size: 1254 };
+}
 export const WANG_EFFECT_ART: Record<WangSkillId, WangEffectArt> = {
   hoa_ma_chi: {
     texture: 'wang-hoa-ma-chi',
@@ -97,10 +134,11 @@ export const WANG_EFFECT_ART: Record<WangSkillId, WangEffectArt> = {
   },
   dao_hoa_hoang_tuyen: {
     texture: 'wang-hoang-tuyen',
-    url: '/assets/skills/wang-hoang-tuyen-v2.png',
+    url: '/assets/skills/wang-hoang-tuyen-v3.png',
     duration: 4500,
-    grid: WANG_V2_GRID,
-    motion: 'vortex',
+    grid: { columns: 5, rows: 5, frames: 25, cell: 192 },
+    sourceSize: { width: 1254, height: 1254 },
+    motion: 'gate',
   },
   dinh_than_thuat: {
     texture: 'wang-dinh-than',
@@ -118,8 +156,24 @@ export const WANG_EFFECT_ART: Record<WangSkillId, WangEffectArt> = {
   },
   dich_linh_an: {
     texture: 'wang-dich-linh-an',
-    url: '/assets/skills/wang-dich-linh-an-v1.png',
-    duration: 850,
+    url: '/assets/skills/wang-dich-linh-an-v2.png',
+    duration: 1250,
+    grid: WANG_V2_GRID,
+    motion: 'palm',
+  },
+  tich_diet_chi: {
+    texture: 'wang-tich-diet-chi',
+    url: '/assets/skills/wang-tich-diet-chi-v1.png',
+    duration: 1400,
+    grid: WANG_V2_GRID,
+    motion: 'finger',
+  },
+  luyen_hon_thuat: {
+    texture: 'wang-luyen-hon-thuat',
+    url: '/assets/skills/wang-luyen-hon-thuat-v1.png',
+    duration: 4200,
+    grid: WANG_V2_GRID,
+    motion: 'banner',
   },
 };
 export function wangEffect(id: string): WangEffectArt | undefined {
@@ -153,6 +207,7 @@ export function wangSheetLayout(art: WangEffectArt) {
 export interface WangVisualOptions {
   duration?: number;
   castOnly?: boolean;
+  windupMs?: number;
 }
 export function wangVisual(
   art: WangEffectArt,
@@ -162,11 +217,11 @@ export function wangVisual(
 ) {
   const duration = options.duration ?? art.duration,
     time = Math.max(0, Math.min(duration, age));
-  const part = (start: number, end: number, first: number) =>
+  const part = (start: number, end: number, first: number, count = 6) =>
     first +
     Math.min(
-      5,
-      Math.floor(Math.max(0, Math.min(0.9999, (time - start) / Math.max(1, end - start))) * 6),
+      count - 1,
+      Math.floor(Math.max(0, Math.min(0.9999, (time - start) / Math.max(1, end - start))) * count),
     );
   let frame = 0,
     advance = 0,
@@ -178,6 +233,63 @@ export function wangVisual(
     frame = part(0, duration, 0);
     width = 110;
     height = 130;
+  } else if (art.motion === 'palm') {
+    const hit = options.windupMs ?? 450;
+    frame =
+      time < hit * 0.35
+        ? part(0, hit * 0.35, 0)
+        : time < hit
+          ? part(hit * 0.35, hit, 6)
+          : time < hit + 350
+            ? part(hit, hit + 350, 12)
+            : part(hit + 350, duration, 18);
+    advance = 0.65;
+    width = 220;
+    height = 270;
+  } else if (art.motion === 'finger') {
+    const hit = options.windupMs ?? 600;
+    frame =
+      time < hit * 0.5
+        ? part(0, hit * 0.5, 0)
+        : time < hit
+          ? part(hit * 0.5, hit, 6)
+          : time < hit + 300
+            ? part(hit, hit + 300, 12)
+            : part(hit + 300, duration, 18);
+    advance = time >= hit && time < hit + 300 ? 1 : 0.4;
+    width = time >= hit && time < hit + 300 ? 185 : range * 1.05;
+    height = 190;
+  } else if (art.motion === 'banner') {
+    frame =
+      time < 600
+        ? part(0, 600, 0)
+        : time < 1200
+          ? part(600, 1200, 6)
+          : time < 3600
+            ? 12 + Math.floor(((time - 1200) % 600) / 100)
+            : part(3600, duration, 18);
+    advance = 0.65;
+    width = range * 2.4;
+    height = 275;
+  } else if (art.motion === 'gate') {
+    // Five authored phases: rising seal, gate, river wave, damage pulse, retreat.
+    // The 500ms pulse stays aligned with the existing eight damage ticks.
+    const pulse = (time - 1500) % 500;
+    frame =
+      time < 500
+        ? part(0, 500, 0, 5)
+        : time < 1000
+          ? part(500, 1000, 5, 5)
+          : time < 1500
+            ? part(1000, 1500, 10, 5)
+            : time >= duration - 500
+              ? part(duration - 500, duration, 20, 5)
+              : pulse < 200
+                ? 15 + Math.min(4, Math.floor(pulse / 40))
+                : 10 + Math.min(4, Math.floor((pulse - 200) / 60));
+    width = range * 2.7;
+    height = 320;
+    scale = 0.65 + 0.35 * Math.min(1, time / 1000);
   } else if (art.motion === 'vortex') {
     frame =
       time < 500

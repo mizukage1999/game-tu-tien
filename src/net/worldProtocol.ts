@@ -223,6 +223,8 @@ export function worldSkillHit(
       'dinh_than_thuat',
       'tram_la_quyet',
       'dich_linh_an',
+      'tich_diet_chi',
+      'luyen_hon_thuat',
     ].includes(id)
   )
     return signatureHit(id, from, facing, sk.range, target);

@@ -64,6 +64,7 @@ import { heroSpell, heroSpellHit } from '../../data/heroSkills';
 import { SharedWorld } from '../systems/SharedWorld';
 import { chatStore } from '../../store/chatStore';
 import { signatureHit } from '../systems/skillHit';
+import { ritualSkill, ritualControlMs, soulDrain } from '../systems/ritualSkills';
 import { gridLineClear } from '../systems/gridNavigation';
 import { mouseWalkPath } from '../systems/mouseNavigation';
 import { herbNodes, HOME_QUEST, homeMeditateRate, immortalProgress, type HerbNode } from '../systems/immortal';
@@ -1735,11 +1736,11 @@ export class WorldScene extends Phaser.Scene {
 
   // ---- combat ------------------------------------------------------------
 
-  private damageMonster(m: Monster, multiplier: number, slowMs = 0) {
+  private damageMonster(m: Monster, multiplier: number, slowMs = 0, defenseFactor = 1) {
     const { stats } = gameStore.getState();
     const r = computeDamage({
       atk: stats.atk,
-      def: m.def.def * (m.weakenTimer > 0 ? .8 : 1),
+      def: m.def.def * (m.weakenTimer > 0 ? .8 : 1) * defenseFactor,
       multiplier,
       critRate: stats.critRate,
       critMul: stats.critMul,
@@ -1796,27 +1797,69 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
     if (wangEffect(id)) {
-      const from = {x:p.x,y:p.y}, facing = {...f};
-      const hits = () => this.monsters.filter(m => m.alive && signatureHit(id,from,facing,sk.range,m))
-        .sort((a,b) => Math.hypot(a.x-from.x,a.y-from.y)-Math.hypot(b.x-from.x,b.y-from.y));
-      if (id !== 'dinh_than_thuat') this.vfx.signature(id,from,facing,sk.range);
-      else this.vfx.signature(id,from,facing,sk.range,{castOnly:true,duration:400});
-      if (id === 'dao_hoa_hoang_tuyen') {
-        for (let tick = 1; tick <= 8; tick++) this.time.delayedCall(tick * 500, () => {
-          if (p.life.status !== 'alive') return;
-          for (const m of hits()) { m.weakenTimer = 800; this.damageMonster(m,sk.multiplier,800); }
+      const from = { x: p.x, y: p.y },
+        facing = { ...f };
+      const ritual = ritualSkill(id);
+      const hits = () =>
+        this.monsters
+          .filter((m) => m.alive && signatureHit(id, from, facing, sk.range, m))
+          .sort(
+            (a, b) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y),
+          );
+      if (id !== 'dinh_than_thuat') this.vfx.signature(id, from, facing, sk.range);
+      else
+        this.vfx.signature(id, from, facing, sk.range, {
+          castOnly: true,
+          duration: 400,
         });
-      } else this.time.delayedCall(id === 'dich_linh_an' ? 450 : 400, () => {
-        if (p.life.status !== 'alive') return;
-        if (id === 'dinh_than_thuat') {
-          const m = hits()[0];
-          if (m) { m.rootTimer = 2000; this.vfx.signature(id,m,facing,sk.range,{duration:2000}); }
-          else this.vfx.signature(id,{x:from.x+facing.x*sk.range,y:from.y+facing.y*sk.range},facing,sk.range);
-        } else for (const m of hits()) {
-          this.damageMonster(m,sk.multiplier);
-          if (id === 'dich_linh_an' && m.alive) m.rootTimer = m.def.boss ? 350 : 600;
-        }
-      });
+      if (id === 'luyen_hon_thuat') {
+        for (let tick = 1; tick <= ritual!.ticks; tick++)
+          this.time.delayedCall(tick * ritual!.tickMs, () => {
+            if (p.life.status !== 'alive') return;
+            let drained = 0;
+            for (const m of hits()) {
+              const before = m.hp;
+              m.weakenTimer = 650;
+              this.damageMonster(m, sk.multiplier);
+              drained += Math.max(0, before - m.hp);
+            }
+            gameStore.getState().restore(soulDrain(drained, gameStore.getState().stats.maxHp), 0);
+          });
+      } else if (id === 'dao_hoa_hoang_tuyen') {
+        for (let tick = 1; tick <= 8; tick++)
+          this.time.delayedCall(tick * 500, () => {
+            if (p.life.status !== 'alive') return;
+            for (const m of hits()) {
+              m.weakenTimer = 800;
+              this.damageMonster(m, sk.multiplier, 800);
+            }
+          });
+      } else
+        this.time.delayedCall(ritual?.windup ?? (id === 'dich_linh_an' ? 450 : 400), () => {
+          if (p.life.status !== 'alive') return;
+          if (id === 'dinh_than_thuat') {
+            const m = hits()[0];
+            if (m) {
+              m.rootTimer = 2000;
+              this.vfx.signature(id, m, facing, sk.range, { duration: 2000 });
+            } else
+              this.vfx.signature(
+                id,
+                {
+                  x: from.x + facing.x * sk.range,
+                  y: from.y + facing.y * sk.range,
+                },
+                facing,
+                sk.range,
+              );
+          } else
+            for (const m of ritual?.singleTarget ? hits().slice(0, 1) : hits()) {
+              this.damageMonster(m, sk.multiplier, 0, 1 - (ritual?.armorPierce ?? 0));
+              const control = ritualControlMs(id);
+              if (control && m.alive) m.rootTimer = control;
+              if (id === 'dich_linh_an' && m.alive) m.rootTimer = m.def.boss ? 350 : 600;
+            }
+        });
       return;
     }
     if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*.24),0);this.vfx.ascend(p);return;}

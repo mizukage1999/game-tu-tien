@@ -2,6 +2,7 @@ import {
   wangFrameRect,
   wangSheetLayout,
   WANG_ICON_ORDER,
+  WANG_RITUAL_ICON_ORDER,
   WANG_EFFECT_ART,
   type WangEffectArt,
 } from '../../data/wangSkills';
@@ -27,8 +28,8 @@ export function buildWangSheet(art: WangEffectArt, source: HTMLImageElement) {
       frame,
       art,
     );
-    const scale = cell / r.height;
-    const width = r.width * scale;
+    const scale = Math.min(cell/r.width,cell/r.height);
+    const width = r.width * scale, height = r.height * scale;
     ctx.drawImage(
       source,
       r.x,
@@ -36,9 +37,9 @@ export function buildWangSheet(art: WangEffectArt, source: HTMLImageElement) {
       r.width,
       r.height,
       cell * (frame % columns) + (cell - width) / 2,
-      cell * Math.floor(frame / columns),
+      cell * Math.floor(frame / columns) + (cell-height)/2,
       width,
-      cell,
+      height,
     );
   }
   sheets.set(art.texture, canvas);
@@ -61,8 +62,9 @@ export function buildWangSheet(art: WangEffectArt, source: HTMLImageElement) {
   icons.set(art.texture, icon.toDataURL('image/png'));
   return canvas;
 }
-export function registerWangIcons(source: HTMLImageElement) {
-  WANG_ICON_ORDER.forEach((id, index) => {
+export function registerWangIcons(source: HTMLImageElement, ritual = false) {
+  const order = ritual ? WANG_RITUAL_ICON_ORDER : WANG_ICON_ORDER;
+  order.forEach((id, index) => {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 128;
     const ctx = canvas.getContext('2d')!,
@@ -74,6 +76,12 @@ export function registerWangIcons(source: HTMLImageElement) {
 }
 export function wangSheetUrl(art: WangEffectArt) {
   return urls.get(art.texture);
+}
+export function registerWangGateIcon(source: HTMLImageElement) {
+  const canvas=document.createElement('canvas');
+  canvas.width=canvas.height=128;
+  canvas.getContext('2d')!.drawImage(source,0,0,128,128);
+  icons.set(WANG_EFFECT_ART.dao_hoa_hoang_tuyen.texture,canvas.toDataURL('image/png'));
 }
 export function wangIconUrl(art: WangEffectArt) {
   return icons.get(art.texture);

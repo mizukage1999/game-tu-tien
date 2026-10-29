@@ -6,6 +6,8 @@ export function signatureHit(id: SkillId, from: Vec2, facing: Vec2, range: numbe
   const x = target.x - from.x,
     y = target.y - from.y;
   if (id === 'dao_hoa_hoang_tuyen') return Math.hypot(x, y) <= range + 15;
+  if (id === 'luyen_hon_thuat')
+    return Math.hypot(x-facing.x*range*.65,y-facing.y*range*.65) <= range+15;
   const along = x * facing.x + y * facing.y;
   const side = Math.abs(x * facing.y - y * facing.x);
   if (id === 'dich_linh_an')

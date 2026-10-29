@@ -23,7 +23,7 @@ export class SkillVfx {
       });
       return;
     }
-    if(wangEffect(id)){this.signature(id,from,facing,range);return;}
+    if(wangEffect(id)){this.signature(id,from,facing,range,id==='dich_linh_an'?{windupMs:400}:{});return;}
     this.heroSpell(spellVisualId(id,hero),from,facing,range);
   }
 
@@ -66,12 +66,12 @@ export class SkillVfx {
     if (!art || !this.scene.textures.exists(art.texture)) return;
     if (art.grid) {
       const duration = options.duration ?? art.duration, projected = isoVector(facing.x, facing.y);
-      const directed = art.motion === 'beam' || art.motion === 'crescent';
+      const directed = art.motion === 'beam' || art.motion === 'crescent' || art.motion === 'finger';
       const sprite = this.scene.add.sprite(0, 0, art.texture, 0).setOrigin(.5, directed ? .5 : .83).setAlpha(0);
       const update = (age: number) => {
-        const visual = wangVisual(art, age, range, options), advance = directed ? visual.advance * range : 0;
+        const visual = wangVisual(art, age, range, options), advance = visual.advance * range;
         const spot = iso(from.x + facing.x * advance, from.y + facing.y * advance);
-        sprite.setPosition(spot.x, spot.y - (directed ? 26 : options.castOnly ? 12 : 0)).setDepth(spot.y + (art.motion === 'vortex' ? -.3 : 180));
+        sprite.setPosition(spot.x, spot.y - (directed ? 26 : options.castOnly ? 12 : 0)).setDepth(spot.y + (art.motion === 'vortex' || art.motion === 'gate' ? -.3 : 180));
         sprite.setFrame(visual.frame).setDisplaySize(visual.width, visual.height).setAlpha(visual.alpha);
         if (directed) sprite.setRotation(Math.atan2(projected.y, projected.x));
       };

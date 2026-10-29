@@ -20,12 +20,14 @@ import { socialStore } from '../../store/socialStore';
 import { contributionAwards, recordContribution, type Contribution } from './contribution';
 import { monsterDrops } from './loot';
 import { killExp } from './scale';
+import { ritualSkill, ritualControlMs, soulDrain } from './ritualSkills';
 
 type Cast = Extract<WorldEvent, { t: 'cast' }>;
 type Actor = RemotePlayerState & { combat: CombatStats };
 /** One elected peer simulates a public map; all other peers render its monster snapshots. */
 export class SharedWorld {
   roster: RemotePlayerState[] = [];
+  private weakenedUntil = new Map<string, number>();
   private seq = 0;
   private nextMonster = 0;
   private lastSnapshot = 0;
@@ -247,6 +249,7 @@ export class SharedWorld {
         return;
       const sk = effectiveSkill(e.skill, actor.combat.skills[e.skill] ?? 1);
       const spell = heroSpell(e.skill);
+      const ritual = ritualSkill(e.skill);
       if (e.skill !== 'than_phap' && !actor.combat.loadout.includes(e.skill)) return;
       if (sk.hero && (sk.hero !== heroFor(actor).id || actor.combat.level < (sk.unlockLevel ?? 1)))
         return;
@@ -314,8 +317,11 @@ export class SharedWorld {
         return;
       if (e.skill === 'dao_hoa_hoang_tuyen')
         for (let i = 1; i <= 8; i++) w.time.delayedCall(i * 500, () => this.resolve(e, actor));
+      else if (e.skill === 'luyen_hon_thuat')
+        for (let i = 1; i <= ritual!.ticks; i++)
+          w.time.delayedCall(i * ritual!.tickMs, () => this.resolve(e, actor));
       else
-        w.time.delayedCall(e.skill === 'basic' ? 0 : (spell?.windupMs ?? 400), () =>
+        w.time.delayedCall(e.skill === 'basic' ? 0 : (ritual?.windup ?? spell?.windupMs ?? 400), () =>
           this.resolve(e, actor),
         );
       return;
@@ -426,8 +432,11 @@ export class SharedWorld {
   }
   private resolve(e: Cast, actor: Actor) {
     if (!this.authority || !this.actor(actor.key)) return;
+    if (e.skill === 'luyen_hon_thuat' && this.actor(actor.key)!.combat.hp <= 0) return;
     const sk = effectiveSkill(e.skill, actor.combat.skills[e.skill] ?? 1),
       f = { x: e.dx, y: e.dy };
+    const ritual = ritualSkill(e.skill);
+    let drained = 0;
     let monsters = this.world.monsters.filter(
       (m) =>
         m.alive &&
@@ -436,7 +445,34 @@ export class SharedWorld {
     );
     if (e.skill === 'dinh_than_thuat')
       monsters = monsters.sort((a, b) => a.distanceTo(e) - b.distanceTo(e)).slice(0, 1);
-    const root = heroSpell(e.skill)?.rootMs ?? (e.skill === 'dinh_than_thuat' ? 1000 : 0);
+    let peers = this.world.cooperativeRun
+      ? []
+      : this.actors().filter(
+          (target) =>
+            target.key !== actor.key &&
+            target.combat.hp > 0 &&
+            mayPk(
+              {
+                mode: actor.pkMode,
+                sect: actor.sect,
+                child: actor.child,
+                mapId: this.world.map.id,
+              },
+              target,
+            ) &&
+            worldSkillHit(e.skill, sk, e, f, target, e.combo) &&
+            gridLineClear(this.world.map.blocked, TILE, e, target, 0, 0),
+        );
+    if (ritual?.singleTarget) {
+      const nearest = [...monsters, ...peers].sort(
+        (a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y),
+      )[0];
+      monsters = monsters.filter((m) => m === nearest);
+      peers = peers.filter((p) => p === nearest);
+    }
+    const root =
+      heroSpell(e.skill)?.rootMs ??
+      (e.skill === 'dinh_than_thuat' ? 1000 : ritualControlMs(e.skill));
     const multiplier =
       sk.multiplier * (e.skill === 'basic' && e.combo === 3 ? (sk.active?.finisherMul ?? 1.5) : 1);
     if (monsters.length && (multiplier > 0 || root > 0)) this.noteActivity(actor.key);
@@ -445,7 +481,7 @@ export class SharedWorld {
       if (multiplier > 0) {
         const hit = computeDamage({
           atk: actor.combat.atk,
-          def: m.def.def,
+          def: m.def.def * (1 - (ritual?.armorPierce ?? (m.weakenTimer > 0 ? 0.2 : 0))),
           multiplier,
           critRate: actor.combat.critRate,
           critMul: actor.combat.critMul,
@@ -453,27 +489,41 @@ export class SharedWorld {
           defenderRealm: realmIndexAtLevel(m.def.level),
         });
         this.credit(m, actor.key, hit.amount);
+        const before = m.hp;
         m.hit(hit.amount, hit.crit, e);
+        if (e.skill === 'luyen_hon_thuat') {
+          drained += Math.max(0, before - m.hp);
+          m.weakenTimer = 650;
+        }
       }
       if (root) m.rootTimer = m.def.boss ? Math.min(350, root) : root;
       if (e.skill === 'han_bang_tran' || e.skill === 'phong_nhan') m.slowTimer = 2000;
     }
-    if (this.world.cooperativeRun) return;
-    for (const target of this.actors()) {
+    for (const target of peers) {
       if (
         target.key === actor.key ||
         target.combat.hp <= 0 ||
         !mayPk(
-          { mode: actor.pkMode, sect: actor.sect, child: actor.child, mapId: this.world.map.id },
+          {
+            mode: actor.pkMode,
+            sect: actor.sect,
+            child: actor.child,
+            mapId: this.world.map.id,
+          },
           target,
         ) ||
         !worldSkillHit(e.skill, sk, e, f, target, e.combo) ||
         !gridLineClear(this.world.map.blocked, TILE, e, target, 0, 0)
       )
         continue;
+      if (e.skill === 'luyen_hon_thuat') this.weakenedUntil.set(target.key, Date.now() + 650);
       const hit = computeDamage({
         atk: actor.combat.atk,
-        def: target.combat.def,
+        def:
+          target.combat.def *
+          (1 -
+            (ritual?.armorPierce ??
+              ((this.weakenedUntil.get(target.key) ?? 0) > Date.now() ? 0.2 : 0))),
         multiplier,
         critRate: actor.combat.critRate,
         critMul: actor.combat.critMul,
@@ -481,7 +531,18 @@ export class SharedWorld {
         defenderRealm: realmIndexAtLevel(target.combat.level),
       });
       this.damage(target.key, multiplier ? hit.amount : 0, hit.crit, e, root);
+      if (e.skill === 'luyen_hon_thuat') drained += Math.min(target.combat.hp, hit.amount);
     }
+    const heal = e.skill === 'luyen_hon_thuat' ? soulDrain(drained, actor.combat.maxHp) : 0;
+    if (heal > 0)
+      this.channel.send({
+        t: 'support',
+        seq: ++this.seq,
+        to: actor.key,
+        kind: 'heal',
+        amount: heal,
+        duration: 0,
+      });
   }
   damage(to: string, amount: number, crit: boolean, from: { x: number; y: number }, rootMs = 0) {
     this.channel.send({
@@ -581,6 +642,7 @@ export class SharedWorld {
     this.roster = [];
     this.seen.clear();
     this.cooldowns.clear();
+    this.weakenedUntil.clear();
     this.contributions.clear();
     this.rewards.clear();
     this.activity.clear();

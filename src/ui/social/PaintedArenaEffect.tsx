@@ -17,8 +17,13 @@ function AnimatedSignature({
 }) {
   const art = wangEffect(e.skill)!,
     bind = art.motion === 'bind',
-    river = art.motion === 'vortex';
-  const age = Math.max(0, elapsed - (river ? e.expires - art.duration : e.ready - 400));
+    river = art.motion === 'vortex' || art.motion === 'gate',
+    ground = bind || river || art.motion === 'palm' || art.motion === 'banner',
+    windup = art.motion === 'palm' || art.motion === 'finger' ? 600 : 400;
+  const age = Math.max(
+    0,
+    elapsed - (river || art.motion === 'banner' ? e.expires - art.duration : e.ready - windup),
+  );
   const bound = useRef<boolean | null>(null);
   if (bind && age >= 400 && bound.current === null)
     bound.current = signatureHit(e.skill, e, { x: e.dx, y: e.dy }, e.range, target);
@@ -27,7 +32,7 @@ function AnimatedSignature({
     art,
     bind && !casting ? age - 400 : age,
     e.range,
-    casting ? { castOnly: true, duration: 400 } : {},
+    casting ? { castOnly: true, duration: 400 } : { windupMs: windup },
   );
   const point = bind
     ? casting
@@ -48,7 +53,7 @@ function AnimatedSignature({
         height: `${(pose.height / ARENA_H) * 100}%`,
         opacity: pose.alpha,
         zIndex: river ? 3 : undefined,
-        transform: `translate(-50%,${bind || river ? '-83%' : '-50%'})${bind || river ? '' : ` rotate(${Math.atan2(e.dy, e.dx)}rad)`}`,
+        transform: `translate(-50%,${ground ? '-83%' : '-50%'})${ground ? '' : ` rotate(${Math.atan2(e.dy, e.dx)}rad)`}`,
       }}
     />
   );

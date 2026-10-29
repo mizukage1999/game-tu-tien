@@ -74,6 +74,10 @@ it('uses the new impact frame and correct facing instead of a geometric range ci
       ),
     );
     expect(host.querySelector<SVGElement>('.wang-effect-frame')!.style.zIndex).toBe('3');
+    expect(host.querySelector('image')?.getAttribute('href')).toContain('wang-hoang-tuyen-v3');
+    expect(host.querySelector<SVGElement>('.wang-effect-frame')!.style.transform).not.toContain(
+      'rotate',
+    );
   } finally {
     act(() => root.unmount());
   }

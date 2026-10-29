@@ -13,6 +13,7 @@ import { WangEffectFrame } from '../WangSkillArt';
 function SignaturePreview({ id, age }: { id: SkillId; age: number }) {
   const art = wangEffect(id)!,
     bind = art.motion === 'bind',
+    ground = bind || ['vortex', 'palm', 'banner', 'gate'].includes(art.motion ?? ''),
     casting = bind && age < 400;
   const pose = wangVisual(
     art,
@@ -21,6 +22,7 @@ function SignaturePreview({ id, age }: { id: SkillId; age: number }) {
     casting ? { castOnly: true, duration: 400 } : {},
   );
   const left = art.motion === 'vortex' ? 48 : bind ? (casting ? 20 : 78) : 18 + pose.advance * 60;
+  const ritualGround = art.motion === 'palm' || art.motion === 'banner' || art.motion === 'gate';
   return (
     <div className="cult-preview-wang">
       <WangEffectFrame
@@ -28,12 +30,12 @@ function SignaturePreview({ id, age }: { id: SkillId; age: number }) {
         frame={pose.frame}
         className="wang-effect-frame"
         style={{
-          left: `${left}%`,
-          top: '65%',
-          width: `${Math.min(110, (pose.width / 360) * 80)}%`,
-          height: `${Math.min(130, (pose.height / 200) * 88)}%`,
+          left: `${ritualGround ? 56 : left}%`,
+          top: ritualGround ? '80%' : '65%',
+          width: `${Math.min(ritualGround ? 75 : 110, (pose.width / 360) * 80)}%`,
+          height: `${Math.min(ritualGround ? 92 : 130, (pose.height / 200) * 88)}%`,
           opacity: pose.alpha,
-          transform: `translate(-50%,${bind || art.motion === 'vortex' ? '-83%' : '-50%'})`,
+          transform: `translate(-50%,${ground ? '-83%' : '-50%'})`,
         }}
       />
     </div>
@@ -94,7 +96,17 @@ export function SkillPreview({ id }: { id: SkillId }) {
       ) : art?.grid ? (
         <SignaturePreview
           id={id}
-          age={playing ? age : art.motion === 'vortex' ? 1000 : art.motion === 'bind' ? 800 : 300}
+          age={
+            playing
+              ? age
+              : art.motion === 'gate'
+                ? 1500
+                : art.motion === 'vortex'
+                  ? 1000
+                  : art.motion === 'bind'
+                    ? 800
+                    : 300
+          }
         />
       ) : sheet ? (
         <span

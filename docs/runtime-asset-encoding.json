@@ -683,6 +683,66 @@
       "width": 1536,
       "height": 1024,
       "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-dich-linh-an-v2.png",
+      "output": "/assets/optimized/skills-wang-dich-linh-an-v2.11de41eb8234.webp",
+      "originalBytes": 2494430,
+      "sourceSha256": "9af06e74e5af0f23e91bb2f98e1f59d3decfca74af66b9a3fd304508209a3f6a",
+      "encodedBytes": 941300,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-luyen-hon-thuat-v1.png",
+      "output": "/assets/optimized/skills-wang-luyen-hon-thuat-v1.5c97360a10d6.webp",
+      "originalBytes": 2827467,
+      "sourceSha256": "7d549f80face14a67065b206584f8ecd278266565d3cfbe549c601dbd385faa2",
+      "encodedBytes": 1103112,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-ritual-icons-v1.png",
+      "output": "/assets/optimized/skills-wang-ritual-icons-v1.acc0e6c5eec1.webp",
+      "originalBytes": 2555916,
+      "sourceSha256": "94f40dcaf70be3502c7e5bab2bd4d965f41ae4f411e1eb4234d0c3b86e893a71",
+      "encodedBytes": 630150,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-tich-diet-chi-v1.png",
+      "output": "/assets/optimized/skills-wang-tich-diet-chi-v1.e34fdc52948d.webp",
+      "originalBytes": 2541893,
+      "sourceSha256": "fc18a42b41adb47ee6a209edad8231fcd383b5c06cf8d7af6b549c3f36be89b9",
+      "encodedBytes": 957330,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-hoang-tuyen-icon-v3.png",
+      "output": "/assets/optimized/skills-wang-hoang-tuyen-icon-v3.93af8e818d5e.webp",
+      "originalBytes": 2532126,
+      "sourceSha256": "cde8774ff43bedcfb9d365b0172d3d5cd76109ad42c9782ec395646c3e51582a",
+      "encodedBytes": 619070,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-hoang-tuyen-v3.png",
+      "output": "/assets/optimized/skills-wang-hoang-tuyen-v3.81823bcafc14.webp",
+      "originalBytes": 1870019,
+      "sourceSha256": "8e30bffbc69ceec9ab0ff327e51bb81b65eb871c66cdbcb9b33e93ec6ba687ea",
+      "encodedBytes": 719844,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0
     }
   ]
 }

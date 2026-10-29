@@ -159,6 +159,30 @@ function pair() {
 }
 afterEach(() => vi.useRealTimers());
 describe('two clients in a shared combat map', () => {
+  it('uses the first valid target for Tịch Diệt Chỉ across both monsters and players',()=>{
+    vi.useFakeTimers();
+    const {a,b,aw,bw,actors}=pair();
+    for(const actor of actors) Object.assign(actor,{pkMode:'all',combat:{...actor.combat,level:99,loadout:['tich_diet_chi']}});
+    a.attack('tich_diet_chi');vi.advanceTimersByTime(600);
+    expect(aw.m.hp).toBe(aw.m.def.hp);
+    expect(bw.w.player.takeHit).toHaveBeenCalledOnce();
+    expect(bw.w.vfx.combatSkill).toHaveBeenCalledWith('tich_diet_chi',expect.anything(),expect.anything(),410,'wang_lam');
+    a.destroy();b.destroy();
+  });
+  it('sends six capped banner drains from the authority without duplicate healing',()=>{
+    vi.useFakeTimers();
+    const {a,b,aw,bw,actors}=pair();
+    actors[0].combat.loadout=['luyen_hon_thuat'];actors[0].combat.level=99;
+    aw.m.hp=aw.m.def.hp=10000;
+    const restore=vi.spyOn(gameStore.getState(),'restore').mockImplementation(()=>{});
+    try {
+      a.attack('luyen_hon_thuat');vi.advanceTimersByTime(3700);
+      expect(restore).toHaveBeenCalledTimes(6);
+      for(const [amount] of restore.mock.calls){expect(amount).toBeGreaterThan(0);expect(amount).toBeLessThanOrEqual(20);}
+      expect(bw.w.vfx.combatSkill).toHaveBeenCalledOnce();
+      const hp=aw.m.hp;vi.advanceTimersByTime(2000);expect(aw.m.hp).toBe(hp);expect(restore).toHaveBeenCalledTimes(6);
+    } finally {restore.mockRestore();a.destroy();b.destroy();}
+  });
   it('gives both clients a binding target at the victim position without damaging it',()=>{
     vi.useFakeTimers();
     const {a,b,aw,bw,actors}=pair();

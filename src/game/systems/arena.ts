@@ -5,6 +5,7 @@ import { wangEffect } from '../../data/wangSkills';
 import { signatureHit } from './skillHit';
 import { heroSpell, heroSpellHit } from '../../data/heroSkills';
 import { heroFor, isHeroId } from '../../data/heroes';
+import { ritualSkill, ritualControlMs, soulDrain } from './ritualSkills';
 export const ARENA_W = 720,
   ARENA_H = 400;
 export const ARENA_ROCKS = [
@@ -298,7 +299,7 @@ export class ArenaEngine {
     for (const e of s.effects) {
       if (e.resolved || (e.nextTick ?? e.ready) > s.elapsed) continue;
       if (e.tickEnd) {
-        e.nextTick = (e.nextTick ?? e.ready) + 500;
+        e.nextTick = (e.nextTick ?? e.ready) + (ritualSkill(e.skill)?.tickMs || 500);
         e.resolved = e.nextTick >= e.tickEnd;
       } else e.resolved = true;
       const target = s.fighters.find((f) => f.userId !== e.owner)!;
@@ -316,13 +317,22 @@ export class ArenaEngine {
           target.weakenUntil = s.elapsed + 800;
           target.slowUntil = s.elapsed + 800;
         }
+        const ritual = ritualSkill(e.skill);
+        const control=ritualControlMs(e.skill);
+        if (control) target.rootUntil = Math.max(target.rootUntil,s.elapsed+control);
+        if (e.skill === 'luyen_hon_thuat') target.weakenUntil = s.elapsed+650;
         const damage = Math.max(
             1,
-            Math.round(e.damage - target.def * (target.weakenUntil > s.elapsed ? 0.8 : 1) * 0.55),
+            Math.round(e.damage - target.def * (ritual ? 1-ritual.armorPierce : target.weakenUntil > s.elapsed ? 0.8 : 1) * 0.55),
           ),
           absorbed = Math.min(target.shield, damage);
         target.shield -= absorbed;
+        const healthLost = Math.min(target.hp,damage-absorbed);
         target.hp = Math.max(0, target.hp - damage + absorbed);
+        if (e.skill === 'luyen_hon_thuat') {
+          const owner = s.fighters.find(f=>f.userId===e.owner)!;
+          if (owner.hp>0) owner.hp=Math.min(owner.maxHp,owner.hp+soulDrain(healthLost,owner.maxHp));
+        }
       }
     }
     s.effects = s.effects.filter((e) => e.expires > s.elapsed);
@@ -381,9 +391,10 @@ export class ArenaEngine {
       return;
     }
     const painted = wangEffect(id);
+    const ritual = ritualSkill(id);
     const circle = id === 'han_bang_tran' || sk.kind === 'nova',
       line = id === 'phi_kiem' || sk.kind === 'projectile',
-      windup = id === 'basic' ? 150 : spell?.windupMs ?? (line ? 400 : 600);
+      windup = id === 'basic' ? 150 : ritual?.windup ?? spell?.windupMs ?? (line ? 400 : 600);
     s.effects.push({
       id: ++this.effect,
       owner: f.userId,
@@ -403,6 +414,9 @@ export class ArenaEngine {
       resolved: false,
       ...(id === 'dao_hoa_hoang_tuyen'
         ? { nextTick: s.elapsed + 500, tickEnd: s.elapsed + 4500, expires: s.elapsed + 4500 }
+        : {}),
+      ...(ritual && ritual.ticks > 1
+        ? { nextTick:s.elapsed+ritual.windup,tickEnd:s.elapsed+ritual.windup+ritual.ticks*ritual.tickMs,expires:s.elapsed+painted!.duration }
         : {}),
     });
   }

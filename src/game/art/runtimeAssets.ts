@@ -5,7 +5,7 @@ import { optimizedAsset } from '../../data/assetDelivery';
 import { getMap } from '../maps';
 import { heroFor, type HeroId } from '../../data/heroes';
 import { SCHOOL_ART, spellSource, spellTexture } from '../../data/heroSpellArt';
-import { WANG_EFFECT_ART, WANG_ICON_ATLAS, wangSheetLayout } from '../../data/wangSkills';
+import { WANG_EFFECT_ART, WANG_ICON_ATLAS, WANG_RITUAL_ICON_ATLAS, WANG_GATE_ICON, wangSheetLayout } from '../../data/wangSkills';
 import { generateArt, registerCharacterArt } from './generate';
 import { buildImmortalArt } from './immortal';
 import { COURTYARD_ATLAS, registerCourtyardFrames } from './courtyard';
@@ -19,7 +19,7 @@ import { DIRECTIONAL_SOURCES, directionalArt, ensureDirectionalHero, registerDir
 import { registerHeroSpells } from './heroRoster';
 import { registerCultivationIcons, registerChildProfile } from './skillIcons';
 import { registerInventoryIcons } from './inventoryIcons';
-import { buildWangSheet, registerWangIcons } from './wangEffects';
+import { buildWangSheet, registerWangIcons, registerWangGateIcon } from './wangEffects';
 import { ITEM_SPRITE_ASSETS } from './icons';
 import { REALM_CREST_TEXTURE } from '../entities/RealmNameplate';
 import { NPCS } from '../../data';
@@ -77,6 +77,8 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
         image(`item-sprite-${id}`, ITEM_SPRITE_ASSETS[id]);
       for (const art of Object.values(WANG_EFFECT_ART)) image(`${art.texture}-source`, art.url);
       image('wang-signature-icons-source', WANG_ICON_ATLAS);
+      image('wang-ritual-icons-source', WANG_RITUAL_ICON_ATLAS);
+      image('wang-gate-icon-source', WANG_GATE_ICON);
       for (const name of DIRECTIONAL_SOURCES)
         image(`hero-v8-${name}-source`, `/assets/heroes-v8/${name}.png`);
       scene.load.json('sprite-manifest', '/assets/sprites/manifest.json');
@@ -119,7 +121,15 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
         scene.textures.remove('wang-signature-icons-source');
       }
       registerCourtyardFrames(scene);
+      if (scene.textures.exists('wang-ritual-icons-source')) {
+        registerWangIcons(scene.textures.get('wang-ritual-icons-source').getSourceImage() as HTMLImageElement,true);
+        scene.textures.remove('wang-ritual-icons-source');
+      }
       registerVillageReferenceProps(scene);
+      if (scene.textures.exists('wang-gate-icon-source')) {
+        registerWangGateIcon(scene.textures.get('wang-gate-icon-source').getSourceImage() as HTMLImageElement);
+        scene.textures.remove('wang-gate-icon-source');
+      }
       registerWorldArt(scene);
       const player = gameStore.getState().player;
       registerDirectionalHeroes(scene, [{ id: heroFor(player).id, child: usesChildSprite(player) }]);
