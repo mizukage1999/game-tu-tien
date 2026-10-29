@@ -5,7 +5,7 @@ import { optimizedAsset } from '../../data/assetDelivery';
 import { getMap } from '../maps';
 import { heroFor, type HeroId } from '../../data/heroes';
 import { SCHOOL_ART, spellSource, spellTexture } from '../../data/heroSpellArt';
-import { WANG_EFFECT_ART } from '../../data/wangSkills';
+import { WANG_EFFECT_ART, WANG_ICON_ATLAS, wangSheetLayout } from '../../data/wangSkills';
 import { generateArt, registerCharacterArt } from './generate';
 import { buildImmortalArt } from './immortal';
 import { COURTYARD_ATLAS, registerCourtyardFrames } from './courtyard';
@@ -19,7 +19,7 @@ import { DIRECTIONAL_SOURCES, directionalArt, ensureDirectionalHero, registerDir
 import { registerHeroSpells } from './heroRoster';
 import { registerCultivationIcons, registerChildProfile } from './skillIcons';
 import { registerInventoryIcons } from './inventoryIcons';
-import { buildWangSheet, WANG_CELL } from './wangEffects';
+import { buildWangSheet, registerWangIcons } from './wangEffects';
 import { ITEM_SPRITE_ASSETS } from './icons';
 import { REALM_CREST_TEXTURE } from '../entities/RealmNameplate';
 import { NPCS } from '../../data';
@@ -76,6 +76,7 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
       for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho'])
         image(`item-sprite-${id}`, ITEM_SPRITE_ASSETS[id]);
       for (const art of Object.values(WANG_EFFECT_ART)) image(`${art.texture}-source`, art.url);
+      image('wang-signature-icons-source', WANG_ICON_ATLAS);
       for (const name of DIRECTIONAL_SOURCES)
         image(`hero-v8-${name}-source`, `/assets/heroes-v8/${name}.png`);
       scene.load.json('sprite-manifest', '/assets/sprites/manifest.json');
@@ -109,8 +110,13 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
           scene.textures.get(`${art.texture}-source`).getSourceImage() as HTMLImageElement,
         );
         const texture = addStaticTexture(scene, art.texture, sheet)!;
-        for (let i = 0; i < 6; i++) texture.add(i, 0, i * WANG_CELL, 0, WANG_CELL, WANG_CELL);
+        const { frames, columns, cell } = wangSheetLayout(art);
+        for (let i = 0; i < frames; i++) texture.add(i, 0, i % columns * cell, Math.floor(i / columns) * cell, cell, cell);
         scene.textures.remove(`${art.texture}-source`);
+      }
+      if (scene.textures.exists('wang-signature-icons-source')) {
+        registerWangIcons(scene.textures.get('wang-signature-icons-source').getSourceImage() as HTMLImageElement);
+        scene.textures.remove('wang-signature-icons-source');
       }
       registerCourtyardFrames(scene);
       registerVillageReferenceProps(scene);

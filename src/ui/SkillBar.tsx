@@ -7,6 +7,8 @@ import { effectiveSkill, skillLevel, skillLoadout } from '../game/systems/skills
 import { useGame } from '../store/gameStore';
 import { heroName, isChildhood } from '../game/systems/origin';
 import { flightProfile, immortalProgress, mountUnlocked } from '../game/systems/immortal';
+import { wangEffect } from '../data/wangSkills';
+import { WangSkillGlyph } from './WangSkillArt';
 
 function SkillButton({ id, className, slot }: { id: SkillId; className: string; slot: number }) {
   const cd = useGame((s) => s.cooldowns[id] ?? 0);
@@ -29,7 +31,7 @@ function SkillButton({ id, className, slot }: { id: SkillId; className: string; 
         EventBus.emit('cmd:skill', id);
       }}
     >
-      <img src={skillSpriteUrl(id, sex)} alt={sk.name} draggable={false} />
+      {wangEffect(id)?.grid ? <WangSkillGlyph id={id} /> : <img src={skillSpriteUrl(id, sex)} alt={sk.name} draggable={false} />}
       {cd > 0 && id !== 'basic' && <span className="skill-cd">{(cd / 1000).toFixed(1)}</span>}
       <span className="skill-key">{id === 'than_phap' ? 'Lướt' : slot + 1}</span>
       {level > 1 && <span className={`skill-badge ${sk.active ? 'awakened' : ''}`}>{level}</span>}

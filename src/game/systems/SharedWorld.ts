@@ -254,7 +254,15 @@ export class SharedWorld {
         now = Date.now();
       if ((this.cooldowns.get(cdKey) ?? 0) > now) return;
       this.cooldowns.set(cdKey, now + Math.max(100, sk.cooldownMs - 120));
-      w.vfx.combatSkill(e.skill, e, { x: e.dx, y: e.dy }, sk.range, heroFor(actor).id);
+      const visualArgs = [e.skill, e, { x: e.dx, y: e.dy }, sk.range, heroFor(actor).id] as const;
+      if (e.skill === 'dinh_than_thuat') w.vfx.combatSkill(...visualArgs, () => {
+        const monsters = w.monsters.filter(m => m.alive && worldSkillHit(e.skill, sk, e, {x:e.dx,y:e.dy}, m, e.combo) && gridLineClear(w.map.blocked,TILE,e,m,0,0));
+        const peers = this.world.cooperativeRun ? [] : this.actors().filter(p => p.key !== actor.key && p.combat.hp > 0 && mayPk({ mode:actor.pkMode,sect:actor.sect,child:actor.child,mapId:w.map.id },p) && worldSkillHit(e.skill,sk,e,{x:e.dx,y:e.dy},p,e.combo) && gridLineClear(w.map.blocked,TILE,e,p,0,0));
+        const target = [...monsters,...peers].sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
+        if (!target) return;
+        return {get x(){return target.x}, get y(){return target.y}, duration:'def' in target && target.def.boss ? 350 : 1000};
+      });
+      else w.vfx.combatSkill(...visualArgs);
       const screen = isoVector(e.dx, e.dy),
         dir = heroDirection(screen.x, screen.y);
       if (from !== this.channel.selfKey)

@@ -7,8 +7,11 @@ import { SKILL_ATLAS_ORDER } from '../../game/art/skillIcons';
 import { usePremium } from '../../net/premium';
 import { heroSpell } from '../../data/heroSkills';
 import { HeroSpellGlyph } from '../HeroArt';
+import { wangEffect } from '../../data/wangSkills';
+import { WangSkillGlyph } from '../WangSkillArt';
 
 export function SkillGlyph({ id, className = '' }: { id: SkillId; className?: string }) {
+  if (wangEffect(id)?.grid) return <WangSkillGlyph id={id} className={`cult-skill-glyph ${className}`} />;
   if (heroSpell(id)) return <HeroSpellGlyph id={id} className={`cult-skill-glyph ${className}`} />;
   const index = SKILL_ATLAS_ORDER.indexOf(id);
   return (

@@ -1800,6 +1800,7 @@ export class WorldScene extends Phaser.Scene {
       const hits = () => this.monsters.filter(m => m.alive && signatureHit(id,from,facing,sk.range,m))
         .sort((a,b) => Math.hypot(a.x-from.x,a.y-from.y)-Math.hypot(b.x-from.x,b.y-from.y));
       if (id !== 'dinh_than_thuat') this.vfx.signature(id,from,facing,sk.range);
+      else this.vfx.signature(id,from,facing,sk.range,{castOnly:true,duration:400});
       if (id === 'dao_hoa_hoang_tuyen') {
         for (let tick = 1; tick <= 8; tick++) this.time.delayedCall(tick * 500, () => {
           if (p.life.status !== 'alive') return;
@@ -1809,7 +1810,7 @@ export class WorldScene extends Phaser.Scene {
         if (p.life.status !== 'alive') return;
         if (id === 'dinh_than_thuat') {
           const m = hits()[0];
-          if (m) { m.rootTimer = 2000; this.vfx.signature(id,m,facing,sk.range); }
+          if (m) { m.rootTimer = 2000; this.vfx.signature(id,m,facing,sk.range,{duration:2000}); }
           else this.vfx.signature(id,{x:from.x+facing.x*sk.range,y:from.y+facing.y*sk.range},facing,sk.range);
         } else for (const m of hits()) {
           this.damageMonster(m,sk.multiplier);
