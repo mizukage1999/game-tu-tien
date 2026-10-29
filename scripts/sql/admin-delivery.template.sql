@@ -1,4 +1,4 @@
--- Generated upgrade: admin items through mail, and a 60-second maintenance announcement.
+-- Generated upgrade: admin items through mail, and a five-minute maintenance announcement.
 -- Run after admin-operations.sql and alphatest-mail.sql. Existing saves are not rewritten.
 begin;
 alter table public.game_server_control add column if not exists maintenance_at timestamptz;

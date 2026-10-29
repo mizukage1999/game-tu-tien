@@ -71,7 +71,7 @@ create or replace function public.game_access_allowed(p_user uuid) returns boole
 language sql stable security definer set search_path=public,pg_temp as $$
  select p_user is not null and exists(select 1 from auth.users where id=p_user)
  and not exists(select 1 from public.game_account_blocks where user_id=p_user)
- and (not (select maintenance from public.game_server_control where id) or (select maintenance_at>clock_timestamp() from public.game_server_control where id) or exists(select 1 from public.game_admins where user_id=p_user));
+ and exists(select 1 from public.game_server_control where id and (not maintenance or maintenance_at>clock_timestamp()));
 $$;
 revoke all on function public.game_access_allowed(uuid) from public,anon,authenticated;
 create or replace function public.claim_game_session(p_instance_id uuid) returns boolean
@@ -115,7 +115,7 @@ end $$;
 create or replace function public.admin_operations_status() returns jsonb
 language plpgsql security definer set search_path=public,pg_temp as $$ begin
  perform public.admin_dashboard_require_access();
- return (select to_jsonb(c)||jsonb_build_object('item_delivery',case when to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then 'unavailable' else 'mail' end,'maintenance_notice_seconds',60,'bosses',coalesce((select jsonb_agg(data||jsonb_build_object('id',id)) from public.game_admin_catalog where kind='boss'),'[]'::jsonb),
+ return (select to_jsonb(c)||jsonb_build_object('item_delivery',case when to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then 'unavailable' else 'mail' end,'maintenance_notice_seconds',300,'bosses',coalesce((select jsonb_agg(data||jsonb_build_object('id',id)) from public.game_admin_catalog where kind='boss'),'[]'::jsonb),
  'pending_auth',coalesce((select jsonb_agg(to_jsonb(j)) from (select id,kind,target,payload,reason,created_at from public.admin_commands where actor=auth.uid() and status='pending' and kind like 'auth_%' order by created_at limit 50) j),'[]'::jsonb)) from public.game_server_control c where id);
 end $$;
 create or replace function public.admin_read_snapshot(p_user uuid) returns jsonb
@@ -174,7 +174,7 @@ declare cmd public.admin_commands; s public.saves; d jsonb; p jsonb; inv jsonb; 
  if p_kind='maintenance' then
   if p_user is not null or jsonb_typeof(p_payload->'enabled') is distinct from 'boolean' or length(coalesce(p_payload->>'message',''))>500 then raise exception 'INVALID_COMMAND'; end if;
   update public.game_server_control set maintenance=(p_payload->>'enabled')::boolean,message=coalesce(p_payload->>'message',''),
-   maintenance_at=case when (p_payload->>'enabled')::boolean then clock_timestamp()+interval '60 seconds' else null end,version=version+1 where id;
+   maintenance_at=case when (p_payload->>'enabled')::boolean then clock_timestamp()+interval '5 minutes' else null end,version=version+1 where id;
  elsif p_kind='item_grant' then
   if to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then raise exception 'MAIL_DELIVERY_NOT_INSTALLED'; end if;
   v_result:=public.admin_queue_item_mail(p_id,p_user,p_payload,p_reason);

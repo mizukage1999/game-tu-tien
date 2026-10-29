@@ -36,7 +36,7 @@ it('applies a first/new boss reset once, without replaying historical commands o
   expect(fake.emit).toHaveBeenCalledTimes(1);
   expect(block).not.toHaveBeenCalled();
 });
-it('gates ordinary players during maintenance while admins can stay', async () => {
+it('gates every game account during maintenance including admins', async () => {
   const blocked = vi.fn();
   fake.rpc.mockResolvedValue({
     data: { ...normal, maintenance: true, message: 'Bảo trì' },
@@ -50,7 +50,7 @@ it('gates ordinary players during maintenance while admins can stay', async () =
   blocked.mockClear();
   stop = watchServerControl(() => '', blocked);
   await vi.advanceTimersByTimeAsync(1);
-  expect(blocked).not.toHaveBeenCalled();
+  expect(blocked).toHaveBeenCalledOnce();
 });
 it('does not treat lost network as a maintenance or account ban', async () => {
   const blocked = vi.fn();
@@ -61,17 +61,42 @@ it('does not treat lost network as a maintenance or account ban', async () => {
 });
 it('keeps players in game during the announcement period and blocks only at the deadline', async () => {
   const blocked = vi.fn();
-  const maintenance_at = new Date(Date.now() + 60000).toISOString();
+  const maintenance_at = new Date(Date.now() + 300000).toISOString();
   fake.rpc.mockResolvedValue({
     data: { ...normal, maintenance: true, maintenance_at, message: 'Lưu tiến trình trước bảo trì' },
     error: null,
   });
   stop = watchServerControl(() => '', blocked);
-  await vi.advanceTimersByTimeAsync(58000);
+  await vi.advanceTimersByTimeAsync(299000);
   expect(blocked).not.toHaveBeenCalled();
   expect(serverControlStore.getState().maintenance_at).toBe(maintenance_at);
-  await vi.advanceTimersByTimeAsync(2001);
+  await vi.advanceTimersByTimeAsync(1001);
   expect(blocked).toHaveBeenCalledOnce();
+});
+it('enforces the confirmed deadline even if the next control request hangs', async () => {
+  const blocked = vi.fn(),
+    maintenance_at = new Date(Date.now() + 300000).toISOString();
+  let reply!: (value: unknown) => void;
+  fake.rpc
+    .mockResolvedValueOnce({
+      data: { ...normal, maintenance: true, maintenance_at, admin: true },
+      error: null,
+    })
+    .mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          reply = resolve;
+        }),
+    );
+  stop = watchServerControl(() => '', blocked);
+  await vi.advanceTimersByTimeAsync(299000);
+  expect(blocked).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(blocked).toHaveBeenCalledOnce();
+  reply({ data: normal, error: null });
+  await vi.advanceTimersByTimeAsync(2000);
+  expect(blocked).toHaveBeenCalledOnce();
+  expect(serverControlStore.getState().maintenance).toBe(true);
 });
 it('ignores a control response after the account watcher has stopped', async () => {
   let resolve!: (r: unknown) => void;

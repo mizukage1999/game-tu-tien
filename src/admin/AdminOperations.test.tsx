@@ -59,7 +59,7 @@ beforeEach(() => {
   Object.values(fake).forEach((f) => f.mockReset());
   fake.status.mockResolvedValue({
     maintenance: false,
-    maintenance_notice_seconds: 60,
+    maintenance_notice_seconds: 300,
     item_delivery: 'mail',
     message: '',
     bosses: [{ id: 'map:boss', map: 'map', monster: 'boss' }],

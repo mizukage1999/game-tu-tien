@@ -11,6 +11,8 @@
     "lint": "eslint .",
     "leaderboard:generate": "node scripts/generate-leaderboard-sql.mjs",
     "leaderboard:verify": "node scripts/verify-leaderboard-sql.mjs",
+    "player-access:generate": "node scripts/generate-player-access-sql.mjs",
+    "player-access:verify": "node scripts/verify-player-access-sql.mjs",
     "assets:optimize": "node scripts/optimize-runtime-assets.mjs",
     "assets:verify": "node scripts/verify-runtime-assets.mjs"
   },

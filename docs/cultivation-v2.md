@@ -2,6 +2,8 @@
 
 Tên nhân vật được giữ bằng RPC `claim_character_name` trước khi ghi save đầu tiên. Bảng `character_names` có khóa duy nhất cho tên chuẩn hóa Unicode NFC, khoảng trắng và chữ thường. Trùng tên, mất mạng hoặc thiếu migration đều giữ người chơi ở form tạo nhân vật với lỗi tại chỗ. Đăng nhập ở nơi khác trong lúc giữ tên khiến kết quả cũ bị từ chối. Tên hiển thị trong map dùng tên người chơi đã chọn; biệt danh tuổi thơ chỉ dùng trong lời thoại cốt truyện.
 
+Form tạo mới để trống ô tên và yêu cầu người chơi nhập tên riêng từ 6–16 ký tự sau chuẩn hóa; đổi hệ nhân vật không đổi tên đang nhập. Server kiểm tra lại giới hạn này. Tên ngắn đã lưu từ trước được giữ nguyên; không phải đổi tên mỗi lần đăng nhập. Nâng cấp server cũ bằng [player-access.sql](../supabase/player-access.sql), theo [hướng dẫn truy cập v2](player-access-v2.md).
+
 Chạy `supabase/character-names.sql` sau `schema.sql` và `single-session.sql` trong SQL Editor của Supabase, trước khi triển khai client này. Migration giữ nguyên tiến trình; trong các save trùng tên cũ, save được cập nhật sớm nhất giữ tên gốc, các save còn lại nhận hậu tố theo ID tài khoản. Tên từ cloud là nguồn chuẩn khi hợp nhất với cache trình duyệt. Mọi lần ghi save đều phải khớp tên đã giữ. Xóa nhân vật giải phóng tên. Migration đã được kiểm tra với PostgreSQL cục bộ qua PGlite; chưa chạy trên server thật trong phiên làm việc này.
 
 Atlas trẻ em có tám hàng cao khác nhau. `heroAtlas.ts` định nghĩa vùng cắt theo từng cột để giữ đủ mũ, chân và bàn chân cho cả tám phái, tám hướng. Phaser, hình trong menu và avatar cùng dùng nguồn tọa độ này. Không sửa hay phóng to bitmap để che lỗi cắt.

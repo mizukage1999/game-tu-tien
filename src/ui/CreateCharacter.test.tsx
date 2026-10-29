@@ -14,6 +14,12 @@ beforeEach(() => {
     .mockImplementation(async (name) => name);
 });
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+const typeName = (host: HTMLDivElement, name: string) =>
+  act(() => {
+    const input = host.querySelector('input')!;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, name);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
 
 it('selects a real school, reserves its name, and starts with that identity', async () => {
   const host = document.createElement('div'),
@@ -21,9 +27,11 @@ it('selects a real school, reserves its name, and starts with that identity', as
     done = vi.fn();
   try {
     act(() => root.render(<CreateCharacter onDone={done} />));
+    expect(host.querySelector('input')!.value).toBe('');
     expect(host.querySelectorAll('.roster-grid>button')).toHaveLength(8);
     act(() => host.querySelector<HTMLButtonElement>('[data-hero="hong_lien"]')!.click());
-    expect(host.querySelector('input')!.value).toBe('Hồng Liên');
+    expect(host.querySelector('input')!.value).toBe('');
+    typeName(host, 'Thiên Vũ');
     expect(host.querySelectorAll('.roster-spells button')).toHaveLength(10);
     expect(host.querySelector('.roster-spell-info')!.textContent).toContain('Hỏa Ma Chỉ');
     act(() => host.querySelectorAll<HTMLButtonElement>('.roster-spells button')[4].click());
@@ -36,7 +44,7 @@ it('selects a real school, reserves its name, and starts with that identity', as
         .querySelector('form')!
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
-    expect(createCharacter).toHaveBeenCalledWith('Hồng Liên', 'female', 'hong_lien');
+    expect(createCharacter).toHaveBeenCalledWith('Thiên Vũ', 'female', 'hong_lien');
     expect(done).toHaveBeenCalledOnce();
   } finally {
     act(() => root.unmount());
@@ -52,13 +60,14 @@ it('keeps a duplicate-name error in the creation form without entering the world
     done = vi.fn();
   try {
     act(() => root.render(<CreateCharacter onDone={done} />));
+    typeName(host, 'Tu Tiên');
     await act(async () => {
       host
         .querySelector('form')!
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
     expect(host.querySelector('[role="alert"]')?.textContent).toContain('đã có người sử dụng');
-    expect(host.querySelector('input')!.value).toBe('Vương Lâm');
+    expect(host.querySelector('input')!.value).toBe('Tu Tiên');
     expect(createCharacter).not.toHaveBeenCalled();
     expect(done).not.toHaveBeenCalled();
     expect(host.querySelector<HTMLButtonElement>('.roster-enter')!.disabled).toBe(false);
@@ -79,6 +88,7 @@ it('waits for the server and suppresses repeated submits while holding the name'
     done = vi.fn();
   try {
     act(() => root.render(<CreateCharacter onDone={done} />));
+    typeName(host, 'Tu Tiên');
     act(() => {
       for (let i = 0; i < 2; i++)
         host
@@ -89,10 +99,41 @@ it('waits for the server and suppresses repeated submits while holding the name'
     expect(createCharacter).not.toHaveBeenCalled();
     expect(host.querySelector<HTMLButtonElement>('.roster-enter')!.disabled).toBe(true);
     await act(async () => {
-      release('Vương Lâm');
+      release('Tu Tiên');
     });
     expect(createCharacter).toHaveBeenCalledOnce();
     expect(done).toHaveBeenCalledOnce();
+  } finally {
+    act(() => root.unmount());
+  }
+});
+it('requires six normalized characters and preserves the chosen name when switching schools', async () => {
+  const host = document.createElement('div'),
+    root = createRoot(host),
+    done = vi.fn();
+  try {
+    act(() => root.render(<CreateCharacter onDone={done} />));
+    for (const name of ['', '12345', '   Thanh   ']) {
+      typeName(host, name);
+      await act(async () => {
+        host
+          .querySelector('form')!
+          .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      });
+      expect(host.querySelector('[role=alert]')?.textContent).toContain('6');
+    }
+    expect(claimCharacterName).not.toHaveBeenCalled();
+    expect(done).not.toHaveBeenCalled();
+    typeName(host, 'Tên Riêng');
+    act(() => host.querySelector<HTMLButtonElement>('[data-hero="tham_nguyet"]')!.click());
+    expect(host.querySelector('input')!.value).toBe('Tên Riêng');
+    typeName(host, '123456');
+    await act(async () => {
+      host
+        .querySelector('form')!
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    expect(createCharacter).toHaveBeenCalledWith('123456', 'female', 'tham_nguyet');
   } finally {
     act(() => root.unmount());
   }

@@ -2,6 +2,10 @@ import fs from 'node:fs';
 const source = fs.readFileSync('supabase/admin-operations.sql', 'utf8');
 const names = [
   'game_access_allowed',
+  'claim_game_session',
+  'check_game_session',
+  'save_game_snapshot',
+  'delete_game_snapshot',
   'game_control_status',
   'admin_operations_status',
   'admin_apply_command',

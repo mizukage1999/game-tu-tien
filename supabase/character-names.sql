@@ -12,6 +12,7 @@ create table if not exists public.character_names (
   name text not null,
   name_key text not null unique,
   created_at timestamptz not null default clock_timestamp(),
+  -- Keep legacy names; the reservation RPC and save trigger enforce >=6 for new characters.
   check (char_length(name) between 1 and 16)
 );
 alter table public.character_names enable row level security;
@@ -54,11 +55,12 @@ declare v_session public.game_sessions%rowtype; v_name text;
 begin
   select * into v_session from public.game_sessions where user_id=auth.uid() for update;
   if not found or v_session.instance_id is distinct from p_instance_id
-    or v_session.auth_session_id is distinct from (auth.jwt()->>'session_id') then
+    or v_session.auth_session_id is distinct from (auth.jwt()->>'session_id')
+    or not public.check_game_session(p_instance_id) then
     raise exception 'SESSION_REPLACED';
   end if;
   v_name := public.character_name_clean(p_name);
-  if char_length(v_name) not between 1 and 16
+  if char_length(v_name) not between 6 and 16
     or v_name ~ '[[:cntrl:]]' or v_name ~ U&'[\200B-\200F\202A-\202E\2060-\206F\FEFF]' then
     raise exception 'INVALID_CHARACTER_NAME';
   end if;
@@ -86,12 +88,14 @@ begin
   end if;
   select name into v_reserved from public.character_names where user_id=new.user_id for update;
   if not found then
+    if char_length(v_name)<6 then raise exception 'INVALID_CHARACTER_NAME'; end if;
     begin
       insert into public.character_names(user_id,name,name_key) values(new.user_id,v_name,lower(v_name));
       v_reserved := v_name;
     exception when unique_violation then raise exception 'CHARACTER_NAME_TAKEN';
     end;
   end if;
+  if char_length(v_name)<6 and not exists(select 1 from public.saves where user_id=new.user_id) then raise exception 'INVALID_CHARACTER_NAME';end if;
   if v_name is distinct from v_reserved then raise exception 'CHARACTER_NAME_MISMATCH'; end if;
   new.data := jsonb_set(new.data,'{player,name}',to_jsonb(v_reserved));
   return new;

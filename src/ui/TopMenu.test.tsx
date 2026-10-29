@@ -5,7 +5,7 @@ import { it, expect } from 'vitest';
 import { TopMenu } from './TopMenu';
 import { gameStore, newPlayer } from '../store/gameStore';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-it('keeps desktop and mobile menus compact while making every feature reachable', () => {
+it('shows every desktop feature directly and keeps mobile compact', () => {
   const previous = gameStore.getState(),
     host = document.createElement('div'),
     root = createRoot(host);
@@ -19,26 +19,26 @@ it('keeps desktop and mobile menus compact while making every feature reachable'
     expect(gameStore.getState().menu).toBe('sect');
     expect(host.querySelector('.top-menu-more')).toBeNull();
     act(() => root.render(<TopMenu />));
-    expect(host.querySelectorAll('button')).toHaveLength(6);
-    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
-    expect(host.querySelector('.menu-btn-settings')).not.toBeNull();
-    act(() => host.querySelector<HTMLButtonElement>('.menu-btn-premium')!.click());
-    expect(gameStore.getState().menu).toBe('premium');
-    expect(host.querySelector('.top-menu-more')).toBeNull();
-    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
+    expect(host.querySelectorAll('.top-menu-desktop > button')).toHaveLength(15);
+    expect(host.querySelector('[aria-label="Thêm tính năng"]')).toBeNull();
     expect(host.querySelector('[aria-label="Bày Bán"]')).toBeNull();
-    expect(host.querySelector('.top-menu-more button:last-child')?.getAttribute('aria-label')).toBe(
-      'Cài Đặt',
-    );
-    act(() => host.querySelector<HTMLButtonElement>('[aria-label="Giao Dịch"]')!.click());
-    expect(gameStore.getState()).toMatchObject({ menu: 'shop', marketSection: 'overview' });
-    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
-    act(() => host.querySelector<HTMLButtonElement>('[aria-label="Săn Boss"]')!.click());
-    expect(gameStore.getState().menu).toBe('boss');
-    expect(host.querySelector('.top-menu-more')).toBeNull();
-    act(() => host.querySelector<HTMLButtonElement>('[aria-expanded]')!.click());
-    act(() => host.querySelector<HTMLButtonElement>('[aria-label="Bảng Xếp Hạng"]')!.click());
-    expect(gameStore.getState().menu).toBe('ranking');
+    expect(
+      host.querySelector('.top-menu-desktop button:last-child')?.getAttribute('aria-label'),
+    ).toBe('Cài Đặt');
+    for (const [label, menu] of [
+      ['Tiên Ngọc', 'premium'],
+      ['Giao Dịch', 'shop'],
+      ['Săn Boss', 'boss'],
+      ['Bảng Xếp Hạng', 'ranking'],
+      ['Cài Đặt', 'settings'],
+    ]) {
+      act(() =>
+        [...host.querySelectorAll<HTMLButtonElement>('button')]
+          .find((button) => button.getAttribute('aria-label') === label)!
+          .click(),
+      );
+      expect(gameStore.getState().menu).toBe(menu);
+    }
     expect(host.querySelector('.top-menu-more')).toBeNull();
   } finally {
     act(() => root.unmount());

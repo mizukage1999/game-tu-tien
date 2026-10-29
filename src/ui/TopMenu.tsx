@@ -29,9 +29,7 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
   const marketSection = useGame((s) => s.marketSection);
   const patch = useGame((s) => s.patch);
   const childhood = useGame((s) => isChildhood(s.player));
-  const common: MenuTab[] = phone
-    ? ['character', 'bag', 'journey', 'skills']
-    : ['character', 'bag', 'skills', 'journey', 'sect'];
+  const common: MenuTab[] = ['character', 'bag', 'journey', 'skills'];
   const button = (it: (typeof ITEMS)[number]) => (
     <button
       key={`${it.id}-${it.marketSection ?? ''}`}
@@ -59,6 +57,12 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
       <span className="menu-label">{it.label}</span>
     </button>
   );
+  if (!phone)
+    return (
+      <nav className="top-menu top-menu-desktop" aria-label="Menu tính năng">
+        {ITEMS.map(button)}
+      </nav>
+    );
   return (
     <nav className="top-menu">
       {ITEMS.filter((it) => common.includes(it.id)).map(button)}

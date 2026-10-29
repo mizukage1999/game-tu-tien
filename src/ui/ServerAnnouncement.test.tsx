@@ -14,7 +14,7 @@ it('announces maintenance over the game, counts down, and disappears when mainte
     serverControlStore.setState({ maintenance: false, maintenance_at: null });
     act(() => root.render(<ServerAnnouncement />));
     act(() => vi.advanceTimersByTime(90000));
-    const deadline = new Date(Date.now() + 60000).toISOString();
+    const deadline = new Date(Date.now() + 300000).toISOString();
     act(() =>
       serverControlStore.setState({
         maintenance: true,
@@ -26,11 +26,11 @@ it('announces maintenance over the game, counts down, and disappears when mainte
     expect(host.querySelector('[role=status]')?.getAttribute('aria-label')).toContain(
       'Nâng cấp máy chủ',
     );
-    expect(host.querySelector('.server-announcement-countdown')?.textContent).toBe('60s');
+    expect(host.querySelector('.server-announcement-countdown')?.textContent).toBe('300s');
     expect(maintenanceBlocks(serverControlStore.getState())).toBe(false);
     act(() => vi.advanceTimersByTime(15000));
-    expect(host.querySelector('.server-announcement-countdown')?.textContent).toBe('45s');
-    act(() => vi.advanceTimersByTime(45000));
+    expect(host.querySelector('.server-announcement-countdown')?.textContent).toBe('285s');
+    act(() => vi.advanceTimersByTime(285000));
     expect(maintenanceBlocks(serverControlStore.getState())).toBe(true);
     act(() => serverControlStore.setState({ maintenance: false, maintenance_at: null }));
     expect(host.childElementCount).toBe(0);

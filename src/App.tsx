@@ -5,7 +5,7 @@ import { CreateCharacter } from './ui/CreateCharacter';
 import { loadGame } from './game/systems/save';
 import { AuthScreen } from './ui/AuthScreen';
 import { onlineEnabled } from './net/config';
-import { getAccountState, setAccountState, useAccount } from './net/session';
+import { getAccountState, useAccount } from './net/session';
 import { startSocial } from './net/socialBridge';
 import { usePhoneLayout, usePortrait, useTryLockLandscape } from './ui/TouchPlay';
 import { refreshPremium, resetPremium } from './net/premium';
@@ -16,8 +16,7 @@ import { MobileViewport } from './ui/MobileViewport';
 import { bootStorage, consumeBootRetry } from './game/systems/gameBoot';
 import { refreshMail, resetMail } from './net/gameMail';
 import { maintenanceBlocks, useServerControl, watchServerControl } from './net/serverControl';
-import { detachCloudSync } from './net/cloudSave';
-import { disableSaving } from './game/systems/save';
+import { endGameSession } from './net/boot';
 import './ui/server-control.css';
 
 export function App() {
@@ -37,14 +36,7 @@ export function App() {
     return watchServerControl(
       () => gameStore.getState().mapId,
       () => {
-        detachCloudSync();
-        disableSaving();
-        setAccountState({
-          user: null,
-          booting: false,
-          status: 'idle',
-          error: 'Phiên chơi đã dừng theo thông báo server.',
-        });
+        endGameSession('Phiên chơi đã dừng theo thông báo server.');
       },
     );
   }, [accountId]);

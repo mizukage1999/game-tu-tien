@@ -17,18 +17,24 @@ let hydratedFor: string | null = null;
 let epoch = 0;
 let replaced = false;
 
+/** End only this page's game session; keep Supabase Auth available to the admin dashboard. */
+export function endGameSession(message = SESSION_REPLACED) {
+  replaced = true;
+  epoch++;
+  stopActiveSession();
+  detachCloudSync();
+  disableSaving();
+  setAccountState({ user: null, booting: false, status: 'idle', error: message });
+}
+
 function onReplaced() {
   void refreshServerControl()
     .then((data) => {
       if (data) serverControlStore.setState(data);
     })
     .catch(() => {});
-  replaced = true;
-  epoch++;
-  detachCloudSync();
-  disableSaving();
   // Do not call auth.signOut(): shared browser storage could log out the winning tab.
-  setAccountState({ user: null, booting: false, status: 'idle', error: SESSION_REPLACED });
+  endGameSession();
 }
 
 async function applySession(user: User | null) {

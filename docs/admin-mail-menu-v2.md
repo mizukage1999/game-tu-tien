@@ -4,14 +4,14 @@
 
 Chạy toàn bộ [`supabase/admin-delivery.sql`](../supabase/admin-delivery.sql) trong Supabase SQL Editor. Yêu cầu server đã có `admin-operations.sql`, `admin-catalog.sql` và `alphatest-mail.sql` cùng các migration nền của chúng. File nâng cấp chạy trong một transaction; không tự gửi quà, thay túi hoặc bật bảo trì. Có thể chạy lại mà không xóa thư hay biên nhận cũ.
 
-Workspace hiện chỉ có cấu hình public, chưa có kết nối quản trị database để chạy migration live. Dashboard mới chặn gửi vật phẩm nếu server chưa có luồng thư; không quay về cách cộng thẳng vào túi. Nút bật bảo trì cũng yêu cầu server hỗ trợ báo trước 60 giây.
+Workspace hiện chỉ có cấu hình public, chưa có kết nối quản trị database để chạy migration live. Dashboard mới chặn gửi vật phẩm nếu server chưa có luồng thư; không quay về cách cộng thẳng vào túi. Nút bật bảo trì yêu cầu server hỗ trợ báo trước 5 phút. Cài tiếp `supabase/player-access.sql` để cập nhật việc chặn admin trong game và kiểm tra tên mới; xem [hướng dẫn nâng cấp](player-access-v2.md).
 
 ## Quà và bảo trì
 
 - Lệnh `item_grant` tạo đúng một thư cho người nhận, gồm tên vật phẩm, số lượng và lý do của admin. Biên nhận theo ID lệnh giúp thử lại không gửi trùng. Save, túi, entitlement và phiên chơi giữ nguyên khi thư vừa được gửi.
 - Người chơi mở **Thư → Nhận vật phẩm**. RPC `claim_game_mail` xác minh chủ thư/phiên chơi, cộng vật phẩm một lần, tăng revision thư và trả lại save xác nhận. Đồ trang bị được tạo thành từng instance. Tiên Pháp Bảo chỉ có entitlement sau khi nhận thư. Quà admin nhận được trước nhập môn; thư Alphatest vẫn phải nhập môn.
 - Khóa giao dịch theo thứ tự tài khoản → session → save → thư. Thử nhận lại sau mất mạng trả biên nhận; autosave cũ bị revision chặn. Hộp thư kiểm tra mỗi 30 giây khi tab đang hiển thị và khi quay lại tab, để người đang chơi biết có quà mới.
-- Bật bảo trì tạo `maintenance_at = thời gian server + 60 giây`. Dòng thông báo chạy ngang ở vùng 23–26% chiều cao màn hình, kèm đếm ngược; không chặn bấm. Trong thời gian đó vẫn lưu/chơi bình thường. Server kiểm tra hạn để chặn truy cập, không chỉ dựa vào đồng hồ client. Admin được tiếp tục. Tắt bảo trì hủy thời hạn và bỏ thông báo.
+- Bật bảo trì tạo `maintenance_at = thời gian server + 5 phút`. Dòng thông báo chạy ngang ở vùng 23–26% chiều cao màn hình, kèm đếm ngược; không chặn bấm. Trong thời gian đó vẫn lưu/chơi bình thường. Đến hạn, server chặn tất cả tài khoản trong game, kể cả admin, và từ chối tạo phiên mới khi F5. Trang `/admin` vẫn dùng được để mở lại server. Tắt bảo trì hủy thời hạn và bỏ thông báo.
 
 Mã nguồn SQL nâng cấp ở `scripts/sql/admin-delivery.template.sql`; các hàm điều hành được lấy từ `supabase/admin-operations.sql`. Sau khi sửa, chạy `node scripts/generate-admin-delivery-sql.mjs` để cập nhật file triển khai. Xác minh bằng `node scripts/verify-admin-operations-sql.mjs` với PostgreSQL PGlite cục bộ, không dùng dữ liệu live.
 
@@ -37,7 +37,7 @@ Prompt đã dùng cho atlas duy nhất:
 
 ## Xác minh
 
-- 469 kiểm thử game qua; kiểm tra riêng việc bật bảo trì sau khi HUD đã mở lâu vẫn bắt đầu đúng 60 giây cũng qua.
+- Bản menu v2 ban đầu có 469 kiểm thử game qua. Kiểm tra hạn bảo trì mới và tên nhân vật được ghi riêng trong [bản cập nhật truy cập](player-access-v2.md).
 - 46 kiểm tra PostgreSQL cho điều hành: quà chưa nhận không đổi túi/entitlement, thử gửi/nhận lại không trùng, không nhận được thư của người khác, nhận trước nhập môn, bảo vệ revision, thông báo bảo trì và chặn đúng hạn.
 - Chrome/Canvas với backend QA cục bộ: chuột PC hủy lộ trình thật, dấu chấm không tự vẽ lại, bấm nhiệm vụ lần nữa khôi phục dẫn đường. Kiểm tra Nhân Vật, Tiên Ngọc, Săn Boss, BXH và menu Thêm tại 1440×900, 844×390, 640×360: khung không tràn ngang, số tab đúng và Cài Đặt ở cuối. Banner nằm ở nửa trên và không chặn input. Không có exception chưa xử lý.
 - Đây là mô phỏng trình duyệt và database cục bộ; chưa chạy migration trên server live và chưa thay thế kiểm tra trên máy điện thoại thật.

@@ -35,7 +35,7 @@ export function maintenanceBlocks(
   control: Pick<ServerControl, 'maintenance' | 'maintenance_at' | 'admin'>,
   now = Date.now(),
 ) {
-  return control.maintenance && !control.admin && !maintenancePending(control, now);
+  return control.maintenance && !maintenancePending(control, now);
 }
 export async function refreshServerControl(map = ''): Promise<ServerControl | null> {
   if (!supabase) return null;
@@ -49,21 +49,29 @@ export async function refreshServerControl(map = ''): Promise<ServerControl | nu
 /** Polling also works when Realtime is disabled. Never infer a ban from a network error. */
 export function watchServerControl(map: () => string, onBlocked: () => void) {
   let stopped = false,
+    ended = false,
     busy = false,
     lastMap = '',
+    known: ServerControl | null = null,
     seen = new Map<string, number>();
+  const enforceDeadline = () => {
+    if (stopped || ended || !known) return;
+    if (known.blocked || maintenanceBlocks(known)) {
+      ended = true;
+      onBlocked();
+    }
+  };
   const poll = async () => {
-    if (stopped || busy) return;
+    if (stopped || ended || busy) return;
     busy = true;
     try {
       const current = map(),
         data = await refreshServerControl(current);
-      if (stopped || !data) return;
+      if (stopped || ended || !data) return;
+      known = data;
       serverControlStore.setState(data);
-      if (data.blocked || maintenanceBlocks(data)) {
-        onBlocked();
-        return;
-      }
+      enforceDeadline();
+      if (ended) return;
       if (lastMap === current) {
         for (const r of data.boss_resets ?? [])
           if (r.revision > (seen.get(r.monster_id) ?? 0))
@@ -78,9 +86,11 @@ export function watchServerControl(map: () => string, onBlocked: () => void) {
     }
   };
   void poll();
+  const deadlineTimer = setInterval(enforceDeadline, 1000);
   const timer = setInterval(() => void poll(), 2000);
   return () => {
     stopped = true;
+    clearInterval(deadlineTimer);
     clearInterval(timer);
   };
 }

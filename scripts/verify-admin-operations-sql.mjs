@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const { PGlite } = await import(
   pathToFileURL(
     path.resolve(
-      process.argv[2] ?? '.preview/admin-db-test/node_modules/@electric-sql/pglite/dist/index.js',
+      process.argv[2] ?? 'node_modules/@electric-sql/pglite/dist/index.js',
     ),
   ).href
 );
@@ -85,6 +85,7 @@ try {
     'admin-operations',
     'admin-catalog',
     'admin-delivery',
+    'player-access',
   ])
     await db.exec(fs.readFileSync(`supabase/${file}.sql`, 'utf8'));
   for (const [id, name] of [
@@ -345,6 +346,7 @@ try {
   );
   await lease();
   await identity(admin);
+  await lease();
   await apply('maintenance', { enabled: true, message: 'Kiểm tra bảo trì' }, null);
   await identity(user);
   const notice = await scalar('select public.game_control_status()');
@@ -354,6 +356,8 @@ try {
       (await scalar('select public.check_game_session($1)', [instance])),
     'maintenance warns online players before closing access',
   );
+  const waitMs = Date.parse(notice.maintenance_at) - Date.now();
+  check(waitMs > 295000 && waitMs <= 301000, 'server schedules a real five-minute grace period');
   await db.exec('reset role');
   await db.exec(
     "update public.game_server_control set maintenance_at=clock_timestamp()-interval '1 second'",
@@ -374,7 +378,26 @@ try {
     'maintenance message is visible to authenticated players',
   );
   await identity(admin);
-  check(await lease(), 'admin can still access during maintenance');
+  check(
+    (await scalar('select public.check_game_session($1)', [instance])) === false,
+    'maintenance also revokes an already playing admin',
+  );
+  await deny(
+    'select public.claim_game_session($1)',
+    [crypto.randomUUID()],
+    /GAME_ACCESS_BLOCKED/,
+    'refreshing the game cannot give an admin a new session during maintenance',
+  );
+  await deny(
+    'select public.save_game_snapshot($1,$2)',
+    [instance, snap()],
+    /SESSION_REPLACED/,
+    'an admin cannot continue saving game progress after the deadline',
+  );
+  check(
+    (await scalar('select public.admin_operations_status()')).maintenance === true,
+    'the admin dashboard remains usable while its game session is blocked',
+  );
   await apply('maintenance', { enabled: false, message: '' }, null);
   await identity(user);
   check(await lease(), 'players can log in again after maintenance');

@@ -1,4 +1,4 @@
--- Generated upgrade: admin items through mail, and a 60-second maintenance announcement.
+-- Generated upgrade: admin items through mail, and a five-minute maintenance announcement.
 -- Run after admin-operations.sql and alphatest-mail.sql. Existing saves are not rewritten.
 begin;
 alter table public.game_server_control add column if not exists maintenance_at timestamptz;
@@ -78,8 +78,43 @@ create or replace function public.game_access_allowed(p_user uuid) returns boole
 language sql stable security definer set search_path=public,pg_temp as $$
  select p_user is not null and exists(select 1 from auth.users where id=p_user)
  and not exists(select 1 from public.game_account_blocks where user_id=p_user)
- and (not (select maintenance from public.game_server_control where id) or (select maintenance_at>clock_timestamp() from public.game_server_control where id) or exists(select 1 from public.game_admins where user_id=p_user));
+ and exists(select 1 from public.game_server_control where id and (not maintenance or maintenance_at>clock_timestamp()));
 $$;
+
+create or replace function public.claim_game_session(p_instance_id uuid) returns boolean
+language plpgsql security definer set search_path=public,pg_temp as $$ declare u uuid:=auth.uid(); a text:=auth.jwt()->>'session_id'; begin
+ if u is null or a is null or p_instance_id is null then raise exception 'Unauthenticated game session'; end if;
+ perform pg_advisory_xact_lock(hashtextextended(u::text,42));
+ if not public.game_access_allowed(u) then raise exception 'GAME_ACCESS_BLOCKED'; end if;
+ insert into public.game_sessions(user_id,instance_id,auth_session_id) values(u,p_instance_id,a)
+ on conflict(user_id) do update set instance_id=excluded.instance_id,auth_session_id=excluded.auth_session_id,claimed_at=clock_timestamp();
+ return true;
+end $$;
+
+create or replace function public.check_game_session(p_instance_id uuid) returns boolean
+language sql stable security definer set search_path=public,pg_temp as $$
+ select public.game_access_allowed(auth.uid()) and exists(select 1 from public.game_sessions where user_id=auth.uid() and instance_id=p_instance_id and auth_session_id=auth.jwt()->>'session_id');
+$$;
+
+create or replace function public.save_game_snapshot(p_instance_id uuid,p_snapshot jsonb) returns boolean
+language plpgsql security definer set search_path=public,pg_temp as $$ declare s public.game_sessions; begin
+ if auth.uid() is null then raise exception 'SESSION_REPLACED'; end if;
+ perform pg_advisory_xact_lock(hashtextextended(auth.uid()::text,42));
+ select * into s from public.game_sessions where user_id=auth.uid() for update;
+ if not found or s.instance_id is distinct from p_instance_id or s.auth_session_id is distinct from (auth.jwt()->>'session_id') or not public.game_access_allowed(auth.uid()) then raise exception 'SESSION_REPLACED'; end if;
+ if jsonb_typeof(p_snapshot) is distinct from 'object' then raise exception 'Invalid save'; end if;
+ insert into public.saves(user_id,data,updated_at) values(auth.uid(),p_snapshot,clock_timestamp()) on conflict(user_id) do update set data=excluded.data,updated_at=excluded.updated_at;
+ return true;
+end $$;
+
+create or replace function public.delete_game_snapshot(p_instance_id uuid) returns boolean
+language plpgsql security definer set search_path=public,pg_temp as $$ declare s public.game_sessions; begin
+ if auth.uid() is null then raise exception 'SESSION_REPLACED'; end if;
+ perform pg_advisory_xact_lock(hashtextextended(auth.uid()::text,42));
+ select * into s from public.game_sessions where user_id=auth.uid() for update;
+ if not found or s.instance_id is distinct from p_instance_id or s.auth_session_id is distinct from (auth.jwt()->>'session_id') or not public.game_access_allowed(auth.uid()) then raise exception 'SESSION_REPLACED'; end if;
+ delete from public.saves where user_id=auth.uid(); return true;
+end $$;
 
 create or replace function public.game_control_status(p_map text default '') returns jsonb
 language plpgsql security definer set search_path=public,pg_temp as $$ begin
@@ -91,7 +126,7 @@ end $$;
 create or replace function public.admin_operations_status() returns jsonb
 language plpgsql security definer set search_path=public,pg_temp as $$ begin
  perform public.admin_dashboard_require_access();
- return (select to_jsonb(c)||jsonb_build_object('item_delivery',case when to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then 'unavailable' else 'mail' end,'maintenance_notice_seconds',60,'bosses',coalesce((select jsonb_agg(data||jsonb_build_object('id',id)) from public.game_admin_catalog where kind='boss'),'[]'::jsonb),
+ return (select to_jsonb(c)||jsonb_build_object('item_delivery',case when to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then 'unavailable' else 'mail' end,'maintenance_notice_seconds',300,'bosses',coalesce((select jsonb_agg(data||jsonb_build_object('id',id)) from public.game_admin_catalog where kind='boss'),'[]'::jsonb),
  'pending_auth',coalesce((select jsonb_agg(to_jsonb(j)) from (select id,kind,target,payload,reason,created_at from public.admin_commands where actor=auth.uid() and status='pending' and kind like 'auth_%' order by created_at limit 50) j),'[]'::jsonb)) from public.game_server_control c where id);
 end $$;
 
@@ -112,7 +147,7 @@ declare cmd public.admin_commands; s public.saves; d jsonb; p jsonb; inv jsonb; 
  if p_kind='maintenance' then
   if p_user is not null or jsonb_typeof(p_payload->'enabled') is distinct from 'boolean' or length(coalesce(p_payload->>'message',''))>500 then raise exception 'INVALID_COMMAND'; end if;
   update public.game_server_control set maintenance=(p_payload->>'enabled')::boolean,message=coalesce(p_payload->>'message',''),
-   maintenance_at=case when (p_payload->>'enabled')::boolean then clock_timestamp()+interval '60 seconds' else null end,version=version+1 where id;
+   maintenance_at=case when (p_payload->>'enabled')::boolean then clock_timestamp()+interval '5 minutes' else null end,version=version+1 where id;
  elsif p_kind='item_grant' then
   if to_regprocedure('public.admin_queue_item_mail(uuid,uuid,jsonb,text)') is null then raise exception 'MAIL_DELIVERY_NOT_INSTALLED'; end if;
   v_result:=public.admin_queue_item_mail(p_id,p_user,p_payload,p_reason);

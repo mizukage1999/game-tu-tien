@@ -52,3 +52,14 @@ it('refuses invisible names and keeps offline creation usable without RPCs', asy
   expect(await claimCharacterName('  Đạo Hữu ')).toBe('Đạo Hữu');
   expect(fake.rpc).not.toHaveBeenCalled();
 });
+it('rejects names shorter than six on both online and offline paths before reserving', async () => {
+  for (const online of [true, false]) {
+    fake.online = online;
+    await expect(claimCharacterName('12345')).rejects.toThrow('6');
+    await expect(claimCharacterName('   Thanh    ')).rejects.toThrow('6');
+    await expect(claimCharacterName('😀😀😀')).rejects.toThrow('6');
+  }
+  expect(fake.rpc).not.toHaveBeenCalled();
+  fake.online = false;
+  expect(await claimCharacterName('123456')).toBe('123456');
+});

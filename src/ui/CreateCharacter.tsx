@@ -1,5 +1,5 @@
 import { useRef, useState, type CSSProperties } from 'react';
-import { NAME_MAX, normalizeName } from '../game/systems/character';
+import { NAME_MIN, NAME_MAX, normalizeName } from '../game/systems/character';
 import { createCharacter } from '../store/gameStore';
 import { HEROES, heroFor, type HeroId } from '../data/heroes';
 import { heroSkillIds } from '../data/heroSkills';
@@ -60,7 +60,7 @@ function Radar({ values }: { values: readonly number[] }) {
 export function CreateCharacter({ onDone }: { onDone: () => void }) {
   const [selected, setSelected] = useState<HeroId>('wang_lam');
   const [filter, setFilter] = useState('all');
-  const [name, setName] = useState('Vương Lâm');
+  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
   const submitting = useRef(false);
@@ -69,14 +69,20 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
   const spells = heroSkillIds(hero.id),
     spell = spells[spellIndex];
   const choose = (id: HeroId) => {
-    const next = heroFor({ heroId: id });
     setSelected(id);
     setSpellIndex(0);
     setError('');
-    if (HEROES.some((h) => h.name === name)) setName(next.name);
   };
   return (
-    <main className="roster-entry" style={{ '--hero-color': hero.color, backgroundImage: `url('${optimizedAsset('/assets/heroes-v7/selection.png')}')` } as CSSProperties}>
+    <main
+      className="roster-entry"
+      style={
+        {
+          '--hero-color': hero.color,
+          backgroundImage: `url('${optimizedAsset('/assets/heroes-v7/selection.png')}')`,
+        } as CSSProperties
+      }
+    >
       <header className="roster-header">
         <div>
           <small>NGHỊCH MỆNH TRƯỜNG SINH</small>
@@ -93,7 +99,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
           if (submitting.current) return;
           const cleaned = normalizeName(name);
           if (!cleaned) {
-            setError(`Tên từ 1 đến ${NAME_MAX} ký tự.`);
+            setError(`Tên nhân vật cần từ ${NAME_MIN} đến ${NAME_MAX} ký tự, không chứa ký tự ẩn.`);
             return;
           }
           submitting.current = true;
@@ -205,7 +211,10 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
               Tên nhân vật
               <input
                 value={name}
+                required
+                minLength={NAME_MIN}
                 maxLength={NAME_MAX}
+                placeholder={`Nhập tên bạn thích (${NAME_MIN}–${NAME_MAX} ký tự)`}
                 onChange={(e) => {
                   setName(e.target.value);
                   setError('');

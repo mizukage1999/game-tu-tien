@@ -12,7 +12,7 @@ Mở `/admin/` → **Điều hành server**, hoặc nút **Quản lý** ở mộ
 | Gửi vật phẩm / xóa vật phẩm | Cấp qua một thư riêng; người chơi tự mở Thư và nhận, không đổi túi hay ngắt phiên khi gửi. Mỗi lệnh tối đa 100.000 vật phẩm thường hoặc 100 trang bị. Khi nhận, trang bị có ID riêng; Linh Khí cộng vào trường nhân vật. Xóa vật phẩm vẫn thực hiện trực tiếp: tháo món đang mặc và xóa cường hóa của chính món đó. |
 | Tiên pháp bảo | Entitlement chỉ được cấp khi người chơi nhận thư. Thu hồi vật phẩm sẽ thu hồi entitlement; mỗi lần một món. |
 | Sửa save | Tải JSON và fingerprint hiện tại, xem lại JSON trước khi ghi; dữ liệu thay đổi sau khi tải sẽ báo `SAVE_CONFLICT`. Kiểm tra các trường chính, cấp/cảnh giới, tên, map, túi và trang bị. Không đổi tên hoặc biên nhận thư qua cách này. |
-| Bảo trì | Thông báo chạy ở nửa trên màn hình trước 60 giây; trong thời gian báo trước vẫn chơi và lưu bình thường. Đến hạn, chặn phiên người chơi thường; dashboard và admin được tiếp tục. Hủy bảo trì sẽ bỏ thông báo và mở lại truy cập. |
+| Bảo trì | Thông báo chạy ở nửa trên màn hình trước 5 phút; trong thời gian báo trước vẫn chơi và lưu bình thường. Đến hạn, chặn mọi phiên game, kể cả admin và đăng nhập lại/F5. Dashboard `/admin` vẫn hoạt động để quản lý và mở lại server. Hủy bảo trì sẽ bỏ thông báo và mở lại truy cập. |
 | Reset boss | Chọn boss từ catalog map công khai trên server; boss hồi sinh tại điểm gốc, đầy máu, làm mới AI/trạng thái, không phát thưởng. Client đang mở map kiểm tra lệnh mỗi 2 giây; peer chủ map áp dụng và đồng bộ cho người khác. |
 | Reset phó bản | Chọn một tài khoản hoặc toàn server, một phó bản hoặc tất cả. Trả lượt đã dùng; giữ `clears` và thưởng lần đầu. Phiên chơi bị tác động dừng để tải lại dữ liệu, không tiếp tục dùng bộ đếm cũ. Đây không phải xóa thành tích hoặc đặt lại quyền nhận thưởng lần đầu. |
 
@@ -21,7 +21,7 @@ Sửa save/xóa đồ/reset lượt tăng `saves.admin_revision` và `player.adm
 ## Cài đặt
 
 1. Server cần các migration trước: `schema.sql`, `combat-expansion.sql`, `single-session.sql`, `character-names.sql`, `admin-dashboard.sql`, `alphatest-mail.sql`.
-2. Chạy **`supabase/admin-operations.sql`**, sau đó **`supabase/admin-catalog.sql`** và **`supabase/admin-delivery.sql`** trong SQL Editor. Server đã có admin trước đây chỉ cần chạy file `admin-delivery.sql` để nâng cấp luồng quà/thông báo. Migration không tự chạy lệnh xóa/khóa/bảo trì/reset nào. Xem [chi tiết bản cập nhật](admin-mail-menu-v2.md).
+2. Chạy **`supabase/admin-operations.sql`**, sau đó **`supabase/admin-catalog.sql`**, **`supabase/admin-delivery.sql`** và **`supabase/player-access.sql`** trong SQL Editor. Server đã có luồng quà admin qua thư chỉ cần chạy `player-access.sql` để cập nhật bảo trì và tên mới. Migration không tự chạy lệnh xóa/khóa/bảo trì/reset nào. Xem [chi tiết bản cập nhật](player-access-v2.md).
 3. Deploy Edge Function **`admin-auth`** từ `supabase/functions/admin-auth/`. Có thể dùng Supabase Dashboard hoặc CLI:
 
    ```powershell

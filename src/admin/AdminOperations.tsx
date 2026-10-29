@@ -101,8 +101,10 @@ export function AdminOperations({
       if (reason.trim().length < 3) throw new Error('Hãy ghi lý do ít nhất 3 ký tự.');
       if (kind === 'item_grant' && status?.item_delivery !== 'mail')
         throw new Error('MAIL_DELIVERY_NOT_INSTALLED');
-      if (kind === 'maintenance' && enabled && status?.maintenance_notice_seconds !== 60)
-        throw new Error('Cần cài supabase/admin-delivery.sql để thông báo bảo trì trước 60 giây.');
+      if (kind === 'maintenance' && enabled && status?.maintenance_notice_seconds !== 300)
+        throw new Error(
+          'Cần cài supabase/player-access.sql để bảo trì sau 5 phút và chặn mọi tài khoản trong game.',
+        );
       if (needsTarget && (!UUID.test(target) || (!resume && readTarget !== target)))
         throw new Error('Hãy tải thông tin tài khoản trước khi thao tác.');
       if (isAuth && kind !== 'auth_create' && read?.protected) throw new Error('PROTECTED_ADMIN');
@@ -386,7 +388,7 @@ export function AdminOperations({
                     onChange={(e) => setEnabled(e.target.value === 'on')}
                   >
                     <option value="off">Mở server</option>
-                    <option value="on">Thông báo và bảo trì sau 60 giây</option>
+                    <option value="on">Thông báo và bảo trì sau 5 phút</option>
                   </select>
                 </label>
                 <label>
