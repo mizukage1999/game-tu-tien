@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const only = new Set(process.argv.slice(2));
 const publicRoot = path.join(root, 'public'),
   output = path.join(publicRoot, 'assets/optimized');
 fs.mkdirSync(output, { recursive: true });
@@ -38,6 +39,7 @@ sources.push(
 );
 const files = sources.filter(
   (url) =>
+    (!only.size || only.has(url)) &&
     fs.existsSync(path.join(publicRoot, url)) &&
     fs.statSync(path.join(publicRoot, url)).size > 50_000,
 );
@@ -134,11 +136,12 @@ try {
     });
   await send('Page.navigate', { url: base });
   await delay(150);
-  const manifest = {},
-    measurements = [];
+  const manifest = only.size ? JSON.parse(fs.readFileSync(path.join(root,'src/data/optimizedAssets.json'),'utf8')) : {},
+    measurements = only.size ? JSON.parse(fs.readFileSync(path.join(root,'docs/runtime-asset-encoding.json'),'utf8')).files.filter(file => !only.has(file.source)) : [];
   for (const url of files) {
     const result = await send('Runtime.evaluate', {
       awaitPromise: true,
+      timeout: 30000,
       returnByValue: true,
       expression: `(async()=>{
       const image=new Image();image.src=${JSON.stringify(base + url)};await image.decode();

@@ -24,6 +24,9 @@
 .cult-preview-wang .wang-effect-frame[data-skill='dao_hoa_hoang_tuyen'] {
   z-index: 1;
 }
+.cult-skill-preview:has([data-skill='dao_hoa_hoang_tuyen']) .cult-preview-hero {
+  z-index: 2;
+}
 .duel-painted-effect.wang-effect-frame {
   background: none;
 }

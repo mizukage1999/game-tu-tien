@@ -38,7 +38,8 @@ function Crop({
       preserveAspectRatio="none"
       aria-hidden="true"
       focusable="false"
-      data-skill={skill}
+      data-skill={frame === undefined ? undefined : skill}
+      data-wang-icon={frame === undefined ? skill : undefined}
       data-wang-frame={frame}
       style={{ ...style, backgroundImage: 'none', overflow: 'hidden' }}
     >

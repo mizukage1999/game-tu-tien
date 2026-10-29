@@ -633,6 +633,56 @@
       "width": 1536,
       "height": 1024,
       "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-dinh-than-v2.png",
+      "output": "/assets/optimized/skills-wang-dinh-than-v2.ccd9591e80bf.webp",
+      "originalBytes": 2321260,
+      "sourceSha256": "4aefbb6ac4e23abe6e0d5d74a1594535bb965c160b1234da7191f7701eb83b24",
+      "encodedBytes": 950540,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-hoa-ma-chi-v2.png",
+      "output": "/assets/optimized/skills-wang-hoa-ma-chi-v2.a6950a3648f8.webp",
+      "originalBytes": 2120745,
+      "sourceSha256": "38ceb7ad95c5b23267c7f9375ee848b3dd377e5385aeaaa326bff6df65e04e82",
+      "encodedBytes": 761548,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-hoang-tuyen-v2.png",
+      "output": "/assets/optimized/skills-wang-hoang-tuyen-v2.eeef49f07026.webp",
+      "originalBytes": 2698815,
+      "sourceSha256": "5ed3c122cebe3e8f794cccf7554229e7992a49bb95fdc6a0b008bc38856fb39a",
+      "encodedBytes": 956486,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-signature-icons-v2.png",
+      "output": "/assets/optimized/skills-wang-signature-icons-v2.695f347d1d08.webp",
+      "originalBytes": 2944460,
+      "sourceSha256": "b6792af043411361c8b39504da36233683ce8eec649acd2634d9c5cc4e176b97",
+      "encodedBytes": 790868,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills/wang-tram-la-v2.png",
+      "output": "/assets/optimized/skills-wang-tram-la-v2.87e8fe978f4a.webp",
+      "originalBytes": 2305363,
+      "sourceSha256": "b4490ebea9dcc7e5f1691f639457a0192ce49015fe58a9f5c369b99abc5a6c2e",
+      "encodedBytes": 921156,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
     }
   ]
 }

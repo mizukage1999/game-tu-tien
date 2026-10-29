@@ -47,6 +47,7 @@ function AnimatedSignature({
         width: `${(pose.width / ARENA_W) * 100}%`,
         height: `${(pose.height / ARENA_H) * 100}%`,
         opacity: pose.alpha,
+        zIndex: river ? 3 : undefined,
         transform: `translate(-50%,${bind || river ? '-83%' : '-50%'})${bind || river ? '' : ` rotate(${Math.atan2(e.dy, e.dx)}rad)`}`,
       }}
     />

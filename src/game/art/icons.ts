@@ -576,9 +576,10 @@ export function skillSpriteUrl(id: SkillId, sex: 'female' | 'male' = 'male') {
   const heroIcon = heroSpellIcon(id);
   if (heroIcon) return heroIcon;
   const art = wangEffect(id);
-  if (art && wangIconUrl(art)) return wangIconUrl(art)!;
+  if (art?.grid && wangIconUrl(art)) return wangIconUrl(art)!;
   const icon = cultivationIconUrl(id);
   if (icon) return icon;
+  if (art && wangIconUrl(art)) return wangIconUrl(art)!;
   return (
     (sex === 'male' ? WANG_LIN_SKILL_ICONS[id] : LI_MU_SKILL_ICONS[id]) ??
     UI_SKILL_ICONS[id] ??

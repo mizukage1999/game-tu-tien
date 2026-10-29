@@ -71,7 +71,7 @@ export class SkillVfx {
       const update = (age: number) => {
         const visual = wangVisual(art, age, range, options), advance = directed ? visual.advance * range : 0;
         const spot = iso(from.x + facing.x * advance, from.y + facing.y * advance);
-        sprite.setPosition(spot.x, spot.y - (directed ? 26 : options.castOnly ? 12 : 0)).setDepth(spot.y + (art.motion === 'vortex' ? 3 : 180));
+        sprite.setPosition(spot.x, spot.y - (directed ? 26 : options.castOnly ? 12 : 0)).setDepth(spot.y + (art.motion === 'vortex' ? -.3 : 180));
         sprite.setFrame(visual.frame).setDisplaySize(visual.width, visual.height).setAlpha(visual.alpha);
         if (directed) sprite.setRotation(Math.atan2(projected.y, projected.x));
       };

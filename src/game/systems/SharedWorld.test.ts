@@ -159,6 +159,18 @@ function pair() {
 }
 afterEach(() => vi.useRealTimers());
 describe('two clients in a shared combat map', () => {
+  it('gives both clients a binding target at the victim position without damaging it',()=>{
+    vi.useFakeTimers();
+    const {a,b,aw,bw,actors}=pair();
+    actors[1].combat.loadout=['basic','dinh_than_thuat'];
+    b.attack('dinh_than_thuat');
+    const pickA=aw.w.vfx.combatSkill.mock.calls[0][5] as ()=>{x:number;y:number;duration:number};
+    const pickB=bw.w.vfx.combatSkill.mock.calls[0][5] as ()=>{x:number;y:number;duration:number};
+    expect(pickA()).toMatchObject({x:270,y:200,duration:1000});expect(pickB()).toMatchObject({x:270,y:200,duration:1000});
+    vi.advanceTimersByTime(400);
+    expect(aw.m.hp).toBe(180);expect(aw.m.rootTimer).toBe(1000);
+    a.destroy();b.destroy();
+  });
   it('applies the same two-realm damage reduction on the elected authority and its remote snapshot', () => {
     vi.useFakeTimers();
     const random = vi.spyOn(Math, 'random').mockReturnValue(.5);
