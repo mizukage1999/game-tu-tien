@@ -3,6 +3,8 @@ import { isChildhood } from '../game/systems/origin';
 import { useState } from 'react';
 import type { MarketSection } from '../game/systems/marketUi';
 import { MenuSprite } from './MenuSprite';
+import { pendingMailCount, useMail } from '../net/gameMail';
+import './menu-notifications.css';
 
 const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'character', label: 'Nhân Vật' },
@@ -29,6 +31,7 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
   const marketSection = useGame((s) => s.marketSection);
   const patch = useGame((s) => s.patch);
   const childhood = useGame((s) => isChildhood(s.player));
+  const pendingMail = useMail((s) => pendingMailCount(s.mails));
   const common: MenuTab[] = ['character', 'bag', 'journey', 'skills'];
   const button = (it: (typeof ITEMS)[number]) => (
     <button
@@ -53,6 +56,14 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
     >
       <span className="menu-glyph">
         <MenuSprite kind={it.id} />
+        {it.id === 'mail' && pendingMail > 0 && (
+          <span
+            className="menu-notification"
+            aria-label={`${pendingMail} thư chưa đọc hoặc chưa nhận quà`}
+          >
+            {pendingMail > 99 ? '99+' : pendingMail}
+          </span>
+        )}
       </span>
       <span className="menu-label">{it.label}</span>
     </button>
@@ -74,6 +85,12 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
       >
         <span className="menu-glyph">
           <MenuSprite kind="more" />
+          {pendingMail > 0 && (
+            <span
+              className="menu-notification menu-notification-dot"
+              aria-label="Có thư chưa đọc hoặc chưa nhận quà"
+            />
+          )}
         </span>
         <span className="menu-label">Thêm</span>
       </button>

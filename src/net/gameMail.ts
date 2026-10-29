@@ -14,15 +14,32 @@ import { acceptConfirmedPremium, premiumStore } from './premium';
 
 interface MailState {
   mails: GameMail[];
+  acknowledgedIds: string[];
   loaded: boolean;
   loading: boolean;
   busy: boolean;
   error: string | null;
 }
-const empty: MailState = { mails: [], loaded: false, loading: false, busy: false, error: null };
+const empty: MailState = {
+  mails: [],
+  acknowledgedIds: [],
+  loaded: false,
+  loading: false,
+  busy: false,
+  error: null,
+};
 export const mailStore = createStore<MailState>()(() => ({ ...empty }));
 export function useMail<T>(select: (s: MailState) => T) {
   return useStore(mailStore, select);
+}
+/** Opening the inbox acknowledges its notices without claiming gifts or marking every letter read. */
+export function acknowledgeMailNotices() {
+  const { mails, acknowledgedIds } = mailStore.getState();
+  if (mails.some((mail) => !acknowledgedIds.includes(mail.id)))
+    mailStore.setState({ acknowledgedIds: mails.map((mail) => mail.id) });
+}
+export function pendingMailCount(mails: GameMail[]) {
+  return mails.filter((mail) => !mail.read_at || !mail.claimed_at).length;
 }
 let epoch = 0,
   request = 0;

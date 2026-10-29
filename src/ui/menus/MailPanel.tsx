@@ -1,7 +1,13 @@
 ﻿import { useEffect, useState } from 'react';
 import { itemName, useGame } from '../../store/gameStore';
 import { useAccount } from '../../net/session';
-import { claimMail, readMail, refreshMail, useMail } from '../../net/gameMail';
+import {
+  acknowledgeMailNotices,
+  claimMail,
+  readMail,
+  refreshMail,
+  useMail,
+} from '../../net/gameMail';
 import { itemIconUrl } from '../../game/art/icons';
 import { CorrespondenceIcon } from '../social/CorrespondenceIcon';
 import '../social/correspondence.css';
@@ -18,6 +24,9 @@ export function MailPanel() {
   useEffect(() => {
     void refreshMail();
   }, []);
+  useEffect(() => {
+    acknowledgeMailNotices();
+  }, [mails]);
   const mailId = mail?.id,
     readAt = mail?.read_at;
   useEffect(() => {

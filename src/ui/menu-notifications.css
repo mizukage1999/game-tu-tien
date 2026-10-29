@@ -1,0 +1,30 @@
+.hud .menu-glyph {
+  position: relative;
+}
+.hud .menu-notification {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border: 1px solid #ffd98a;
+  border-radius: 10px;
+  background: #c62f2a;
+  color: #fff6dd;
+  font:
+    700 10px/1 system-ui,
+    sans-serif;
+  box-shadow: 0 1px 5px #0008;
+  pointer-events: none;
+}
+.hud .menu-notification-dot {
+  min-width: 10px;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+}
