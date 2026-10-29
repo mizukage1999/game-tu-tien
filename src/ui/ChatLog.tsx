@@ -34,7 +34,7 @@ export function ChatLog() {
             {t.label}
           </button>
         ))}
-        <button className="chat-compose" onClick={()=>chatStore.getState().show(unread?'private':'near')} aria-label="Mở chat gần và chat mật">✉{unread?` ${unread}`:''}</button>
+        <button className="chat-compose" onClick={()=>chatStore.getState().show(tab === 'world' ? 'world' : tab === 'near' ? 'near' : unread ? 'private' : 'world')} aria-label="Mở chat Thế Giới, gần và chat mật">✉{unread?` ${unread}`:''}</button>
         {phone && open && <button className="chat-history" onClick={() => setExpanded(v => !v)} aria-label={expanded ? 'Thu gọn lịch sử chat' : 'Xem lịch sử chat'} aria-expanded={expanded}>{expanded ? '↙' : '↗'}</button>}
         <button className="chat-toggle" onClick={() => setOpen((v) => !v)} aria-label={open ? 'Thu gọn' : 'Mở rộng'}>
           {open ? '▾' : '▴'}

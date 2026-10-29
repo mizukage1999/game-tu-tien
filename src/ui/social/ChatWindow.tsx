@@ -4,7 +4,7 @@ import { useChat } from '../../store/chatStore';
 import { useSocial } from '../../store/socialStore';
 import { useGame } from '../../store/gameStore';
 import { getAccountState } from '../../net/session';
-import { sendWhisper } from '../../net/socialBridge';
+import { sendWhisper, sendWorldChat } from '../../net/socialBridge';
 import { EventBus } from '../../game/EventBus';
 import { RosterPortrait } from '../HeroArt';
 import { heroFor } from '../../data/heroes';
@@ -22,8 +22,8 @@ export function ChatWindow() {
     [busy, setBusy] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const shown = state.messages.filter((m) =>
-    state.tab === 'near'
-      ? m.kind === 'near'
+    state.tab !== 'private'
+      ? m.kind === state.tab
       : m.kind === 'private' && (m.from === state.recipient?.id || m.to === state.recipient?.id),
   );
   useEffect(() => {
@@ -32,7 +32,7 @@ export function ChatWindow() {
   if (!state.open) return null;
   const peers = new Map<string, { id: string; name: string }>();
   for (const p of roster)
-    if (state.tab === 'private' || p.mapId === map)
+    if (state.tab !== 'near' || p.mapId === map)
       peers.set(p.userId, { id: p.userId, name: p.name });
   if (state.tab === 'private')
     for (const m of state.messages.filter((m) => m.kind === 'private' && m.from !== self))
@@ -46,6 +46,12 @@ export function ChatWindow() {
     if (state.tab === 'near') {
       EventBus.emit('cmd:nearChat', cleaned);
       setText('');
+      return;
+    }
+    if (state.tab === 'world') {
+      setBusy(true);
+      if (await sendWorldChat(cleaned)) setText('');
+      setBusy(false);
       return;
     }
     if (!state.recipient) return;
@@ -69,6 +75,9 @@ export function ChatWindow() {
           </button>
         </header>
         <nav aria-label="Kênh trò chuyện">
+          <button aria-pressed={state.tab === 'world'} onClick={() => state.show('world')}>
+            ◎ Thế Giới
+          </button>
           <button aria-pressed={state.tab === 'near'} onClick={() => state.show('near')}>
             ⌖ Gần
           </button>
@@ -107,11 +116,11 @@ export function ChatWindow() {
           <h3>
             {state.tab === 'near'
               ? '⌖ Trò chuyện gần'
-              : (state.recipient?.name ?? 'Chọn đạo hữu để truyền tin')}
+              : state.tab === 'world' ? '◎ Trò chuyện Thế Giới' : (state.recipient?.name ?? 'Chọn đạo hữu để truyền tin')}
             <small>
               {state.tab === 'near'
                 ? 'Người ở gần bạn trong cùng bản đồ có thể đọc được.'
-                : 'Tin mật chỉ gửi đến người bạn chọn.'}
+                : state.tab === 'world' ? 'Mọi đạo hữu đang online trên server đều có thể đọc, dù ở khác bản đồ.' : 'Tin mật chỉ gửi đến người bạn chọn.'}
             </small>
           </h3>
           <div className="chat-messages" aria-live="polite">

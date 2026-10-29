@@ -1,5 +1,6 @@
 import type { MenuTab } from '../store/gameStore';
-const FRAMES: Record<MenuTab | 'more', number> = {
+import { CrestArt } from './SpiritArt';
+const FRAMES: Record<Exclude<MenuTab, 'companions'> | 'more', number> = {
   character: 0,
   skills: 1,
   bag: 2,
@@ -20,6 +21,7 @@ const FRAMES: Record<MenuTab | 'more', number> = {
 };
 /** Equal-cell atlas; the transparent gutter is retained so gold rims never gain a black tile. */
 export function MenuSprite({ kind }: { kind: MenuTab | 'more' }) {
+  if (kind === 'companions') return <CrestArt index={5} className="menu-icon menu-sprite" />;
   const frame = FRAMES[kind];
   return (
     <svg

@@ -14,8 +14,8 @@ export interface SocialChannel {
   readonly selfKey: string;
   /** Re-tracks presence after level, realm, map or party changed. Only the fields given are patched. */
   update(patch: Partial<PublicProfile>): void;
-  /** Sends one message addressed to a single other player. */
-  send(message: SocialMessage): void;
+  /** Targeted messages and the public world-chat broadcast share the global channel. */
+  send(message: SocialMessage): Promise<boolean>;
   onRoster(fn: (roster: SocialPresence[]) => void): () => void;
   onMessage(fn: (message: SocialMessage) => void): () => void;
   /** Raw Supabase presence map — diagnostics only, the roster above is the parsed view. */
@@ -73,7 +73,7 @@ export function joinSocialChannel(
     const payload = message.payload as Record<string, unknown> | undefined;
     if (!payload) return;
     const parsed = parseSocialMessage(payload);
-    if (!parsed || parsed.to !== selfKey) return;
+    if (!parsed || (parsed.t !== 'chat:world' && parsed.to !== selfKey)) return;
     emitMessage(parsed);
   });
 
@@ -114,9 +114,10 @@ export function joinSocialChannel(
       if (closed || !ready) return;
       void channel.track(presencePayload());
     },
-    send(message) {
-      if (closed || !ready) return;
-      void channel.send({ type: 'broadcast', event: 'social', payload: message });
+    async send(message) {
+      if (closed || !ready) return false;
+      try { return await channel.send({ type: 'broadcast', event: 'social', payload: message }) === 'ok'; }
+      catch { return false; }
     },
     onRoster(fn) {
       rosterListeners.add(fn);

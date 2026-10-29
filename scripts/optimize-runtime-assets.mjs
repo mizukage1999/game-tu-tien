@@ -29,6 +29,9 @@ sources.push(
 );
 sources.push(
   '/assets/ui/login-v5.png',
+  '/assets/ui/loading-landscape-v2.png',
+  '/assets/ui/loading-crests-v2.png',
+  '/assets/ui/spirit-beasts-v2.png',
   ...['linh-thach', 'linh-khi', 'hoi-xuan-dan', 'nhan-bac', 'kiem-pho'].map(
     (name) => `/assets/ui/item-${name}.png`,
   ),

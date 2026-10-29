@@ -2,7 +2,7 @@ import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 export interface ChatMessage {
   id: string;
-  kind: 'near' | 'private';
+  kind: 'world' | 'near' | 'private';
   from: string;
   name: string;
   text: string;
@@ -12,12 +12,12 @@ export interface ChatMessage {
 }
 interface ChatState {
   open: boolean;
-  tab: 'near' | 'private';
+  tab: 'world' | 'near' | 'private';
   recipient: { id: string; name: string } | null;
   messages: ChatMessage[];
   unread: number;
   add(message: ChatMessage): boolean;
-  show(tab?: 'near' | 'private'): void;
+  show(tab?: 'world' | 'near' | 'private'): void;
   close(): void;
   privateTo(id: string, name: string): void;
   reset(): void;

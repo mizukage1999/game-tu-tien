@@ -8,7 +8,7 @@ import { getAccountState } from '../../net/session';
 import { heroFor } from '../../data/heroes';
 import { heroSpell } from '../../data/heroSkills';
 import { effectiveSkill, skillLoadout } from './skills';
-import { computeDamage } from './combat';
+import { computeDamage, realmIndexAtLevel, realmDamageMultiplier } from './combat';
 import { adventure } from './adventure';
 import { isChildhood } from './origin';
 import { gridLineClear } from './gridNavigation';
@@ -96,7 +96,10 @@ export class SharedWorld {
         (p) =>
           p.key !== self.key &&
           p.combat.hp > 0 &&
-          mayPk({ mode: self.pkMode, sect: self.sect, child: self.child, mapId: this.world.map.id }, p) &&
+          mayPk(
+            { mode: self.pkMode, sect: self.sect, child: self.child, mapId: this.world.map.id },
+            p,
+          ) &&
           Math.hypot(p.x - self.x, p.y - self.y) <= range,
       )
       .sort(
@@ -121,7 +124,13 @@ export class SharedWorld {
       monsters: this.world.monsters.map((m) => m.networkState()),
     });
     const run = this.world.partyRunSnapshot();
-    if (run) this.channel.send({ t: 'dungeon-run', seq: ++this.seq, ...run, eligible: this.activePartyMembers() });
+    if (run)
+      this.channel.send({
+        t: 'dungeon-run',
+        seq: ++this.seq,
+        ...run,
+        eligible: this.activePartyMembers(),
+      });
   }
   attack(skill: Cast['skill'], combo = 1) {
     const p = this.world.player,
@@ -144,9 +153,13 @@ export class SharedWorld {
     if (this.world.cooperativeRun) return;
     if (this.authority && m.playerContribution && m.lastAttacker) {
       const key = `${m.netId}:${m.generation}`;
-      const awards = contributionAwards(this.contributions.get(key) ?? [],
-        this.actors().map(a => ({ ...a, alive: a.combat.hp > 0 })),
-        { x: m.x, y: m.y, hp: m.def.hp }, killExp(m.def), monsterDrops(m.def, !!this.world.map.arena));
+      const awards = contributionAwards(
+        this.contributions.get(key) ?? [],
+        this.actors().map((a) => ({ ...a, alive: a.combat.hp > 0 })),
+        { x: m.x, y: m.y, hp: m.def.hp },
+        killExp(m.def),
+        monsterDrops(m.def, !!this.world.map.arena),
+      );
       this.contributions.delete(key);
       this.channel.send({
         t: 'kill',
@@ -159,8 +172,18 @@ export class SharedWorld {
   }
   private credit(m: Monster, key: string, damage: number) {
     const id = `${m.netId}:${m.generation}`;
-    if (this.contributions.size > 512) this.contributions.delete(this.contributions.keys().next().value!);
-    this.contributions.set(id, recordContribution(this.contributions.get(id) ?? [], key, m.damageTaken(damage), m.hp, Date.now()));
+    if (this.contributions.size > 512)
+      this.contributions.delete(this.contributions.keys().next().value!);
+    this.contributions.set(
+      id,
+      recordContribution(
+        this.contributions.get(id) ?? [],
+        key,
+        m.damageTaken(damage),
+        m.hp,
+        Date.now(),
+      ),
+    );
   }
   registerMonster(m: Monster) {
     if (this.authority && !m.netId) m.netId = `m:${this.nextMonster++}`;
@@ -174,12 +197,22 @@ export class SharedWorld {
   private receive(e: WorldEvent, from: string) {
     const w = this.world;
     if (e.t === 'dungeon-run') {
-      if (from !== this.channel.authority || from === this.channel.selfKey || !this.once(`run:${from}`, e.seq)) return;
+      if (
+        from !== this.channel.authority ||
+        from === this.channel.selfKey ||
+        !this.once(`run:${from}`, e.seq)
+      )
+        return;
       w.applyPartyRunSnapshot(e);
       return;
     }
     if (e.t === 'support') {
-      if (from !== this.channel.authority || !this.once(`support:${from}`, e.seq) || e.to !== this.channel.selfKey) return;
+      if (
+        from !== this.channel.authority ||
+        !this.once(`support:${from}`, e.seq) ||
+        e.to !== this.channel.selfKey
+      )
+        return;
       if (e.kind === 'heal') gameStore.getState().restore(e.amount, 0);
       else w.player.grantShield(e.amount, e.duration);
       return;
@@ -215,7 +248,8 @@ export class SharedWorld {
       const sk = effectiveSkill(e.skill, actor.combat.skills[e.skill] ?? 1);
       const spell = heroSpell(e.skill);
       if (e.skill !== 'than_phap' && !actor.combat.loadout.includes(e.skill)) return;
-      if (sk.hero && (sk.hero !== heroFor(actor).id || actor.combat.level < (sk.unlockLevel ?? 1))) return;
+      if (sk.hero && (sk.hero !== heroFor(actor).id || actor.combat.level < (sk.unlockLevel ?? 1)))
+        return;
       const cdKey = `${from}:${e.skill}`,
         now = Date.now();
       if ((this.cooldowns.get(cdKey) ?? 0) > now) return;
@@ -228,22 +262,54 @@ export class SharedWorld {
           if (remote.userId === actor.userId) remote.cast(e.skill, dir);
       if (from === this.channel.selfKey) {
         if (sk.kind === 'heal')
-          gameStore.getState().restore(Math.round(actor.combat.maxHp * (spell?.healFraction ?? 0.24)), 0);
-        if (sk.kind === 'shield') w.player.grantShield(Math.round(actor.combat.maxHp * (spell?.shieldFraction ?? 0.35)), spell?.shieldMs ?? 6000);
+          gameStore
+            .getState()
+            .restore(Math.round(actor.combat.maxHp * (spell?.healFraction ?? 0.24)), 0);
+        if (sk.kind === 'shield')
+          w.player.grantShield(
+            Math.round(actor.combat.maxHp * (spell?.shieldFraction ?? 0.35)),
+            spell?.shieldMs ?? 6000,
+          );
       }
       if (this.authority && (sk.kind === 'heal' || sk.kind === 'shield')) {
-        const allies = this.actors().filter(p => p.key !== actor.key && p.party && p.party === actor.party && p.combat.hp > 0 && Math.hypot(p.x - actor.x, p.y - actor.y) < 260);
+        const allies = this.actors().filter(
+          (p) =>
+            p.key !== actor.key &&
+            p.party &&
+            p.party === actor.party &&
+            p.combat.hp > 0 &&
+            Math.hypot(p.x - actor.x, p.y - actor.y) < 260,
+        );
         for (const ally of allies) {
-          const amount = Math.round(actor.combat.maxHp * (sk.kind === 'heal' ? spell?.healFraction ?? 0.24 : spell?.shieldFraction ?? 0.35));
-          this.channel.send({ t: 'support', seq: ++this.seq, to: ally.key, kind: sk.kind, amount, duration: spell?.shieldMs ?? 6000 });
-          if ((sk.kind === 'heal' && ally.combat.hp < ally.combat.maxHp) || (sk.kind === 'shield' && w.monsters.some(m => m.alive && m.distanceTo(ally) < 450))) this.noteActivity(actor.key);
+          const amount = Math.round(
+            actor.combat.maxHp *
+              (sk.kind === 'heal'
+                ? (spell?.healFraction ?? 0.24)
+                : (spell?.shieldFraction ?? 0.35)),
+          );
+          this.channel.send({
+            t: 'support',
+            seq: ++this.seq,
+            to: ally.key,
+            kind: sk.kind,
+            amount,
+            duration: spell?.shieldMs ?? 6000,
+          });
+          if (
+            (sk.kind === 'heal' && ally.combat.hp < ally.combat.maxHp) ||
+            (sk.kind === 'shield' && w.monsters.some((m) => m.alive && m.distanceTo(ally) < 450))
+          )
+            this.noteActivity(actor.key);
         }
       }
       if (!this.authority || e.skill === 'than_phap' || sk.kind === 'heal' || sk.kind === 'shield')
         return;
       if (e.skill === 'dao_hoa_hoang_tuyen')
         for (let i = 1; i <= 8; i++) w.time.delayedCall(i * 500, () => this.resolve(e, actor));
-      else w.time.delayedCall(e.skill === 'basic' ? 0 : spell?.windupMs ?? 400, () => this.resolve(e, actor));
+      else
+        w.time.delayedCall(e.skill === 'basic' ? 0 : (spell?.windupMs ?? 400), () =>
+          this.resolve(e, actor),
+        );
       return;
     }
     if (e.t === 'aux-hit') {
@@ -263,9 +329,19 @@ export class SharedWorld {
         return;
       this.cooldowns.set(key, now + 600);
       m.lastAttacker = from;
-      this.credit(m, from, Math.min(e.amount, actor.combat.atk * 1.5));
+      const amount = Math.max(
+        1,
+        Math.round(
+          Math.min(e.amount, actor.combat.atk * 1.5) *
+            realmDamageMultiplier(
+              realmIndexAtLevel(actor.combat.level),
+              realmIndexAtLevel(m.def.level),
+            ),
+        ),
+      );
+      this.credit(m, from, amount);
       this.noteActivity(from);
-      m.hit(Math.min(e.amount, actor.combat.atk * 1.5), false, actor);
+      m.hit(amount, false, actor);
       return;
     }
     if (e.t === 'kill') {
@@ -275,7 +351,7 @@ export class SharedWorld {
       this.rewards.add(key);
       if (this.rewards.size > 2048) this.rewards.delete(this.rewards.values().next().value!);
       const m = w.monsters.find((m) => m.netId === e.id);
-      const award = e.awards?.find(a => a.to === this.channel.selfKey);
+      const award = e.awards?.find((a) => a.to === this.channel.selfKey);
       if (m && (award || (e.awards === undefined && e.killer === this.channel.selfKey))) {
         m.playerContribution = true;
         w.rewardMonster(m, award);
@@ -323,16 +399,14 @@ export class SharedWorld {
       )
         return;
       if (
-        !chatStore
-          .getState()
-          .add({
-            id: e.id,
-            kind: 'near',
-            from: actor.userId,
-            name: actor.name,
-            text: e.text,
-            at: Date.now(),
-          })
+        !chatStore.getState().add({
+          id: e.id,
+          kind: 'near',
+          from: actor.userId,
+          name: actor.name,
+          text: e.text,
+          at: Date.now(),
+        })
       )
         return;
       gameStore.getState().addLog(`${actor.name}: ${e.text}`, 'near');
@@ -367,6 +441,8 @@ export class SharedWorld {
           multiplier,
           critRate: actor.combat.critRate,
           critMul: actor.combat.critMul,
+          attackerRealm: realmIndexAtLevel(actor.combat.level),
+          defenderRealm: realmIndexAtLevel(m.def.level),
         });
         this.credit(m, actor.key, hit.amount);
         m.hit(hit.amount, hit.crit, e);
@@ -379,7 +455,10 @@ export class SharedWorld {
       if (
         target.key === actor.key ||
         target.combat.hp <= 0 ||
-        !mayPk({ mode: actor.pkMode, sect: actor.sect, child: actor.child, mapId: this.world.map.id }, target) ||
+        !mayPk(
+          { mode: actor.pkMode, sect: actor.sect, child: actor.child, mapId: this.world.map.id },
+          target,
+        ) ||
         !worldSkillHit(e.skill, sk, e, f, target, e.combo) ||
         !gridLineClear(this.world.map.blocked, TILE, e, target, 0, 0)
       )
@@ -390,6 +469,8 @@ export class SharedWorld {
         multiplier,
         critRate: actor.combat.critRate,
         critMul: actor.combat.critMul,
+        attackerRealm: realmIndexAtLevel(actor.combat.level),
+        defenderRealm: realmIndexAtLevel(target.combat.level),
       });
       this.damage(target.key, multiplier ? hit.amount : 0, hit.crit, e, root);
     }
@@ -434,6 +515,8 @@ export class SharedWorld {
       multiplier: 1,
       critRate: 0.08,
       critMul: 1.6,
+      attackerRealm: realmIndexAtLevel(m.def.level),
+      defenderRealm: realmIndexAtLevel(target.combat.level),
     });
     this.damage(target.key, hit.amount, hit.crit, m);
   }
@@ -460,6 +543,8 @@ export class SharedWorld {
             multiplier: mul,
             critRate: 0,
             critMul: 1,
+            attackerRealm: realmIndexAtLevel(m.def.level),
+            defenderRealm: realmIndexAtLevel(p.combat.level),
           });
           this.damage(p.key, hit.amount, false, center);
         }
@@ -471,14 +556,17 @@ export class SharedWorld {
   }
   private noteActivity(key: string) {
     if (!this.world.cooperativeRun) return;
-    const now = Date.now(), old = this.activity.get(key);
+    const now = Date.now(),
+      old = this.activity.get(key);
     this.activity.set(key, { count: (old?.count ?? 0) + 1, first: old?.first ?? now, last: now });
   }
   activePartyMembers() {
-    return this.actors().filter(a => {
-      const work = this.activity.get(a.key);
-      return work && work.count >= 3 && work.last - work.first >= 1000;
-    }).map(a => a.userId);
+    return this.actors()
+      .filter((a) => {
+        const work = this.activity.get(a.key);
+        return work && work.count >= 3 && work.last - work.first >= 1000;
+      })
+      .map((a) => a.userId);
   }
   destroy() {
     this.stop();

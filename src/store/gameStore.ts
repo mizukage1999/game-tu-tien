@@ -74,7 +74,7 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map' | 'boss' | 'ranking';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map' | 'boss' | 'ranking' | 'companions';
 
 export interface DungeonHud {
   id: string;

@@ -4,7 +4,6 @@ import { EventBus } from '../../game/EventBus';
 import {
   CROPS,
   FACILITIES,
-  COMPANIONS,
   WORKSHOP_RECIPES,
   workshopCheck,
   facilityCost,
@@ -14,10 +13,7 @@ import {
 } from '../../game/systems/life';
 import { itemIconUrl } from '../../game/art/icons';
 import './life.css';
-import { adventure } from '../../game/systems/adventure';
 import { cultivationYield } from '../../data/cultivationBalance';
-const BEAST_SOURCES={snow_fox:'Linh Thú · Linh Thú Lâm',gold_tiger:'Thạch Linh Thú · Bí Cảnh Thạch Linh',white_crane:'Tinh anh · Hàn Băng Nguyên',jade_deer:'Thanh Mộc Thú · Rừng Linh Thú',shadow_wolf:'Tinh anh · U Minh Trạch',red_fox:'Hỏa Hồ · Linh Thú Lâm'};
-const BEAST_SKILLS={snow_fox:'Hàn tức: sát thương và làm chậm',gold_tiger:'Hổ khiếu: đòn công kích mạnh',white_crane:'Linh vũ: hồi sinh lực và MP',jade_deer:'Mộc giáp: tạo khiên hộ chủ',shadow_wolf:'Ảnh tập: công kích và giữ chân',red_fox:'Hồ hỏa: sát thương lan'};
 
 function Materials({ cost }: { cost: Record<string, number> }) {
   const player = useGame((s) => s.player);
@@ -261,69 +257,4 @@ export function HomeBoard() {
   );
 }
 
-export function CompanionPanel() {
-  const train=useGame(s=>s.adventureAction);
-  const p = useGame((s) => s.player),
-    act = useGame((s) => s.lifeAction),
-    l = lifeProgress(p);
-  return (
-    <div>
-      <p className="immortal-note">
-        Tự đánh bại yêu thú tương ứng để tích lũy dấu ấn thu phục. Linh thú không bán trong cửa hàng.
-        Nuôi bằng Linh Thú Đan, tiến hóa bằng nguyên liệu săn được; mỗi loài có kỹ năng riêng.
-      </p>
-      <div className="life-pets">
-        {COMPANIONS.map((c, i) => {
-          const own = l.companions[c.id];
-          return (
-            <article
-              className={`immortal-card ${l.companion === c.id ? 'pet-active' : ''}`}
-              key={c.id}
-            >
-              <span
-                className="pet-portrait"
-                style={{ backgroundPosition: `${(i % 3) * 50}% ${Math.floor(i / 3) * 100}%` }}
-              />
-              <h4>{c.name}</h4>
-              <p>{c.desc}</p>
-              <p>{BEAST_SKILLS[c.id]} · Tiến hóa {adventure(p).evolution[c.id]??0}/2</p>
-              <small>
-                Công {c.atk * (own?.rank ?? 1)} · Thủ {c.def * (own?.rank ?? 1)} · Sinh lực{' '}
-                {c.hp * (own?.rank ?? 1)}
-              </small>
-              <p>
-                {own
-                  ? `Bậc ${own.rank}/5 · Thân mật ${own.bond}/${own.rank * 2}`
-                  : `${BEAST_SOURCES[c.id]} · Dấu ấn ${adventure(p).beastSeals[c.id]??0}/${c.cost}`}
-              </p>
-              <div className="life-actions">
-                <button
-                  className="btn gold"
-                  onClick={() =>
-                    act(
-                      own
-                        ? { type: 'companion', id: l.companion === c.id ? null : c.id }
-                        : { type: 'tame', id: c.id },
-                    )
-                  }
-                >
-                  {!own ? 'Kết khế ước' : l.companion === c.id ? 'Nghỉ ngơi' : 'Đồng hành'}
-                </button>
-                {own && (
-                  <button
-                    className="btn"
-                    disabled={own.rank >= 5}
-                    onClick={() => act({ type: 'feed', id: c.id })}
-                  >
-                    Nuôi dưỡng
-                  </button>
-                )}
-                {own&&<button className="btn" onClick={()=>train({type:'evolve',id:c.id})}>Tiến hóa</button>}
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+export { CompanionPanel } from './CompanionPanel';

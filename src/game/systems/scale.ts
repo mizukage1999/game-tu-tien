@@ -19,6 +19,16 @@ export function statsForLevel(level: number, mul = 1) {
   };
 }
 
+export function statsForWanderer(level: number) {
+  const base = statsForLevel(level, 0.75);
+  return {
+    ...base,
+    hp: Math.round(base.hp * 1.5),
+    atk: Math.round(base.atk * 1.5),
+    def: Math.round(base.def * 1.5),
+  };
+}
+
 export interface LevelRange {
   min: number;
   max: number;

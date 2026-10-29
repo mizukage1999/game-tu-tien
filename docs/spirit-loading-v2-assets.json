@@ -1,0 +1,24 @@
+{
+  "generator": "Built-in image_gen through imagegen skill; no CLI/API fallback",
+  "sourceDirectory": "C:/Users/Hoa/.codex/generated_images/01a1676f-f99e-7e62-bf4d-ab13e8996bfc",
+  "assets": [
+    {
+      "source": "exec-87a85530-ba72-471f-981a-6c89b0db640e.png",
+      "saved": "public/assets/ui/loading-landscape-v2.png",
+      "transparent": false,
+      "prompt": "Use case: stylized-concept. Asset type: production background plate for a Vietnamese xianxia RPG loading screen, landscape 1536x1024. Paint a beautiful moonlit Chinese fantasy mountain valley, indigo pagoda rooftops in the lower corners, distant floating cliffs and waterfalls, warm amber lanterns, a full pale moon in the upper right, delicate pink cherry branches framing the top left. Rich detailed hand-painted 2.5D game illustration matching a navy and antique-gold cultivation game. The center has quiet deep-blue mist and open dark sky, enough negative space for a glowing crest, a title and a progress bar to be overlaid by code. Atmosphere serene and majestic, sharp clean composition with restrained detail in center, high quality professional mobile game art. No people, no labels, no text, no logo, no numbers, no UI frame or bars, no watermarks."
+    },
+    {
+      "source": "exec-8e111af5-a5e3-4f04-96bd-5e3b6b8de6bb.png",
+      "saved": "public/assets/ui/loading-crests-v2.png",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Asset type: production transparent equal-cell game sprite atlas, exactly 3 columns x 2 rows, landscape 1536x1024, each cell 512x512 with a centered complete emblem and generous transparent gutter. Six separate xianxia magical emblems in a cohesive exquisitely painted 2.5D RPG UI style, crisp at small sizes, navy gold game aesthetic. Reading order left-to-right top-to-bottom: 1 icy sapphire blue upright sword inside a swirling circular energy ring; 2 antique golden coiled oriental dragon making a circular ring; 3 luminous purple-pink lotus bloom surrounded by a delicate magical circle; 4 turquoise jade yin-yang orb wrapped by a spectral wave ring; 5 fiery scarlet-orange flame within a circular fire ring; 6 white and icy blue spirit fox head with gold filigree framing as a spirit beast menu icon. Keep each subject entirely inside its own equal cell, same apparent scale, all glow fades to real transparent alpha. No background, no black tiles, no contact sheet lines, no lettering, no numbers, no labels, no watermarks."
+    },
+    {
+      "source": "exec-5666ba43-da43-414a-8ea1-cd766ff497e0.png",
+      "saved": "public/assets/ui/spirit-beasts-v2.png",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Asset type: production transparent equal-cell spirit beast illustration sprite atlas for a Vietnamese cultivation RPG, exactly 3 columns x 2 rows, landscape 1536x1024, 512x512 per cell, all six creatures fully visible and separated by generous clear transparent gutters. High quality polished hand-painted 2.5D game creature art, graceful powerful fantasy companions, detailed but readable at icon size. All creatures in three-quarter front view sitting or standing on their own tiny fading magical glow, consistent scale and lighting. Reading order top row: 1 elegant small snowy white fox with flowing fluffy tails and ice blue magical accents; 2 majestic golden striped tiger with gilded fur and amber spirit flames; 3 white celestial crane with dark navy wingtips, red crown and blue-white wisps. Bottom row: 4 emerald jade deer with branching golden antlers and green leaf magic; 5 silver dark wolf with indigo-violet shadow energy; 6 crimson red fox with exactly three flowing tails and orange fire magic. Whole bodies including feet and tails stay inside each cell. Empty transparent alpha background, no scene, no black rectangles, no text, no labels, no grid, no borders, no watermarks."
+    }
+  ]
+}

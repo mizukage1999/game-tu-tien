@@ -603,6 +603,36 @@
       "height": 940,
       "maxAlphaDifference": 0,
       "sourceSha256": "ffd444ad724cfe38a5951f137db465bf7616f98231fae555efa28fef96f7aa5a"
+    },
+    {
+      "source": "/assets/ui/loading-landscape-v2.png",
+      "output": "/assets/optimized/ui-loading-landscape-v2.e9c98372edbe.webp",
+      "originalBytes": 2678141,
+      "sourceSha256": "1b2443c1ba2fd5c7bc3a23e10dfc008e1644598686f42e41420c2cc6cbae1015",
+      "encodedBytes": 411410,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/loading-crests-v2.png",
+      "output": "/assets/optimized/ui-loading-crests-v2.0a3664564b9e.webp",
+      "originalBytes": 3095219,
+      "sourceSha256": "e6901cecc063b1a04f8b87fee1fe717a79f5a857e0ed836126f93e623291fcbc",
+      "encodedBytes": 980224,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/spirit-beasts-v2.png",
+      "output": "/assets/optimized/ui-spirit-beasts-v2.a6c7feb4c473.webp",
+      "originalBytes": 3149844,
+      "sourceSha256": "f9b85f483acef8ca10648c7f85e700ee05c725936ebb8f2e0f1a64f7cb8bfd12",
+      "encodedBytes": 1041916,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
     }
   ]
 }

@@ -42,6 +42,7 @@ export function Journey() {
 
   const progress = immortalProgress(player);
   const homeOpen = quests[HOME_QUEST]?.status === 'done';
+  if (tab === 'companions') return <CompanionPanel />;
 
   return (
     <div
@@ -95,7 +96,6 @@ export function Journey() {
             )}
           </>
         )}
-        {tab === 'companions' && <CompanionPanel />}
         {tab === 'mounts' && (
           <>
             <JourneyFeatureHeader

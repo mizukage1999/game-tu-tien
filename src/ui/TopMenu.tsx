@@ -20,6 +20,7 @@ const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'shop', label: 'Giao Dịch', marketSection: 'overview' },
   { id: 'dungeon', label: 'Phó Bản' },
   { id: 'boss', label: 'Săn Boss' },
+  { id: 'companions', label: 'Linh Thú' },
   { id: 'ranking', label: 'Bảng Xếp Hạng' },
   { id: 'settings', label: 'Cài Đặt' },
 ];
@@ -37,9 +38,9 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
     <button
       key={`${it.id}-${it.marketSection ?? ''}`}
       aria-label={it.label}
-      disabled={childhood && ['character', 'cultivate', 'skills'].includes(it.id)}
+      disabled={childhood && ['character', 'cultivate', 'skills', 'companions'].includes(it.id)}
       title={
-        childhood && ['character', 'cultivate', 'skills'].includes(it.id)
+        childhood && ['character', 'cultivate', 'skills', 'companions'].includes(it.id)
           ? 'Mở sau khi nhập môn'
           : it.label
       }
@@ -52,6 +53,7 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
             : it.id,
         );
         if (it.marketSection) patch({ marketSection: it.marketSection });
+        if (it.id === 'journey') patch({ journeySection: 'story' });
       }}
     >
       <span className="menu-glyph">

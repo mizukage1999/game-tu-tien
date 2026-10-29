@@ -1,0 +1,631 @@
+.hud .menu-window.menu-companions {
+  --cult-gold: #e5bd74;
+  --cult-text: #d8dfeb;
+  width: min(1480px, calc(100% - 24px));
+  height: min(920px, calc(100% - 24px));
+  max-height: none;
+  overflow: hidden;
+  border: 1px solid #b68c48;
+  border-radius: 4px;
+  background:
+    linear-gradient(110deg, #041323dd, #07121fe6),
+    url('/assets/ui/cultivation/ui-night-v1.png') center/cover;
+  color: var(--cult-text);
+  box-shadow:
+    0 20px 80px #000c,
+    inset 0 0 0 3px #07121d;
+}
+.hud .menu-companions > .menu-header {
+  flex-shrink: 0;
+  min-height: 64px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #bd8e4855;
+  background: #041220a8;
+  gap: 16px;
+}
+.hud .menu-companions > .menu-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #f4d28b;
+  font:
+    24px Cambria,
+    serif;
+  margin: 0;
+}
+.hud .menu-companions > .menu-header h3 img,
+.hud .menu-companions > .menu-header h3 .menu-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+.hud .menu-companions > .menu-header .close {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  font-size: 30px;
+  border: 1px solid #a78040;
+  border-radius: 5px;
+}
+.hud .menu-companions > .menu-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+.beast-panel {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+}
+.beast-tabs {
+  display: flex;
+  gap: 6px;
+}
+.beast-tabs button,
+.beast-filters button {
+  border: 1px solid #92723b77;
+  border-radius: 4px;
+  background: linear-gradient(#17283b, #07121c);
+  color: #c5d2e2;
+  cursor: pointer;
+}
+.beast-tabs button {
+  flex: 1;
+  min-height: 40px;
+  font:
+    15px Cambria,
+    serif;
+}
+.beast-tabs button.active,
+.beast-filters button.active {
+  color: #ffe6a9;
+  border-color: #efc36d;
+  box-shadow:
+    inset 0 0 17px #e7a4373b,
+    0 0 9px #e7a43733;
+  background: #4b351de8;
+}
+.beast-collection {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+.beast-gallery {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 0;
+}
+.beast-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.beast-filters button {
+  flex: 1;
+  padding: 7px 6px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.beast-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 9px;
+  overflow: auto;
+  padding: 3px;
+}
+.beast-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 5px 4px 10px;
+  color: #dbe7f5;
+  border: 1px solid #9b7b4866;
+  border-radius: 5px;
+  background: radial-gradient(
+    ellipse at 50% 35%,
+    color-mix(in srgb, var(--card-color) 18%, transparent),
+    #04101ad9 80%
+  );
+  cursor: pointer;
+}
+.beast-card.selected {
+  border-color: #ffcf78;
+  box-shadow:
+    0 0 8px #d49b3a77,
+    inset 0 0 0 1px #e9b66755;
+}
+.beast-card .spirit-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.beast-card b {
+  font:
+    16px Cambria,
+    serif;
+  line-height: 1.3;
+}
+.beast-card small {
+  color: #93b0c3;
+  font-size: 10px;
+  margin-top: 5px;
+}
+.beast-card.owned small {
+  color: #8ee9bb;
+}
+.beast-card-element {
+  position: absolute;
+  top: 7px;
+  left: 8px;
+  font-size: 10px;
+  color: var(--card-color);
+  z-index: 1;
+}
+.beast-stars {
+  display: block;
+  color: #ffcb68;
+  letter-spacing: 2px;
+  font-size: 15px;
+  margin: 5px 0;
+}
+.beast-stars > span {
+  color: #756349;
+}
+.beast-gallery > footer {
+  font-size: 11px;
+  color: #aebbc9;
+  padding: 5px 1px;
+}
+.beast-gallery > footer b {
+  color: #ffda93;
+}
+.beast-preview {
+  display: grid;
+  grid-template-rows: minmax(100px, 1fr) auto;
+  min-height: 0;
+  border: 1px solid #95713c66;
+  border-radius: 6px;
+  overflow: auto;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    color-mix(in srgb, var(--beast-color) 14%, transparent),
+    #03101ac9 70%
+  );
+}
+.beast-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  isolation: isolate;
+  overflow: hidden;
+}
+.beast-stage > .spirit-art {
+  position: relative;
+  z-index: 1;
+  max-height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+}
+.beast-stage-ring {
+  position: absolute;
+  bottom: 4%;
+  left: 12%;
+  width: 76%;
+  height: 16%;
+  border: 1px solid var(--beast-color);
+  border-radius: 50%;
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--beast-color) 25%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--beast-color) 18%, transparent);
+  z-index: 0;
+}
+.beast-preview-info {
+  padding: 12px 18px 16px;
+  border-top: 1px solid #ac85464d;
+}
+.beast-panel h2 {
+  font:
+    24px Cambria,
+    'Times New Roman',
+    serif;
+  color: #ffe3a2;
+  margin: 0 0 6px;
+}
+.beast-preview h2 small,
+.beast-element {
+  color: var(--beast-color);
+  font:
+    12px system-ui,
+    sans-serif;
+  margin-left: 8px;
+}
+.beast-panel p {
+  color: #c0cedc;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.beast-panel .beast-source {
+  color: #9eb3c8;
+  font-size: 11px;
+}
+.beast-mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.beast-mini-stats span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: #aab9ca;
+}
+.beast-mini-stats b {
+  color: #8ee9bb;
+  font:
+    17px Cambria,
+    serif;
+}
+.beast-deploy {
+  min-width: 130px;
+  min-height: 38px;
+}
+.beast-detail-layout {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1.25fr) minmax(250px, 1fr);
+  gap: 15px;
+  min-height: 0;
+}
+.beast-roster {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.beast-roster button {
+  flex-shrink: 0;
+  border: 1px solid #92713a66;
+  border-radius: 5px;
+  background: #061422;
+  color: #acbbcc;
+  padding: 3px;
+  cursor: pointer;
+}
+.beast-roster button.active {
+  border-color: #f7c675;
+  background: #4d381f66;
+}
+.beast-roster .spirit-art {
+  height: 63px;
+}
+.beast-roster span {
+  display: block;
+  font-size: 9px;
+}
+.beast-detail-stage {
+  display: grid;
+  grid-template-rows: minmax(90px, 1fr) auto auto auto auto;
+  min-height: 0;
+  text-align: center;
+  padding-bottom: 10px;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    color-mix(in srgb, var(--beast-color) 12%, transparent),
+    #03101ac9 70%
+  );
+  border: 1px solid #96703955;
+  border-radius: 5px;
+}
+.beast-detail-stage p {
+  margin: 5px 0 12px;
+}
+.beast-detail-stage .beast-deploy {
+  justify-self: center;
+}
+.beast-detail-info {
+  overflow: auto;
+  padding: 14px 18px;
+  border: 1px solid #98774866;
+  border-radius: 5px;
+  background: #04121fe0;
+}
+.beast-detail-info header {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #98774855;
+}
+.beast-element {
+  float: right;
+}
+.beast-panel h3 {
+  font:
+    17px Cambria,
+    serif;
+  color: #f4cc84;
+  margin: 18px 0 10px;
+}
+.beast-panel dl {
+  margin: 0;
+}
+.beast-panel dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid #8b774c33;
+  font-size: 12px;
+}
+.beast-panel dt {
+  color: #c6d4e3;
+}
+.beast-panel dd {
+  margin: 0;
+  color: #8ee9bb;
+}
+.beast-panel dd span {
+  color: #b1f2c1;
+}
+.beast-bond {
+  position: relative;
+  height: 15px;
+  background: #07101b;
+  border: 1px solid #a27a40;
+  border-radius: 20px;
+  margin: 14px 0;
+  overflow: hidden;
+}
+.beast-bond > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #1769b9, #7edcff);
+}
+.beast-bond b {
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  font:
+    10px/13px system-ui,
+    sans-serif;
+  color: white;
+}
+.beast-material {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 0;
+}
+.beast-material img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border: 1px solid #96703e;
+  border-radius: 5px;
+}
+.beast-material span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+.beast-material b {
+  color: #8ee9bb;
+}
+.beast-material .short {
+  color: #ff8d83;
+}
+.beast-skill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #10213a77;
+  padding: 8px;
+  border: 1px solid #95703955;
+  border-radius: 5px;
+}
+.beast-skill > .spirit-art {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+.beast-skill h4 {
+  margin: 0;
+  color: var(--beast-color);
+  font:
+    18px Cambria,
+    serif;
+}
+.beast-skill p {
+  font-size: 12px;
+}
+.beast-skill small {
+  color: #b9a786;
+  font-size: 10px;
+}
+.beast-panel button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.journey-shell.companions-open {
+  grid-template-columns: minmax(0, 1fr);
+}
+.journey-shell.companions-open .journey-workspace {
+  padding: 0;
+  overflow: hidden;
+}
+.journey-shell.companions-open .beast-panel {
+  height: 100%;
+}
+.hud.phone .menu-window.menu-companions {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+}
+.hud.phone .menu-companions > .menu-header {
+  min-height: 42px;
+  padding: 4px 9px;
+  gap: 8px;
+}
+.hud.phone .menu-companions > .menu-header h3 {
+  font-size: 17px;
+  gap: 6px;
+}
+.hud.phone .menu-companions > .menu-header h3 img,
+.hud.phone .menu-companions > .menu-header h3 .menu-icon {
+  width: 25px;
+  height: 25px;
+}
+.hud.phone .menu-companions > .menu-header .close {
+  width: 29px;
+  height: 29px;
+  font-size: 24px;
+}
+.hud.phone .menu-companions > .menu-content {
+  padding: 6px;
+}
+.hud.phone .beast-panel {
+  gap: 6px;
+}
+.hud.phone .beast-tabs {
+  gap: 4px;
+}
+.hud.phone .beast-tabs button {
+  min-height: 30px;
+  font-size: 11px;
+}
+.hud.phone .beast-collection {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: 7px;
+}
+.hud.phone .beast-gallery {
+  gap: 5px;
+}
+.hud.phone .beast-filters {
+  gap: 3px;
+}
+.hud.phone .beast-filters button {
+  padding: 4px 3px;
+  font-size: 9px;
+}
+.hud.phone .beast-cards {
+  gap: 5px;
+}
+.hud.phone .beast-card {
+  padding: 4px 2px 6px;
+}
+.hud.phone .beast-card b {
+  font-size: 11px;
+}
+.hud.phone .beast-card small {
+  font-size: 8px;
+  margin-top: 2px;
+}
+.hud.phone .beast-stars {
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin: 3px 0;
+}
+.hud.phone .beast-card-element {
+  font-size: 8px;
+  top: 4px;
+  left: 5px;
+}
+.hud.phone .beast-gallery > footer {
+  font-size: 8px;
+}
+.hud.phone .beast-preview {
+  grid-template-rows: minmax(65px, 1fr) auto;
+}
+.hud.phone .beast-preview-info {
+  padding: 7px 9px;
+}
+.hud.phone .beast-panel h2 {
+  font-size: 16px;
+}
+.hud.phone .beast-panel p {
+  font-size: 10px;
+  line-height: 1.45;
+  margin: 5px 0;
+}
+.hud.phone .beast-panel .beast-source {
+  font-size: 9px;
+}
+.hud.phone .beast-mini-stats span {
+  font-size: 9px;
+  gap: 2px;
+}
+.hud.phone .beast-mini-stats b {
+  font-size: 13px;
+}
+.hud.phone .beast-deploy {
+  min-height: 29px;
+  min-width: 100px;
+  font-size: 11px;
+}
+.hud.phone .beast-detail-layout {
+  grid-template-columns: 49px minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 6px;
+}
+.hud.phone .beast-roster {
+  gap: 4px;
+}
+.hud.phone .beast-roster .spirit-art {
+  height: 40px;
+}
+.hud.phone .beast-roster span {
+  font-size: 7px;
+}
+.hud.phone .beast-detail-info {
+  padding: 7px 9px;
+}
+.hud.phone .beast-panel h3 {
+  font-size: 13px;
+  margin: 10px 0 7px;
+}
+.hud.phone .beast-panel dl > div {
+  font-size: 10px;
+  padding: 6px 0;
+}
+.hud.phone .beast-element {
+  font-size: 9px;
+}
+.hud.phone .beast-material {
+  padding: 5px 0;
+  gap: 6px;
+}
+.hud.phone .beast-material img {
+  width: 30px;
+  height: 30px;
+}
+.hud.phone .beast-material span {
+  font-size: 10px;
+}
+.hud.phone .beast-skill {
+  gap: 5px;
+  padding: 5px;
+}
+.hud.phone .beast-skill > .spirit-art {
+  width: 42px;
+  height: 42px;
+}
+.hud.phone .beast-skill h4 {
+  font-size: 13px;
+}
+.hud.phone .beast-skill small {
+  font-size: 8px;
+}
+.hud.phone .beast-detail-info > .btn {
+  min-height: 29px;
+  font-size: 11px;
+}
+@media (max-width: 700px) {
+  .hud.phone .beast-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

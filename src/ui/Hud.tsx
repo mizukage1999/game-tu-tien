@@ -6,7 +6,6 @@ import { Minimap } from './Minimap';
 import { ChatLog } from './ChatLog';
 import { ExpBar } from './ExpBar';
 import { SkillBar } from './SkillBar';
-import { VirtualJoystick } from './VirtualJoystick';
 import { SwipeMove, usePhoneLayout, usePortrait } from './TouchPlay';
 import { ClockBar, DownedOverlay, InteractPrompt, TargetFrame, Toasts, TribulationOverlay } from './Overlays';
 import { DialogBox } from './DialogBox';
@@ -47,7 +46,6 @@ export function Hud() {
       <Toasts />
       <DownedOverlay />
       <div className="hud-bottom-left">
-        {!phone && <VirtualJoystick />}
         <ClockBar />
       </div>
       <SwipeMove active={phone} turned={turned} />

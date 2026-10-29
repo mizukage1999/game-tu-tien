@@ -30,6 +30,8 @@ let lastPeerInput = 0;
 let practiceSeq = 0;
 let rewardedNonce = '';
 let whispers: WhisperCrypto | null = null;
+let lastWorldChat = -Infinity, worldChatSending = false;
+const worldChatReceived = new Map<string, number>();
 function canDuel() {
   const s = gameStore.getState();
   return (
@@ -230,6 +232,15 @@ function handleMessage(message: SocialMessage) {
   if (message.t === 'dungeon') { receivePartyDungeon(message.from, message.packet); return; }
   const social = socialStore.getState();
   const game = gameStore.getState();
+  if (message.t === 'chat:world') {
+    const sender = social.roster.find((p) => p.userId === message.from.userId), now = Date.now();
+    if (!sender || sender.userId === myRef().userId || now - (worldChatReceived.get(sender.userId) ?? -Infinity) < 1500) return;
+    if (chatStore.getState().add({ id: message.id, kind: 'world', from: sender.userId, name: sender.name, text: message.text, at: now })) {
+      worldChatReceived.set(sender.userId, now);
+      game.addLog(`${sender.name}: ${message.text}`, 'world');
+    }
+    return;
+  }
   if (message.t === 'inspect:ask') {
     if (!social.roster.some((p) => p.userId === message.from)) return;
     channel?.send({
@@ -420,6 +431,8 @@ export function startSocial(): () => void {
   const next = joinSocialChannel(profile);
   if (!next) return () => {};
   channel = next;
+  lastWorldChat = -Infinity;
+  worldChatReceived.clear();
   chatStore.getState().reset();
   if (crypto.subtle) {
     whispers = new WhisperCrypto();
@@ -458,6 +471,8 @@ export function startSocial(): () => void {
     void channel?.leave();
     channel = null;
     whispers = null;
+    worldChatSending = false;
+    worldChatReceived.clear();
     chatStore.getState().reset();
     inspectionStore.getState().reset();
     const state = socialStore.getState();
@@ -618,4 +633,23 @@ export async function sendWhisper(to: string, text: string): Promise<boolean> {
     gameStore.getState().toast('Chưa gửi được tin mật. Hãy thử lại.', 'warn');
     return false;
   }
+}
+
+export async function sendWorldChat(text: string): Promise<boolean> {
+  const game = gameStore.getState(), transport = channel;
+  text = text.trim();
+  if (!text || text.length > 200 || /[\p{Cc}\p{Cf}]/u.test(text)) return false;
+  if (!transport || !getAccountState().user) { game.toast('Cần kết nối server để chat Thế Giới.', 'warn'); return false; }
+  if (worldChatSending || Date.now() - lastWorldChat < 2000) { game.toast('Hãy đợi 2 giây giữa các tin Thế Giới.', 'info'); return false; }
+  worldChatSending = true;
+  const from = myRef(), id = crypto.randomUUID();
+  try {
+    if (!await transport.send({ t: 'chat:world', to: '*', from, id, text }) || channel !== transport) {
+      game.toast('Chưa gửi được tin Thế Giới. Hãy thử lại.', 'warn'); return false;
+    }
+    lastWorldChat = Date.now();
+    chatStore.getState().add({ id, kind: 'world', from: from.userId, name: from.name, text, at: lastWorldChat, outgoing: true });
+    game.addLog(`${from.name}: ${text}`, 'world');
+    return true;
+  } finally { if (channel === transport) worldChatSending = false; }
 }

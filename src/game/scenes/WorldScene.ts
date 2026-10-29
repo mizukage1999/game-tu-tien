@@ -28,7 +28,7 @@ import { impact } from '../fx/HitEffect';
 import { SkillVfx } from '../fx/SkillVfx';
 import { getMap } from '../maps';
 import type { MapDef, PortalDef, WorldPoint } from '../maps/MapBuilder';
-import { computeDamage, inAttackArc } from '../systems/combat';
+import { computeDamage, inAttackArc, realmIndexAtLevel } from '../systems/combat';
 import { meditateGain, tribulationPlan, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
 import { monsterDrops } from '../systems/loot';
@@ -178,8 +178,8 @@ export class WorldScene extends Phaser.Scene {
 
   preload() {
     const queued = queueMapAssets(this, this.mapId);
+    this.game.events.emit('assets-loading', { mapId: this.mapId, mapName: getMap(this.mapId).name });
     if (!queued) return;
-    this.game.events.emit('assets-loading');
     const progress = (value: number) => this.game.events.emit('assets-progress', value * 0.9);
     this.load.on(Phaser.Loader.Events.PROGRESS, progress);
     this.load.once(Phaser.Loader.Events.COMPLETE, () => this.load.off(Phaser.Loader.Events.PROGRESS, progress));
@@ -1304,6 +1304,7 @@ export class WorldScene extends Phaser.Scene {
     if (lifeProgress(gameStore.getState().player).retreat) return gameStore.getState().toast('Hãy xuất quan trước khi rời động phủ.','info');
     if (gameStore.getState().tribulation) return gameStore.getState().toast('Hãy hoàn thành thiên kiếp trước.','warn');
     this.transitioning = true;
+    this.game.events.emit('assets-loading', { mapId: data.mapId ?? this.mapId, mapName: getMap(data.mapId ?? this.mapId).name });
     if (!this.map.arena) this.save();
     gameStore.getState().patch({ dialogNpc: null, menu: null });
     this.cameras.main.fadeOut(350, 0, 0, 0);
@@ -1675,7 +1676,8 @@ export class WorldScene extends Phaser.Scene {
         return;
       }
       const { stats } = gameStore.getState();
-      const r = computeDamage({ atk: m.def.atk, def: stats.def, multiplier: mul, critRate: 0, critMul: 1 });
+      const r = computeDamage({ atk: m.def.atk, def: stats.def, multiplier: mul, critRate: 0, critMul: 1,
+        attackerRealm: realmIndexAtLevel(m.def.level), defenderRealm: gameStore.getState().player.realmIndex });
       if (!p.takeHit(r.amount, true, { x: cx, y: cy })) gameStore.getState().recordPractice('dodge');
     });
   }
@@ -1741,6 +1743,8 @@ export class WorldScene extends Phaser.Scene {
       multiplier,
       critRate: stats.critRate,
       critMul: stats.critMul,
+      attackerRealm: gameStore.getState().player.realmIndex,
+      defenderRealm: realmIndexAtLevel(m.def.level),
     });
     m.hit(r.amount, r.crit, this.player.feet);
     if (slowMs && m.alive) m.slowTimer = slowMs;
@@ -1893,7 +1897,8 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
     const { stats } = gameStore.getState();
-    const r = computeDamage({ atk: m.def.atk, def: stats.def, multiplier: 1, critRate: 0.08, critMul: 1.6 });
+    const r = computeDamage({ atk: m.def.atk, def: stats.def, multiplier: 1, critRate: 0.08, critMul: 1.6,
+      attackerRealm: realmIndexAtLevel(m.def.level), defenderRealm: gameStore.getState().player.realmIndex });
     if (p.takeHit(r.amount, r.crit, { x: m.x, y: m.y })) impact(this, p.x, p.y - 34, 0xff8a7a, r.crit);
   }
 

@@ -16,8 +16,11 @@ import { DungeonSelectPanel } from './DungeonSelectPanel';
 import { MarketPanel } from './MarketPanel';
 import { BossHuntPanel } from './BossHuntPanel';
 import { RankingPanel } from './RankingPanel';
+import { CompanionPanel } from './CompanionPanel';
+import { MenuSprite } from '../MenuSprite';
 
 const TITLES: Record<MenuTab, string> = {
+  companions: 'Linh Thú',
   character: 'Nhân Vật',
   bag: 'Túi Đồ',
   cultivate: 'Tu Luyện',
@@ -34,6 +37,7 @@ const TITLES: Record<MenuTab, string> = {
 };
 
 const CONTENT: Record<MenuTab, () => JSX.Element> = {
+  companions: CompanionPanel,
   character: CharacterPanel,
   bag: BagPanel,
   cultivate: CultivationPanel,
@@ -56,16 +60,17 @@ export function Menus() {
   const setMenu = useGame((s) => s.setMenu);
   if (!menu) return null;
   const Content = CONTENT[menu];
+  const feature = menu === 'journey' && journeySection === 'companions' ? 'companions' : menu;
   return (
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
-      <div className={`menu-window panel-ornate menu-${menu}`}>
-        {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking'].includes(menu)&&<CultivationCorners/>}
+      <div className={`menu-window panel-ornate menu-${feature}`}>
+        {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking','companions'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
-            <img src={menu === 'ranking' ? '/assets/ui/menu-ranking.svg' : `/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu==='boss'?'dungeon':menu}.png`} alt="" aria-hidden="true" />
-            {menu === 'journey' ? journeySection === 'alchemy' ? 'Đan Phòng' : <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : menu === 'shop' && marketSection === 'stall' ? 'Bày Bán' : TITLES[menu]}
+            {feature === 'companions' ? <MenuSprite kind="companions" /> : <img src={menu === 'ranking' ? '/assets/ui/menu-ranking.svg' : `/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu==='boss'?'dungeon':menu}.png`} alt="" aria-hidden="true" />}
+            {feature === 'companions' ? 'Linh Thú' : menu === 'journey' ? journeySection === 'alchemy' ? 'Đan Phòng' : <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : menu === 'shop' && marketSection === 'stall' ? 'Bày Bán' : TITLES[menu]}
           </h3>
-          {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking'].includes(menu)&&<CultivationWallet/>}
+          {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking','companions'].includes(menu)&&<CultivationWallet/>}
           <button className="close" onClick={() => setMenu(null)} aria-label="Đóng">
             ×
           </button>

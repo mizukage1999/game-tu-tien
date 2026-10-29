@@ -159,6 +159,24 @@ function pair() {
 }
 afterEach(() => vi.useRealTimers());
 describe('two clients in a shared combat map', () => {
+  it('applies the same two-realm damage reduction on the elected authority and its remote snapshot', () => {
+    vi.useFakeTimers();
+    const random = vi.spyOn(Math, 'random').mockReturnValue(.5);
+    const hit = (level: number) => {
+      const { a, b, aw, bw, actors } = pair();
+      actors[0].combat.level = level;
+      aw.m.def.level = bw.m.def.level = 85;
+      aw.m.hp = aw.m.def.hp = bw.m.hp = bw.m.def.hp = 2000;
+      a.attack('basic');
+      vi.advanceTimersByTime(1);
+      const amount = 2000 - aw.m.hp;
+      a.tick(150);
+      expect(bw.m.hp).toBe(aw.m.hp);
+      a.destroy(); b.destroy();
+      return amount;
+    };
+    try { expect(hit(65)).toBe(hit(85) / 2); } finally { random.mockRestore(); }
+  });
   it('shows a new school spell on both clients and resolves damage only at its authored impact', () => {
     vi.useFakeTimers();
     const { a, b, aw, bw, actors } = pair();

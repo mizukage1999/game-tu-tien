@@ -14,6 +14,7 @@ import {
 } from './systems/gameBoot';
 import { performanceStore, sampleFrame } from '../store/performanceStore';
 import { settingsStore, useSettings } from '../store/settingsStore';
+import { LoadingScreen } from '../ui/LoadingScreen';
 
 let game: Phaser.Game | null = null;
 
@@ -126,6 +127,7 @@ export function PhaserGame() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [destination, setDestination] = useState({ mapId: gameStore.getState().mapId, mapName: '', phase: 'game' as 'game' | 'map' });
 
   useEffect(() => {
     if (!host.current) return;
@@ -135,6 +137,7 @@ export function PhaserGame() {
     let stable: ReturnType<typeof setTimeout> | undefined;
     let stalled: ReturnType<typeof setTimeout> | undefined;
     let alive = true;
+    let enteredWorld = false;
     const failed = (message: string) => {
       if (!alive) return;
       clearTimeout(stable);
@@ -191,13 +194,15 @@ export function PhaserGame() {
     watchLoading();
     const updateProgress = (progress: number) => setLoadingProgress(Math.round(progress * 100));
     const assetsReady = () => {
+      enteredWorld = true;
       clearTimeout(stalled);
       clearTimeout(stable);
       setError('');
       setLoading(false);
       stable = setTimeout(() => finishGameBoot(storage), 10_000);
     };
-    const assetsLoading = () => {
+    const assetsLoading = (target?: { mapId?: string; mapName?: string }) => {
+      setDestination({ mapId: target?.mapId ?? gameStore.getState().mapId, mapName: target?.mapName ?? '', phase: enteredWorld ? 'map' : 'game' });
       clearTimeout(stable);
       setError('');
       setLoadingProgress(0);
@@ -249,26 +254,11 @@ export function PhaserGame() {
         style={{ filter: brightness === 100 ? undefined : `brightness(${brightness / 100})` }}
       />
       {loading && (
-        <div className="loading-overlay" role="status" aria-live="polite">
-          <img src="/assets/ui/ui-loading-orb.png" alt="" className="loading-orb" />
-          <div className="loading-track">
-            <span style={{ width: `${loadingProgress}%` }} />
-          </div>
-          <span>{error || `Đang tải... ${loadingProgress}%`}</span>
-          {error && (
-            <button
-              className="loading-retry"
-              data-action="retry-game"
-              onClick={() => {
+        <LoadingScreen progress={loadingProgress} {...destination} error={error} onRetry={() => {
                 saveNow();
                 requestCanvasRecovery(bootStorage());
                 window.location.reload();
-              }}
-            >
-              Thử lại với cấu hình nhẹ
-            </button>
-          )}
-        </div>
+              }} />
       )}
     </>
   );

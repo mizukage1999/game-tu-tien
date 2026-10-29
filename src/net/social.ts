@@ -37,6 +37,7 @@ export interface SocialPresence extends PublicProfile {
 }
 
 export type SocialMessage =
+  | { t: 'chat:world'; to: '*'; from: FriendRef; id: string; text: string }
   | { t: 'dungeon'; to: string; from: string; packet: PartyDungeonPacket }
   | { t: 'inspect:ask'; to: string; from: string; nonce: string }
   | { t: 'inspect:result'; to: string; from: string; nonce: string; inspection: PlayerInspection }
@@ -140,6 +141,11 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
   const t = text(m.t, 20);
   const to = text(m.to, 64);
   if (!to) return null;
+  if (t === 'chat:world') {
+    const from = ref(m.from), id = text(m.id, 100);
+    if (to !== '*' || !from || !id || typeof m.text !== 'string' || m.text.length > 200 || !m.text.trim() || /[\p{Cc}\p{Cf}]/u.test(m.text)) return null;
+    return { t, to: '*', from, id, text: m.text.trim() };
+  }
   if (t === 'dungeon') {
     const from = text(m.from, 64), packet = parsePartyDungeonPacket(m.packet);
     return from && packet ? { t, to, from, packet } : null;
