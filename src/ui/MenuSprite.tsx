@@ -18,6 +18,8 @@ const FRAMES: Record<Exclude<MenuTab, 'companions'> | 'more', number> = {
   shop: 14,
   more: 15,
   map: 11,
+  ranked: 8,
+  activities: 15,
 };
 /** Equal-cell atlas; the transparent gutter is retained so gold rims never gain a black tile. */
 export function MenuSprite({ kind }: { kind: MenuTab | 'more' }) {

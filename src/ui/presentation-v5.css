@@ -180,9 +180,9 @@
 }
 .hud-v5:not(.phone) .top-menu-desktop {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   grid-template-rows: repeat(2, auto);
-  width: clamp(340px, 39vw, 442px);
+  width: clamp(380px, 44vw, 500px);
   gap: 5px 4px;
 }
 .hud-v5:not(.phone) .top-menu-desktop .menu-btn {

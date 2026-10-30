@@ -13,6 +13,8 @@
     "leaderboard:verify": "node scripts/verify-leaderboard-sql.mjs",
     "player-access:generate": "node scripts/generate-player-access-sql.mjs",
     "player-access:verify": "node scripts/verify-player-access-sql.mjs",
+    "competition:generate": "node scripts/generate-competition-upgrade.mjs",
+    "competition:verify": "node scripts/verify-competitive-sql.mjs",
     "assets:optimize": "node scripts/optimize-runtime-assets.mjs",
     "assets:verify": "node scripts/verify-runtime-assets.mjs"
   },

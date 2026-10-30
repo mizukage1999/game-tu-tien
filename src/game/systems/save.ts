@@ -55,6 +55,8 @@ export interface PlayerSave {
   practice?: Partial<Record<PracticeAction, number>>;
   /** Boss victories recorded from this version onward; old saves start at zero. */
   achievements?: { bossKills: number };
+  /** Recent named event guardians personally defeated with valid contribution. */
+  activityVictories?: string[];
   name: string;
   /** Missing on saves from before character creation; those keep the original look. */
   sex?: Sex;

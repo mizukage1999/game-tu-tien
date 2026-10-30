@@ -17,9 +17,12 @@ import { MarketPanel } from './MarketPanel';
 import { BossHuntPanel } from './BossHuntPanel';
 import { RankingPanel } from './RankingPanel';
 import { CompanionPanel } from './CompanionPanel';
+import { RankedArenaPanel } from './RankedArenaPanel';
+import { ActivitiesPanel } from './ActivitiesPanel';
 import { MenuSprite } from '../MenuSprite';
 
 const TITLES: Record<MenuTab, string> = {
+  ranked:'Tỷ Võ Xếp Hạng', activities:'Hoạt Động',
   companions: 'Linh Thú',
   character: 'Nhân Vật',
   bag: 'Túi Đồ',
@@ -37,6 +40,7 @@ const TITLES: Record<MenuTab, string> = {
 };
 
 const CONTENT: Record<MenuTab, () => JSX.Element> = {
+  ranked:RankedArenaPanel, activities:ActivitiesPanel,
   companions: CompanionPanel,
   character: CharacterPanel,
   bag: BagPanel,
@@ -67,7 +71,7 @@ export function Menus() {
         {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking','companions'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
-            {feature === 'companions' ? <MenuSprite kind="companions" /> : <img src={menu === 'ranking' ? '/assets/ui/menu-ranking.svg' : `/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu==='boss'?'dungeon':menu}.png`} alt="" aria-hidden="true" />}
+            {feature === 'companions'||feature==='ranked'||feature==='activities' ? <MenuSprite kind={feature} /> : <img src={menu === 'ranking' ? '/assets/ui/menu-ranking.svg' : `/assets/ui/menu-${menu === 'journey'||menu==='map' ? 'cultivate' : menu==='sect'?'quests':menu==='premium'?'shop':menu==='boss'?'dungeon':menu}.png`} alt="" aria-hidden="true" />}
             {feature === 'companions' ? 'Linh Thú' : menu === 'journey' ? journeySection === 'alchemy' ? 'Đan Phòng' : <>Tiên Lộ<span className="journey-header-subtitle"> · Hành Trình Tu Tiên</span></> : menu === 'shop' && marketSection === 'stall' ? 'Bày Bán' : TITLES[menu]}
           </h3>
           {['skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking','companions'].includes(menu)&&<CultivationWallet/>}

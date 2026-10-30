@@ -86,7 +86,7 @@ function number(value: unknown, fallback: number, max: number): number {
     : fallback;
 }
 
-function duelist(value: unknown): Duelist | null {
+export function parseDuelist(value: unknown): Duelist | null {
   if (!value || typeof value !== 'object') return null;
   const raw = value as Record<string, unknown>;
   const userId = text(raw.userId, 64);
@@ -178,7 +178,7 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
   }
   if (t.startsWith('arena:')) {
     const from = text(m.from, 64),
-      nonce = text(m.nonce, 32);
+      nonce = text(m.nonce, 64);
     if (!from || !nonce) return null;
     if (t === 'arena:ready' || t === 'arena:leave') return { t, to, from, nonce };
     if (t === 'arena:input' && validArenaInput(m.input))
@@ -190,7 +190,7 @@ export function parseSocialMessage(raw: unknown): SocialMessage | null {
 
   if (t === 'duel:ask' || t === 'duel:ok') {
     const from = ref(m.from);
-    const fighter = duelist(m.duelist);
+    const fighter = parseDuelist(m.duelist);
     const nonce = text(m.nonce, 32);
     if (!from || !fighter || !nonce || fighter.userId !== from.userId || fighter.maxHp < 1)
       return null;

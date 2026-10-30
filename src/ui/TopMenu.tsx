@@ -22,6 +22,8 @@ const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
   { id: 'boss', label: 'Săn Boss' },
   { id: 'companions', label: 'Linh Thú' },
   { id: 'ranking', label: 'Bảng Xếp Hạng' },
+  { id: 'ranked', label: 'Tỷ Võ Xếp Hạng' },
+  { id: 'activities', label: 'Hoạt Động' },
   { id: 'settings', label: 'Cài Đặt' },
 ];
 

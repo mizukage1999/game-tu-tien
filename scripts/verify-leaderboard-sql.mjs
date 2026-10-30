@@ -6,7 +6,7 @@ const db = new PGlite();
 const vite = await createServer({
   configFile: false,
   envFile: false,
-  server: { middlewareMode: true, watch: null },
+  server: { middlewareMode: true, watch: null, hmr: false },
 });
 let checks = 0;
 const check = (condition, label) => {
@@ -103,7 +103,7 @@ try {
       sex: hero.sex,
       skillLoadout: heroDefaultLoadout(hero.id),
       equipment: {
-        weapon: `weapon_orange~fixture-${i}`,
+        weapon: `weapon_orange${Math.floor(i / 8) % 2 ? `_${hero.id}` : ''}~fixture-${i}`,
         armor: 'armor_purple',
         helmet: 'helmet_blue',
         amulet: 'amulet_green',

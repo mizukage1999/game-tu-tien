@@ -19,7 +19,7 @@ it('shows every desktop feature directly and keeps mobile compact', () => {
     expect(gameStore.getState().menu).toBe('sect');
     expect(host.querySelector('.top-menu-more')).toBeNull();
     act(() => root.render(<TopMenu />));
-    expect(host.querySelectorAll('.top-menu-desktop > button')).toHaveLength(16);
+    expect(host.querySelectorAll('.top-menu-desktop > button')).toHaveLength(18);
     expect(host.querySelector('[aria-label="Thêm tính năng"]')).toBeNull();
     expect(host.querySelector('[aria-label="Bày Bán"]')).toBeNull();
     expect(

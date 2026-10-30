@@ -2,6 +2,9 @@ import type { SkillId } from '../data';
 import type { PartyRunTicket } from './systems/partyDungeon';
 
 export interface BusEvents {
+  'ranked:leave': string;
+  'cmd:activityEnter': 'treasure' | 'ruins';
+  'cmd:activityExit': void;
   'cmd:adminBossReset': {map:string;monster:string};
   'cmd:nearChat':string;
   'chat:whisper':{from:string;text:string};

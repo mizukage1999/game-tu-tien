@@ -39,12 +39,13 @@ function canDuel() {
     !isChildhood(s.player) &&
     !s.tribulation &&
     !s.dungeon &&
+    !s.mapId.startsWith('activity_ruins_') &&
     !lifeProgress(s.player).retreat &&
     !socialStore.getState().duel
   );
 }
 
-function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practice = false) {
+function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practice = false, rankedId?:string) {
   if (arenaTimer) clearInterval(arenaTimer);
   arenaEngine = host ? new ArenaEngine(nonce, a, b) : null;
   arenaReady = new Set();
@@ -58,6 +59,7 @@ function openArena(a: Duelist, b: Duelist, nonce: string, host: boolean, practic
     aIsMe: a.userId === myRef().userId,
     localId: myRef().userId,
     practice,
+    rankedId,
   });
   gameStore.getState().setAuto(false);
   gameStore.getState().setMenu(null);
@@ -153,6 +155,7 @@ export function sendArenaInput(input: ArenaInput) {
 }
 export function closeArena() {
   const live = socialStore.getState().duel;
+  if(live?.rankedId&&live.snapshot.phase!=='finished')EventBus.emit('ranked:leave',live.rankedId);
   if (live && !live.practice && live.snapshot.phase !== 'finished')
     channel?.send({
       t: 'arena:leave',
@@ -165,6 +168,11 @@ export function closeArena() {
   arenaEngine = null;
   socialStore.getState().setDuel(null);
   if (live) EventBus.emit('cmd:duelPause', false);
+}
+export function openRankedArena(match:{id:string;a:Duelist;b:Duelist}) {
+  if(!canDuel()||!channel||![match.a.userId,match.b.userId].includes(myRef().userId))return false;
+  openArena(match.a,match.b,match.id,match.a.userId===myRef().userId,false,match.id);
+  return true;
 }
 export function practiceDuel() {
   if (!canDuel()) return;

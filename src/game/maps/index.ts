@@ -1,6 +1,8 @@
 import { FIELD_BANDS, type FieldBand } from '../systems/scale';
 import { herbNodes } from '../systems/immortal';
 import { MapBuilder, type MapDef } from './MapBuilder';
+import { ancientRuins } from './ancientRuins';
+import { activityPlan } from '../systems/worldActivities';
 import { dungeonMap, DUNGEON_MAPS, ngocAnTrial } from './dungeonMaps';
 import { daiThuaVien } from './courtyard';
 import { populateBestiary } from './bestiarySpawns';
@@ -273,7 +275,8 @@ for(const [index,id]of DUNGEON_MAPS.entries())builders[id]=()=>dungeonMap(index)
 export function getMap(id: string): MapDef {
   let m = cache.get(id);
   if (!m) {
-    m = populateBestiary((builders[id] ?? daiThuaVien)());
+    const ruinSeed=/^activity_ruins_(\d{8,12})$/.exec(id)?.[1];
+    m = ruinSeed ? ancientRuins(Number(ruinSeed),activityPlan('ruins',Number(ruinSeed)*1000).level) : populateBestiary((builders[id] ?? daiThuaVien)());
     cache.set(id, m);
   }
   return m;

@@ -20,6 +20,7 @@ import { HeroArenaEffect } from './HeroArenaEffect';
 import { RealmBadge } from '../RealmBadge';
 import { ArenaStatusEffects } from '../StatusEffects';
 import { INPUT_BUFFER_MS } from '../../game/systems/combatInput';
+import { RankedResult } from './RankedResult';
 
 function FighterCard({ fighter: p, enemy = false, elapsed }: { fighter: ArenaFighter; enemy?: boolean; elapsed:number }) {
   const hero = heroFor(p);
@@ -175,7 +176,7 @@ export function DuelOverlay() {
       <section className="duel-arena panel-ornate">
         <header>
           <div className="duel-title">
-            <h3>{duel.practice ? 'Luận kiếm · Mộc Nhân' : 'Tỷ Võ · 1 vs 1'}</h3>
+            <h3>{duel.rankedId?'Tỷ Võ Xếp Hạng · 1 vs 1':duel.practice ? 'Luận kiếm · Mộc Nhân' : 'Tỷ Võ · 1 vs 1'}</h3>
             <small>Điều khiển tay · Né đòn và chọn thời điểm ra chiêu</small>
             <button className="close" aria-label="Rời tỷ võ" onClick={closeArena}>
               ×
@@ -306,6 +307,7 @@ export function DuelOverlay() {
                   {!s.winner ? 'Hòa' : s.winner === duel.localId ? 'Chiến thắng' : 'Bại trận'}
                 </h2>
                 <p>{s.reason}</p>
+                {duel.rankedId&&<RankedResult/>}
                 <button className="btn gold" onClick={closeArena}>
                   Trở về
                 </button>

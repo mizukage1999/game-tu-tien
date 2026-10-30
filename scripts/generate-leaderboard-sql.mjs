@@ -11,6 +11,7 @@ try {
   const { ITEMS, SKILLS, DUNGEONS, EQUIP_SLOTS } = await server.ssrLoadModule('/src/data/index.ts');
   const { HEROES } = await server.ssrLoadModule('/src/data/heroes.ts');
   const { heroDefaultLoadout } = await server.ssrLoadModule('/src/data/heroSkills.ts');
+  const { retiredSkill } = await server.ssrLoadModule('/src/data/skillCatalog.ts');
   const { COMPANIONS } = await server.ssrLoadModule('/src/game/systems/life.ts');
   const { SECT_RANKS } = await server.ssrLoadModule('/src/game/systems/adventure.ts');
   const { computeStats, realmNameAtLevel, MAX_LEVEL } = await server.ssrLoadModule(
@@ -60,15 +61,17 @@ try {
       COMPANIONS.map((c) => [c.id, { atk: c.atk, def: c.def, hp: c.hp }]),
     ),
     skills: Object.fromEntries(
-      Object.entries(SKILLS).map(([id, s]) => [
-        id,
-        {
-          ...(s.hero ? { hero: s.hero } : {}),
-          ...(s.character ? { character: s.character } : {}),
-          unlockLevel: s.unlockLevel ?? 1,
-          secret: !!s.secret,
-        },
-      ]),
+      Object.entries(SKILLS)
+        .filter(([id]) => !retiredSkill(id))
+        .map(([id, s]) => [
+          id,
+          {
+            ...(s.hero ? { hero: s.hero } : {}),
+            ...(s.character ? { character: s.character } : {}),
+            unlockLevel: s.unlockLevel ?? 1,
+            secret: !!s.secret,
+          },
+        ]),
     ),
     dungeons: Object.keys(DUNGEONS),
   };

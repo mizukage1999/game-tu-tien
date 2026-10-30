@@ -18,7 +18,7 @@ import { heroDirection } from '../art/heroDirections';
 import { chatStore } from '../../store/chatStore';
 import { socialStore } from '../../store/socialStore';
 import { contributionAwards, recordContribution, type Contribution } from './contribution';
-import { monsterDrops } from './loot';
+import { monsterDrops, schoolBossDrops } from './loot';
 import { killExp } from './scale';
 import { ritualSkill, ritualControlMs, soulDrain } from './ritualSkills';
 import { retiredSkill } from '../../data/skillCatalog';
@@ -163,6 +163,10 @@ export class SharedWorld {
         killExp(m.def),
         monsterDrops(m.def, !!this.world.map.arena),
       );
+      if (m.def.boss) for (const award of awards) {
+        const actor = this.actor(award.to);
+        if (actor) award.drops = schoolBossDrops(award.drops, heroFor(actor).id);
+      }
       this.contributions.delete(key);
       this.channel.send({
         t: 'kill',

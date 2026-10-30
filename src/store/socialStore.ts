@@ -19,6 +19,7 @@ export interface SocialInvite {
 
 /** A finished duel. Both sides compute it independently, so they always agree. */
 export interface DuelState {
+  rankedId?: string;
   nonce:string;
   snapshot:ArenaSnapshot;
   localId:string;

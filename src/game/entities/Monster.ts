@@ -27,6 +27,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   readonly arena: boolean;
   hp: number;
   alive = true;
+  sealed = false;
   playerContribution = false;
   readonly hideStrength: boolean;
   slowTimer = 0;
@@ -61,6 +62,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     const art = world.textures.exists(def.art) ? def.art : def.boss ? 'beast_frost_king' : 'beast_snow';
     super(world, x, y, art);
     this.def = def;
+    this.sealed=type.startsWith('activity_ruins_');
     this.hideStrength = !!opts.hideStrength;
     this.hp = def.hp;
     this.arena = !!opts.arena;
@@ -109,6 +111,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(dt: number, player: Vec2 | null) {
+    if(this.sealed){this.setVelocity(0,0);this.syncDecor();return;}
     if(this.world.shared&&!this.world.shared.authority){(this.body as Phaser.Physics.Arcade.Body).setVelocity(0,0);if(this.alive)this.syncDecor();return;}
     if(this.world.shared&&this.alive)(this.body as Phaser.Physics.Arcade.Body).enable=true;
     if(!this.alive&&this.world.shared?.authority&&this.respawnAt>0&&Date.now()>=this.respawnAt)this.respawn();
@@ -252,7 +255,7 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       ? Math.max(1, Math.ceil(amount * 0.25)) : amount;
   }
   hit(amount: number, crit: boolean, from: Vec2, source: 'player'|'wanderer' = 'player') {
-    if (!this.alive) return;
+    if (!this.alive || this.sealed) return;
     if(this.world.shared&&!this.world.shared.authority){if(source==='player')this.world.shared.auxiliary(this,amount);return;}
     amount = this.damageTaken(amount);
     if(source==='player'&&this.world.shared&&!this.lastAttacker)this.lastAttacker=this.world.shared.channel.selfKey;

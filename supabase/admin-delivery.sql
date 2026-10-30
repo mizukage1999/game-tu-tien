@@ -37,7 +37,7 @@ begin
  select * into m from public.game_mail where id=p_mail and user_id=u for update;
  if not found then raise exception 'MAIL_NOT_FOUND';end if;
  if m.campaign_id='alphatest-v1' then return public.claim_alphatest_mail(p_mail,p_instance_id);end if;
- if m.campaign_id not like 'admin-grant:%' then raise exception 'MAIL_NOT_CLAIMABLE';end if;
+ if m.campaign_id not like 'admin-grant:%' and m.campaign_id not like 'activity:%' then raise exception 'MAIL_NOT_CLAIMABLE';end if;
  if m.claimed_at is not null then return jsonb_build_object('already_claimed',true,'snapshot',s.data,'premium',public.premium_status(),'mail',to_jsonb(m)-'user_id'-'receipt');end if;
  if jsonb_typeof(m.rewards->'items') is distinct from 'object' then raise exception 'INVALID_MAIL_REWARDS';end if;
  p:=s.data->'player';

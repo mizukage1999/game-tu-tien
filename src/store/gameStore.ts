@@ -75,7 +75,7 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map' | 'boss' | 'ranking' | 'companions';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map' | 'boss' | 'ranking' | 'companions' | 'ranked' | 'activities';
 
 export interface DungeonHud {
   id: string;
@@ -427,6 +427,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       const def = ITEMS[id];
       const s = get();
       if (!def?.slot || !findOwnedEquipment(s.player, id)) return;
+      if (def.hero && def.hero !== heroFor(s.player).id) return s.toast('Trang bị này thuộc phái khác. Có thể giữ lại để trao đổi khi chợ mở.', 'warn');
       if(id==='tien_phap_bao'&&!premiumStore.getState().items.includes(id))return s.toast('Tiên pháp bảo cần được xác thực trên tài khoản.','warn');
       const check = canEquip(id, s.player.level);
       if (!check.ok) {
@@ -661,7 +662,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
       set({ player: { ...s.player, dungeons: record } });
       grantRewards(def.rewards);
       if (first) grantRewards(def.firstClear);
-      const dropped = rollDungeonGear(def.drops ?? []);
+      const dropped = rollDungeonGear(def.drops ?? [], Math.random, heroFor(get().player).id);
       for (const d of dropped) get().addItem(d.item, d.qty);
       if (dropped.length) get().toast(`Rơi được ${dropped.map((d) => itemName(d.item)).join(', ')}`, 'quest');
       set({ dungeonResult: { id, success, elapsedMs, rewards: def.rewards, firstClear: first ? def.firstClear : null, dropped } });

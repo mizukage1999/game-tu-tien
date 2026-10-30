@@ -823,6 +823,16 @@
       "width": 1024,
       "height": 1536,
       "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/world-activities-v1.png",
+      "output": "/assets/optimized/ui-world-activities-v1.7f78fdc237e3.webp",
+      "originalBytes": 2912700,
+      "sourceSha256": "4afff5094fc74190b0082b177331563b0e4c67237364fa00691e195900be8241",
+      "encodedBytes": 1065346,
+      "width": 1448,
+      "height": 1086,
+      "maxAlphaDifference": 0
     }
   ]
 }

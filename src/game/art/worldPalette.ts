@@ -3,6 +3,7 @@ import type { Terrain } from './tiles';
 
 export type WorldTheme = 'sect' | 'forest' | 'fire' | 'ice' | 'cave';
 export function worldTheme(map: Pick<MapDef, 'id' | 'ambient'>): WorldTheme {
+  if(map.id.startsWith('activity_ruins_'))return 'cave';
   if (['bi_canh_thach_linh', 'pb_u_minh', 'tu_van_phong'].includes(map.id)) return 'cave';
   if (map.ambient === 'snow') return 'ice';
   if (map.ambient === 'embers') return 'fire';
@@ -27,5 +28,6 @@ export function worldTerrainPalette(map: Pick<MapDef, 'id' | 'ambient'>): Record
     palette.path = palette.platform = palette.marble = 10;
   }
   if (map.id === 'vuong_gia_thon') palette.stone = 1;
+  if(map.id.startsWith('activity_ruins_')){palette.cave=4;palette.stone=10;palette.wall=6;}
   return palette;
 }

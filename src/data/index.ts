@@ -13,6 +13,7 @@ import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 import { WANG_SKILLS } from './wangSkills';
 import { HERO_SKILLS, type HeroSkillId } from './heroSkills';
 import type { HeroId } from './heroes';
+import { HEROES } from './heroes';
 import { BESTIARY, BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
 import { cultivationLoot } from './cultivationBalance';
 import { FIRST_TRIAL, OPENING_DUNGEON, OPENING_ITEMS, OPENING_MONSTERS, OPENING_QUESTS } from './openingAdventure';
@@ -75,6 +76,7 @@ export interface SlotDef {
 }
 
 export interface ItemDef {
+  hero?: HeroId;
   name: string;
   kind: 'currency' | 'material' | 'consumable' | 'equipment';
   color: string;
@@ -251,6 +253,11 @@ function buildEquipment(): Record<string, ItemDef> {
         bonus,
         desc: `${slot.name} ${r.name}. ${bonusText(bonus)}.`,
       };
+      for (const hero of HEROES) out[`${equipmentId(slot.id, r.id)}_${hero.id}`] = {
+        ...out[equipmentId(slot.id, r.id)], hero: hero.id,
+        name: `${r.prefix} ${slot.id==='weapon'?({wang_lam:'Kiếm',ly_mo_uyen:'Linh Phù',tham_nguyet:'Cung',so_thien:'Song Đao',hong_lien:'Hỏa Ấn',vu_minh:'Hồn Phiên',quan_vo_tran:'Thiền Trượng',diep_ly:'Ngọc Giản'}[hero.id]):slot.noun} · ${hero.school}`,
+        desc: `${slot.name} ${r.name}, dành cho ${hero.school}. ${bonusText(bonus)}.`,
+      };
     }
   }
   return out;
@@ -288,6 +295,14 @@ export const MONSTERS: Record<string, MonsterDef> = Object.fromEntries(
   ]),
 );
 const ITEM_DEFINITIONS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS, ...OPENING_ITEMS };
+for (let level=10;level<=120;level+=10) for(const kind of ['treasure','ruins'] as const) {
+  const base=Object.values(MONSTERS).find(m=>m.boss)!;
+  MONSTERS[`activity_${kind}_${level}`]={...base,name:kind==='treasure'?'Kim Lân Thủ Bảo':'Cổ Đại Thạch Vệ',level,
+    hp:Math.round((300+level*level*18)*(kind==='treasure'?2:1)),atk:Math.round(15+level*6),def:Math.round(5+level*2.2),
+    exp:100+level*40,respawnMs:24*3600000,speed:90,aggroRadius:210,leashRadius:460,
+    loot:[{item:'linh_thach',qty:[10,20],chance:1},{item:`gear:${level<30?'blue':level<60?'purple':'orange'}`,qty:[1,1],chance:.6},
+      {item:'tinh_luyen_thach',qty:[1,2],chance:.7}],boss:{pattern:kind==='treasure'?'celestial':'storm',slamInterval:6500,slamWindup:1000,slamRadius:115,slamMul:1.7}};
+}
 /** Resolve individual loot IDs without duplicating item definitions or image textures. */
 export const ITEMS: Record<string, ItemDef> = new Proxy(ITEM_DEFINITIONS, {
   get(defs, key) {

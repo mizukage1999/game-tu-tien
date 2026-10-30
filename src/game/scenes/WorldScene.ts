@@ -4,6 +4,9 @@ import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } fr
 import { buildIsoGround } from '../art/ground';
 import { addGroundTextures, clearGroundTextures, GROUND_PREFIX } from '../art/groundTextures';
 import { publishBossSightings } from '../../store/bossHuntStore';
+import { WorldActivity } from '../systems/WorldActivity';
+import { activityPlan } from '../systems/worldActivities';
+import { activityAction,activityNow,activityStore } from '../../net/worldActivities';
 import { buildVillageGround } from '../art/villageGround';
 import { VillageAtmosphere } from '../art/VillageAtmosphere';
 import { buildWorldGround } from '../art/worldGround';
@@ -31,7 +34,7 @@ import type { MapDef, PortalDef, WorldPoint } from '../maps/MapBuilder';
 import { computeDamage, inAttackArc, realmIndexAtLevel } from '../systems/combat';
 import { meditateGain, tribulationPlan, zoneAt, type ZoneDef } from '../systems/cultivation';
 import { runOver, startRun, tickRun, type DungeonRun, type RunEvent } from '../systems/dungeon';
-import { monsterDrops } from '../systems/loot';
+import { monsterDrops, schoolBossDrops } from '../systems/loot';
 import { todayKey } from '../systems/dungeon';
 import { resolvePartyRun, type PartyRunTicket } from '../systems/partyDungeon';
 import { cancelPartyDungeon, completePartyDungeon, partyDungeonStore } from '../../net/partyDungeon';
@@ -122,6 +125,7 @@ export class WorldScene extends Phaser.Scene {
   private currentZone: ZoneDef | null = null;
   private transitioning = false;
   private cleanups: (() => void)[] = [];
+  private activity?: WorldActivity;
   private channel: WorldChannel | null = null;
   remotes = new Map<string, RemotePlayer>();
   private syncTimer = 0;
@@ -210,7 +214,7 @@ export class WorldScene extends Phaser.Scene {
       this.scene.restart({ mapId: isChildhood(state.player) ? 'vuong_gia_thon' : 'rung_linh_thu' });
       return;
     }
-    if (map.private && gameStore.getState().quests[HOME_QUEST]?.status !== 'done') {
+    if (map.id === 'dong_phu' && gameStore.getState().quests[HOME_QUEST]?.status !== 'done') {
       this.scene.restart({ mapId: 'dai_thua_vien' });
       return;
     }
@@ -257,7 +261,7 @@ export class WorldScene extends Phaser.Scene {
     this.routeGuide = this.add.graphics().setDepth(-7000);
     this.buildHerbs();
     this.buildWorldPoints();
-    if(map.private) for(let i=0;i<5;i++) {
+    if(map.id==='dong_phu') for(let i=0;i<5;i++) {
       const at=iso((7+i*2)*TILE+TILE/2,12*TILE+TILE/2);
       const art=this.add.image(at.x,at.y-7,'immortal-thanh_linh_thao').setDisplaySize(70,44).setDepth(at.y+1).setVisible(false);
       const label=this.add.text(at.x,at.y+18,'',{fontSize:'9px',color:'#b9dfb0',stroke:'#1e3826',strokeThickness:2,resolution:2}).setOrigin(.5).setDepth(at.y+2);
@@ -339,6 +343,8 @@ export class WorldScene extends Phaser.Scene {
     }
     this.save();
     this.startMultiplayer(map);
+    this.activity=new WorldActivity(this);
+    this.cleanups.push(()=>this.activity?.destroy());
     this.game.events.emit('assets-progress', 1);
     this.worldBuilt = true;
     this.game.events.emit('assets-ready');
@@ -647,6 +653,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private interactPoint(point: WorldPoint) {
+    if(point.id.startsWith('activity_')){void this.activity?.interact(point.id);return;}
     const s = gameStore.getState();
     if (this.transitioning || s.status !== 'alive') return;
     if (Math.hypot(this.player.x - point.x * TILE - TILE / 2, this.player.y - point.y * TILE - TILE / 2) > 110) return s.toast('Đến gần rồi nhấn E hoặc chạm để tương tác.', 'info');
@@ -816,6 +823,19 @@ export class WorldScene extends Phaser.Scene {
       EventBus.on('cmd:meditate', () => this.toggleMeditate()),
       EventBus.on('cmd:target', () => this.cycleTarget()),
       EventBus.on('cmd:enterDungeon', (id: string) => this.enterDungeon(id)),
+      EventBus.on('cmd:activityExit',()=>{
+        if(this.map.id.startsWith('activity_ruins_'))this.goTo({mapId:adventure(gameStore.getState().player).boundSect});
+      }),
+      EventBus.on('cmd:activityEnter',async kind=>{
+        const s=gameStore.getState(),plan=activityPlan(kind,activityNow());
+        if(!plan.open||isChildhood(s.player)||s.status!=='alive'||s.dungeon||s.tribulation||socialStore.getState().duel||lifeProgress(s.player).retreat)return s.toast('Hãy hoàn thành hoạt động hiện tại; chỉ tham gia khi đang mở.','warn');
+        const result=await activityAction(kind,'start',plan.seed);
+        if(!result)return s.toast(activityStore.getState().error,'warn');
+        const fresh=gameStore.getState();
+        if(!this.sys.isActive()||fresh.status!=='alive'||fresh.dungeon||fresh.tribulation||socialStore.getState().duel||activityNow()>=plan.end)return;
+        if(this.map.id===plan.mapId){gameStore.getState().setMenu(null);return;}
+        this.cancelQuestNav();this.goTo({mapId:plan.mapId});
+      }),
       EventBus.on('cmd:enterPartyDungeon', ticket => this.enterPartyDungeon(ticket)),
       EventBus.on('cmd:abortPartyDungeon', id => { if (this.cooperativeRun?.id === id) this.abortPartyDungeon(); }),
       EventBus.on('cmd:leaveDungeon', () => this.leaveDungeon()),
@@ -961,6 +981,7 @@ export class WorldScene extends Phaser.Scene {
     this.tickMultiplayer(dt);
     const targetable = this.player.life.status === 'alive' ? this.player.feet : null;
     for (const m of this.monsters) if (!this.cooperativeRun || !this.partyWaiting) m.update(dt, this.shared?.authority?this.shared.target(m):targetable);
+    this.activity?.update();
     for (const l of this.loot.getChildren() as LootDrop[]) {
       if (l.tick(dt, this.player.feet)) this.collectLoot(l);
     }
@@ -1160,7 +1181,7 @@ export class WorldScene extends Phaser.Scene {
     s.restore(outOfCombat ? Math.round(s.stats.maxHp * 0.02) : 0, Math.round(s.stats.maxMp * 0.015));
     if (p.meditating && !lifeProgress(s.player).retreat) {
       const zone = this.currentZone;
-      const rate = this.map.private ? homeMeditateRate(immortalProgress(s.player).homeLevel) + lifeProgress(s.player).facilities.array - 1 : zone?.rate ?? null;
+      const rate = this.map.id==='dong_phu' ? homeMeditateRate(immortalProgress(s.player).homeLevel) + lifeProgress(s.player).facilities.array - 1 : zone?.rate ?? null;
       const gain = meditateGain(s.player.level, rate);
       s.addItem('linh_khi', gain.linhKhi, { silent: true });
       s.gainExp(gain.exp, { silent: true });
@@ -1222,7 +1243,7 @@ export class WorldScene extends Phaser.Scene {
   save() {
     const s = gameStore.getState();
     // a reload never resumes inside a dungeon: progress is kept, the player wakes up where they entered
-    const where = this.map.arena
+    const where = this.map.id.startsWith('activity_ruins_') ? {mapId:adventure(s.player).boundSect,pos:null} : this.map.arena
       ? (s.dungeonReturn ?? { mapId: 'dai_thua_vien', pos: null })
       : { mapId: this.map.id, pos: { x: this.player.x, y: this.player.y } };
     saveGame({ player: s.player, quests: s.quests, mapId: where.mapId, pos: where.pos });
@@ -1964,7 +1985,13 @@ export class WorldScene extends Phaser.Scene {
     s.gainExp(exp);
     s.questEvent({ type: 'kill', target: m.type });
     s.beastVictory(m.type);
-    const drops = award?.drops ?? monsterDrops(m.def, !!this.map.arena);
+    if(m.type.startsWith('activity_')){
+      const id=m.type.startsWith('activity_treasure_')?m.netId.replace('activity:','treasure:'):this.map.id.replace('activity_ruins_','ruins:');
+      const player=gameStore.getState().player;
+      s.patch({player:{...player,activityVictories:[...new Set([...(player.activityVictories??[]),id])].slice(-24)}});
+    }
+    const rolled = award?.drops ?? monsterDrops(m.def, !!this.map.arena);
+    const drops = m.def.boss ? schoolBossDrops(rolled, heroFor(s.player).id) : rolled;
     drops.forEach((d, i) => {
       const a = (i / Math.max(1, drops.length)) * Math.PI * 2 + Math.random();
       const r = 26 + Math.random() * 22;
