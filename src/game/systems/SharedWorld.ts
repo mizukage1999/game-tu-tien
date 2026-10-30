@@ -21,6 +21,7 @@ import { contributionAwards, recordContribution, type Contribution } from './con
 import { monsterDrops } from './loot';
 import { killExp } from './scale';
 import { ritualSkill, ritualControlMs, soulDrain } from './ritualSkills';
+import { retiredSkill } from '../../data/skillCatalog';
 
 type Cast = Extract<WorldEvent, { t: 'cast' }>;
 type Actor = RemotePlayerState & { combat: CombatStats };
@@ -237,6 +238,7 @@ export class SharedWorld {
       return;
     }
     if (e.t === 'cast') {
+      if (retiredSkill(e.skill)) return;
       if (w.cooperativeRun && w.partyWaiting) return;
       if (!this.once(`cast:${from}`, e.seq)) return;
       const actor = this.actor(from);
@@ -280,6 +282,7 @@ export class SharedWorld {
           w.player.grantShield(
             Math.round(actor.combat.maxHp * (spell?.shieldFraction ?? 0.35)),
             spell?.shieldMs ?? 6000,
+            e.skill,
           );
       }
       if (this.authority && (sk.kind === 'heal' || sk.kind === 'shield')) {

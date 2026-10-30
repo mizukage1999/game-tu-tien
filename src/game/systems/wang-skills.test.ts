@@ -32,14 +32,16 @@ function advance(e: ArenaEngine, ms: number) {
   for (let i = 0; i < ms / 50; i++) e.step(50);
 }
 describe('Wương Lâm signature skills', () => {
-  it('saves all five assignable arts without displacing basic or independent dash', () => {
-    let p = newPlayer({ sex: 'male' });
+  it('saves all seven assignable arts without displacing basic or independent dash', () => {
+    let p = {...newPlayer({ sex: 'male' }),level:99};
     for (const id of [
       'hoa_ma_chi',
       'dao_hoa_hoang_tuyen',
       'dinh_than_thuat',
       'tram_la_quyet',
       'dich_linh_an',
+      'tich_diet_chi',
+      'luyen_hon_thuat',
     ] as SkillId[]) {
       p = chooseSkill(p, 2, id)!;
       const loaded = deserialize(

@@ -4,7 +4,13 @@ import { HEROES, HERO_ASSETS, type HeroId } from '../../data/heroes';
 import { HERO_SPELLS, heroSpell } from '../../data/heroSkills';
 import { CHARACTERS, RIGS, frameName } from './generate';
 import { cacheHeroSpellIcon } from './heroSpellIcons';
-import { SPELL_FRAMES, spellCell, spellSource, spellTexture } from '../../data/heroSpellArt';
+import {
+  schoolSheet,
+  spellCell,
+  spellRuntimeCell,
+  spellSource,
+  spellTexture,
+} from '../../data/heroSpellArt';
 
 export const ROSTER_SOURCE = 'hero-roster-v7-source';
 export const ROSTER_POSES_URL = `${HERO_ASSETS}/poses.png`;
@@ -113,25 +119,16 @@ export function registerHeroSpells(scene: Phaser.Scene) {
     const key = spellSource(hero.id);
     if (!scene.textures.exists(key)) continue;
     const source = scene.textures.get(key).getSourceImage() as HTMLImageElement;
+    const layout = schoolSheet(hero.id);
     const canvas = document.createElement('canvas');
-    canvas.width = SPELL_CELL * 5;
-    canvas.height = SPELL_CELL * 8;
+    canvas.width = layout.cell * layout.columns;
+    canvas.height = layout.cell * layout.rows;
     const ctx = canvas.getContext('2d')!;
     ctx.imageSmoothingQuality = 'high';
     for (const art of Object.values(HERO_SPELLS).filter((a) => a.hero === hero.id)) {
-      for (let frame = 0; frame < SPELL_FRAMES; frame++) {
+      for (let frame = 0; frame < layout.frames; frame++) {
         const [x, y, w, h] = spellCell(art.id, frame);
-        ctx.drawImage(
-          source,
-          x,
-          y,
-          w,
-          h,
-          (art.col % 5) * SPELL_CELL,
-          (Math.floor(art.col / 5) * 4 + frame) * SPELL_CELL,
-          SPELL_CELL,
-          SPELL_CELL,
-        );
+        ctx.drawImage(source, x, y, w, h, ...spellRuntimeCell(art.id, frame));
       }
       const icon = document.createElement('canvas');
       icon.width = 96;
@@ -146,15 +143,8 @@ export function registerHeroSpells(scene: Phaser.Scene) {
     }
     const texture = addStaticTexture(scene, spellTexture(hero.id), canvas)!;
     for (const art of Object.values(HERO_SPELLS).filter((a) => a.hero === hero.id)) {
-      for (let frame = 0; frame < SPELL_FRAMES; frame++)
-        texture.add(
-          `${art.id}:${frame}`,
-          0,
-          (art.col % 5) * SPELL_CELL,
-          (Math.floor(art.col / 5) * 4 + frame) * SPELL_CELL,
-          SPELL_CELL,
-          SPELL_CELL,
-        );
+      for (let frame = 0; frame < layout.frames; frame++)
+        texture.add(`${art.id}:${frame}`, 0, ...spellRuntimeCell(art.id, frame));
     }
     scene.textures.remove(key);
   }

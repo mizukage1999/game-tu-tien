@@ -61,6 +61,7 @@ describe('seven selected combat skills and independent dash', () => {
     const p = {
       ...newPlayer(),
       skillLoadout: ['phi_kiem', 'than_phap', 'basic', 'bang_tam_tram'] as const,
+      level:99,
     };
     const slots = skillLoadout({ ...p, skillLoadout: [...p.skillLoadout] });
     expect(slots).toHaveLength(7);

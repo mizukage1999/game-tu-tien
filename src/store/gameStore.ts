@@ -37,7 +37,8 @@ import { advanceLife, lifeProgress, performLifeAction, type LifeAction } from '.
 import { startVillageChapter } from '../game/systems/storyStart';
 import { adventureAction, beastVictory, sectEvent, type AdventureAction } from '../game/systems/adventure';
 import { recoverPartyRun } from '../game/systems/partyDungeon';
-import { chooseSkill, skillUnlocked } from '../game/systems/skills';
+import { chooseSkill, skillUnlocked, skillLoadout } from '../game/systems/skills';
+import { retiredSkill } from '../data/skillCatalog';
 import { premiumStore } from '../net/premium';
 import { equipmentBaseId, equipmentInstanceId, findOwnedEquipment, isIndividualEquipment, normalizeEquipment } from '../game/systems/equipment';
 import {
@@ -219,9 +220,11 @@ export const questNames = {
 const previousSave = loadGame();
 const save = previousSave ? startVillageChapter(previousSave) : null;
 const interruptedParty = save?.player.partyRun;
+const retiredLoadout = save?.player.skillLoadout?.some(retiredSkill);
 if (save) save.player = recoverPartyRun(save.player);
+if (save) save.player = {...save.player,skillLoadout:skillLoadout(save.player)};
 // Persist the one-time chapter entry before autosave or cloud sync starts.
-if (save && (save !== previousSave || interruptedParty)) saveGame(save);
+if (save && (save !== previousSave || interruptedParty || retiredLoadout)) saveGame(save);
 const startPlayer: PlayerSave = save?.player ?? {
   ...newPlayer({ name: 'Vương Lâm', sex: 'male' }),
   origin: 'vuong_gia_thon', admitted: false, inventory: {},

@@ -11,7 +11,7 @@ const only = new Set(process.argv.slice(2));
 const publicRoot = path.join(root, 'public'),
   output = path.join(publicRoot, 'assets/optimized');
 fs.mkdirSync(output, { recursive: true });
-const directories = ['maps', 'monsters', 'heroes-v8', 'heroes-v7', 'skills', 'skills-schools-v1'];
+const directories = ['maps', 'monsters', 'heroes-v8', 'heroes-v7', 'skills', 'skills-schools-v1','skills-schools-v2'];
 const sources = directories.flatMap((directory) =>
   fs
     .readdirSync(path.join(publicRoot, 'assets', directory))
@@ -19,6 +19,7 @@ const sources = directories.flatMap((directory) =>
     .map((name) => `/assets/${directory}/${name}`),
 );
 sources.push(
+  '/assets/ui/buff-icons-v1.png',
   ...['skills-ice.png', 'beast-snow.png', 'weapon-red.png'].map(
     (name) => `/assets/sprites/${name}`,
   ),

@@ -6,7 +6,7 @@ import { playerStats } from './progression';
 import type { SkillId } from '../../data';
 import { adventure } from './adventure';
 
-function match(loadout: SkillId[] = ['basic', 'phi_kiem', 'kim_cang', 'than_phap']) {
+function match(loadout: SkillId[] = ['basic', 'ly_mo_uyen_1', 'ly_mo_uyen_3']) {
   const p = {
       ...newPlayer(),
       level: 10,
@@ -52,17 +52,17 @@ describe('manual PK arena', () => {
     expect(b.hp).toBe(after);
   });
   it('lets movement dodge a telegraphed line attack', () => {
-    const e = match(['basic', 'loi_kich', 'kim_cang', 'than_phap']),
+    const e = match(['basic', 'ly_mo_uyen_1', 'ly_mo_uyen_3']),
       [a, b] = e.state.fighters;
     a.x = 200;
     b.x = 360;
     a.dx = 1;
     a.dy = 0;
     const before = b.hp;
-    e.input('a', { seq: 1, x: 0, y: 0, cast: 'loi_kich' });
+    e.input('a', { seq: 1, x: 0, y: 0, cast: 'ly_mo_uyen_1' });
     e.input('b', { seq: 1, x: 0, y: -1, cast: null });
     e.step(50);
-    expect(e.state.effects.some((e) => e.skill === 'loi_kich')).toBe(true);
+    expect(e.state.effects.some((e) => e.skill === 'ly_mo_uyen_1')).toBe(true);
     step(e, 550);
     expect(b.y).toBeLessThan(150);
     expect(b.hp).toBe(before);
@@ -96,7 +96,7 @@ describe('manual PK arena', () => {
     a.x = 200;
     b.x = 250;
     const before = b.hp;
-    e.input('b', { seq: 1, x: 0, y: 0, cast: 'kim_cang' });
+    e.input('b', { seq: 1, x: 0, y: 0, cast: 'ly_mo_uyen_3' });
     e.step(50);
     expect(b.shield).toBeGreaterThan(0);
     e.input('a', { seq: 1, x: 0, y: 0, cast: 'basic' });

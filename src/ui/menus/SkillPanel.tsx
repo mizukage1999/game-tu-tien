@@ -14,49 +14,26 @@ import { wangEffect } from '../../data/wangSkills';
 import { SkillGlyph, CultHeading, CultLock } from './CultivationUI';
 import { SkillPreview } from './SkillPreview';
 import { heroFor } from '../../data/heroes';
-import { heroSkillIds, heroSpell } from '../../data/heroSkills';
+import { availableHeroSkillIds, heroSpell } from '../../data/heroSkills';
+import { WANG_SIGNATURE_SKILLS } from '../../data/skillCatalog';
 
 const GROUPS = [
   ['all', '☯', 'Tất cả'],
   ['signature', '✦', 'Đặc trưng'],
-  ['sword', '⚔', 'Kiếm pháp'],
-  ['spell', '✧', 'Pháp thuật'],
   ['support', '❀', 'Hỗ trợ'],
-  ['movement', '➶', 'Thân pháp'],
 ] as const;
 type Group = (typeof GROUPS)[number][0];
-const ORDER: SkillId[] = [
-  'hoa_ma_chi',
-  'dao_hoa_hoang_tuyen',
-  'dinh_than_thuat',
-  'tram_la_quyet',
-  'dich_linh_an',
-  'tich_diet_chi',
-  'luyen_hon_thuat',
-  'bang_tam_tram',
-  'phi_kiem',
-  'han_bang_tran',
-  'loi_kich',
-  'hoa_lien',
-  'phong_nhan',
-  'moc_linh',
-  'kim_cang',
-  'than_phap',
-  'basic',
-];
+const ORDER: SkillId[] = [...WANG_SIGNATURE_SKILLS];
 export function skillGroup(id: SkillId): Group {
   if (wangEffect(id) || heroSpell(id)) return 'signature';
-  if (id === 'than_phap') return 'movement';
   if (['heal', 'shield'].includes(SKILLS[id].kind ?? '')) return 'support';
-  return ['basic', 'bang_tam_tram', 'phi_kiem', 'phong_nhan'].includes(id) ? 'sword' : 'spell';
+  return 'signature';
 }
 export function Skills() {
   const player = useGame((s) => s.player),
     choose = useGame((s) => s.chooseSkill),
     upgrade = useGame((s) => s.upgradeSkill);
-  const [selected, setSelected] = useState<SkillId>(
-    player.heroId ? heroSkillIds(player.heroId)[0] : player.sex === 'male' ? 'hoa_ma_chi' : 'bang_tam_tram',
-  );
+  const [selected, setSelected] = useState<SkillId>(availableHeroSkillIds(heroFor(player).id)[0]);
   const [group, setGroup] = useState<Group>('all'),
     [filter, setFilter] = useState<'all' | 'equipped' | 'locked'>('all');
   const [slot, setSlot] = useState(1),
@@ -74,11 +51,13 @@ export function Skills() {
     kiemPho: player.inventory.kiem_pho ?? 0,
   });
   const hero = heroFor(player);
-  const list = [...heroSkillIds(hero.id), ...ORDER].filter(
+  const list = [...new Set([...availableHeroSkillIds(hero.id), ...ORDER])].filter(
     (id) =>
       (!SKILLS[id].character || SKILLS[id].character === (player.sex ?? 'female')) &&
       (!SKILLS[id].character || !player.heroId || hero.id === 'wang_lam') &&
-      (group === 'all' || skillGroup(id) === group || (group === 'support' && ['heal', 'shield'].includes(SKILLS[id].kind ?? ''))) &&
+      (group === 'all' ||
+        skillGroup(id) === group ||
+        (group === 'support' && ['heal', 'shield'].includes(SKILLS[id].kind ?? ''))) &&
       (filter === 'all' ||
         (filter === 'equipped' ? loadout.includes(id) : !!skillLockReason(player, id))),
   );
@@ -90,19 +69,17 @@ export function Skills() {
   return (
     <div className="cult-skills">
       <nav className="cult-side" aria-label="Loại kỹ năng">
-        {GROUPS.map(
-          ([g, icon, name]) => (
-            <button
-              key={g}
-              className={group === g ? 'active' : ''}
-              aria-pressed={group === g}
-              onClick={() => setGroup(g)}
-            >
-              <i aria-hidden="true">{icon}</i>
-              <span>{name}</span>
-            </button>
-          ),
-        )}
+        {GROUPS.map(([g, icon, name]) => (
+          <button
+            key={g}
+            className={group === g ? 'active' : ''}
+            aria-pressed={group === g}
+            onClick={() => setGroup(g)}
+          >
+            <i aria-hidden="true">{icon}</i>
+            <span>{name}</span>
+          </button>
+        ))}
         <div className="cult-side-caption">
           Một niệm thành tiên
           <br />
@@ -197,10 +174,10 @@ export function Skills() {
                 {heroSpell(id)
                   ? `${hero.school.toLocaleUpperCase('vi-VN')} · ${hero.name}`
                   : wangEffect(id)
-                  ? 'TUYỆT KỸ VƯƠNG LÂM'
-                  : skillGroup(id) === 'support'
-                    ? 'PHÁP THUẬT HỖ TRỢ'
-                    : 'PHÁP MÔN TU LUYỆN'}
+                    ? 'TUYỆT KỸ VƯƠNG LÂM'
+                    : skillGroup(id) === 'support'
+                      ? 'PHÁP THUẬT HỖ TRỢ'
+                      : 'PHÁP MÔN TU LUYỆN'}
               </small>
               <h2>{cur.name}</h2>
               <span>

@@ -1786,7 +1786,7 @@ export class WorldScene extends Phaser.Scene {
       const from = {x:p.x,y:p.y}, facing = {...f};
       this.vfx.heroSpell(id,from,facing,sk.range);
       if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*spell.healFraction),0);return;}
-      if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*spell.shieldFraction),spell.shieldMs);return;}
+      if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*spell.shieldFraction),spell.shieldMs,id);return;}
       this.time.delayedCall(spell.windupMs,()=>{
         if(p.life.status!=='alive')return;
         for(const m of this.monsters)if(m.alive && heroSpellHit(spell.shape,from,facing,sk.range,sk.arc,m)){
@@ -1863,7 +1863,7 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
     if(sk.kind==='heal'){gameStore.getState().restore(Math.round(gameStore.getState().stats.maxHp*.24),0);this.vfx.ascend(p);return;}
-    if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*.35),6000);return;}
+    if(sk.kind==='shield'){p.grantShield(Math.round(gameStore.getState().stats.maxHp*.35),6000,id);return;}
     if(id==='loi_kich'||id==='phong_nhan'||id==='hoa_lien'){
       if(sk.kind==='nova')this.vfx.frostNova(p.feet,sk.range);else this.vfx.crescent(p.feet,ang,sk.range,false,false);
       const hits=sk.kind==='nova'?this.monsters.filter(m=>m.alive&&m.distanceTo(p)<=sk.range):this.monstersInArc(sk.range,sk.kind==='projectile'?35:100);

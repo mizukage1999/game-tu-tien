@@ -2,9 +2,10 @@ import { useRef, useState, type CSSProperties } from 'react';
 import { NAME_MIN, NAME_MAX, normalizeName } from '../game/systems/character';
 import { createCharacter } from '../store/gameStore';
 import { HEROES, heroFor, type HeroId } from '../data/heroes';
-import { heroSkillIds } from '../data/heroSkills';
+import { availableHeroSkillIds } from '../data/heroSkills';
 import { SKILLS } from '../data';
 import { HeroFigure, HeroSpellGlyph, RosterPortrait } from './HeroArt';
+import { WangSkillGlyph } from './WangSkillArt';
 import './character-select.css';
 import { claimCharacterName } from '../net/characterName';
 import { optimizedAsset } from '../data/assetDelivery';
@@ -66,7 +67,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
   const submitting = useRef(false);
   const hero = heroFor({ heroId: selected });
   const [spellIndex, setSpellIndex] = useState(0);
-  const spells = heroSkillIds(hero.id),
+  const spells = availableHeroSkillIds(hero.id),
     spell = spells[spellIndex];
   const choose = (id: HeroId) => {
     setSelected(id);
@@ -191,7 +192,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
                   aria-pressed={spellIndex === i}
                   onClick={() => setSpellIndex(i)}
                 >
-                  <HeroSpellGlyph id={id} />
+                  {hero.id==='wang_lam' ? <WangSkillGlyph id={id} /> : <HeroSpellGlyph id={id} />}
                 </button>
               ))}
             </div>
@@ -199,7 +200,7 @@ export function CreateCharacter({ onDone }: { onDone: () => void }) {
               <b>{SKILLS[spell].name}</b>
               <span>{SKILLS[spell].desc}</span>
               <small>
-                {SKILLS[spell].unlockLevel === 1
+                {(SKILLS[spell].unlockLevel ?? 1) === 1
                   ? 'Có từ đầu'
                   : `Mở ở Lv.${SKILLS[spell].unlockLevel}`}{' '}
                 · {SKILLS[spell].cooldownMs / 1000}s · {SKILLS[spell].mpCost} MP

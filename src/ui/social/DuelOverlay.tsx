@@ -18,8 +18,9 @@ import { HeroPose, HeroDirectionalPose, HeroSpellGlyph, RosterPortrait } from '.
 import { heroDirection } from '../../game/art/heroDirections';
 import { HeroArenaEffect } from './HeroArenaEffect';
 import { RealmBadge } from '../RealmBadge';
+import { ArenaStatusEffects } from '../StatusEffects';
 
-function FighterCard({ fighter: p, enemy = false }: { fighter: ArenaFighter; enemy?: boolean }) {
+function FighterCard({ fighter: p, enemy = false, elapsed }: { fighter: ArenaFighter; enemy?: boolean; elapsed:number }) {
   const hero = heroFor(p);
   return (
     <div className={`duel-vitals ${enemy ? 'rival' : ''}`}>
@@ -42,6 +43,7 @@ function FighterCard({ fighter: p, enemy = false }: { fighter: ArenaFighter; ene
             {Math.floor(p.mp)} / {p.maxMp}
           </span>
         </div>
+        <ArenaStatusEffects fighter={p} elapsed={elapsed}/>
       </div>
     </div>
   );
@@ -178,7 +180,7 @@ export function DuelOverlay() {
             </button>
           </div>
           <div className="duel-scoreboard">
-            <FighterCard fighter={me} />
+            <FighterCard fighter={me} elapsed={s.elapsed}/>
             <div className="duel-versus">
               <b>VS</b>
               <time>
@@ -186,7 +188,7 @@ export function DuelOverlay() {
                 {String(seconds % 60).padStart(2, '0')}
               </time>
             </div>
-            <FighterCard fighter={enemy} enemy />
+            <FighterCard fighter={enemy} enemy elapsed={s.elapsed}/>
           </div>
         </header>
         <div className="duel-battleground" style={{ backgroundImage: `url('${optimizedAsset('/assets/heroes-v7/arena.png')}')` }}>

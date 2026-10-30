@@ -6,6 +6,7 @@ import { signatureHit } from './skillHit';
 import { heroSpell, heroSpellHit } from '../../data/heroSkills';
 import { heroFor, isHeroId } from '../../data/heroes';
 import { ritualSkill, ritualControlMs, soulDrain } from './ritualSkills';
+import { retiredSkill } from '../../data/skillCatalog';
 export const ARENA_W = 720,
   ARENA_H = 400;
 export const ARENA_ROCKS = [
@@ -352,6 +353,7 @@ export class ArenaEngine {
     }
   }
   private cast(f: ArenaFighter, id: SkillId) {
+    if (retiredSkill(id)) return;
     const s = this.state,
       allowed = f.loadout ?? DEFAULT_LOADOUT;
     if (f.rootUntil > s.elapsed) return;

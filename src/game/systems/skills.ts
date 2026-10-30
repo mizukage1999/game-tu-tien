@@ -1,13 +1,15 @@
 import { SKILLS, type SkillBonus, type SkillDef, type SkillId } from '../../data';
 import type { PlayerSave } from './save';
-import { heroDefaultLoadout } from '../../data/heroSkills';
+import { heroDefaultLoadout, availableHeroSkillIds } from '../../data/heroSkills';
+import { retiredSkill, WANG_SIGNATURE_SKILLS } from '../../data/skillCatalog';
 import { heroFor } from '../../data/heroes';
 
 export const DASH_SKILL: SkillId = 'than_phap';
 export const COMBAT_SLOTS = 7;
-export const DEFAULT_LOADOUT: SkillId[] = ['basic', 'bang_tam_tram', 'phi_kiem', 'han_bang_tran'];
+export const DEFAULT_LOADOUT: SkillId[] = ['basic', ...WANG_SIGNATURE_SKILLS.slice(0, 6)];
 export function skillLoadout(p: PlayerSave): SkillId[] {
-  const defaults = p.heroId ? heroDefaultLoadout(p.heroId) : [...DEFAULT_LOADOUT, ...heroDefaultLoadout(heroFor(p).id)];
+  const hero = heroFor(p).id,
+    defaults = heroDefaultLoadout(hero);
   const selected: SkillId[] = [
     'basic',
     ...(p.skillLoadout ?? defaults).filter(
@@ -19,21 +21,25 @@ export function skillLoadout(p: PlayerSave): SkillId[] {
         skillUnlocked(p, id),
     ),
   ];
-  for (const id of defaults)
-    if (selected.length < COMBAT_SLOTS && !selected.includes(id) && skillUnlocked(p, id)) selected.push(id);
+  for (const id of [...defaults, ...availableHeroSkillIds(hero)])
+    if (selected.length < COMBAT_SLOTS && !selected.includes(id) && skillUnlocked(p, id))
+      selected.push(id);
   return selected.slice(0, COMBAT_SLOTS);
 }
 export function skillUnlocked(p: PlayerSave, id: SkillId) {
   return skillLockReason(p, id) === null;
 }
 export function skillLockReason(p: PlayerSave, id: SkillId): string | null {
+  if (retiredSkill(id)) return 'Chiêu thức này đã được thay thế bằng tuyệt kỹ riêng của nhân vật.';
   const sk = SKILLS[id];
   if (!sk) return 'Không có kỹ năng này.';
   if (sk.hero && sk.hero !== heroFor(p).id) return 'Kỹ năng thuộc hệ nhân vật khác.';
-  if (sk.character === 'male' && p.heroId && p.heroId !== 'wang_lam') return 'Tuyệt kỹ riêng của Vương Lâm.';
+  if (sk.character === 'male' && p.heroId && p.heroId !== 'wang_lam')
+    return 'Tuyệt kỹ riêng của Vương Lâm.';
   if (sk.character && sk.character !== (p.sex ?? 'female')) return 'Tuyệt kỹ riêng của Vương Lâm.';
   if (p.level < (sk.unlockLevel ?? 1)) return `Mở ở Lv.${sk.unlockLevel}`;
-  if (sk.secret && !p.adventure?.learnedSecrets.includes(id)) return 'Học bí thuật từ trưởng lão trong mục Tông Môn.';
+  if (sk.secret && !p.adventure?.learnedSecrets.includes(id))
+    return 'Học bí thuật từ trưởng lão trong mục Tông Môn.';
   return null;
 }
 export function chooseSkill(p: PlayerSave, slot: number, id: SkillId): PlayerSave | null {
@@ -48,6 +54,7 @@ export function chooseSkill(p: PlayerSave, slot: number, id: SkillId): PlayerSav
     return null;
   const slots = skillLoadout(p),
     old = slots.indexOf(id);
+  if (slot > slots.length || (old >= 0 && slot === slots.length)) return null;
   if (old >= 0) [slots[old], slots[slot]] = [slots[slot], slots[old]];
   else slots[slot] = id;
   return { ...p, skillLoadout: slots };

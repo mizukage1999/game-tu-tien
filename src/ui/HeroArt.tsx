@@ -4,7 +4,7 @@ import { HERO_ASSETS, heroRow, type HeroId } from '../data/heroes';
 import { heroSpell } from '../data/heroSkills';
 import type { SkillId } from '../data';
 import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
-import { SCHOOL_ART, SCHOOL_SHEET_W, SCHOOL_SHEET_H, spellCell } from '../data/heroSpellArt';
+import { schoolSheet, spellCell } from '../data/heroSpellArt';
 import { directionalCell, HERO_ATLASES } from '../game/art/heroAtlas';
 
 /** Clip to the atlas cell itself as well as the viewport, including letterboxed SVGs. */
@@ -169,9 +169,9 @@ export function HeroSpellGlyph({ id, className = '' }: { id: SkillId; className?
       <AtlasCrop
         box={spellCell(art.id)}
         source={art.hero}
-        directory={SCHOOL_ART}
-        width={SCHOOL_SHEET_W}
-        height={SCHOOL_SHEET_H}
+        directory={schoolSheet(art.hero).directory}
+        width={schoolSheet(art.hero).width}
+        height={schoolSheet(art.hero).height}
       />
     </span>
   );
@@ -182,7 +182,7 @@ export function HeroEffectArt({
   className = '',
   style,
   onAnimationEnd,
-  frame = 2,
+  frame,
   stretch = false,
 }: {
   id: SkillId;
@@ -200,9 +200,9 @@ export function HeroEffectArt({
       stretch={stretch}
       box={spellCell(art.id, frame)}
       source={art.hero}
-      directory={SCHOOL_ART}
-      width={SCHOOL_SHEET_W}
-      height={SCHOOL_SHEET_H}
+      directory={schoolSheet(art.hero).directory}
+      width={schoolSheet(art.hero).width}
+      height={schoolSheet(art.hero).height}
       style={style}
       onAnimationEnd={onAnimationEnd}
     />

@@ -9,6 +9,7 @@ import { SkillBar } from '../SkillBar';
 import { gameStore, newPlayer } from '../../store/gameStore';
 import { skillLoadout } from '../../game/systems/skills';
 import { HOME_QUEST } from '../../game/systems/immortal';
+import { WANG_SIGNATURE_SKILLS } from '../../data/skillCatalog';
 
 vi.mock('../../game/art/icons', () => ({
   itemIconUrl: () => '/item.png',
@@ -24,7 +25,7 @@ describe('skill selection and in-panel crafting', () => {
       act(() => root.render(<><Skills /><SkillBar /></>));
       expect(host.querySelectorAll('.cult-skill-card[data-skill^="hong_lien_"]')).toHaveLength(10);
       const tenth = host.querySelector<HTMLButtonElement>('.cult-skill-card[data-skill="hong_lien_10"]')!;
-      expect(tenth.querySelector('image')?.getAttribute('href')).toMatch(/\/skills-schools-v1-hong_lien\.[a-f0-9]{12}\.webp$/);
+      expect(tenth.querySelector('image')?.getAttribute('href')).toMatch(/\/skills-schools-v2-hong_lien\.[a-f0-9]{12}\.webp$/);
       act(() => tenth.click());
       act(() => host.querySelectorAll<HTMLButtonElement>('.skill-loadout button')[3].click());
       act(() => host.querySelector<HTMLButtonElement>('[data-action="assign"]')!.click());
@@ -40,7 +41,7 @@ describe('skill selection and in-panel crafting', () => {
       root = createRoot(host),
       previous = gameStore.getState();
     gameStore.setState({
-      player: { ...newPlayer({ sex: 'male' }), admitted: true },
+      player: { ...newPlayer({ sex: 'male' }), admitted: true, level:99 },
       cooldowns: {},
     });
     try {
@@ -53,6 +54,8 @@ describe('skill selection and in-panel crafting', () => {
         ),
       );
       const slots = host.querySelectorAll<HTMLButtonElement>('.skill-loadout button');
+      expect([...host.querySelectorAll<HTMLElement>('.cult-skill-card')].map(e=>e.dataset.skill)).toEqual([...WANG_SIGNATURE_SKILLS]);
+      expect(host.querySelector('.cult-side')?.textContent).not.toMatch(/Kiếm Pháp|Pháp Thuật/);
       expect(slots[0].disabled).toBe(true);
       act(() => slots[2].click());
       const assign = host.querySelector<HTMLButtonElement>(

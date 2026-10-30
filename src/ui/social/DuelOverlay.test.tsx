@@ -21,7 +21,7 @@ it('retries a ready message lost before the host opens the arena, then stops onc
   vi.mocked(readyArena).mockClear();
   const root = createRoot(document.createElement('div'));
   const previous = socialStore.getState();
-  const p = newPlayer(),
+  const p = {...newPlayer(),level:99},
     a = buildDuelist(p, playerStats(p), 'Luyện Khí', 'a'),
     b = { ...a, userId: 'b' };
   const engine = new ArenaEngine('ready-retry', a, b);
@@ -72,6 +72,8 @@ it('lets the result return button receive a tap instead of capturing it as arena
   const p = newPlayer(),
     a = buildDuelist(p, playerStats(p), 'Luyện Khí', 'a'),
     b = { ...a, userId: 'b' };
+  a.loadout=['basic','ly_mo_uyen_1','ly_mo_uyen_2','ly_mo_uyen_3','ly_mo_uyen_4','ly_mo_uyen_5','ly_mo_uyen_6'];
+  b.loadout=[...a.loadout];
   const e = new ArenaEngine('return', a, b);
   e.forfeit('b');
   socialStore.setState({

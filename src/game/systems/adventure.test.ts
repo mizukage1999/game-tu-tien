@@ -66,19 +66,19 @@ describe('equipment, EXP and loadouts', () => {
   it('requires more EXP and keeps seven unique selected slots across saves', () => {
     expect(expToNext(1)).toBeGreaterThan(400);
     expect(expToNext(20)).toBeGreaterThan(expToNext(10) * 2);
-    const chosen = chooseSkill(hero(), 1, 'moc_linh')!;
+    const chosen = chooseSkill({...hero(),level:99}, 1, 'ly_mo_uyen_10')!;
     expect(skillLoadout(chosen)).toHaveLength(7);
-    expect(skillLoadout(chosen)[1]).toBe('moc_linh');
+    expect(skillLoadout(chosen)[1]).toBe('ly_mo_uyen_10');
     const loaded = deserialize(
       serialize({ player: chosen, quests: {}, mapId: 'dai_thua_vien', pos: null }),
     )!;
     expect(skillLoadout(loaded.player)).toEqual(skillLoadout(chosen));
     expect(chooseSkill(hero(), 1, 'loi_kich')).toBeNull();
     expect(chooseSkill(hero(), 4, 'basic')).toBeNull();
-    expect(chooseSkill(chosen, 0, 'moc_linh')).toBeNull();
+    expect(chooseSkill(chosen, 0, 'ly_mo_uyen_10')).toBeNull();
     expect(chooseSkill(chosen, 1, 'than_phap')).toBeNull();
     expect(chooseSkill(chosen, 1, 'basic')).toBeNull();
-    expect(new Set(skillLoadout(chooseSkill(chosen, 2, 'moc_linh')!)).size).toBe(7);
+    expect(new Set(skillLoadout(chooseSkill(chosen, 2, 'ly_mo_uyen_10')!)).size).toBe(7);
   });
 });
 describe('sect missions and reputation gates', () => {
@@ -104,11 +104,9 @@ describe('sect missions and reputation gates', () => {
     ).not.toBeNull();
     expect(mapGateReason(getMap('sect_archive'), { childhood: false, reputation: 150 })).toBeNull();
     const learned = adventureAction(ranked, { type: 'learnSecret', id: 'loi_kich' }, true);
-    expect(learned.ok).toBe(true);
-    if (learned.ok) {
-      expect(learned.player.adventure?.contribution).toBe(0);
-      expect(chooseSkill(learned.player, 1, 'loi_kich')).not.toBeNull();
-    }
+    expect(learned.ok).toBe(false);
+    expect(ranked.adventure.contribution).toBe(60);
+    expect(chooseSkill(ranked,1,'loi_kich')).toBeNull();
   });
   it('routes high and low players into an explicitly chosen old field', () => {
     for (const level of [1, 20, 99])

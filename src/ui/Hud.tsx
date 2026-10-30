@@ -1,4 +1,5 @@
 import { StatusBars } from './StatusBars';
+import { WorldStatusEffects } from './StatusEffects';
 import { QuestPanel } from './QuestPanel';
 import { TopMenu } from './TopMenu';
 import { CloudBadge } from './CloudBadge';
@@ -31,6 +32,7 @@ export function Hud() {
     <div className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}`}>
       <div className="hud-top-left">
         <StatusBars />
+        <WorldStatusEffects />
         {inDungeon ? <DungeonPanel /> : <QuestPanel />}
       </div>
       <div className="hud-top-right">

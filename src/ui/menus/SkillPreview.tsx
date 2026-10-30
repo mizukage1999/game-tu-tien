@@ -89,7 +89,7 @@ export function SkillPreview({ id }: { id: SkillId }) {
         <HeroEffectArt
           key={`${id}-${play}`}
           id={id}
-          frame={playing ? spellFrame(spell.id, age) : 2}
+          frame={playing ? spellFrame(spell.id, age) : 3}
           className={`cult-preview-roster-spell ${spell.shape}`}
           style={{ opacity: playing ? Math.min(1, age / 100, (spell.duration - age) / 180) : 0.65 }}
         />

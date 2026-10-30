@@ -5,17 +5,18 @@ import {
   HERO_SPELLS,
   heroDefaultLoadout,
   heroSkillIds,
+  availableHeroSkillIds,
   heroSpellHit,
 } from '../../data/heroSkills';
 import { SKILLS, type SkillId } from '../../data';
 import { newPlayer } from '../../store/gameStore';
-import { chooseSkill, DEFAULT_LOADOUT, skillLoadout, skillUnlocked } from './skills';
+import { chooseSkill, skillLoadout, skillUnlocked } from './skills';
 import { deserialize, serialize, type PlayerSave } from './save';
 import { buildDuelist } from './duel';
 import { playerStats } from './progression';
 import { ArenaEngine, validateArenaSnapshot } from './arena';
 import { heroName, originText, usesChildSprite } from './origin';
-import { spellCell, spellFrame, SCHOOL_SHEET_W, SCHOOL_SHEET_H } from '../../data/heroSpellArt';
+import { spellCell, spellFrame, schoolSheet, SCHOOL_SHEET_W, SCHOOL_SHEET_H } from '../../data/heroSpellArt';
 
 describe('eight character schools', () => {
   it('keeps the two original childhood identities and the six new hero identities in the village', () => {
@@ -34,13 +35,15 @@ describe('eight character schools', () => {
       if (!original) expect(originText('Thiết Trụ, đi nào!', p)).toBe(`${hero.name}, đi nào!`);
     }
   });
-  it('provides ten distinct spells per hero and three available starting spells', () => {
+  it('provides seven Wang signatures and ten class spells, with progression gates intact', () => {
     expect(Object.keys(HERO_SKILLS)).toHaveLength(80);
     for (const hero of HEROES) {
       const p = { ...newPlayer({ sex: hero.sex }), heroId: hero.id };
-      const ids = heroSkillIds(hero.id);
-      expect(new Set(ids).size).toBe(10);
-      expect(skillLoadout(p)).toEqual(heroDefaultLoadout(hero.id));
+      const ids = availableHeroSkillIds(hero.id);
+      expect(new Set(ids).size).toBe(hero.id === 'wang_lam' ? 7 : 10);
+      expect(skillLoadout(p)).toEqual(['basic', ...ids.filter(id=>skillUnlocked(p,id)).slice(0,6)]);
+      expect(skillLoadout({...p,level:99})).toEqual(heroDefaultLoadout(hero.id));
+      if (hero.id === 'wang_lam') continue;
       expect(ids.map((id) => skillUnlocked(p, id))).toEqual([
         true,
         true,
@@ -54,7 +57,7 @@ describe('eight character schools', () => {
         false,
       ]);
       expect(
-        ids.every((id) => SKILLS[id].hero === hero.id && HERO_SPELLS[id].hero === hero.id),
+        ids.every((id) => SKILLS[id].hero === hero.id && HERO_SPELLS[id as keyof typeof HERO_SPELLS].hero === hero.id),
       ).toBe(true);
     }
   });
@@ -85,7 +88,7 @@ describe('eight character schools', () => {
       serialize({ player: newPlayer(), quests: {}, mapId: 'vuong_gia_thon', pos: null }),
     )!;
     expect(old.player.heroId).toBeUndefined();
-    expect(skillLoadout(old.player).slice(0, 4)).toEqual(DEFAULT_LOADOUT);
+    expect(skillLoadout(old.player)).toEqual(skillLoadout(newPlayer()));
     const invalid = deserialize(
       serialize({
         player: { ...p, heroId: '__proto__' } as unknown as PlayerSave,
@@ -190,8 +193,8 @@ describe('expanded school spellbooks', () => {
   });
   it('unlocks advanced spells progressively and saves the tenth spell without replacing old IDs', () => {
     for (const hero of HEROES) {
-      for (const id of heroSkillIds(hero.id)) {
-        const level = SKILLS[id].unlockLevel!;
+      for (const id of availableHeroSkillIds(hero.id)) {
+        const level = SKILLS[id].unlockLevel ?? 1;
         const p = { ...newPlayer(), heroId: hero.id, sex: hero.sex, level };
         expect(skillUnlocked(p, id)).toBe(true);
         if (level > 1) expect(chooseSkill({ ...p, level: level - 1 }, 1, id)).toBeNull();
@@ -200,7 +203,7 @@ describe('expanded school spellbooks', () => {
           serialize({ player: chosen, quests: {}, mapId: 'vuong_gia_thon', pos: null }),
         )!;
         expect(skillLoadout(saved.player)[1]).toBe(id);
-        expect(skillLoadout(saved.player)).toHaveLength(7);
+        expect(skillLoadout(saved.player).length).toBeLessThanOrEqual(7);
         for (const n of [
           SKILLS[id].mpCost,
           SKILLS[id].range,
@@ -211,12 +214,13 @@ describe('expanded school spellbooks', () => {
       }
     }
   });
-  it('maps every spell to four distinct bounded cells with impact at the actual windup', () => {
+  it('maps school spells to distinct bounded cells with impact at the actual windup', () => {
     for (const hero of HEROES) {
       const cells: string[] = [];
+      const frames = schoolSheet(hero.id).frames;
       for (const id of heroSkillIds(hero.id)) {
         const spell = HERO_SPELLS[id];
-        for (let frame = 0; frame < 4; frame++) {
+        for (let frame = 0; frame < frames; frame++) {
           const [x, y, w, h] = spellCell(id, frame);
           expect(x).toBeGreaterThanOrEqual(0);
           expect(y).toBeGreaterThanOrEqual(0);
@@ -225,15 +229,15 @@ describe('expanded school spellbooks', () => {
           cells.push([x, y].join(','));
         }
         expect(spellFrame(id, 0)).toBe(0);
-        expect(spellFrame(id, spell.windupMs - 1)).toBe(1);
-        expect(spellFrame(id, spell.windupMs)).toBe(2);
-        expect(spellFrame(id, spell.duration - 1)).toBe(3);
+        expect(spellFrame(id, spell.windupMs - 1)).toBe(frames===6?2:1);
+        expect(spellFrame(id, spell.windupMs)).toBe(frames===6?3:2);
+        expect(spellFrame(id, spell.duration - 1)).toBe(frames-1);
       }
-      expect(new Set(cells).size).toBe(40);
+      expect(new Set(cells).size).toBe(frames*10);
     }
   });
   it.each(
-    HEROES.flatMap((hero) =>
+    HEROES.filter(hero=>hero.id!=='wang_lam').flatMap((hero) =>
       heroSkillIds(hero.id)
         .slice(5)
         .map((id) => [hero.id, id] as const),

@@ -178,16 +178,7 @@ export function adventureAction(
       break;
     }
     case 'learnSecret': {
-      if (!atSect) return fail('Hãy gặp trưởng lão tại tông môn.');
-      const required = action.id === 'loi_kich' ? 2 : action.id === 'phong_nhan' ? 3 : 99;
-      if (sectRank(p) < required)
-        return fail(`Cần cấp bậc ${SECT_RANKS[required]?.name ?? 'cao hơn'}.`);
-      if (a.learnedSecrets.includes(action.id)) return fail('Đã học bí thuật này.');
-      if (a.contribution < 60) return fail('Cần 60 cống hiến.');
-      a.contribution -= 60;
-      a.learnedSecrets = [...a.learnedSecrets, action.id];
-      message = 'Trưởng lão đã truyền thụ bí thuật.';
-      break;
+      return fail('Các bí thuật chung đã ngừng sử dụng. Hãy chọn tuyệt kỹ riêng trong mục Kỹ Năng.');
     }
     case 'enhance': {
       const def = ITEMS[action.id],

@@ -17,10 +17,10 @@ it('plays the advanced spell impact and fills its directed hit area without shri
     expect(host.querySelector('svg')?.getAttribute('viewBox')).toBe(spellCell('hong_lien_6', 0).join(' '));
     act(() => root.render(<HeroArenaEffect effect={effect} elapsed={1000} heroId="hong_lien" />));
     const sprite = host.querySelector<SVGElement>('svg')!;
-    expect(sprite.getAttribute('viewBox')).toBe(spellCell('hong_lien_6', 2).join(' '));
+    expect(sprite.getAttribute('viewBox')).toBe(spellCell('hong_lien_6', 3).join(' '));
     expect(sprite.getAttribute('preserveAspectRatio')).toBe('none');
     expect(sprite.style.transform).toContain('rotate(-1.5707963267948966rad)');
-    expect(host.querySelector('image')?.getAttribute('href')).toMatch(/\/skills-schools-v1-hong_lien\.[a-f0-9]{12}\.webp$/);
+    expect(host.querySelector('image')?.getAttribute('href')).toMatch(/\/skills-schools-v2-hong_lien\.[a-f0-9]{12}\.webp$/);
     expect(host.querySelector('.duel-effect')).toBeNull();
   } finally { act(() => root.unmount()); }
 });

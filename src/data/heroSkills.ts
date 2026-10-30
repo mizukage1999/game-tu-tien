@@ -1,5 +1,6 @@
 import type { SkillDef, SkillId } from './index';
 import { HEROES, type HeroId } from './heroes';
+import { WANG_SIGNATURE_SKILLS } from './skillCatalog';
 
 export type HeroSkillId = `${HeroId}_${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 export type SpellShape = 'line' | 'circle' | 'cone' | 'self';
@@ -324,7 +325,7 @@ const ADVANCED: Spec[][] = [
       'Ảo Cảnh',
       'nova',
       'circle',
-      'Hoa trận mê ảnh khóa chân địch quanh người 1 giây.',
+      'Thái hư âm dương khóa chân địch quanh người 1 giây.',
       1000,
       { range: 155, motion: 'bloom' },
     ],
@@ -332,7 +333,7 @@ const ADVANCED: Spec[][] = [
       'Phân Thân',
       'projectile',
       'line',
-      'Bóng ảo ngưng thành đao khí lao thẳng; tan sau một đòn.',
+      'Phân thân không gian lao thẳng theo hướng đánh; tan sau một đòn.',
       0,
       { range: 340 },
     ],
@@ -340,7 +341,7 @@ const ADVANCED: Spec[][] = [
       'Hoa Tán',
       'melee',
       'cone',
-      'Đàn hồ điệp hóa lưỡi đao quét rộng phía trước.',
+      'Tinh tú kết thành vệt sáng quét rộng phía trước.',
       0,
       { range: 220, arc: 140 },
     ],
@@ -348,7 +349,7 @@ const ADVANCED: Spec[][] = [
       'Tịnh Mộng',
       'nova',
       'circle',
-      'Mộng ấn trấn giữ địch 1,5 giây trong vùng ảnh hưởng.',
+      'Thiên đạo phù ấn trấn giữ địch 1,5 giây trong vùng ảnh hưởng.',
       1500,
       { range: 155 },
     ],
@@ -356,7 +357,7 @@ const ADVANCED: Spec[][] = [
       'Ảo Thần',
       'shield',
       'self',
-      'Ảo thần kết liên đài tạo lá chắn bằng 50% sinh lực trong 7 giây.',
+      'Âm dương pháp giới tạo lá chắn bằng 50% sinh lực trong 7 giây.',
       0,
       { shieldFraction: 0.5, shieldMs: 7000 },
     ],
@@ -385,11 +386,11 @@ const SETS: Spec[][] = [
     ['Thiên Mộc Hộ Thể', 'shield', 'self', 'Cổ thụ tạo lá chắn trong 6 giây.'],
   ],
   [
-    ['Ảnh Sát', 'projectile', 'line', 'Ảnh nhận đâm xuyên theo hướng đánh.'],
-    ['Song Phách Trảm', 'melee', 'cone', 'Song đao chém chéo phía trước.'],
-    ['Vô Ảnh Hộ', 'shield', 'self', 'Ảnh vệ hấp thụ sát thương trong 6 giây.'],
-    ['Huyết Nguyệt Loạn Vũ', 'nova', 'circle', 'Song nhận xoáy quanh bản thân.'],
-    ['Ám Dạ Diệt Thế', 'nova', 'circle', 'Ảnh sát bộc phát thành vòng tròn.'],
+    ['Ảnh Sát', 'projectile', 'line', 'Tử ảnh song nhận đâm xuyên theo hướng đánh.'],
+    ['Song Phách Trảm', 'melee', 'cone', 'Hai lưỡi nguyệt đao tím chém chéo phía trước.'],
+    ['Vô Ảnh Hộ', 'shield', 'self', 'Bóng ảnh kết thành ảnh vệ hấp thụ sát thương trong 6 giây.'],
+    ['Huyết Nguyệt Loạn Vũ', 'nova', 'circle', 'Tử nguyệt và song nhận xoáy quanh bản thân.'],
+    ['Ám Dạ Diệt Thế', 'nova', 'circle', 'Quỷ ảnh liên hoa và ảnh nhận bộc phát thành vòng tròn.'],
   ],
   [
     ['Hỏa Ma Chỉ', 'projectile', 'line', 'Hỏa chỉ xuyên các mục tiêu trên đường thẳng.'],
@@ -413,11 +414,11 @@ const SETS: Spec[][] = [
     ['Đại Bi Truyền Đạo', 'heal', 'self', 'Kim liên hồi 24% sinh lực tối đa.'],
   ],
   [
-    ['Ảo Ảnh Trảm', 'projectile', 'line', 'Ảo đao xuyên theo hướng đánh.'],
-    ['Mê Tiệt Hoa', 'nova', 'circle', 'Hoa ấn giữ chân mục tiêu 1 giây.', 1000],
-    ['Tử Đằng Loạn Vũ', 'nova', 'circle', 'Hoa nhận xoáy quanh bản thân.'],
-    ['Vạn Hoa Ảnh Giới', 'shield', 'self', 'Kính ảnh tạo lá chắn trong 6 giây.'],
-    ['Đạo Tâm Linh Cảnh', 'heal', 'self', 'Linh cảnh hồi 24% sinh lực tối đa.'],
+    ['Ảo Ảnh Trảm', 'projectile', 'line', 'Thái hư âm dương xuyên theo hướng đánh.'],
+    ['Mê Tiệt Hoa', 'nova', 'circle', 'Thời luân giữ chân mục tiêu 1 giây.', 1000],
+    ['Tử Đằng Loạn Vũ', 'nova', 'circle', 'Vạn tượng phân thân xoáy quanh bản thân.'],
+    ['Vạn Hoa Ảnh Giới', 'shield', 'self', 'Cổng không gian tạo lá chắn trong 6 giây.'],
+    ['Đạo Tâm Linh Cảnh', 'heal', 'self', 'Bạch liên linh cảnh hồi 24% sinh lực tối đa.'],
   ],
 ];
 
@@ -489,7 +490,10 @@ export function heroSkillIds(hero: HeroId): HeroSkillId[] {
   return Array.from({ length: 10 }, (_, i) => `${hero}_${i + 1}` as HeroSkillId);
 }
 export function heroDefaultLoadout(hero: HeroId): SkillId[] {
-  return ['basic', ...heroSkillIds(hero).slice(0, 3), 'bang_tam_tram', 'phi_kiem', 'han_bang_tran'];
+  return ['basic', ...availableHeroSkillIds(hero).slice(0,6)];
+}
+export function availableHeroSkillIds(hero: HeroId): SkillId[] {
+  return hero === 'wang_lam' ? [...WANG_SIGNATURE_SKILLS] : heroSkillIds(hero);
 }
 export function spellVisualId(id: SkillId, hero: HeroId): HeroSkillId {
   if (heroSpell(id)) return id as HeroSkillId;

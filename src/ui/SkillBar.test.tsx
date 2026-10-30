@@ -14,7 +14,7 @@ describe('selected combat controls', () => {
     const host = document.createElement('div'),
       root = createRoot(host);
     const previous = gameStore.getState();
-    const player = { ...newPlayer(), admitted: true, level: 10 };
+    const player = { ...newPlayer({sex:'male'}), admitted: true, level: 99 };
     gameStore.setState({ player });
     try {
       act(() => root.render(<SkillBar />));
@@ -24,11 +24,11 @@ describe('selected combat controls', () => {
         true,
       );
       expect(host.querySelector('.flight-btn')).not.toBeNull();
-      act(() => gameStore.getState().chooseSkill(1, 'moc_linh'));
+      act(() => gameStore.getState().chooseSkill(1, 'luyen_hon_thuat'));
       expect(host.querySelectorAll('[data-skill]')).toHaveLength(8);
-      expect(host.querySelector('[data-skill="moc_linh"]')).not.toBeNull();
-      act(() => gameStore.setState({ cooldowns: { moc_linh: 8000 } }));
-      expect(host.querySelector('[data-skill="moc_linh"]')?.classList.contains('cooling')).toBe(
+      expect(host.querySelector('[data-skill="luyen_hon_thuat"]')).not.toBeNull();
+      act(() => gameStore.setState({ cooldowns: { luyen_hon_thuat: 8000 } }));
+      expect(host.querySelector('[data-skill="luyen_hon_thuat"]')?.classList.contains('cooling')).toBe(
         true,
       );
     } finally {

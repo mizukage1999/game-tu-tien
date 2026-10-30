@@ -16,14 +16,14 @@ function pair() {
     level: 15,
     critRate: 0,
     critMul: 1.5,
-    loadout: ['basic', 'wang_lam_1', 'wang_lam_2', 'wang_lam_3'],
+    loadout: ['basic', 'hoa_ma_chi', 'tram_la_quyet', 'dinh_than_thuat'],
     skills: {},
   };
   const actor = (key: string, x: number) => ({
     key,
     userId: key,
     name: key,
-    heroId: 'wang_lam' as const,
+    heroId: 'wang_lam' as import('../../data/heroes').HeroId,
     sex: 'male' as const,
     x,
     y: 200,
@@ -159,6 +159,19 @@ function pair() {
 }
 afterEach(() => vi.useRealTimers());
 describe('two clients in a shared combat map', () => {
+  it('rejects retired spells on both peers even with a forged maximum-level loadout',()=>{
+    vi.useFakeTimers();
+    const{a,b,aw,bw,actors}=pair();
+    actors[1].combat.level=99;
+    actors[1].combat.loadout=['basic','wang_lam_10','phi_kiem','kim_cang'];
+    b.attack('wang_lam_10');b.attack('phi_kiem');b.attack('kim_cang');
+    vi.advanceTimersByTime(1500);
+    expect(aw.w.vfx.combatSkill).not.toHaveBeenCalled();
+    expect(bw.w.vfx.combatSkill).not.toHaveBeenCalled();
+    expect(aw.m.hp).toBe(180);
+    expect(bw.w.player.grantShield).not.toHaveBeenCalled();
+    a.destroy();b.destroy();
+  });
   it('uses the first valid target for Tịch Diệt Chỉ across both monsters and players',()=>{
     vi.useFakeTimers();
     const {a,b,aw,bw,actors}=pair();
@@ -217,9 +230,10 @@ describe('two clients in a shared combat map', () => {
     vi.useFakeTimers();
     const { a, b, aw, bw, actors } = pair();
     actors[1].combat.level = 40;
-    actors[1].combat.loadout = ['basic', 'wang_lam_7'];
-    b.attack('wang_lam_7');
-    expect(aw.w.vfx.combatSkill).toHaveBeenCalledWith('wang_lam_7', expect.anything(), { x: 1, y: 0 }, 390, 'wang_lam');
+    actors[1].heroId='hong_lien';
+    actors[1].combat.loadout = ['basic', 'hong_lien_7'];
+    b.attack('hong_lien_7');
+    expect(aw.w.vfx.combatSkill).toHaveBeenCalledWith('hong_lien_7', expect.anything(), { x: 1, y: 0 }, expect.any(Number), 'hong_lien');
     expect(bw.w.vfx.combatSkill).toHaveBeenCalled();
     vi.advanceTimersByTime(449);
     expect(aw.m.hp).toBe(180);
@@ -232,8 +246,9 @@ describe('two clients in a shared combat map', () => {
   it('rejects a forged advanced loadout below its required level on every peer', () => {
     vi.useFakeTimers();
     const { a, b, aw, bw, actors } = pair();
-    actors[1].combat.loadout = ['basic', 'wang_lam_10'];
-    b.attack('wang_lam_10');
+    actors[1].heroId='hong_lien';
+    actors[1].combat.loadout = ['basic', 'hong_lien_10'];
+    b.attack('hong_lien_10');
     vi.advanceTimersByTime(1200);
     expect(aw.w.vfx.combatSkill).not.toHaveBeenCalled();
     expect(bw.w.vfx.combatSkill).not.toHaveBeenCalled();
@@ -251,7 +266,7 @@ describe('two clients in a shared combat map', () => {
     expect(aw.w.vfx.combatSkill).toHaveBeenCalled();
     expect(bw.w.vfx.combatSkill).toHaveBeenCalled();
     vi.advanceTimersByTime(600);
-    b.attack('wang_lam_1');
+    b.attack('hoa_ma_chi');
     vi.advanceTimersByTime(450);
     a.tick(150);
     expect(aw.m.alive).toBe(false);
@@ -308,7 +323,7 @@ describe('two clients in a shared combat map', () => {
     vi.useFakeTimers();
     const { a, b, aw, bw } = pair();
     a.attack('basic'); vi.advanceTimersByTime(1);
-    b.attack('wang_lam_1'); vi.advanceTimersByTime(500);
+    b.attack('hoa_ma_chi'); vi.advanceTimersByTime(500);
     expect(aw.m.alive).toBe(false);
     expect(aw.w.rewardMonster).toHaveBeenCalledOnce();
     expect(bw.w.rewardMonster).toHaveBeenCalledOnce();

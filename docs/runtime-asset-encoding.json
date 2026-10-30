@@ -743,6 +743,86 @@
       "width": 1254,
       "height": 1254,
       "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/hong_lien.png",
+      "output": "/assets/optimized/skills-schools-v2-hong_lien.6f1a0ed8a2f6.webp",
+      "originalBytes": 2685624,
+      "sourceSha256": "602d521dc09632e4cad7300d0460ef56c0fa0155d50be0a5e2639173b3592b36",
+      "encodedBytes": 1088596,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/ly_mo_uyen.png",
+      "output": "/assets/optimized/skills-schools-v2-ly_mo_uyen.c1a456dc4227.webp",
+      "originalBytes": 2545277,
+      "sourceSha256": "def21b8f0f9cf97628da450a212e550038006f341f3834c98fbacfc049fdb507",
+      "encodedBytes": 1019450,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/quan_vo_tran.png",
+      "output": "/assets/optimized/skills-schools-v2-quan_vo_tran.fe09f72c199f.webp",
+      "originalBytes": 2822557,
+      "sourceSha256": "5598336f877cf96c4c67e33a9b8e309ec7ffac0b7f83b05ccf9cc9d040dcbdd0",
+      "encodedBytes": 1073712,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/tham_nguyet.png",
+      "output": "/assets/optimized/skills-schools-v2-tham_nguyet.a29c5c0433d7.webp",
+      "originalBytes": 2848819,
+      "sourceSha256": "d9b80ac9c7afc6fc623ac344b8527d50faca107e1f7929b4a1716fdf7f244595",
+      "encodedBytes": 1162476,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/vu_minh.png",
+      "output": "/assets/optimized/skills-schools-v2-vu_minh.331a54d60a70.webp",
+      "originalBytes": 2921514,
+      "sourceSha256": "1cc27cbe36e937d61ca34a6e8a255914f540771f4396514fd35731e569d903a1",
+      "encodedBytes": 1207766,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/buff-icons-v1.png",
+      "output": "/assets/optimized/ui-buff-icons-v1.c0d18c33a189.webp",
+      "originalBytes": 2647451,
+      "sourceSha256": "868daf0db174862098f68ab9c6c99296412fdb5a401866ec9e5342f640c92031",
+      "encodedBytes": 555376,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/diep_ly.png",
+      "output": "/assets/optimized/skills-schools-v2-diep_ly.d0b75a160343.webp",
+      "originalBytes": 2611595,
+      "sourceSha256": "b6bf2fff16ee18b4d6bd28f0a8c79f5902c718f5b3e9ff9cbeba1621ea1b4ede",
+      "encodedBytes": 1066044,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/skills-schools-v2/so_thien.png",
+      "output": "/assets/optimized/skills-schools-v2-so_thien.914fb6ab94e5.webp",
+      "originalBytes": 2754345,
+      "sourceSha256": "9a15b586357bdb761c95ef4ff3d3190fabee666212e313cb58facee3263ad513",
+      "encodedBytes": 1118618,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
     }
   ]
 }

@@ -103,7 +103,7 @@ describe('sect screens', () => {
     expect(button('Đã ghi danh').disabled).toBe(true);
     expect(host.querySelector('[role="status"]')?.textContent).toContain('điểm hồi sinh');
   });
-  it('accepts, advances and claims daily missions once, and charges contribution for real secrets', () => {
+  it('accepts and claims daily missions once without offering retired common secrets', () => {
     act(() => root.render(<SectPanel />));
     tab('Nhiệm vụ');
     const mission = () => host.querySelector<HTMLElement>('[data-mission="hunt"]')!;
@@ -116,10 +116,10 @@ describe('sect screens', () => {
     expect(adventure(gameStore.getState().player).reputation).toBe(180);
     expect(mission().querySelector<HTMLButtonElement>('button')!.disabled).toBe(true);
     tab('Cống hiến');
-    act(() => button('Học bí thuật').click());
-    expect(adventure(gameStore.getState().player).learnedSecrets).toContain('loi_kich');
-    expect(adventure(gameStore.getState().player).contribution).toBe(20);
-    expect(button('Đã lĩnh ngộ').disabled).toBe(true);
+    expect(host.querySelectorAll('.sect-secret')).toHaveLength(0);
+    expect(adventure(gameStore.getState().player).contribution).toBe(80);
+    act(()=>button('Đến kỹ năng').click());
+    expect(gameStore.getState().menu).toBe('skills');
   });
   it('lists only actual registered online sect members, irrespective of their current map', () => {
     const p = gameStore.getState().player;

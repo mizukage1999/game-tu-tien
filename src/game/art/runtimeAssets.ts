@@ -4,7 +4,7 @@ import { gameStore } from '../../store/gameStore';
 import { optimizedAsset } from '../../data/assetDelivery';
 import { getMap } from '../maps';
 import { heroFor, type HeroId } from '../../data/heroes';
-import { SCHOOL_ART, spellSource, spellTexture } from '../../data/heroSpellArt';
+import { spellAsset, spellSource, spellTexture } from '../../data/heroSpellArt';
 import { WANG_EFFECT_ART, WANG_ICON_ATLAS, WANG_RITUAL_ICON_ATLAS, WANG_GATE_ICON, wangSheetLayout } from '../../data/wangSkills';
 import { generateArt, registerCharacterArt } from './generate';
 import { buildImmortalArt } from './immortal';
@@ -212,7 +212,7 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
   if (!scene.textures.exists(spellTexture(hero)))
     group(
       `spell:${hero}`,
-      () => image(spellSource(hero), `${SCHOOL_ART}/${hero}.png`),
+      () => image(spellSource(hero), spellAsset(hero)),
       () => registerHeroSpells(scene),
     );
   return count;
@@ -284,7 +284,7 @@ export function ensureHeroSpell(scene: Phaser.Scene, hero: HeroId): Promise<bool
     scene.load.once(`${Phaser.Loader.Events.FILE_COMPLETE}-image-${key}`, done);
     scene.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, failed);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, stopped);
-    scene.load.image(key, optimizedAsset(`${SCHOOL_ART}/${hero}.png`));
+    scene.load.image(key, optimizedAsset(spellAsset(hero)));
     if (!scene.load.isLoading()) scene.load.start();
   });
   loads.set(hero, promise);

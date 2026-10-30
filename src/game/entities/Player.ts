@@ -35,6 +35,8 @@ import { heroFor } from '../../data/heroes';
 import { directionalArt } from '../art/directionalHeroes';
 import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
+import { activeStatusEffects } from '../systems/statusEffects';
+import { statusEffectStore } from '../../store/statusEffectStore';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -95,6 +97,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private anchorY = 0;
   private shield = 0;
   private shieldMs = 0;
+  private shieldDuration = 0;
+  private shieldSkill?: SkillId;
+  private effectClock = 100;
 
   constructor(
     private world: WorldScene,
@@ -194,6 +199,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.rootMs=Math.max(0,this.rootMs-dt);
     this.shieldMs=Math.max(0,this.shieldMs-dt);if(!this.shieldMs)this.shield=0;
     tickLife(this.life, dt);
+    this.effectClock += dt;
+    if (this.effectClock >= 100) {
+      this.effectClock = 0;
+      statusEffectStore.getState().sync(activeStatusEffects({
+        alive: canAct(this.life), shield: this.shield, shieldMs: this.shieldMs,
+        shieldDuration: this.shieldDuration, shieldSkill: this.shieldSkill,
+        invulnerableMs: this.life.invulnTimer, rootMs: this.rootMs,
+      }));
+    }
     for (const id of Object.keys(this.cooldowns) as SkillId[]) {
       this.cooldowns[id] = Math.max(0, (this.cooldowns[id] ?? 0) - dt);
     }
@@ -596,6 +610,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private goDown() {
+    statusEffectStore.getState().sync([]);
     this.world.cancelQuestNav();
     knockDown(this.life);
     this.queuedAttack = false;
@@ -611,7 +626,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.world.cameras.main.flash(250, 120, 0, 0);
   }
 
-  grantShield(amount:number,ms:number){this.shield=amount;this.shieldMs=ms;this.world.vfx.ascend(this);}
+  grantShield(amount:number,ms:number,source?:SkillId){this.shield=amount;this.shieldMs=ms;this.shieldDuration=ms;this.shieldSkill=source;this.effectClock=100;this.world.vfx.ascend(this);}
 
   networkPose():Pose {
     const s=gameStore.getState(),p=s.player,stats=s.stats,mount=this.activeMount;
@@ -620,6 +635,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   destroy(fromScene?: boolean) {
+    statusEffectStore.getState().sync([]);
     this.realmAura?.destroy();
     this.art?.destroy();
     this.shadow?.destroy();

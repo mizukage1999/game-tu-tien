@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SKILLS, ZONE_NAMES } from '../../data';
+import { ZONE_NAMES } from '../../data';
 import { gameStore, useGame } from '../../store/gameStore';
 import { useSocial } from '../../store/socialStore';
 import { useAccount } from '../../net/session';
@@ -16,7 +16,7 @@ import { isChildhood } from '../../game/systems/origin';
 import { realmNameAtLevel } from '../../game/systems/progression';
 import { EventBus } from '../../game/EventBus';
 import { practiceDuel } from '../../net/socialBridge';
-import { CultHeading, SkillGlyph } from './CultivationUI';
+import { CultHeading } from './CultivationUI';
 import { QuestScenery } from './QuestJournal';
 import { SectGlyph } from './SectGlyph';
 import './quest-sect.css';
@@ -433,33 +433,8 @@ export function SectPanel() {
                   Cống hiến hiện có <b>{a.contribution.toLocaleString('vi-VN')}</b>
                 </p>
                 <p className="chronicle-muted">
-                  Tích lũy cống hiến qua nhiệm vụ, đến tông môn để học bí thuật.
+                  Tích lũy cống hiến qua nhiệm vụ và thăng cấp bậc đệ tử. Các tuyệt kỹ riêng được quản lý trong mục Kỹ Năng.
                 </p>
-                {(['loi_kich', 'phong_nhan'] as const).map((id, i) => {
-                  const known = a.learnedSecrets.includes(id),
-                    requirement = i + 2;
-                  return (
-                    <article className="sect-secret" key={id}>
-                      <SkillGlyph id={id} />
-                      <div>
-                        <h3>{SKILLS[id].name}</h3>
-                        <p>{SKILLS[id].desc}</p>
-                        <small className={rank < requirement || a.contribution < 60 ? 'short' : ''}>
-                          Cần {SECT_RANKS[requirement].name} · 60 cống hiến
-                        </small>
-                      </div>
-                      <button
-                        className="cult-btn gold"
-                        disabled={
-                          known || !canAct || !atSect || rank < requirement || a.contribution < 60
-                        }
-                        onClick={() => run({ type: 'learnSecret', id })}
-                      >
-                        {known ? 'Đã lĩnh ngộ' : 'Học bí thuật'}
-                      </button>
-                    </article>
-                  );
-                })}
                 <button className="cult-btn" onClick={() => setMenu('skills')}>
                   Đến kỹ năng
                 </button>
