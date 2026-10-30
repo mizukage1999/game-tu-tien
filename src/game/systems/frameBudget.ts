@@ -7,7 +7,7 @@ export class FrameBudget {
   private fastMs = 0;
   constructor(public tier: PerformanceTier = 0) {}
   sample(delta: number): PerformanceTier {
-    if (!Number.isFinite(delta) || delta <= 0 || delta > 250) {
+    if (!Number.isFinite(delta) || delta <= 0 || delta > 2000) {
       this.reset();
       return this.tier;
     }
@@ -33,5 +33,19 @@ export class FrameBudget {
     this.duration = 0;
     this.samples = 0;
     this.fastMs = 0;
+  }
+}
+
+/** Use real frame intervals: the engine's smoothed delta can hide a slow renderer. */
+export class FrameClock {
+  private previous: number | null = null;
+  sample(now: number, active = true): number | null {
+    if (!active || !Number.isFinite(now)) {
+      this.previous = null;
+      return null;
+    }
+    const delta = this.previous === null ? null : now - this.previous;
+    this.previous = now;
+    return delta !== null && delta > 0 ? delta : null;
   }
 }

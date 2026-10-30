@@ -1,5 +1,6 @@
 import { StatusBars } from './StatusBars';
 import { WorldStatusEffects } from './StatusEffects';
+import { PowerGrowthNotice } from './PowerGrowthNotice';
 import { QuestPanel } from './QuestPanel';
 import { TopMenu } from './TopMenu';
 import { CloudBadge } from './CloudBadge';
@@ -20,6 +21,7 @@ import { ServerAnnouncement } from './ServerAnnouncement';
 import { ChatWindow } from './social/ChatWindow';
 import { DungeonPanel, DungeonResultOverlay } from './DungeonPanel';
 import { useGame } from '../store/gameStore';
+import { usePerformanceTier } from '../store/performanceStore';
 import './mobile.css';
 import './presentation-v5.css';
 
@@ -28,8 +30,9 @@ export function Hud() {
   const phone = usePhoneLayout();
   const portrait = usePortrait();
   const turned = phone && portrait;
+  const tier = usePerformanceTier();
   return (
-    <div className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}`}>
+    <div className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}${tier === 2 ? ' performance-light' : ''}`}>
       <div className="hud-top-left">
         <StatusBars />
         <WorldStatusEffects />
@@ -46,6 +49,7 @@ export function Hud() {
       <ServerAnnouncement />
       <TribulationOverlay/>
       <Toasts />
+      <PowerGrowthNotice />
       <DownedOverlay />
       <div className="hud-bottom-left">
         <ClockBar />

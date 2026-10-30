@@ -609,6 +609,7 @@
 .duel-abilities kbd {
   font: inherit;
 }
+.duel-abilities button.cooling { filter:saturate(.4); }
 .duel-ability-name {
   font-style: normal;
 }

@@ -37,6 +37,7 @@ import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
 import { activeStatusEffects } from '../systems/statusEffects';
 import { statusEffectStore } from '../../store/statusEffectStore';
+import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -77,7 +78,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private keys: Keys;
   private combo = 0;
   private comboTimer = 0;
-  private queuedAttack = false;
+  private bufferedInput = new CombatInputBuffer();
   private dashTime = 0;
   private dashVec: Vec2 = { x: 0, y: 0 };
   private shadow: Phaser.GameObjects.Image;
@@ -97,6 +98,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private anchorY = 0;
   private shield = 0;
   private shieldMs = 0;
+  private barRatio = -1;
   private shieldDuration = 0;
   private shieldSkill?: SkillId;
   private effectClock = 100;
@@ -154,6 +156,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.mapFacing??dirVector(this.dir);
   }
 
+  cancelPendingInput() { this.bufferedInput.clear(); }
+
   get feet(): Vec2 {
     return { x: this.x, y: this.y };
   }
@@ -210,6 +214,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     for (const id of Object.keys(this.cooldowns) as SkillId[]) {
       this.cooldowns[id] = Math.max(0, (this.cooldowns[id] ?? 0) - dt);
+    }
+    this.bufferedInput.tick(dt);
+    if (worldInputBlocked() || !canAct(this.life) || this.rootMs > 0 || lifeProgress(gameStore.getState().player).retreat) this.bufferedInput.clear();
+    else if (!this.ctrl.locked && this.dashTime <= 0) {
+      const pending = this.bufferedInput.peek();
+      if (pending && (this.cooldowns[pending] ?? 0) <= 0) {
+        this.bufferedInput.take();
+        this.castSkill(pending);
+      }
     }
     this.comboTimer = Math.max(0, this.comboTimer - dt);
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -286,10 +299,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private drawBar(spot: Vec2) {
     const { player, stats } = gameStore.getState();
     const w = 46;
-    this.bar.clear();
     const above = this.ctrl.rig.frameHeight === 160 ? 117 : 90;
-    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(spot.x - w / 2 - 1, spot.y - above, w + 2, 6, 2);
-    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(spot.x - w / 2, spot.y - above + 1, (w * player.hp) / stats.maxHp, 4, 2);
+    this.bar.setPosition(spot.x, spot.y - above);
+    const ratio = Math.max(0, Math.min(1, player.hp / Math.max(1, stats.maxHp)));
+    if (ratio === this.barRatio) return;
+    this.barRatio = ratio;
+    this.bar.clear();
+    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(-w / 2 - 1, 0, w + 2, 6, 2);
+    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(-w / 2, 1, w * ratio, 4, 2);
   }
 
   // ---- auto combat -------------------------------------------------------
@@ -464,12 +481,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!canAct(this.life) || this.dashTime > 0) return;
     if (this.meditating) this.stopMeditate();
     if (this.ctrl.locked) {
-      this.queuedAttack = true;
+      if ((this.cooldowns.basic ?? 0) <= INPUT_BUFFER_MS) this.bufferedInput.push('basic');
       return;
     }
-    if ((this.cooldowns.basic ?? 0) > 0) return;
+    if ((this.cooldowns.basic ?? 0) > 0) {
+      if (this.cooldowns.basic! <= INPUT_BUFFER_MS) this.bufferedInput.push('basic');
+      return;
+    }
     this.dismount();
-    this.queuedAttack = false;
+    this.bufferedInput.clear();
     this.combo = this.comboTimer > 0 ? (this.combo % 3) + 1 : 1;
     this.comboTimer = 900;
     const basic = playerSkill('basic');
@@ -480,12 +500,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       lock: true,
       force: true,
       onHit: () => this.world.playerMeleeHit(combo),
-      onComplete: () => {
-        if (this.queuedAttack) {
-          this.queuedAttack = false;
-          this.attack();
-        }
-      },
     });
   }
 
@@ -497,8 +511,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (id === 'basic') return this.attack();
     if (id === 'than_phap') return this.dash();
     const store = gameStore.getState();
-    if (!canAct(this.life) || this.ctrl.locked || this.dashTime > 0) return;
-    if ((this.cooldowns[id] ?? 0) > 0) return;
+    if (!canAct(this.life)) return;
+    if (this.ctrl.locked || this.dashTime > 0 || (this.cooldowns[id] ?? 0) > 0) {
+      if ((this.cooldowns[id] ?? 0) <= INPUT_BUFFER_MS) this.bufferedInput.push(id);
+      return;
+    }
+    this.bufferedInput.clear();
     const sk = playerSkill(id);
     let target: Monster | null = null;
     if (id === 'phi_kiem') {
@@ -528,8 +546,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.ctrl.play(pose, this.visualDir, {
       lock: true,
       force: true,
-      onHit: () => this.world.executeSkill(id, target),
     });
+    // The authored skill already includes its windup. Start its timeline on input,
+    // rather than adding the body animation's hit delay on top of it.
+    this.world.executeSkill(id, target);
   }
 
   dash() {
@@ -541,6 +561,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const store = gameStore.getState();
     const sk = playerSkill('than_phap');
     if (!store.spendMp(sk.mpCost)) return;
+    this.bufferedInput.clear();
     if (this.meditating) this.stopMeditate();
     let v = this.manualInput();
     if (Math.hypot(v.x, v.y) < 0.1) v = this.facing;
@@ -613,7 +634,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     statusEffectStore.getState().sync([]);
     this.world.cancelQuestNav();
     knockDown(this.life);
-    this.queuedAttack = false;
+    this.bufferedInput.clear();
     this.dashTime = 0;
     (this.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
     this.ctrl.play('downed', this.dir, { lock: true, force: true });

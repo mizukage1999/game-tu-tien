@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { iso } from '../art/iso';
 import { settingsStore } from '../../store/settingsStore';
 import { performanceStore } from '../../store/performanceStore';
+import { effectVisible } from '../systems/visualBudget';
 
 export type DamageKind = 'enemy' | 'crit' | 'player' | 'heal' | 'info';
 
@@ -26,6 +27,7 @@ export class DamageText {
       this.scene.add.text(0, 0, '', {
         fontFamily: '"Segoe UI", Tahoma, sans-serif',
         fontStyle: 'bold',
+        resolution: 2,
       });
     t.setActive(true).setVisible(true).setAlpha(1).setScale(1);
     return t;
@@ -40,10 +42,11 @@ export class DamageText {
   /** `x, y` arrive in map space; the number itself floats up the screen. */
   show(mapX: number, mapY: number, text: string, kind: DamageKind) {
     if (!settingsStore.getState().preferences.showDamage && ['enemy', 'player', 'crit'].includes(kind)) return;
+    const at = iso(mapX, mapY);
+    if (!effectVisible(this.scene.cameras.main.worldView, at, 200)) return;
     if (this.activeCount >= [32, 20, 12][performanceStore.getState().tier]) return;
     this.activeCount++;
     const st = STYLES[kind];
-    const at = iso(mapX, mapY);
     const x = at.x;
     const y = at.y;
     const t = this.obtain();

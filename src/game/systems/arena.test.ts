@@ -27,6 +27,14 @@ function step(e: ArenaEngine, ms: number) {
   for (let n = 0; n < ms / 50; n++) e.step(50);
 }
 describe('manual PK arena', () => {
+  it('buffers a tap shortly before cooldown expiry without spending MP early or casting twice',()=>{
+    const e=match(),a=e.state.fighters[0];
+    a.cooldowns.ly_mo_uyen_3=e.state.elapsed+150;
+    e.input('a',{seq:1,x:0,y:0,cast:'ly_mo_uyen_3'});e.step(50);
+    expect(a.shield).toBe(0);e.step(50);expect(a.shield).toBe(0);e.step(50);
+    expect(a.shield).toBeGreaterThan(0);expect(e.state.effects.filter(f=>f.skill==='ly_mo_uyen_3')).toHaveLength(1);
+    e.step(100);expect(e.state.effects.filter(f=>f.skill==='ly_mo_uyen_3')).toHaveLength(1);
+  });
   it('does not deal automatic damage when nobody presses an attack', () => {
     const e = match(),
       before = e.state.fighters.map((p) => p.hp);

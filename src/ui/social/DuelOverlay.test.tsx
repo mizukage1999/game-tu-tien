@@ -16,6 +16,38 @@ vi.mock('../../net/socialBridge', () => ({
 }));
 vi.mock('../../game/art/icons', () => ({ skillSpriteUrl: () => '/skill.png' }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+it('casts once on pointer press, preserves keyboard activation and clears a pending press on blur', () => {
+  vi.useFakeTimers();
+  vi.mocked(sendArenaInput).mockClear();
+  const host = document.createElement('div'), root = createRoot(host), previous = socialStore.getState();
+  const p = { ...newPlayer(), level: 99 },
+    a = buildDuelist(p, playerStats(p), 'Luyện Khí', 'a'), b = { ...a, userId: 'b' };
+  const engine = new ArenaEngine('single-press', a, b);
+  engine.start();
+  for (let i = 0; i < 31; i++) engine.step(100);
+  socialStore.setState({ duel: { nonce: 'single-press', snapshot: engine.snapshot(), a, b, aIsMe: true, localId: 'a', practice: true } });
+  const sentCasts = () => vi.mocked(sendArenaInput).mock.calls.filter(([input]) => input.cast === 'basic');
+  try {
+    act(() => root.render(<DuelOverlay />));
+    const button = host.querySelector<HTMLButtonElement>('[data-skill="basic"]')!;
+    act(() => button.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true })));
+    act(() => vi.advanceTimersByTime(80));
+    expect(sentCasts()).toHaveLength(1);
+    act(() => button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })));
+    act(() => vi.advanceTimersByTime(80));
+    expect(sentCasts()).toHaveLength(1);
+    act(() => button.click());
+    act(() => vi.advanceTimersByTime(80));
+    expect(sentCasts()).toHaveLength(2);
+    act(() => button.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true })));
+    act(() => window.dispatchEvent(new Event('blur')));
+    act(() => vi.advanceTimersByTime(80));
+    expect(sentCasts()).toHaveLength(2);
+  } finally {
+    act(() => root.unmount()); socialStore.setState(previous); vi.useRealTimers();
+  }
+});
+
 it('retries a ready message lost before the host opens the arena, then stops once acknowledged', () => {
   vi.useFakeTimers();
   vi.mocked(readyArena).mockClear();

@@ -8,11 +8,37 @@ import type { HeroId } from '../../data/heroes';
 import { ensureHeroSpell } from '../art/runtimeAssets';
 import { performanceStore } from '../../store/performanceStore';
 import { spellFrame, spellTexture } from '../../data/heroSpellArt';
+import { effectVisible, SPELL_VISUAL_LIMIT } from '../systems/visualBudget';
 
 const ICE = [0xbfefff, 0x8fe3ff, 0xffffff];
 
 export class SkillVfx {
-  constructor(private scene: Phaser.Scene) {}
+  private activeSpells: { sprite: Phaser.GameObjects.Image; protectUntil:number; tween?: Phaser.Tweens.Tween }[] = [];
+  constructor(private scene: Phaser.Scene) {
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.activeSpells = []; });
+  }
+  private visible(from: Vec2, range: number) {
+    return effectVisible(this.scene.cameras.main.worldView, iso(from.x,from.y), range * 3);
+  }
+  private track(sprite: Phaser.GameObjects.Image, protectMs: number) {
+    const limit = SPELL_VISUAL_LIMIT[performanceStore.getState().tier];
+    while (this.activeSpells.length >= limit) {
+      // Keep windup/impact and persistent damage zones readable. Only trim safe
+      // cosmetic tails; simultaneous new attacks may temporarily exceed the limit.
+      const index = this.activeSpells.findIndex(entry => entry.protectUntil <= this.scene.time.now);
+      if (index < 0) break;
+      const oldest = this.activeSpells.splice(index, 1)[0];
+      oldest.tween?.remove();
+      oldest.sprite.destroy();
+    }
+    const entry: { sprite: Phaser.GameObjects.Image; protectUntil:number; tween?: Phaser.Tweens.Tween } = { sprite, protectUntil:this.scene.time.now+protectMs };
+    this.activeSpells.push(entry);
+    return entry;
+  }
+  private release(sprite: Phaser.GameObjects.Image) {
+    this.activeSpells = this.activeSpells.filter(entry => entry.sprite !== sprite);
+    sprite.destroy();
+  }
   combatSkill(id:SkillId,from:Vec2,facing:Vec2,range:number,hero:HeroId, bindingTarget?:()=>(Vec2 & {duration?:number})|undefined){
     if(id==='than_phap'){this.teleport(from);return;}
     if(id === 'dinh_than_thuat') {
@@ -29,7 +55,7 @@ export class SkillVfx {
 
   heroSpell(id: SkillId, from: Vec2, facing: Vec2, range: number) {
     const art = heroSpell(id);
-    if (!art) return;
+    if (!art || !this.visible(from, range)) return;
     if (!this.scene.textures.exists(spellTexture(art.hero))) {
       const requested = performance.now();
       void ensureHeroSpell(this.scene, art.hero).then(ready => {
@@ -41,12 +67,13 @@ export class SkillVfx {
     const center = directed ? {x:from.x+facing.x*range*.5,y:from.y+facing.y*range*.5} : from;
     const spot=iso(center.x,center.y), vector=isoVector(facing.x,facing.y);
     const effect=this.scene.add.image(spot.x,spot.y-20,spellTexture(art.hero),`${id}:0`).setDepth(spot.y+180);
+    const entry = this.track(effect, art.windupMs + 120);
     if(directed)effect.setDisplaySize(range*Math.hypot(vector.x,vector.y),art.shape==='line'?95:150).setRotation(Math.atan2(vector.y,vector.x));
     else effect.setDisplaySize(art.shape==='self'?175:range*2.8,art.shape==='self'?190:range*1.8);
     // Authored windup / release / impact / dissolve frames replace the single stretched image.
     // Directional motifs point right in the atlas and rotate with the projected facing vector.
     const sx=effect.scaleX,sy=effect.scaleY;
-    this.scene.tweens.addCounter({from:0,to:art.duration,duration:art.duration,
+    entry.tween = this.scene.tweens.addCounter({from:0,to:art.duration,duration:art.duration,
       onUpdate: tween => {
         const age=tween.getValue()??0, progress=age/art.duration;
         effect.setFrame(`${id}:${spellFrame(art.id,age)}`);
@@ -58,16 +85,17 @@ export class SkillVfx {
           const advance=(Math.min(1,age/art.windupMs)-1)*range*.35;
           effect.setPosition(spot.x+vector.x*advance,spot.y-20+vector.y*advance);
         }
-      },onComplete:()=>effect.destroy()});
+      },onComplete:()=>this.release(effect)});
   }
 
   signature(id: SkillId, from: Vec2, facing: Vec2, range: number, options: WangVisualOptions = {}) {
     const art = wangEffect(id);
-    if (!art || !this.scene.textures.exists(art.texture)) return;
+    if (!art || !this.visible(from, range) || !this.scene.textures.exists(art.texture)) return;
     if (art.grid) {
       const duration = options.duration ?? art.duration, projected = isoVector(facing.x, facing.y);
       const directed = art.motion === 'beam' || art.motion === 'crescent' || art.motion === 'finger';
       const sprite = this.scene.add.sprite(0, 0, art.texture, 0).setOrigin(.5, directed ? .5 : .83).setAlpha(0);
+      const entry = this.track(sprite, duration > 1500 || art.motion === 'bind' ? duration : (options.windupMs ?? 400) + 120);
       const update = (age: number) => {
         const visual = wangVisual(art, age, range, options), advance = visual.advance * range;
         const spot = iso(from.x + facing.x * advance, from.y + facing.y * advance);
@@ -76,7 +104,7 @@ export class SkillVfx {
         if (directed) sprite.setRotation(Math.atan2(projected.y, projected.x));
       };
       update(0);
-      this.scene.tweens.addCounter({from:0,to:duration,duration,onUpdate:tween=>update(tween.getValue()??0),onComplete:()=>sprite.destroy()});
+      entry.tween = this.scene.tweens.addCounter({from:0,to:duration,duration,onUpdate:tween=>update(tween.getValue()??0),onComplete:()=>this.release(sprite)});
       return;
     }
     const circle = id === 'dao_hoa_hoang_tuyen';

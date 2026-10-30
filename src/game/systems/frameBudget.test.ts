@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { FrameBudget } from './frameBudget';
+import { FrameBudget, FrameClock } from './frameBudget';
 import { adaptiveDensity } from './display';
 
 it('reduces visual quality only after sustained slow frames, then recovers slowly', () => {
@@ -34,4 +34,14 @@ it('preserves Retina resolution while effects adapt, with a fixed 8 MP ceiling',
   expect(adaptiveDensity(844, 390, 2.75, 'sharp')).toBe(2.75);
   expect(adaptiveDensity(844, 390, 3, 'light')).toBe(1);
   expect(adaptiveDensity(844, 390, NaN, 'sharp')).toBe(1);
+});
+it('detects sustained very slow visible rendering using wall time, while resetting on pause', () => {
+  const clock = new FrameClock(),
+    budget = new FrameBudget();
+  expect(clock.sample(0)).toBeNull();
+  for (let t = 333; t < 6000; t += 333) budget.sample(clock.sample(t)!);
+  expect(budget.tier).toBe(2);
+  expect(clock.sample(30000, false)).toBeNull();
+  expect(clock.sample(60000)).toBeNull();
+  expect(clock.sample(60016)).toBe(16);
 });

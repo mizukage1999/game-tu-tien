@@ -24,7 +24,7 @@ const COLORS: Record<Terrain, string> = {
 const SIZE = 132;
 
 export function Minimap() {
-  const setMenu=useGame(s=>s.setMenu);
+  const setMenu = useGame((s) => s.setMenu);
   const mapId = useGame((s) => s.mapId);
   const mm = useGame((s) => s.minimap);
   const tile = useGame((s) => s.playerTile);
@@ -32,6 +32,7 @@ export function Minimap() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const map = useMemo(() => getMap(mapId), [mapId]);
   const preview = useMapPreview(mapId);
+  const density = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
   const background = useMemo(() => {
     const c = document.createElement('canvas');
@@ -50,6 +51,7 @@ export function Minimap() {
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     if (!ctx) return;
+    ctx.setTransform(density, 0, 0, density, 0, 0);
     const worldW = map.width * TILE;
     const worldH = map.height * TILE;
     // show a window of ~26 tiles around the player
@@ -63,15 +65,39 @@ export function Minimap() {
     ctx.fillStyle = '#10141f';
     ctx.fillRect(0, 0, SIZE, SIZE);
     ctx.imageSmoothingEnabled = !!preview;
+    ctx.imageSmoothingQuality = 'high';
     if (preview) {
       const size = mapArtSize(map);
-      ctx.drawImage(preview, SIZE / 2 - playerAt.x * scale, SIZE / 2 - playerAt.y * scale, size.width * scale, size.height * scale);
-    } else ctx.drawImage(background, 0, 0, map.width, map.height, -ox * scale, -oy * scale, worldW * scale, worldH * scale);
+      ctx.drawImage(
+        preview,
+        SIZE / 2 - playerAt.x * scale,
+        SIZE / 2 - playerAt.y * scale,
+        size.width * scale,
+        size.height * scale,
+      );
+    } else
+      ctx.drawImage(
+        background,
+        0,
+        0,
+        map.width,
+        map.height,
+        -ox * scale,
+        -oy * scale,
+        worldW * scale,
+        worldH * scale,
+      );
     const dot = (x: number, y: number, color: string, r: number) => {
       ctx.fillStyle = color;
       ctx.beginPath();
       const p = mapArtPoint(map, x, y);
-      ctx.arc(preview ? SIZE / 2 + (p.x - playerAt.x) * scale : (x - ox) * scale, preview ? SIZE / 2 + (p.y - playerAt.y) * scale : (y - oy) * scale, r, 0, Math.PI * 2);
+      ctx.arc(
+        preview ? SIZE / 2 + (p.x - playerAt.x) * scale : (x - ox) * scale,
+        preview ? SIZE / 2 + (p.y - playerAt.y) * scale : (y - oy) * scale,
+        r,
+        0,
+        Math.PI * 2,
+      );
       ctx.fill();
     };
     for (const p of map.portals) {
@@ -83,16 +109,32 @@ export function Minimap() {
     mm.npcs.forEach((n) => dot(n.x, n.y, '#ffd84a', 3));
     dot(mm.player.x, mm.player.y, '#ffffff', 3.5);
     ctx.restore();
-  }, [mm, map, background, preview]);
+  }, [mm, map, background, preview, density]);
 
   return (
     <div className="minimap">
-      <button className="minimap-map" aria-label="Mở bản đồ hiện tại và thế giới" onClick={()=>setMenu('map')}>
+      <button
+        className="minimap-map"
+        aria-label="Mở bản đồ hiện tại và thế giới"
+        onClick={() => setMenu('map')}
+      >
         <span className="minimap-title">{map.name}</span>
-        <canvas ref={canvas} width={SIZE} height={SIZE} className="minimap-canvas" />
-        <span className="minimap-coordinates"><span aria-hidden="true">⌖</span> {tile.x}, {tile.y}<b aria-hidden="true">⤢</b></span>
+        <canvas
+          ref={canvas}
+          width={SIZE * density}
+          height={SIZE * density}
+          className="minimap-canvas"
+        />
+        <span className="minimap-coordinates">
+          <span aria-hidden="true">⌖</span> {tile.x}, {tile.y}
+          <b aria-hidden="true">⤢</b>
+        </span>
       </button>
-      {zone && <div className="minimap-zone">{zone.name} · linh khí x{zone.rate}</div>}
+      {zone && (
+        <div className="minimap-zone">
+          {zone.name} · linh khí x{zone.rate}
+        </div>
+      )}
     </div>
   );
 }

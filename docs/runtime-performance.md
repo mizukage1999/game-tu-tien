@@ -21,11 +21,11 @@ Thời gian giảm khoảng 74%, dữ liệu ảnh giảm khoảng 85% trong ph�
 
 ## Khung hình
 
-Game đặt mục tiêu 60 FPS và đo thời gian khung hình trong các cửa sổ hai giây. Khi chậm kéo dài, bộ điều tiết hạ độ nét của canvas, mật độ hạt sáng và hiệu ứng phụ; chỉ nâng lại sau thời gian ổn định dài hơn. Các khoảng dừng do tab ẩn hoặc tải nặng không bị tính thành tín hiệu giảm chất lượng. Mức điều tiết không ghi đè lựa chọn đồ họa đã lưu.
+Game đặt mục tiêu 60 FPS và đo thời gian khung hình thực bằng đồng hồ trình duyệt trong các cửa sổ hai giây. Khi chậm kéo dài, bộ điều tiết giảm mật độ hạt sáng, đuôi hiệu ứng và bóng trang trí; chỉ nâng lại sau thời gian ổn định dài hơn. Canvas giữ ngân sách Retina đã chọn theo DPR, bộ nhớ và giới hạn GPU, tránh thay đổi framebuffer giữa trận. Tab ẩn và tải bản đồ không được tính là khung hình chơi game. Mức điều tiết không ghi đè lựa chọn đồ họa đã lưu.
 
 Cảnh ngoài màn hình được ẩn theo vùng camera, chuyển động trang trí ngoài tầm nhìn được dừng; máy yếu có thể dừng thêm chuyển động trang trí. Chữ sát thương dùng pool có giới hạn. Hiệu ứng kỹ năng chính tiếp tục được vẽ. Khi vào tỉ võ, bản đồ phía sau dừng vẽ; chuyển động đấu sĩ dùng `translate3d` và nội suy bằng transform thay cho chuyển động `left/top`.
 
-Kiểm tra trình duyệt xác nhận bộ điều tiết hạ mật độ canvas từ 1 xuống 0,85 khi mô phỏng khung hình chậm, và bản đồ hiện lại sau khi rời tỉ võ. Các thay đổi nằm ở phần hiển thị; cơ chế sát thương và cập nhật trận đấu tiếp tục dùng luật hiện có. Chưa có phép đo trên điện thoại vật lý; mức 60 FPS vẫn phụ thuộc CPU, GPU, nhiệt độ và chế độ tiết kiệm pin của máy.
+Kiểm tra ngày 30/10/2026 xác nhận bộ điều tiết nhận biết khung hình chậm thực tế, giữ kích thước Retina và bảo vệ hiệu ứng vận chiêu, trúng đòn cùng vùng sát thương kéo dài. Bản đồ hiện lại sau khi rời tỷ võ. [Chi tiết chiến đấu, tăng sức mạnh và hướng dẫn](combat-progression-clarity.md). Chưa có phép đo trên điện thoại vật lý; mức 60 FPS vẫn phụ thuộc CPU, GPU, nhiệt độ và chế độ tiết kiệm pin của máy.
 
 ## Nhập chữ và thao tác
 

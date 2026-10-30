@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { iso } from '../art/iso';
 import { settingsStore } from '../../store/settingsStore';
 import { performanceStore } from '../../store/performanceStore';
+import { effectVisible } from '../systems/visualBudget';
 
 /** White flash on the hit sprite. */
 export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, color = 0xffffff, ms = 90) {
@@ -16,6 +17,7 @@ export function flash(scene: Phaser.Scene, sprite: Phaser.GameObjects.Sprite, co
 export function impact(scene: Phaser.Scene, mapX: number, mapY: number, tint = 0xbfefff, crit = false) {
   if (!settingsStore.getState().preferences.hitEffects) return;
   const { x, y } = iso(mapX, mapY);
+  if (!effectVisible(scene.cameras.main.worldView, {x,y}, 200)) return;
   const hitAnimation = 'skill_ice:hit';
   if (scene.textures.exists('skill_ice') && scene.anims.exists(hitAnimation)) {
     const hit = scene.add

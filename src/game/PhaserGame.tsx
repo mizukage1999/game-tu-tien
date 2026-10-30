@@ -12,7 +12,7 @@ import {
   finishGameBoot,
   requestCanvasRecovery,
 } from './systems/gameBoot';
-import { performanceStore, sampleFrame } from '../store/performanceStore';
+import { performanceStore, sampleRenderedFrame } from '../store/performanceStore';
 import { settingsStore, useSettings } from '../store/settingsStore';
 import { LoadingScreen } from '../ui/LoadingScreen';
 
@@ -138,8 +138,10 @@ export function PhaserGame() {
     let stalled: ReturnType<typeof setTimeout> | undefined;
     let alive = true;
     let enteredWorld = false;
+    let frameReady = false;
     const failed = (message: string) => {
       if (!alive) return;
+      frameReady = false;
       clearTimeout(stable);
       clearTimeout(stalled);
       setLoading(true);
@@ -195,6 +197,7 @@ export function PhaserGame() {
     const updateProgress = (progress: number) => setLoadingProgress(Math.round(progress * 100));
     const assetsReady = () => {
       enteredWorld = true;
+      frameReady = true;
       clearTimeout(stalled);
       clearTimeout(stable);
       setError('');
@@ -202,6 +205,7 @@ export function PhaserGame() {
       stable = setTimeout(() => finishGameBoot(storage), 10_000);
     };
     const assetsLoading = (target?: { mapId?: string; mapName?: string }) => {
+      frameReady = false;
       setDestination({ mapId: target?.mapId ?? gameStore.getState().mapId, mapName: target?.mapName ?? '', phase: enteredWorld ? 'map' : 'game' });
       clearTimeout(stable);
       setError('');
@@ -211,7 +215,7 @@ export function PhaserGame() {
     };
     const assetError = () =>
       failed('Không chuẩn bị được dữ liệu bản đồ. Hãy thử lại với cấu hình nhẹ.');
-    const frame = (_time: number, delta: number) => sampleFrame(delta);
+    const frame = () => sampleRenderedFrame(performance.now(),frameReady&&(current.scene.isActive('World')||!!socialStore.getState().duel));
     game.events.on(Phaser.Core.Events.STEP, frame);
     game.events.on('assets-progress', updateProgress);
     game.events.on('assets-ready', assetsReady);

@@ -1,0 +1,108 @@
+.power-growth {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translateX(-50%);
+  width: min(390px, 46%);
+  padding: 12px 30px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid #d0ad62;
+  border-radius: 8px;
+  background: linear-gradient(115deg, #102638f5, #07131eef);
+  box-shadow:
+    0 5px 24px #0008,
+    inset 0 0 22px #d6a74a16;
+  color: #f4dfb1;
+  font-size: 12px;
+  pointer-events: auto;
+  z-index: 105;
+  animation: power-arrive 0.25s ease-out;
+}
+.power-growth > b {
+  font:
+    700 17px Georgia,
+    serif;
+  color: #ffe1a0;
+}
+.power-growth > strong {
+  color: #7ce6b8;
+  font-size: 17px;
+}
+.power-growth strong small {
+  font-size: 10px;
+  color: #a2b9c5;
+  margin-left: 8px;
+}
+.power-growth > span {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.power-growth .power-unlocked {
+  color: #86d7ff;
+}
+.power-growth-close {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  border: 0;
+  background: none;
+  color: #e6c57e;
+  font-size: 22px;
+  padding: 2px 5px;
+}
+.power-growth-action {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border: 1px solid #a48045;
+  background: #17364b;
+  color: #ffe0a3;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.hud.phone .power-growth {
+  top: 29%;
+  width: min(300px, 46%);
+  padding: 8px 26px 8px 10px;
+  gap: 3px;
+}
+.hud.phone .power-growth > b {
+  font-size: 13px;
+}
+.hud.phone .power-growth > strong {
+  font-size: 14px;
+}
+.hud.phone .power-growth > span {
+  font-size: 9px;
+}
+.hud.phone .power-growth-action {
+  min-height: 28px;
+  font-size: 10px;
+}
+@keyframes power-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 5px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .power-growth {
+    animation: none;
+  }
+}
+.hud.performance-light .duel-body,
+.hud.performance-light .duel-hero-effect,
+.hud.performance-light .duel-painted-effect {
+  filter: none;
+}
+.hud.performance-light .status-effect.expiring {
+  animation: none;
+}
+.hud:has(.power-growth) :is(.toast-levelup, .toast-realm) {
+  display: none;
+}

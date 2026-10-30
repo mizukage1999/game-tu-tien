@@ -1,4 +1,5 @@
-import { ITEMS } from '../data';
+import { ITEMS, QUESTS } from '../data';
+import { storyOrder } from '../game/systems/immortal';
 import { EventBus } from '../game/EventBus';
 import { isChildhood } from '../game/systems/origin';
 import { useGame } from '../store/gameStore';
@@ -17,13 +18,27 @@ export function OpeningGuide() {
     patch = useGame((s) => s.patch);
   const setAuto = useGame((s) => s.setAuto),
     consume = useGame((s) => s.consumeItem);
-  if (
-    isChildhood(player) ||
-    status !== 'alive' ||
-    quests.main_0?.status !== 'done' ||
-    quests.first_return?.status === 'done'
-  )
-    return null;
+  if (status !== 'alive' || quests.first_return?.status === 'done') return null;
+  if (isChildhood(player) || quests.main_0?.status !== 'done') {
+    const next = storyOrder(player).find((id) => quests[id]?.status !== 'done');
+    if (!next) return null;
+    const ready = quests[next]?.status === 'ready';
+    return (
+      <aside className="opening-guide" aria-label="Mục tiêu tiếp theo">
+        <span>
+          {ready
+            ? 'Đã hoàn thành · trở về trả nhiệm vụ'
+            : quests[next]
+              ? 'Theo nhiệm vụ để tiếp tục hành trình'
+              : 'Tìm người giao nhiệm vụ'}
+          : {QUESTS[next].name}.
+        </span>
+        <button type="button" onClick={() => EventBus.emit('cmd:questGo', next)}>
+          {ready ? 'Trả nhiệm vụ' : 'Đi tiếp'} ›
+        </button>
+      </aside>
+    );
+  }
   const practice = player.practice ?? {};
   let text = '',
     label = '',
@@ -76,7 +91,13 @@ export function OpeningGuide() {
       patch({ journeySection: 'alchemy' });
     };
   }
-  if (!text) return null;
+  if (!text) {
+    const next = storyOrder(player).find((id) => quests[id]?.status !== 'done');
+    if (!next) return null;
+    text = `Tiếp tục nhiệm vụ: ${QUESTS[next].name}.`;
+    label = 'Đi tiếp';
+    action = () => EventBus.emit('cmd:questGo', next);
+  }
   return (
     <aside className="opening-guide" aria-label="Hướng dẫn nhập môn">
       <span title={text}>✧ {text}</span>

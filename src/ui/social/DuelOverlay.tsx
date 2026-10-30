@@ -19,6 +19,7 @@ import { heroDirection } from '../../game/art/heroDirections';
 import { HeroArenaEffect } from './HeroArenaEffect';
 import { RealmBadge } from '../RealmBadge';
 import { ArenaStatusEffects } from '../StatusEffects';
+import { INPUT_BUFFER_MS } from '../../game/systems/combatInput';
 
 function FighterCard({ fighter: p, enemy = false, elapsed }: { fighter: ArenaFighter; enemy?: boolean; elapsed:number }) {
   const hero = heroFor(p);
@@ -140,6 +141,7 @@ export function DuelOverlay() {
     };
     const blur = () => {
       keys.current.clear();
+      cast.current = null;
       mouseGoal.current = null;
       move.current = { x: 0, y: 0 };
     };
@@ -346,14 +348,15 @@ export function DuelOverlay() {
               return (
                 <button
                   key={i}
-                  disabled={!!cooldown || s.phase !== 'fighting' || me.mp < SKILLS[id].mpCost}
+                  disabled={cooldown > INPUT_BUFFER_MS || s.phase !== 'fighting' || me.mp < SKILLS[id].mpCost}
                   onPointerDown={() => (cast.current = id)}
                   title={SKILLS[id].desc}
                   aria-label={id === 'than_phap' ? 'Lướt' : SKILLS[id].name}
                   data-skill={id}
-                  className={id === 'basic' ? 'basic' : id === 'than_phap' ? 'dash' : ''}
-                  onClick={() => {
-                    cast.current = id;
+                  className={`${id === 'basic' ? 'basic' : id === 'than_phap' ? 'dash' : ''}${cooldown > 0 ? ' cooling' : ''}`}
+                  onClick={(event) => {
+                    // Pointer input already fired on press; keep click for keyboard activation.
+                    if (event.detail === 0) cast.current = id;
                   }}
                 >
                   {heroSpell(id) ? (

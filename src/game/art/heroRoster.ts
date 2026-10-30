@@ -131,14 +131,15 @@ export function registerHeroSpells(scene: Phaser.Scene) {
         ctx.drawImage(source, x, y, w, h, ...spellRuntimeCell(art.id, frame));
       }
       const icon = document.createElement('canvas');
-      icon.width = 96;
-      icon.height = 96;
+      icon.width = 192;
+      icon.height = 192;
       const ic = icon.getContext('2d')!;
+      ic.imageSmoothingQuality = 'high';
       ic.beginPath();
-      ic.arc(48, 48, 47, 0, Math.PI * 2);
+      ic.arc(96, 96, 95, 0, Math.PI * 2);
       ic.clip();
       const [x, y, w, h] = spellCell(art.id);
-      ic.drawImage(source, x, y, w, h, 0, 0, 96, 96);
+      ic.drawImage(source, x, y, w, h, 0, 0, 192, 192);
       cacheHeroSpellIcon(art.id, icon.toDataURL('image/png'));
     }
     const texture = addStaticTexture(scene, spellTexture(hero.id), canvas)!;

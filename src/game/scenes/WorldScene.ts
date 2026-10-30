@@ -917,6 +917,7 @@ export class WorldScene extends Phaser.Scene {
         this.input.keyboard.resetKeys();
       }
       if (blocked) {
+        this.player.cancelPendingInput();
         virtualInput.x = 0; virtualInput.y = 0;
         if (this.mouseWalk) { this.cancelQuestNav(); this.player.setVelocity(0, 0); }
       }
@@ -925,6 +926,9 @@ export class WorldScene extends Phaser.Scene {
     const syncFocus = () => { const blocked = worldInputBlocked(); if (blocked !== wasBlocked) { wasBlocked = blocked; focus(); } };
     this.cleanups.push(gameStore.subscribe(syncFocus), socialStore.subscribe(syncFocus), chatStore.subscribe(syncFocus), partyDungeonStore.subscribe(syncFocus));
     syncFocus();
+    const loseFocus = () => this.player.cancelPendingInput();
+    window.addEventListener('blur', loseFocus);
+    this.cleanups.push(() => window.removeEventListener('blur', loseFocus));
     const unsub = gameStore.subscribe((s, prev) => {
       if (lifeProgress(s.player).retreat && !lifeProgress(prev.player).retreat) {
         this.player.stopMeditate();

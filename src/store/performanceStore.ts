@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import { FrameBudget, type PerformanceTier } from '../game/systems/frameBudget';
+import { FrameBudget, FrameClock, type PerformanceTier } from '../game/systems/frameBudget';
 
 const coarse = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
 const memory =
@@ -17,6 +17,7 @@ const initial: PerformanceTier =
       ? 1
       : 0;
 const budget = new FrameBudget(initial);
+const clock = new FrameClock();
 export const performanceStore = createStore<{ tier: PerformanceTier }>(() => ({ tier: initial }));
 export function sampleFrame(delta: number) {
   if (typeof document !== 'undefined' && document.hidden) {
@@ -25,6 +26,15 @@ export function sampleFrame(delta: number) {
   }
   const tier = budget.sample(delta);
   if (tier !== performanceStore.getState().tier) performanceStore.setState({ tier });
+}
+export function sampleRenderedFrame(now: number, active: boolean) {
+  const visible = active && (typeof document === 'undefined' || !document.hidden);
+  const delta = clock.sample(now, visible);
+  if (!visible) {
+    budget.reset();
+    return;
+  }
+  if (delta !== null) sampleFrame(delta);
 }
 export function usePerformanceTier() {
   return useStore(performanceStore, (s) => s.tier);

@@ -7,6 +7,7 @@ import { heroSpell, heroSpellHit } from '../../data/heroSkills';
 import { heroFor, isHeroId } from '../../data/heroes';
 import { ritualSkill, ritualControlMs, soulDrain } from './ritualSkills';
 import { retiredSkill } from '../../data/skillCatalog';
+import { CombatInputBuffer, INPUT_BUFFER_MS } from './combatInput';
 export const ARENA_W = 720,
   ARENA_H = 400;
 export const ARENA_ROCKS = [
@@ -199,6 +200,7 @@ export class ArenaEngine {
   state: ArenaSnapshot;
   private inputs = new Map<string, { input: ArenaInput; at: number }>();
   private sequences = new Map<string, number>();
+  private bufferedInputs = new Map<string, CombatInputBuffer>();
   private effect = 0;
   constructor(nonce: string, a: Duelist, b: Duelist) {
     const fighter = (p: Duelist, x: number, dx: number): ArenaFighter => ({
@@ -229,6 +231,7 @@ export class ArenaEngine {
       winner: null,
       reason: '',
     };
+    for (const fighter of this.state.fighters) this.bufferedInputs.set(fighter.userId, new CombatInputBuffer());
   }
   start() {
     if (this.state.phase === 'waiting') this.state.phase = 'countdown';
@@ -262,6 +265,9 @@ export class ArenaEngine {
       s.phase = 'fighting';
     }
     for (const f of s.fighters) {
+      const buffered = this.bufferedInputs.get(f.userId)!;
+      buffered.tick(dt);
+      if (f.rootUntil > s.elapsed) buffered.clear();
       f.moving = false;
       const input = this.inputs.get(f.userId),
         move = input && s.elapsed - input.at < 650 ? input.input : null;
@@ -292,9 +298,17 @@ export class ArenaEngine {
         }
         f.moving = Math.hypot(f.x-oldX,f.y-oldY)>.1;
         if (move.cast) {
-          this.cast(f, move.cast);
+          buffered.clear();
+          const remaining = (f.cooldowns[move.cast] ?? 0) - s.elapsed;
+          if (remaining > 0 && remaining <= INPUT_BUFFER_MS && f.rootUntil <= s.elapsed) buffered.push(move.cast);
+          else this.cast(f, move.cast);
           move.cast = null;
         }
+      }
+      const pending = buffered.peek();
+      if (pending && (f.cooldowns[pending] ?? 0) <= s.elapsed) {
+        buffered.take();
+        this.cast(f, pending);
       }
     }
     for (const e of s.effects) {
