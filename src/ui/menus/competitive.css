@@ -89,6 +89,7 @@
   display: flex;
   gap: 10px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 .activity-feature {
   display: grid;

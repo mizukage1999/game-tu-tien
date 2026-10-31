@@ -1,0 +1,437 @@
+.sky-sprite {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background-size: 800% 600%;
+  background-repeat: no-repeat;
+}
+.sky-lobby {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.1fr) minmax(280px, 1fr);
+  gap: 14px;
+  color: #dce6ed;
+}
+.sky-lobby-hero,
+.sky-lobby-board,
+.sky-lobby-rules {
+  border: 1px solid #b28b4b;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #102d43, #050f1e);
+  overflow: hidden;
+}
+.sky-lobby-hero article {
+  padding: 0 20px 18px;
+}
+.sky-lobby small {
+  color: #9dc8df;
+}
+.sky-lobby h2 {
+  font:
+    700 32px/1.1 Georgia,
+    serif;
+  color: #f3d59b;
+  margin: 6px 0 12px;
+}
+.sky-lobby p {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.sky-lobby-art {
+  position: relative;
+  height: 170px;
+  background: radial-gradient(ellipse at 50% 80%, #4a9bbf88, transparent 68%);
+  overflow: hidden;
+}
+.sky-lobby-art .sky-sprite {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  left: calc(50% - 100px);
+  top: -12px;
+}
+.sky-lobby-art .sky-sprite:nth-child(2) {
+  width: 140px;
+  height: 140px;
+  top: 35px;
+  left: calc(50% - 70px);
+}
+.sky-lobby-art .sky-sprite:nth-child(3) {
+  width: 145px;
+  height: 145px;
+  left: -20px;
+  top: 42px;
+}
+.sky-lobby-art .sky-sprite:nth-child(4) {
+  width: 130px;
+  height: 130px;
+  left: auto;
+  right: -20px;
+  top: 50px;
+}
+.sky-lobby-best {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  background: #153248;
+  border: 1px solid #83b8d233;
+  border-radius: 6px;
+  padding: 4px;
+}
+.sky-lobby-best strong {
+  display: block;
+  font-size: 22px;
+  color: #ffe1a4;
+  font-variant-numeric: tabular-nums;
+}
+.sky-lobby-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sky-lobby-actions .btn {
+  min-height: 42px;
+}
+.sky-lobby-board {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.sky-lobby-board header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sky-lobby h3 {
+  font:
+    700 22px Georgia,
+    serif;
+  color: #f6d698;
+  margin: 4px 0;
+}
+.sky-podium {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  margin: 15px 0;
+}
+.sky-podium > div {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+  padding: 12px 4px;
+  background: linear-gradient(#19354e, #0b182b);
+  border-bottom: 2px solid #a4c3e8;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.sky-podium .place-1 {
+  padding-top: 28px;
+  border-color: #e7b757;
+  background: linear-gradient(#514025, #17202c);
+}
+.sky-podium .place-3 {
+  border-color: #b98b64;
+}
+.sky-podium b {
+  color: #f5ce84;
+}
+.sky-podium span {
+  font-size: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sky-podium strong {
+  font-size: 16px;
+  color: #d2eeff;
+  font-variant-numeric: tabular-nums;
+}
+.sky-ranking-list {
+  overflow: auto;
+  max-height: 230px;
+}
+.sky-ranking-list > div {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 7px;
+  align-items: center;
+  border-bottom: 1px solid #adcbe51d;
+  padding: 9px 2px;
+  font-size: 12px;
+}
+.sky-ranking-list small {
+  display: block;
+  font-size: 10px;
+}
+.sky-ranking-list strong {
+  color: #f6d992;
+  font-variant-numeric: tabular-nums;
+}
+.sky-lobby-rules {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px;
+}
+.sky-lobby-rules > span {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  align-items: center;
+  font-size: 11px;
+}
+.sky-lobby-rules .sky-sprite {
+  grid-row: span 2;
+  width: 45px;
+  height: 45px;
+}
+.sky-lobby-rules b {
+  color: #f1d7a3;
+}
+.sky-race-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 3000;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #09223e;
+  color: #e4f2ff;
+  touch-action: none;
+  user-select: none;
+}
+.sky-race-screen > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 22px;
+  border-bottom: 1px solid #dbb76c;
+  background: linear-gradient(110deg, #10273d, #10213a);
+  gap: 12px;
+}
+.sky-race-screen header small {
+  font-size: 10px;
+  letter-spacing: 1.3px;
+  color: #b1d7e5;
+}
+.sky-race-screen header h2 {
+  font:
+    700 23px Georgia,
+    serif;
+  color: #f2d395;
+  margin: 4px 0;
+}
+.sky-race-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #183a56;
+}
+.sky-race-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.sky-race-vitals {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  pointer-events: none;
+  padding: 8px 14px;
+  background: #05182dde;
+  border: 1px solid #bca66a;
+  border-radius: 7px;
+  font-size: 12px;
+}
+.sky-race-vitals strong {
+  font:
+    700 29px/1 Georgia,
+    serif;
+  color: #ffdc8d;
+  font-variant-numeric: tabular-nums;
+}
+.sky-race-track {
+  position: absolute;
+  top: 70px;
+  left: 20px;
+  right: 20px;
+  height: 4px;
+  background: #091d3599;
+  pointer-events: none;
+}
+.sky-race-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #1db7ff, #f2d194);
+  box-shadow: 0 0 8px #56cbff;
+  transition: width 0.1s linear;
+}
+.sky-race-boost {
+  position: absolute;
+  right: 25px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 90px;
+  height: 90px;
+  border: 2px solid #e2ba70;
+  border-radius: 50%;
+  font-size: 45px;
+  line-height: 0.8;
+  color: #fff3ba;
+  background: radial-gradient(circle at 40% 30%, #2e9ed2, #10325d 65%, #071726);
+  box-shadow: 0 0 18px #61c7ff66;
+  touch-action: manipulation;
+}
+.sky-race-boost span {
+  font: 600 11px system-ui;
+  margin-top: 8px;
+}
+.sky-race-boost:disabled {
+  opacity: 0.55;
+}
+.sky-race-countdown {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: #fff0c5;
+  text-shadow:
+    0 0 24px #4bd4ff,
+    0 2px 3px #09233d;
+  font:
+    700 clamp(30px, 8vw, 84px) Georgia,
+    serif;
+}
+.sky-race-result {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #051426e8;
+  padding: 14px;
+  overflow: auto;
+}
+.sky-race-result small {
+  letter-spacing: 2px;
+  color: #f1cc85;
+}
+.sky-race-result h2 {
+  font:
+    700 46px Georgia,
+    serif;
+  color: #fff0c2;
+  margin: 7px 0;
+}
+.sky-race-result p {
+  font-size: 12px;
+  margin: 5px;
+}
+.sky-race-result .btn {
+  margin-top: 8px;
+}
+.sky-race-alert {
+  position: absolute;
+  bottom: 5px;
+  left: 10%;
+  right: 10%;
+  background: #4d1825ed;
+  border: 1px solid #f59181;
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 12px;
+  text-align: center;
+  pointer-events: none;
+}
+.sky-race-screen footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 11px;
+  padding: 8px 22px;
+  background: #0b1c31;
+  color: #acc9d9;
+}
+.hud.phone .sky-lobby {
+  gap: 8px;
+  grid-template-columns: minmax(260px, 1fr) minmax(250px, 1fr);
+}
+.hud.phone .sky-lobby-art {
+  height: 130px;
+}
+.hud.phone .sky-lobby h2 {
+  font-size: 24px;
+}
+.hud.phone .sky-race-screen > header {
+  padding: 5px 14px;
+}
+.hud.phone .sky-race-screen header h2 {
+  font-size: 17px;
+}
+.hud.phone .sky-race-screen header small {
+  font-size: 8px;
+}
+.hud.phone .sky-race-vitals {
+  top: 7px;
+  left: 10px;
+  padding: 6px 9px;
+  gap: 10px;
+  font-size: 10px;
+}
+.hud.phone .sky-race-vitals strong {
+  font-size: 22px;
+}
+.hud.phone .sky-race-track {
+  top: 48px;
+}
+.hud.phone .sky-race-boost {
+  width: 70px;
+  height: 70px;
+  font-size: 35px;
+  right: 16px;
+  bottom: 14px;
+}
+.hud.phone .sky-race-screen footer {
+  font-size: 9px;
+  padding: 5px 12px;
+}
+.hud.phone .sky-race-result h2 {
+  font-size: 32px;
+}
+.hud.phone .sky-race-result p {
+  font-size: 10px;
+  margin: 3px;
+}
+@media (max-width: 600px) {
+  .sky-lobby,
+  .hud.phone .sky-lobby {
+    grid-template-columns: 1fr;
+  }
+  .sky-lobby-rules {
+    grid-template-columns: 1fr 1fr;
+  }
+  .sky-race-screen header h2 {
+    font-size: 16px;
+  }
+  .sky-race-screen footer span:last-child {
+    display: none;
+  }
+}

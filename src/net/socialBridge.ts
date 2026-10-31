@@ -17,6 +17,7 @@ import { chatStore } from '../store/chatStore';
 import { inspectionStore } from '../store/inspectionStore';
 import { buildInspection } from './inspection';
 import { attachPartyDungeonTransport, receivePartyDungeon } from './partyDungeon';
+import { skyRaceStore } from '../store/skyRaceStore';
 
 let channel: SocialChannel | null = null;
 let stopSocial: (() => void) | null = null;
@@ -35,6 +36,7 @@ const worldChatReceived = new Map<string, number>();
 function canDuel() {
   const s = gameStore.getState();
   return (
+    !skyRaceStore.getState().active &&
     s.status === 'alive' &&
     !isChildhood(s.player) &&
     !s.tribulation &&

@@ -3,12 +3,14 @@ import { socialStore } from '../../store/socialStore';
 import { chatStore } from '../../store/chatStore';
 import { isTypingTarget } from './typing';
 import { partyDungeonStore } from '../../net/partyDungeon';
+import { skyRaceStore } from '../../store/skyRaceStore';
 
 /** UI actions may deliberately open another card; world actors may not steal it. */
 export function worldInputBlocked() {
   const game = gameStore.getState(),
     social = socialStore.getState();
   return !!(
+    skyRaceStore.getState().active ||
     game.menu ||
     partyDungeonStore.getState().phase === 'forming' ||
     partyDungeonStore.getState().waiting ||

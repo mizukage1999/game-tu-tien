@@ -1,0 +1,20 @@
+{
+  "tool": "imagegen built-in",
+  "mode": "generate",
+  "reference": "User attached concept: Ngự Kiếm Vượt Thiên Quan; style and subject guidance",
+  "file": "public/assets/ui/sky-race-v1.png",
+  "columns": 8,
+  "rows": 6,
+  "width": 1448,
+  "height": 1086,
+  "rowRegions": [
+    [0, 190],
+    [194, 200],
+    [400, 200],
+    [608, 180],
+    [804, 86],
+    [891, 195]
+  ],
+  "transparent": true,
+  "prompt": "Use case: stylized-concept.\nAsset type: production transparent PNG sprite atlas for an existing Vietnamese xianxia 2.5D sword-flight racing minigame, “Ngự Kiếm Vượt Thiên Quan”.\nReference role: the user's attached reference is style and subject guidance only. Create a new clean gameplay atlas, not a presentation poster.\nComposition: EXACTLY EIGHT equal columns and SIX equal rows, all 48 square cells, landscape 4:3 ratio, ideally 1536x1152. No borders or spacing lines, no labels, NO TEXT. Each sprite stays within its cell with 12% transparent padding, uniform centering. Genuine transparent background throughout, no painted checkerboard, no black backdrop.\nStyle: polished hand-painted fantasy game sprites, crisp readable silhouettes, blue/cyan sword energy, gold ornament, pale jade stone and pink blossom accents, luminous but restrained glows. Consistent isometric 2.5D view.\nRow 1, cells left to right: same youthful long-black-haired white-and-blue-robed cultivator STANDING ON a blue flying sword, full body and both feet visible, eight compass views in order south, southwest, west, northwest (back three-quarter), north (back), northeast (back three-quarter), east, southeast. Not holding a second weapon. Sword underneath feet, cohesive proportions. No portrait crop.\nRow 2: eight distinct upright floating checkpoint gates, with transparent hollow openings: blue circular pagoda gate; gold rectangular heavenly gate; gold crescent moon gate; pink blossom circular gate; green jade dragon ring; orange dragon ring; silver-blue finish gate with twin small pennants; blue circular gate glowing successfully crossed.\nRow 3: eight flight hazards: dark floating rocky boulder; smaller icy rock; blue spiral wind vortex; dark thundercloud with one lightning stroke; white crane with wings spread; purple rotating spirit blade obstacle; angular floating island rock; ring of storm wind.\nRow 4: eight collectible and UI sprites: small green spirit orb; large blue spirit orb; rare purple spirit orb; gold speed boost chevrons; blue protective shield orb; gold time clock; emerald reward chest; ornate gold race trophy.\nRow 5: eight animation frames, same horizontal blue comet sword-flight trail, left to right expanding from faint short streak to long crescent energy, all same alignment. Effects only, NO CHARACTER.\nRow 6: eight scenic transparent isometric cloud-course pieces: grassy floating island with tiny blue pagoda; pink flowering tree on floating rock; curved jade stone sky bridge; small waterfall floating island; gold heavenly pavilion on rock; bamboo floating island; wispy white cloud cluster; distant pale-blue mountain spire.\nConstraints: no UI screenshots, no interface panels, no lettering, no watermarks, no shadows connecting adjacent cells. Preserve real alpha. Gameplay-ready separated sprites only."
+}

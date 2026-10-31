@@ -833,6 +833,16 @@
       "width": 1448,
       "height": 1086,
       "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/sky-race-v1.png",
+      "output": "/assets/optimized/ui-sky-race-v1.3803e67babf8.webp",
+      "originalBytes": 2989102,
+      "sourceSha256": "65d7db6353e58e3cd54a5d955b68e464a8a16a6b4a28d7d7cdc436b8c857224d",
+      "encodedBytes": 1172152,
+      "width": 1448,
+      "height": 1086,
+      "maxAlphaDifference": 0
     }
   ]
 }
