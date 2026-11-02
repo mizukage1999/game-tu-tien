@@ -19,6 +19,8 @@ const sources = directories.flatMap((directory) =>
     .map((name) => `/assets/${directory}/${name}`),
 );
 sources.push(
+  '/assets/ui/activities-scenes-v2.png',
+  '/assets/ui/activities-frame-v2.png',
   '/assets/ui/sky-race-v1.png',
   '/assets/ui/world-activities-v1.png',
   '/assets/ui/buff-icons-v1.png',

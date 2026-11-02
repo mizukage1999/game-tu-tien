@@ -8,7 +8,15 @@ import { socialStore } from '../../store/socialStore';
 import { isChildhood } from '../../game/systems/origin';
 import { lifeProgress } from '../../game/systems/life';
 import { skyRaceStore } from '../../store/skyRaceStore';
-import '../../ui/sky-race.css';
+import {
+  ActivityArtwork,
+  ActivityClock,
+  ActivityMark,
+  ActivityTitle,
+} from './ActivityPresentation';
+import '../sky-race.css';
+import './activities.css';
+
 export function SkyRaceSprite({ cell, className = '' }: { cell: number; className?: string }) {
   const [top, height] = SKY_ROWS[Math.floor(cell / 8)];
   return (
@@ -30,7 +38,8 @@ export function SkyRacePanel() {
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
     [starting, setStarting] = useState(false),
-    [run, setRun] = useState<SkyRun | null>(null);
+    [run, setRun] = useState<SkyRun | null>(null),
+    [board, setBoard] = useState(false);
   const p = useGame((s) => s.player),
     alive = useRef(true);
   const canPlay = () => {
@@ -90,118 +99,148 @@ export function SkyRacePanel() {
     }
   };
   return (
-    <div className="sky-lobby">
-      <section className="sky-lobby-hero">
-        <div className="sky-lobby-art">
-          <SkyRaceSprite cell={8} />
-          <SkyRaceSprite cell={4} />
-          <SkyRaceSprite cell={40} />
-          <SkyRaceSprite cell={41} />
-        </div>
-        <article>
-          <small>NGỰ HÀNH · THI ĐẤU TỐC ĐỘ</small>
-          <h2>
-            Ngự Kiếm
-            <br />
-            Vượt Thiên Quan
-          </h2>
-          <p>
-            Chín thiên môn giữa biển mây. Né đá nổi, gió xoáy và sấm sét; thu linh khí, chọn thời
-            điểm tăng tốc để vượt kỷ lục của chính mình.
-          </p>
-          <div className="sky-lobby-best">
-            <SkyRaceSprite cell={29} />
+    <div className="sky-lobby activity-race">
+      {board ? (
+        <section className="sky-lobby-board">
+          <header className="activity-board-header">
             <div>
-              <small>Kỷ lục của bạn · tuần {page?.week ?? skyWeek().week}</small>
-              <strong>{page?.self ? skyTime(page.self.score) : 'Chưa có thành tích'}</strong>
+              <small>NGỰ KIẾM VƯỢT THIÊN QUAN</small>
+              <h3>Nhanh nhất tuần</h3>
             </div>
+            <div>
+              <button
+                className="btn activity-secondary"
+                data-activity-action="back"
+                onClick={() => setBoard(false)}
+              >
+                ‹ Quay lại
+              </button>
+              <button
+                className="btn activity-secondary"
+                disabled={busy}
+                onClick={() => void refresh()}
+              >
+                Làm mới
+              </button>
+            </div>
+          </header>
+          <div className="sky-podium">
+            {[1, 0, 2].map((i) => (
+              <div key={i} className={`place-${i + 1}`}>
+                <SkyRaceSprite cell={31} />
+                <b>#{i + 1}</b>
+                <span>{page?.rows[i]?.name ?? 'Chờ đạo hữu'}</span>
+                <strong>{page?.rows[i] ? skyTime(page.rows[i].score) : '—'}</strong>
+              </div>
+            ))}
           </div>
-          <div className="sky-lobby-actions">
-            <button
-              className="btn gold"
-              disabled={busy || starting || isChildhood(p) || !page}
-              onClick={() => void start(true)}
-            >
-              Đua xếp hạng tuần
-            </button>
-            <button className="btn" disabled={starting} onClick={() => void start(false)}>
-              Bay thử
-            </button>
+          <div className="sky-ranking-list">
+            {page?.rows.map((r, i) => (
+              <div key={r.userId}>
+                <b>{i + 1}</b>
+                <span>
+                  {r.name}
+                  <small>
+                    ✦ {r.energy} linh khí · {r.hits} va chạm
+                  </small>
+                </span>
+                <strong>{skyTime(r.score)}</strong>
+              </div>
+            ))}
+            {!page?.rows.length && (
+              <p>
+                {page
+                  ? 'Chưa có lượt bay hoàn thành tuần này.'
+                  : 'Kết nối server để xem thành tích thật.'}
+              </p>
+            )}
           </div>
+          <p className="activity-caption">
+            Tuần {page?.week ?? skyWeek().week} · Lấy lượt tốt nhất · Đổi đường bay 00:00 thứ Hai,
+            giờ Việt Nam.
+          </p>
           {error && (
-            <p className="competitive-error" role="status">
+            <p className="activity-caption is-error" role="status">
               {error}
             </p>
           )}
-          {isChildhood(p) && (
-            <p>Hoàn thành nhập môn để ghi tên trên bảng tuần. Bạn có thể bay thử ngay.</p>
-          )}
-        </article>
-      </section>
-      <section className="sky-lobby-board">
-        <header>
-          <div>
-            <small>THIÊN QUAN TỐC BẢNG</small>
-            <h3>Nhanh nhất tuần</h3>
-          </div>
-          <button className="btn" disabled={busy} onClick={() => void refresh()}>
-            Làm mới
-          </button>
-        </header>
-        <div className="sky-podium">
-          {[1, 0, 2].map((i) => (
-            <div key={i} className={`place-${i + 1}`}>
-              <SkyRaceSprite cell={i === 0 ? 31 : 8 + i} />
-              <b>#{i + 1}</b>
-              <span>{page?.rows[i]?.name ?? 'Chờ đạo hữu'}</span>
-              <strong>{page?.rows[i] ? skyTime(page.rows[i].score) : '—'}</strong>
-            </div>
-          ))}
-        </div>
-        <div className="sky-ranking-list">
-          {page?.rows.map((r, i) => (
-            <div key={r.userId}>
-              <b>{i + 1}</b>
-              <span>
-                {r.name}
-                <small>
-                  ✦ {r.energy} · {r.hits} va chạm
-                </small>
-              </span>
-              <strong>{skyTime(r.score)}</strong>
-            </div>
-          ))}
-          {!page?.rows.length && (
-            <p>
-              {page
-                ? 'Chưa có lượt bay hoàn thành tuần này.'
-                : 'Kết nối server để xem thành tích thật.'}
+        </section>
+      ) : (
+        <div className="activity-feature activity-flight">
+          <ActivityArtwork kind="race" />
+          <article className="activity-copy">
+            <ActivityTitle eyebrow="Mini-game · Ngự Hành · Thi Đấu">
+              Ngự Kiếm Vượt Thiên Quan
+            </ActivityTitle>
+            <p className="activity-description">
+              Đua ngự hành vượt chướng ngại vật, thu thập linh khí và hoàn thành đường bay trong
+              thời gian ngắn nhất. Chinh phục chín thiên môn, ghi tên trên bảng tốc độ hàng tuần.
             </p>
-          )}
+            <ActivityClock label="Thời gian mở:" open>
+              Luôn mở
+            </ActivityClock>
+            <div className="activity-facts">
+              <ActivityMark kind="trophy" />
+              <span>Đua thời gian</span>
+              <i />
+              <span>Cá nhân</span>
+            </div>
+            <section className="activity-prizes activity-race-record" aria-label="Thành tích tuần">
+              <h4>
+                <span />
+                Kỷ lục tuần của bạn
+                <span />
+              </h4>
+              <div className="activity-record-body">
+                <SkyRaceSprite cell={31} />
+                <div>
+                  <strong>{page?.self ? skyTime(page.self.score) : 'Chưa có thành tích'}</strong>
+                  <small>Tuần {page?.week ?? skyWeek().week}</small>
+                </div>
+                <span className="activity-course-badge">
+                  9 cổng<small>3 lượt tăng tốc</small>
+                </span>
+              </div>
+            </section>
+            <div className="activity-actions sky-lobby-actions">
+              <button
+                className="btn gold activity-primary"
+                data-activity-action="join"
+                aria-label="Đua xếp hạng tuần"
+                disabled={busy || starting || isChildhood(p) || !page}
+                onClick={() => void start(true)}
+              >
+                Tham Gia
+              </button>
+              <button
+                className="btn activity-secondary"
+                data-activity-action="ranking"
+                onClick={() => setBoard(true)}
+              >
+                <ActivityMark kind="trophy" />
+                Bảng Xếp Hạng
+              </button>
+              <button
+                className="activity-practice"
+                disabled={starting}
+                onClick={() => void start(false)}
+              >
+                Bay thử
+              </button>
+            </div>
+            <p
+              className={`activity-caption${error ? ' is-error' : ''}`}
+              role={error ? 'status' : undefined}
+              title={error || undefined}
+            >
+              {error ||
+                (isChildhood(p)
+                  ? 'Hoàn thành nhập môn để đua xếp hạng. Có thể bay thử ngay.'
+                  : 'Cùng đường bay, cùng tốc độ · Lấy lượt nhanh nhất tuần.')}
+            </p>
+          </article>
         </div>
-        <p className="competitive-note">
-          Đổi đường bay mỗi thứ Hai, giờ Việt Nam. Cùng đường đua, cùng tốc độ; lấy lượt tốt nhất.
-          Server kiểm tra lại điều khiển trước khi ghi thành tích.
-        </p>
-      </section>
-      <section className="sky-lobby-rules">
-        <span>
-          <SkyRaceSprite cell={24} />
-          <b>Linh khí</b>−0,25s mỗi viên
-        </span>
-        <span>
-          <SkyRaceSprite cell={27} />
-          <b>Tăng tốc</b>3 lượt · hồi 5s
-        </span>
-        <span>
-          <SkyRaceSprite cell={16} />
-          <b>Va chạm</b>+2s, chậm ngắn
-        </span>
-        <span>
-          <SkyRaceSprite cell={28} />
-          <b>Hộ thuẫn</b>Chặn 1 va chạm
-        </span>
-      </section>
+      )}
       {run && (
         <SkyRaceRun
           key={run.id ?? `practice-${run.seed}`}

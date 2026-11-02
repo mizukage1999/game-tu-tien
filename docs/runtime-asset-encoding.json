@@ -843,6 +843,26 @@
       "width": 1448,
       "height": 1086,
       "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/activities-scenes-v2.png",
+      "output": "/assets/optimized/ui-activities-scenes-v2.7d385479f2e5.webp",
+      "originalBytes": 3182735,
+      "sourceSha256": "bb404311cc7386156c8d2a0fbdffb0f3505cf6eb7266a5f1b9ef32313a4e2f8d",
+      "encodedBytes": 608992,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/activities-frame-v2.png",
+      "output": "/assets/optimized/ui-activities-frame-v2.aa1c696f80ca.webp",
+      "originalBytes": 1765001,
+      "sourceSha256": "68119fa9df7d8a3f76267a60fa05b967d05d8148697921c2979d6d160eab8134",
+      "encodedBytes": 326986,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
     }
   ]
 }
