@@ -38,6 +38,7 @@ import { worldInputBlocked } from '../systems/inputFocus';
 import { activeStatusEffects } from '../systems/statusEffects';
 import { statusEffectStore } from '../../store/statusEffectStore';
 import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
+import { HERO_WORLD_SCALE } from '../art/heroVisual';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -300,7 +301,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setPosition(spot.x,spot.y-lift+3).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]).setDepth(spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) - lift);
+    this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) * HERO_WORLD_SCALE - lift);
     this.drawBar({x:spot.x,y:spot.y-lift});
   }
 
@@ -308,7 +309,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private syncLook() {
     const breath = this.ctrl.currentAnim === 'idle' && !this.activeMount
       ? Math.sin(this.world.time.now / 700) * 0.007 : 0;
-    this.art.setAlpha(this.alpha).setScale(this.scaleX, this.scaleY * (1 + breath));
+    this.art.setAlpha(this.alpha).setScale(this.scaleX * HERO_WORLD_SCALE, this.scaleY * HERO_WORLD_SCALE * (1 + breath));
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
     else if (this.isTinted) this.art.setTint(this.tintTopLeft);
     else this.art.clearTint();
@@ -317,7 +318,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private drawBar(spot: Vec2) {
     const { player, stats } = gameStore.getState();
     const w = 46;
-    const above = this.ctrl.rig.frameHeight === 160 ? 117 : 90;
+    const above = (this.ctrl.rig.frameHeight === 160 ? 117 : 90) * HERO_WORLD_SCALE;
     this.bar.setPosition(spot.x, spot.y - above);
     const ratio = Math.max(0, Math.min(1, player.hp / Math.max(1, stats.maxHp)));
     if (ratio === this.barRatio) return;

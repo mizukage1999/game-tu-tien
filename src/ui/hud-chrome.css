@@ -337,28 +337,28 @@
   color: #f6dfa8;
 }
 .hud.hud-v5.phone .hud-top-left {
-  width: 222px;
-  max-width: 31%;
-  gap: 7px;
+  width: 190px;
+  max-width: 28%;
+  gap: 5px;
   left: calc(8px + var(--hud-safe-left));
   top: 8px;
 }
 .hud.hud-v5.phone .status.panel-glass {
-  grid-template-columns: 47px minmax(0, 1fr);
-  padding: 7px;
-  gap: 4px 7px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  padding: 6px;
+  gap: 3px 6px;
 }
 .hud.hud-v5.phone .status .avatar {
-  width: 47px;
-  height: 51px;
+  width: 40px;
+  height: 43px;
 }
 .hud.hud-v5.phone .avatar-level {
-  height: 20px;
-  min-width: 19px;
-  font-size: 11px;
+  height: 18px;
+  min-width: 17px;
+  font-size: 10px;
 }
 .hud.hud-v5.phone .status-name {
-  font-size: 14px;
+  font-size: 12px;
 }
 .hud.hud-v5.phone .status-realm {
   font-size: 8px;
@@ -367,10 +367,10 @@
   margin-left: 2px;
 }
 .hud.hud-v5.phone .status-info {
-  gap: 3px;
+  gap: 2px;
 }
 .hud.hud-v5.phone .status .bar {
-  height: 11px;
+  height: 10px;
 }
 .hud.hud-v5.phone .status .bar-text {
   font-size: 8px;
@@ -383,19 +383,19 @@
   left: 3px;
 }
 .hud.hud-v5.phone .status-footer {
-  padding-top: 4px;
+  padding-top: 3px;
   gap: 4px;
 }
 .hud.hud-v5.phone .status-footer .pk-mode-trigger {
-  min-height: 23px;
+  min-height: 22px;
   padding: 2px 4px;
   gap: 3px;
 }
 .hud.hud-v5.phone .status-footer .pk-mode-trigger span {
-  font-size: 10px;
+  font-size: 9px;
 }
 .hud.hud-v5.phone .status-footer .status-power {
-  font-size: 9px;
+  font-size: 8px;
   gap: 3px;
 }
 .hud.hud-v5.phone .status-location .hud-glyph {
@@ -403,80 +403,122 @@
   height: 15px;
 }
 .hud.hud-v5.phone .quest-tabs button {
-  min-height: 29px;
-  font-size: 12px;
-  gap: 5px;
-  padding: 4px;
+  min-height: 26px;
+  font-size: 10px;
+  gap: 4px;
+  padding: 3px;
 }
 .hud.hud-v5.phone .quest-tabs .quest-toggle {
-  flex-basis: 24px;
-  font-size: 23px;
+  flex-basis: 22px;
+  font-size: 21px;
 }
 .hud.hud-v5.phone .hud-glyph {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 .hud.hud-v5.phone .story-tracker {
   display: block;
-  padding: 6px 8px;
+  padding: 4px 6px;
 }
 .hud.hud-v5.phone .story-tracker small {
-  font-size: 9px;
-  gap: 5px;
+  font-size: 8px;
+  gap: 4px;
 }
 .hud.hud-v5.phone .story-tracker > span {
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.3;
 }
 .hud.hud-v5.phone .quest-list {
-  padding: 5px;
-  max-height: 66px;
+  padding: 3px;
+  max-height: 58px;
   overflow: auto;
+  scrollbar-width: none;
+}
+.hud.hud-v5.phone .quest-list::-webkit-scrollbar {
+  display: none;
 }
 .hud.hud-v5.phone .quest-list li.quest-go {
-  padding: 6px;
+  padding: 3px 4px;
   margin-bottom: 0;
 }
 .hud.hud-v5.phone .quest-title {
   font-size: 10px;
+  line-height: 1.35;
 }
 .hud.hud-v5.phone .quest-obj {
   font-size: 9px;
+  line-height: 1.3;
+  padding-top: 1px;
 }
 .hud.hud-v5.phone .quest-panel .opening-guide {
-  padding: 6px 7px 8px;
-  font-size: 9px;
-  gap: 5px;
+  padding: 4px 5px 5px;
+  font-size: 8px;
+  gap: 4px;
 }
 .hud.hud-v5.phone .opening-guide > button {
   padding: 4px;
-  font-size: 10px;
-  min-height: 27px;
+  font-size: 9px;
+  min-height: 26px;
 }
 .hud.hud-v5.phone .quest-details {
   display: none;
 }
 .hud.hud-v5.phone .party-tracker {
-  padding: 7px;
-  font-size: 10px;
+  padding: 5px;
+  font-size: 9px;
+}
+.hud.hud-v5.phone .party-member {
+  padding: 4px;
+  margin-block: 3px;
+  gap: 5px;
+  min-height: 34px;
+}
+.hud.hud-v5.phone .party-member :is(b, small) {
+  font-size: 9px;
+}
+.hud.hud-v5.phone .party-tracker > header {
+  padding-bottom: 5px;
+}
+.hud.hud-v5.phone .party-tracker footer button,
+.hud.hud-v5.phone .party-tracker > button {
+  font-size: 9px;
+  padding: 4px 5px;
+  min-height: 26px;
 }
 .hud.hud-v5.phone .party-member .hero-portrait {
-  width: 29px;
-  height: 32px;
+  width: 25px;
+  height: 27px;
 }
 .hud.hud-v5.phone .party-members {
-  max-height: 126px;
+  max-height: 106px;
 }
 .hud.hud-v5.phone .quest-panel.collapsed {
   width: 100%;
 }
 @media (max-height: 410px) {
   .hud.hud-v5.phone .story-tracker {
-    padding-block: 4px;
+    padding-block: 3px;
   }
   .hud.hud-v5.phone .quest-list {
-    max-height: 56px;
+    max-height: 58px;
   }
+}
+
+/* Short interaction prose stays readable without spanning most of the phone. */
+.hud.hud-v5.phone .toasts {
+  width: min(300px, 48%);
+  top: 26%;
+  gap: 3px;
+  pointer-events: none;
+}
+.hud.hud-v5.phone .toast-quest {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 5px 9px;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 /* One native font across the live HUD; avoid mixed serif/fallback faces. */

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { addStaticTexture } from './staticTexture';
 import { makeCanvas } from './canvas';
+import { paintMedicinalHerb } from './medicinalHerbs';
 
 /** Paint at 2x; display sizes stay in world units so mobile scaling keeps clean edges. */
 export function buildImmortalArt(scene: Phaser.Scene) {
@@ -11,7 +12,9 @@ export function buildImmortalArt(scene: Phaser.Scene) {
     ctx.scale(2, 2);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    if (kind === 'sword') {
+    if (kind === 'linh_chi' || kind === 'ngung_lo') {
+      paintMedicinalHerb(ctx, kind);
+    } else if (kind === 'sword') {
       const glow = ctx.createRadialGradient(80, 55, 4, 80, 55, 74);
       glow.addColorStop(0, '#6ddfe988'); glow.addColorStop(1, '#6ddfe900');
       ctx.fillStyle = glow; ctx.fillRect(0, 0, 160, 100);
@@ -42,22 +45,11 @@ export function buildImmortalArt(scene: Phaser.Scene) {
     } else {
       ctx.translate(80, 60);
       ctx.fillStyle = '#7be3bb28'; ctx.beginPath(); ctx.ellipse(0, 9, 23, 9, 0, 0, Math.PI * 2); ctx.fill();
-      if (kind === 'ngung_lo') {
-        ctx.fillStyle = '#83e2f0'; ctx.strokeStyle = '#dcfcff'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(0, -25); ctx.bezierCurveTo(-24, 1, -13, 14, 0, 14);
-        ctx.bezierCurveTo(13, 14, 24, 1, 0, -25); ctx.fill(); ctx.stroke();
-      } else if (kind === 'linh_chi') {
-        ctx.strokeStyle = '#dfbc8a'; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(0, 12); ctx.quadraticCurveTo(5, 0, 1, -12); ctx.stroke();
-        ctx.fillStyle = '#cd7c66'; ctx.strokeStyle = '#f4c58f'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.ellipse(0, -13, 19, 11, -0.15, Math.PI, Math.PI * 2); ctx.lineTo(17, -10); ctx.quadraticCurveTo(0, -3, -19, -10); ctx.fill(); ctx.stroke();
-      } else {
-        ctx.strokeStyle = '#7dbca0'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(0, 13); ctx.lineTo(0, -23); ctx.stroke();
-        for (const side of [-1, 1]) for (let i = 0; i < 3; i++) {
-          ctx.fillStyle = i % 2 ? '#77c996' : '#ade1a6';
-          ctx.beginPath(); ctx.ellipse(side * 8, -i * 9, 11, 4, side * -0.6, 0, Math.PI * 2); ctx.fill();
-        }
+      ctx.strokeStyle = '#7dbca0'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, 13); ctx.lineTo(0, -23); ctx.stroke();
+      for (const side of [-1, 1]) for (let i = 0; i < 3; i++) {
+        ctx.fillStyle = i % 2 ? '#77c996' : '#ade1a6';
+        ctx.beginPath(); ctx.ellipse(side * 8, -i * 9, 11, 4, side * -0.6, 0, Math.PI * 2); ctx.fill();
       }
     }
     addStaticTexture(scene, key, canvas)?.setFilter(Phaser.Textures.FilterMode.LINEAR);

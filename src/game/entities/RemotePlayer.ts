@@ -16,6 +16,7 @@ import { flightRotation } from '../systems/flightVisual';
 import type { SkillId } from '../../data';
 import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
+import { HERO_WORLD_SCALE } from '../art/heroVisual';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -50,7 +51,7 @@ export class RemotePlayer {
     const authored = world.textures.exists(directionalArt(heroFor(state).id,!!state.child))?directionalArt(heroFor(state).id,!!state.child):state.heroId ? rosterArt(state.heroId) : state.sex === 'male' ? 'hero-wang-v5' : 'hero-li-v5';
     const art = world.textures.exists(authored) ? authored : playerArt(state.sex);
     const spot = iso(state.x, state.y);
-    this.sprite = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1);
+    this.sprite = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1).setScale(HERO_WORLD_SCALE);
     this.ctrl = new AnimationController(this.sprite, art);
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     this.mountArt=world.add.image(spot.x,spot.y,'immortal-sword').setVisible(false);
@@ -93,8 +94,8 @@ export class RemotePlayer {
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
     if(this.state.mount)this.mountArt.setTexture(`immortal-${this.state.mount}`).setDisplaySize(160,100).setRotation(this.state.mount==='sword'?flightRotation(face):0).setFlipX(this.state.mount==='crane'&&isoVector(face.x,face.y).x<0).setPosition(spot.x,spot.y-lift+(this.state.mount==='sword'?-1:20)).setDepth(spot.y-.1);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)-lift,settingsStore.getState().preferences.showNames);
-    this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)-lift);
+    this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)*HERO_WORLD_SCALE-lift,settingsStore.getState().preferences.showNames);
+    this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)*HERO_WORLD_SCALE-lift);
     const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y);
     this.ctrl.play(this.state.combat?.hp===0?'downed':this.state.moving ? 'run' : 'idle', dir);
   }

@@ -632,13 +632,15 @@ export class WorldScene extends Phaser.Scene {
       const at = iso(node.x * TILE + TILE / 2, node.y * TILE + TILE / 2);
       const village = this.mapId === 'vuong_gia_thon';
       const painted = village && this.textures.exists('village-nature-v3') && this.textures.get('village-nature-v3').has('village25d-herbs');
-      const art = this.add.image(at.x, at.y - (painted ? 0 : 8), painted ? 'village-nature-v3' : `immortal-${node.item}`, painted ? 'village25d-herbs' : undefined)
+      const detailed = node.item === 'linh_chi' || node.item === 'ngung_lo';
+      const art = this.add.image(at.x, at.y - (painted || detailed ? 0 : 8), painted ? 'village-nature-v3' : `immortal-${node.item}`, painted ? 'village25d-herbs' : undefined)
         .setDisplaySize(village ? 78 : 160, village ? 58 : 100).setDepth(at.y + 1);
       if (painted) art.setOrigin(.5, .88);
+      else if (detailed) art.setOrigin(.5, .8).setDisplaySize(144, 90);
       const label = this.add.text(at.x, at.y + 12, itemName(node.item), {
         fontFamily: 'Segoe UI, sans-serif', fontSize: village ? '12px' : '13px', color: '#c6f1cf', stroke: '#102b25', strokeThickness: 3, resolution: 2,
       }).setOrigin(0.5).setDepth(at.y + 2);
-      art.setInteractive({ useHandCursor: true, hitArea: painted ? new Phaser.Geom.Rectangle(0, 0, art.width, art.height) : new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+      art.setInteractive({ useHandCursor: true, hitArea: painted ? new Phaser.Geom.Rectangle(0, 0, art.width, art.height) : detailed ? new Phaser.Geom.Rectangle(60, 14, 210, 170) : new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
       art.on('pointerdown', () => this.harvest(node));
       this.herbs.push({ node, art, label });
     }
@@ -677,7 +679,10 @@ export class WorldScene extends Phaser.Scene {
       s.patch({ player: { ...s.player, world: { ...progress, interactions: { ...progress.interactions, [point.id]: count + 1 } } } });
       s.questEvent({ type: 'interact', point: point.id });
     }
-    s.addLog(originText(point.text,s.player)); s.toast(originText(point.text,s.player), 'quest');
+    const text = originText(point.text, s.player);
+    s.addLog(text);
+    // A second tap on the same seal must not stack the same paragraph twice.
+    if (!s.toasts.some(toast => toast.kind === 'quest' && toast.text === text)) s.toast(text, 'quest');
     this.save();
   }
 
