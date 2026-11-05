@@ -1,6 +1,7 @@
 import { optimizedAsset } from '../data/assetDelivery';
 import { COMPANIONS, type CompanionId } from '../game/systems/life';
 import { useId } from 'react';
+import icons from '../data/uiIconAssets.json';
 
 function AtlasArt({
   source,
@@ -31,7 +32,16 @@ function AtlasArt({
   );
 }
 export function CrestArt({ index, className }: { index: number; className?: string }) {
-  return <AtlasArt source="/assets/ui/loading-crests-v2.png" index={index} className={className} />;
+  const src = (icons as Record<string, string>)[`crest:${index}`];
+  return (
+    <img
+      src={src}
+      className={`spirit-art ${className ?? ''}`}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+    />
+  );
 }
 export function BeastArt({ id, className }: { id: CompanionId; className?: string }) {
   return (

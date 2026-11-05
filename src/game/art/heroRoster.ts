@@ -4,6 +4,7 @@ import { HEROES, HERO_ASSETS, type HeroId } from '../../data/heroes';
 import { HERO_SPELLS, heroSpell } from '../../data/heroSkills';
 import { CHARACTERS, RIGS, frameName } from './generate';
 import { cacheHeroSpellIcon } from './heroSpellIcons';
+import { menuSkillIcon } from '../../data/menuIcons';
 import {
   schoolSheet,
   spellCell,
@@ -130,6 +131,7 @@ export function registerHeroSpells(scene: Phaser.Scene) {
         const [x, y, w, h] = spellCell(art.id, frame);
         ctx.drawImage(source, x, y, w, h, ...spellRuntimeCell(art.id, frame));
       }
+      if (menuSkillIcon(art.id)) continue;
       const icon = document.createElement('canvas');
       icon.width = 192;
       icon.height = 192;

@@ -20,6 +20,7 @@ import { CultHeading } from './CultivationUI';
 import { QuestScenery } from './QuestJournal';
 import { SectGlyph } from './SectGlyph';
 import './quest-sect.css';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 type SectTab = 'overview' | 'register' | 'quest' | 'contribution' | 'members';
 type SectId = 'dai_thua_vien' | 'linh_son_tong';
@@ -87,7 +88,7 @@ function SectMembers({ compact = false }: { compact?: boolean }) {
           <article className="sect-member" key={m.userId}>
             <span className="sect-member-avatar">
               <img
-                src={`/assets/ui/cultivation/${m.sex === 'male' ? 'wang' : 'li'}-full-v1.png`}
+                src={optimizedAsset(`/assets/ui/cultivation/${m.sex === 'male' ? 'wang' : 'li'}-full-v1.png`)}
                 alt=""
               />
             </span>

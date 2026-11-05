@@ -1,3 +1,5 @@
+import { optimizedAsset } from '../../data/assetDelivery';
+
 const FEATURES = {
   alchemy: { title: 'Đan Phòng', subtitle: 'Giữ lửa · Kết đan', desc: 'Thu thập linh thảo, phối hợp dược liệu và khai lò luyện đan.', tag: 'Đan đạo' },
   home: { title: 'Động Phủ', subtitle: 'Một chốn giữa ngàn mây', desc: 'Bồi dưỡng linh mạch, chăm dược điền và tu luyện tại động phủ riêng.', tag: 'Chốn an thân' },
@@ -7,7 +9,7 @@ const FEATURES = {
 export function JourneyFeatureHeader({ type, detail }: { type: keyof typeof FEATURES; detail: string }) {
   const data = FEATURES[type];
   return <header className={`journey-feature-hero feature-${type}`}>
-    <img src={`/assets/journey/${type}.png`} alt=""/>
+    <img src={optimizedAsset(`/assets/journey/${type}.png`)} alt=""/>
     <div><small>{data.subtitle}</small><h2>{data.title}</h2><p>{data.desc}</p><span className="journey-feature-detail">{detail}</span></div>
     <span className="journey-feature-seal">{data.tag}</span>
   </header>;

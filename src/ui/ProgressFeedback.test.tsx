@@ -6,6 +6,17 @@ import { PowerGrowthNotice } from './PowerGrowthNotice';
 import { AdventureGuide } from './AdventureGuide';
 import { gameStore, newPlayer } from '../store/gameStore';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+it('does not show the growth popup for the level-99 reward', () => {
+  const host = document.createElement('div'), root = createRoot(host), previous = gameStore.getState();
+  const player = { ...newPlayer(), admitted: true, level: 2 };
+  gameStore.setState({ player });
+  try {
+    act(() => root.render(<PowerGrowthNotice />));
+    act(() => gameStore.setState({ player: { ...player, level: 99 } }));
+    expect(host.childElementCount).toBe(0);
+    expect(gameStore.getState().player.level).toBe(99);
+  } finally { act(() => root.unmount()); gameStore.setState(previous); }
+});
 it('shows a real gain without opening a menu, and lets the player review or dismiss it', () => {
   vi.useFakeTimers();
   const host = document.createElement('div'),

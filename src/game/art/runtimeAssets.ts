@@ -5,28 +5,48 @@ import { optimizedAsset } from '../../data/assetDelivery';
 import { getMap } from '../maps';
 import { heroFor, type HeroId } from '../../data/heroes';
 import { spellAsset, spellSource, spellTexture } from '../../data/heroSpellArt';
-import { WANG_EFFECT_ART, WANG_ICON_ATLAS, WANG_RITUAL_ICON_ATLAS, WANG_GATE_ICON, wangSheetLayout } from '../../data/wangSkills';
+import {
+  WANG_EFFECT_ART,
+  WANG_ICON_ATLAS,
+  WANG_RITUAL_ICON_ATLAS,
+  WANG_GATE_ICON,
+  wangSheetLayout,
+} from '../../data/wangSkills';
 import { generateArt, registerCharacterArt } from './generate';
 import { buildImmortalArt } from './immortal';
 import { COURTYARD_ATLAS, registerCourtyardFrames } from './courtyard';
-import { WORLD_ATLASES, registerWorldArt } from './world';
+import { registerWorldArt } from './world';
 import { COHESION_ATLASES, registerCohesiveArt, registerVillageReferenceProps } from './cohesion';
 import { EXPANSION_ATLASES, registerExpansionArt } from './expansionArt';
-import { VILLAGE_ATLASES, registerVillageArt } from './village';
-import { WORLD_STYLE_ATLASES, registerWorldStyle } from './worldStyle';
+import { registerWorldStyle } from './worldStyle';
 import { BESTIARY_SHEETS, registerMonsterArt } from './monsterArt';
-import { DIRECTIONAL_SOURCES, directionalArt, ensureDirectionalHero, registerDirectionalHeroes } from './directionalHeroes';
+import {
+  directionalArt,
+  ensureDirectionalHero,
+  directionalAsset,
+  registerDirectionalHeroes,
+} from './directionalHeroes';
 import { registerHeroSpells } from './heroRoster';
-import { registerCultivationIcons, registerChildProfile } from './skillIcons';
-import { registerInventoryIcons } from './inventoryIcons';
 import { buildWangSheet, registerWangIcons, registerWangGateIcon } from './wangEffects';
 import { ITEM_SPRITE_ASSETS } from './icons';
-import { REALM_CREST_TEXTURE } from '../entities/RealmNameplate';
+import { REALM_CREST_ASSET, REALM_CREST_TEXTURE, REALM_CREST_CELL } from './realmCrests';
+import { createSkillFxAnimations } from './fx';
 import { NPCS } from '../../data';
 import { usesChildSprite } from '../systems/origin';
 import { playerArt } from '../systems/character';
 import { NPC_SPRITES } from '../systems/npcArt';
-import { mapMonsterArt, monsterSheets } from '../systems/mapAssetPlan';
+import { mapMonsterArt, monsterSheets, openingMapPlan } from '../systems/mapAssetPlan';
+import { ensureImage } from './lazyImage';
+import type { SkillId } from '../../data';
+import { wangEffect, type WangEffectArt } from '../../data/wangSkills';
+import { warmedImage, clearStartupWarmCache } from './startupCache';
+import startup from '../../data/startupAssets.json';
+import {
+  registerVillageStartup,
+  VILLAGE_STARTUP_TEXTURE,
+  villageGroundTexture,
+  villageNpcFrame,
+} from './villageStartup';
 
 const pending = new WeakMap<Phaser.Scene, Map<string, () => void>>();
 const mapIds = new WeakMap<Phaser.Scene, string>();
@@ -39,11 +59,19 @@ function releaseSources(scene: Phaser.Scene, keys: readonly string[]) {
 export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
   const map = getMap(mapId),
     builders = new Map<string, () => void>();
+  const player = gameStore.getState().player;
+  const plan = openingMapPlan(mapId, usesChildSprite(player));
+  const village = mapId === 'vuong_gia_thon';
   pending.set(scene, builders);
   mapIds.set(scene, mapId);
   let count = 0;
   const image = (key: string, url: string) => {
     if (!scene.textures.exists(key)) {
+      const cached = warmedImage(url);
+      if (cached) {
+        scene.textures.addImage(key, cached);
+        return;
+      }
       scene.load.image(key, optimizedAsset(url));
       count++;
     }
@@ -55,113 +83,106 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
     queue();
     builders.set(id, build);
   };
+  if (plan.combat && !scene.textures.exists(REALM_CREST_TEXTURE)) {
+    scene.load.spritesheet(REALM_CREST_TEXTURE, optimizedAsset(REALM_CREST_ASSET), {
+      frameWidth: REALM_CREST_CELL.width,
+      frameHeight: REALM_CREST_CELL.height,
+    });
+    count++;
+  }
   group(
     'core',
     () => {
-      scene.load.spritesheet(
-        REALM_CREST_TEXTURE,
-        optimizedAsset('/assets/ui/cultivation/realm-crests-v1.png'),
-        {
-          frameWidth: 512,
-          frameHeight: 256,
-        },
-      );
-      count++;
-      maps(WORLD_ATLASES);
-      maps([COURTYARD_ATLAS]);
-      maps(WORLD_STYLE_ATLASES);
-      image('child-source', '/assets/maps/thiet-tru.png');
-      image('inventory-item-icons', '/assets/ui/cultivation/bag-items-v1.png');
-      image('cult-skill-icons', '/assets/ui/cultivation/skill-icons-alpha-v2.png');
       for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho'])
         image(`item-sprite-${id}`, ITEM_SPRITE_ASSETS[id]);
-      for (const art of Object.values(WANG_EFFECT_ART)) image(`${art.texture}-source`, art.url);
-      image('wang-signature-icons-source', WANG_ICON_ATLAS);
-      image('wang-ritual-icons-source', WANG_RITUAL_ICON_ATLAS);
-      image('wang-gate-icon-source', WANG_GATE_ICON);
-      for (const name of DIRECTIONAL_SOURCES)
-        image(`hero-v8-${name}-source`, `/assets/heroes-v8/${name}.png`);
-      scene.load.json('sprite-manifest', '/assets/sprites/manifest.json');
-      count++;
-      scene.load.once(`${Phaser.Loader.Events.FILE_COMPLETE}-json-sprite-manifest`, () => {
-        const manifest = scene.cache.json.get('sprite-manifest') ?? {};
-        for (const [key, value] of Object.entries(manifest)) {
-          if (
-            key.startsWith('_') ||
-            ['player', 'player_male', 'li_mu_fx', 'wang_lin_fx'].includes(key)
-          )
-            continue;
-          const entry = value as { atlas: string; json: string };
-          scene.load.atlas(
-            key,
-            optimizedAsset(`/assets/sprites/${entry.atlas}`),
-            `/assets/sprites/${entry.json}`,
-          );
-        }
-      });
     },
+    () => {},
+  );
+  if (!village)
+    group(
+      'courtyard',
+      () => maps([COURTYARD_ATLAS]),
+      () => {
+        registerCourtyardFrames(scene);
+        registerVillageReferenceProps(scene);
+      },
+    );
+  if (plan.combat)
+    group(
+      'combat-atlases',
+      () => {
+        scene.load.json('sprite-manifest', '/assets/sprites/manifest.json');
+        count++;
+        scene.load.once(`${Phaser.Loader.Events.FILE_COMPLETE}-json-sprite-manifest`, () => {
+          const manifest = scene.cache.json.get('sprite-manifest') ?? {};
+          for (const [key, value] of Object.entries(manifest)) {
+            if (
+              key.startsWith('_') ||
+              ['player', 'player_male', 'li_mu_fx', 'wang_lin_fx', 'beast_snow'].includes(key) ||
+              scene.textures.exists(key)
+            )
+              continue;
+            const entry = value as { atlas: string; json: string };
+            scene.load.atlas(
+              key,
+              optimizedAsset(`/assets/sprites/${entry.atlas}`),
+              `/assets/sprites/${entry.json}`,
+            );
+          }
+        });
+      },
+      () => createSkillFxAnimations(scene),
+    );
+  group(
+    `world:${map.id === 'vuong_gia_thon' ? 'village' : 'all'}`,
+    () => maps(plan.world),
     () => {
-      if (scene.textures.exists('inventory-item-icons'))
-        registerInventoryIcons(
-          scene.textures.get('inventory-item-icons').getSourceImage() as HTMLImageElement,
-        );
-      for (const art of Object.values(WANG_EFFECT_ART)) {
-        if (!scene.textures.exists(`${art.texture}-source`)) continue;
-        const sheet = buildWangSheet(
-          art,
-          scene.textures.get(`${art.texture}-source`).getSourceImage() as HTMLImageElement,
-        );
-        const texture = addStaticTexture(scene, art.texture, sheet)!;
-        const { frames, columns, cell } = wangSheetLayout(art);
-        for (let i = 0; i < frames; i++) texture.add(i, 0, i % columns * cell, Math.floor(i / columns) * cell, cell, cell);
-        scene.textures.remove(`${art.texture}-source`);
-      }
-      if (scene.textures.exists('wang-signature-icons-source')) {
-        registerWangIcons(scene.textures.get('wang-signature-icons-source').getSourceImage() as HTMLImageElement);
-        scene.textures.remove('wang-signature-icons-source');
-      }
-      registerCourtyardFrames(scene);
-      if (scene.textures.exists('wang-ritual-icons-source')) {
-        registerWangIcons(scene.textures.get('wang-ritual-icons-source').getSourceImage() as HTMLImageElement,true);
-        scene.textures.remove('wang-ritual-icons-source');
-      }
-      registerVillageReferenceProps(scene);
-      if (scene.textures.exists('wang-gate-icon-source')) {
-        registerWangGateIcon(scene.textures.get('wang-gate-icon-source').getSourceImage() as HTMLImageElement);
-        scene.textures.remove('wang-gate-icon-source');
-      }
       registerWorldArt(scene);
-      const player = gameStore.getState().player;
-      registerDirectionalHeroes(scene, [{ id: heroFor(player).id, child: usesChildSprite(player) }]);
-      if (scene.textures.exists('cult-skill-icons'))
-        registerCultivationIcons(
-          scene.textures.get('cult-skill-icons').getSourceImage() as HTMLImageElement,
-        );
-      for (const [sex, key] of [
-        ['male', 'thiet_tru'],
-        ['female', 'mu_uyen_child'],
-      ]) {
-        if (!scene.textures.exists(key)) continue;
-        const frame = scene.textures.get(key).get('idle_side_0');
-        registerChildProfile(
-          sex,
-          frame.source.image as CanvasImageSource,
-          frame.cutX,
-          frame.cutY,
-          frame.cutWidth,
-          frame.cutHeight,
-        );
-      }
-      // These sheets have become small NPC textures / DOM icon URLs. No actor
-      // renders the original sheets, so retaining their GPU copies is wasteful.
-      releaseSources(scene, ['inventory-item-icons', 'cult-skill-icons', 'child-source', 'world-people']);
+      releaseSources(scene, ['child-source', 'world-people']);
     },
   );
-  if (map.id === 'vuong_gia_thon')
+  const child = usesChildSprite(player),
+    hero = heroFor(player).id;
+  group(
+    `directions:${hero}:${child ? 'child' : 'adult'}`,
+    () => image(directionalArt(hero, child), directionalAsset(hero, child)),
+    () => registerDirectionalHeroes(scene, [{ id: hero, child }]),
+  );
+  if (plan.combat && hero === 'wang_lam')
     group(
-      'village',
-      () => maps(VILLAGE_ATLASES),
-      () => registerVillageArt(scene),
+      'wang-combat',
+      () => {
+        for (const art of Object.values(WANG_EFFECT_ART)) image(`${art.texture}-source`, art.url);
+        image('wang-signature-icons-source', WANG_ICON_ATLAS);
+        image('wang-ritual-icons-source', WANG_RITUAL_ICON_ATLAS);
+        image('wang-gate-icon-source', WANG_GATE_ICON);
+      },
+      () => {
+        for (const art of Object.values(WANG_EFFECT_ART)) prepareWangEffect(scene, art);
+        for (const [key, ritual] of [
+          ['wang-signature-icons-source', false],
+          ['wang-ritual-icons-source', true],
+        ] as const) {
+          if (!scene.textures.exists(key)) continue;
+          registerWangIcons(scene.textures.get(key).getSourceImage() as HTMLImageElement, ritual);
+          scene.textures.remove(key);
+        }
+        if (scene.textures.exists('wang-gate-icon-source')) {
+          registerWangGateIcon(
+            scene.textures.get('wang-gate-icon-source').getSourceImage() as HTMLImageElement,
+          );
+          scene.textures.remove('wang-gate-icon-source');
+        }
+      },
+    );
+  if (village)
+    group(
+      'village-startup',
+      () => {
+        image(VILLAGE_STARTUP_TEXTURE, startup.urls.village);
+        maps(['village-dawn-v3']);
+      },
+      () => registerVillageStartup(scene),
     );
   else {
     group(
@@ -181,16 +202,33 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
         ),
       () => {
         registerExpansionArt(scene);
-        releaseSources(scene, ['mu-uyen-child', 'wanderers', 'spirit-companions', 'dungeon-bosses-v3']);
+        releaseSources(scene, [
+          'mu-uyen-child',
+          'wanderers',
+          'spirit-companions',
+          'dungeon-bosses-v3',
+        ]);
       },
     );
   }
+  if (village)
+    for (const page of startup.groundPages)
+      image(villageGroundTexture(page.key), (startup.urls as Record<string, string>)[page.key]);
   if (map.monsters.length || map.arena) {
-    const arts = mapMonsterArt(map), sheets = monsterSheets(new Set([...arts].filter(art => !scene.textures.exists(art))));
+    const arts = mapMonsterArt(map),
+      sheets = monsterSheets(new Set([...arts].filter((art) => !scene.textures.exists(art))));
     group(
       'items',
       () => {
         for (const [id, url] of Object.entries(ITEM_SPRITE_ASSETS)) image(`item-sprite-${id}`, url);
+        if (!scene.textures.exists('beast_snow')) {
+          scene.load.atlas(
+            'beast_snow',
+            optimizedAsset('/assets/sprites/beast-snow.png'),
+            '/assets/sprites/beast-snow.json',
+          );
+          count++;
+        }
       },
       () => {},
     );
@@ -208,14 +246,40 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
       },
     );
   }
-  const hero = heroFor(gameStore.getState().player).id;
-  if (!scene.textures.exists(spellTexture(hero)))
+  if (plan.combat && !scene.textures.exists(spellTexture(hero)))
     group(
       `spell:${hero}`,
       () => image(spellSource(hero), spellAsset(hero)),
       () => registerHeroSpells(scene),
     );
   return count;
+}
+
+function prepareWangEffect(scene: Phaser.Scene, art: WangEffectArt) {
+  const source = `${art.texture}-source`;
+  if (!scene.textures.exists(source) || scene.textures.exists(art.texture)) return;
+  const sheet = buildWangSheet(
+    art,
+    scene.textures.get(source).getSourceImage() as HTMLImageElement,
+  );
+  const texture = addStaticTexture(scene, art.texture, sheet)!;
+  const { frames, columns, cell } = wangSheetLayout(art);
+  for (let i = 0; i < frames; i++)
+    texture.add(i, 0, (i % columns) * cell, Math.floor(i / columns) * cell, cell, cell);
+  scene.textures.remove(source);
+}
+
+/** A visitor can cast a Wang spell even when this client's opening map never needed it. */
+export function ensureWangEffect(scene: Phaser.Scene, id: SkillId) {
+  const art = wangEffect(id);
+  if (!art) return Promise.resolve(false);
+  return ensureImage(
+    scene,
+    `${art.texture}-source`,
+    art.url,
+    () => scene.textures.exists(art.texture),
+    () => prepareWangEffect(scene, art),
+  );
 }
 
 export function finishMapAssets(scene: Phaser.Scene) {
@@ -225,16 +289,28 @@ export function finishMapAssets(scene: Phaser.Scene) {
     scene.registry.set(`art-ready:${id}`, true);
   }
   registerWorldStyle(scene);
-  const player = gameStore.getState().player, hero = heroFor(player).id, child = usesChildSprite(player);
+  const player = gameStore.getState().player,
+    hero = heroFor(player).id,
+    child = usesChildSprite(player);
   ensureDirectionalHero(scene, hero, child);
   const required = new Set<string>();
   if (!scene.textures.exists(directionalArt(hero, child))) required.add(playerArt(player.sex));
   const map = getMap(mapIds.get(scene) ?? gameStore.getState().mapId);
+  if (map.id === 'vuong_gia_thon') registerVillageStartup(scene);
   for (const npc of map.npcs) {
+    if (
+      map.id === 'vuong_gia_thon' &&
+      scene.textures.exists(VILLAGE_STARTUP_TEXTURE) &&
+      villageNpcFrame(npc.id)
+    )
+      continue;
     if (!scene.textures.exists(NPC_SPRITES[npc.id]?.texture ?? '')) required.add(NPCS[npc.id].art);
   }
   for (const art of mapMonsterArt(map)) required.add(art);
-  if (map.monsters.length || map.arena) { required.add('beast_snow'); required.add('beast_frost_king'); }
+  if (map.monsters.length || map.arena) {
+    required.add('beast_snow');
+    required.add('beast_frost_king');
+  }
   if (!scene.registry.get('art-ready:procedural')) {
     generateArt(scene, required);
     buildImmortalArt(scene);
@@ -242,6 +318,7 @@ export function finishMapAssets(scene: Phaser.Scene) {
   } else registerCharacterArt(scene, required);
   pending.delete(scene);
   mapIds.delete(scene);
+  clearStartupWarmCache();
 }
 
 /** Peers can arrive from any school; load that school's effects once on arrival. */

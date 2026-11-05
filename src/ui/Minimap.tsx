@@ -29,6 +29,7 @@ export function Minimap() {
   const mm = useGame((s) => s.minimap);
   const tile = useGame((s) => s.playerTile);
   const zone = useGame((s) => s.zone);
+  const covered = useGame((s) => s.menu !== null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const map = useMemo(() => getMap(mapId), [mapId]);
   const preview = useMapPreview(mapId);
@@ -49,6 +50,9 @@ export function Minimap() {
   }, [map]);
 
   useEffect(() => {
+    // Retain the last miniature while the modal covers it. The full map panel
+    // still receives live world state; closing the modal redraws immediately.
+    if (covered) return;
     const ctx = canvas.current?.getContext('2d');
     if (!ctx) return;
     ctx.setTransform(density, 0, 0, density, 0, 0);
@@ -109,7 +113,7 @@ export function Minimap() {
     mm.npcs.forEach((n) => dot(n.x, n.y, '#ffd84a', 3));
     dot(mm.player.x, mm.player.y, '#ffffff', 3.5);
     ctx.restore();
-  }, [mm, map, background, preview, density]);
+  }, [mm, map, background, preview, density, covered]);
 
   return (
     <div className="minimap">

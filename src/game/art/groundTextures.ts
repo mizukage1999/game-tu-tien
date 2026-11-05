@@ -1,10 +1,11 @@
 import type Phaser from 'phaser';
 import { addStaticTexture } from './staticTexture';
+import { GROUND_PREFIX } from '../../data/startupPlan';
 
-export const GROUND_PREFIX = 'ground:active';
-export function clearGroundTextures(scene: Phaser.Scene) {
+export { GROUND_PREFIX } from '../../data/startupPlan';
+export function clearGroundTextures(scene: Phaser.Scene, keep?: ReadonlySet<string>) {
   for (const key of Object.keys(scene.textures.list))
-    if (key.startsWith(GROUND_PREFIX)) scene.textures.remove(key);
+    if (key.startsWith(GROUND_PREFIX) && !keep?.has(key)) scene.textures.remove(key);
 }
 
 /** Small immutable pages avoid oversized GPU uploads and full-map RGBA readback. */
@@ -19,7 +20,7 @@ export function addGroundTextures(scene: Phaser.Scene, source: HTMLCanvasElement
       canvas.height = height + 2;
       // One texel of neighbouring ground keeps linear filtering seamless at zoomed edges.
       canvas
-        .getContext('2d')!
+        .getContext('2d', { willReadFrequently: true })!
         .drawImage(source, x - 1, y - 1, width + 2, height + 2, 0, 0, width + 2, height + 2);
       const key = `${GROUND_PREFIX}:${x}:${y}`,
         texture = addStaticTexture(scene, key, canvas)!;

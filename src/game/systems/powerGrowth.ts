@@ -17,6 +17,8 @@ export interface PowerGrowth {
 /** Compare actual character builds, ignoring HP/MP ticks, loot, EXP and loading another account. */
 export function powerGrowth(before: PlayerSave, after: PlayerSave): PowerGrowth | null {
   if (before.name !== after.name || heroFor(before).id !== heroFor(after).id) return null;
+  // The level-99 reward already has its receipt in Mail; do not open another notice.
+  if (before.level < 99 && after.level === 99) return null;
   if (
     before.level === after.level &&
     before.realmIndex === after.realmIndex &&

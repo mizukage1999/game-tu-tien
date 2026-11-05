@@ -9,7 +9,7 @@ import {
   type QuestRewards,
   type RarityId,
 } from '../../data';
-import { bossCatalog, bossTheme, BOSS_CATEGORIES, type BossCategory } from '../../data/bossCatalog';
+import { cachedBossCatalog, loadBossCatalog, bossTheme, BOSS_CATEGORIES, type BossCategory, type BossEntry } from '../../data/bossCatalog';
 import { dungeonVariant } from '../../data/dungeonCatalog';
 import { speciesForArt } from '../../data/bestiary';
 import { optimizedAsset } from '../../data/assetDelivery';
@@ -52,7 +52,7 @@ function Scenery({
 }) {
   if (map)
     return (
-      <img className="hunt-scenery hunt-world-art" src="/assets/ui/boss-hunt-world-v1.png" alt="" />
+      <img className="hunt-scenery hunt-world-art" src={optimizedAsset('/assets/ui/boss-hunt-world-v1.png')} alt="" />
     );
   return (
     <svg
@@ -61,7 +61,7 @@ function Scenery({
       preserveAspectRatio="xMaxYMid slice"
       aria-hidden="true"
     >
-      <image href="/assets/ui/boss-hunt-scenes-v1.png" width="2048" height="768" />
+      <image href={optimizedAsset('/assets/ui/boss-hunt-scenes-v1.png')} width="2048" height="768" />
     </svg>
   );
 }
@@ -143,6 +143,22 @@ function Health({ sighting }: { sighting: BossSighting }) {
   );
 }
 export function BossHuntPanel() {
+  const [catalog, setCatalog] = useState(cachedBossCatalog);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void loadBossCatalog().then(
+      (entries) => { if (active) setCatalog(entries); },
+      () => { if (active) setError(true); },
+    );
+    return () => { active = false; };
+  }, []);
+  if (!catalog) return <div className="hunt-empty" role="status" aria-busy={!error}>
+    {error ? 'Chưa tải được danh sách boss. Hãy đóng và mở lại.' : 'Đang dò khu vực săn boss…'}
+  </div>;
+  return <BossHuntContent catalog={catalog} />;
+}
+function BossHuntContent({ catalog }: { catalog: BossEntry[] }) {
   const player = useGame((s) => s.player),
     here = useGame((s) => s.mapId),
     quests = useGame((s) => s.quests),
@@ -151,8 +167,7 @@ export function BossHuntPanel() {
     tribulation = useGame((s) => s.tribulation),
     setMenu = useGame((s) => s.setMenu);
   const snapshot = useBossSightings();
-  const [catalog] = useState(bossCatalog),
-    [category, setCategory] = useState<BossCategory>('world'),
+  const [category, setCategory] = useState<BossCategory>('world'),
     [selectedKey, setSelectedKey] = useState(''),
     [tab, setTab] = useState('info'),
     [difficulty, setDifficulty] = useState<DifficultyId>('de'),

@@ -80,6 +80,10 @@ export class RemotePlayer {
   }
 
   update(dt: number) {
+    const authored = directionalArt(heroFor(this.state).id, !!this.state.child);
+    if (this.sprite.texture.key !== authored && this.sprite.scene.textures.exists(authored)) {
+      this.ctrl.destroy(); this.sprite.setTexture(authored); this.ctrl = new AnimationController(this.sprite, authored);
+    }
     // Interpolation stays in map space; only the drawn position is projected.
     this.map = stepToward(this.map, this.target, dt);
     const spot = iso(this.map.x, this.map.y);

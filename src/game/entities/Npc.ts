@@ -6,6 +6,7 @@ import { NPC_SPRITES } from '../systems/npcArt';
 import { availableQuests, turnInQuests, type QuestLog } from '../systems/quest';
 import type { WorldScene } from '../scenes/WorldScene';
 import { visibleVerticalBounds } from '../art/visibleBounds';
+import { villageNpcFrame, villageNpcBounds, VILLAGE_STARTUP_TEXTURE } from '../art/villageStartup';
 
 const npcBounds = new Map<string, {top:number;bottom:number}>();
 
@@ -26,16 +27,19 @@ export class Npc extends Phaser.GameObjects.Sprite {
     y: number,
   ) {
     const def = NPCS[npcId];
-    const art = NPC_SPRITES[npcId]?.texture;
+    const sprite = NPC_SPRITES[npcId];
+    const packed=world.map.id==='vuong_gia_thon'&&world.textures.exists(VILLAGE_STARTUP_TEXTURE)?villageNpcFrame(npcId):undefined;
+    const art = packed?VILLAGE_STARTUP_TEXTURE:sprite?.texture;
     const useAtlasArt = !!art && world.textures.exists(art);
-    super(world, x, y, useAtlasArt ? art : def.art);
+    const visualHeight = npcId === 'a_moc' ? 78 : 118;
+    super(world, x, y, useAtlasArt ? art : def.art, packed);
     this.def = def;
     this.map = { x, y };
     world.add.existing(this);
     const spot = iso(x, y);
     this.setPosition(spot.x, spot.y);
     if (useAtlasArt) {
-      let bounds = npcBounds.get(art);
+      let bounds = (packed?villageNpcBounds(npcId):sprite?.visibleBounds) ?? npcBounds.get(art);
       if (!bounds) {
         const canvas = document.createElement('canvas');
         canvas.width = this.width; canvas.height = this.height;
@@ -45,14 +49,14 @@ export class Npc extends Phaser.GameObjects.Sprite {
         bounds = visibleVerticalBounds(ctx.getImageData(0,0,this.width,this.height).data,this.width,this.height);
         npcBounds.set(art,bounds);
       }
-      this.setOrigin(0.5, (bounds.bottom + 1) / this.height).setScale(118 / (bounds.bottom - bounds.top + 1));
+      this.setOrigin(0.5, (bounds.bottom + 1) / this.height).setScale(visualHeight / (bounds.bottom - bounds.top + 1));
     } else {
       const ctrl = new AnimationController(this, def.art);
       ctrl.play('idle', 'down');
       this.anims.setProgress(Math.random());
     }
     this.setDepth(spot.y);
-    const labelY = spot.y - (useAtlasArt ? 128 : Math.max(104, this.displayHeight + 12));
+    const labelY = spot.y - (useAtlasArt ? visualHeight + 10 : Math.max(104, this.displayHeight + 12));
     const markerY = labelY - 34;
 
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);

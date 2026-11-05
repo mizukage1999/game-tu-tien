@@ -60,7 +60,7 @@ it('previews locked realms without changing the player or spending materials', (
   expect(host.querySelector('.training-details h3')?.textContent).toContain('Toái Niết');
   expect(host.querySelector('.training-scene-label')?.textContent).toContain('XEM TRƯỚC');
   expect(gameStore.getState().player).toBe(before);
-  expect(host.querySelector('image')?.getAttribute('href')).toBe(
-    '/assets/ui/cultivation/meditating-heroes-v2.png',
+  expect(host.querySelector('image')?.getAttribute('href')).toMatch(
+    /^\/assets\/optimized\/ui-cultivation-meditating-heroes-v2\.[a-f0-9]{12}\.webp$/,
   );
 });

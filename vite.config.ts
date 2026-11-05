@@ -1,10 +1,27 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import variants from './src/data/optimizedAssets.json';
 
 export default defineConfig({
   plugins: [
     react(),
+    {
+      name: 'optimized-css-artwork',
+      enforce: 'pre',
+      transform(code, id) {
+        if (!id.split('?')[0].endsWith('.css') || !code.includes('/assets/')) return;
+        // CSS backgrounds bypass the JS optimizedAsset helper. Resolve them
+        // before Vite processes URLs, in both development and production.
+        const images = variants as Record<string, string>;
+        const optimized = code.replace(
+          /url\(\s*(['"]?)(\/assets\/[^\s'"()]+)\1\s*\)/g,
+          (match, _quote: string, url: string) =>
+            images[url] ? `url('${images[url]}')` : match,
+        );
+        return optimized === code ? undefined : { code: optimized, map: null };
+      },
+    },
     {
       name: 'verify-admin-engine-isolation',
       generateBundle(_options, bundle) {

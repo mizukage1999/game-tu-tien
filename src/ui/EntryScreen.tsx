@@ -1,12 +1,20 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { optimizedAsset } from '../data/assetDelivery';
 import { getMap } from '../game/maps';
 import { heroName, isChildhood } from '../game/systems/origin';
 import { realmNameAtLevel } from '../game/systems/progression';
 import { useGame } from '../store/gameStore';
+import { heroFor } from '../data/heroes';
+import { usesChildSprite } from '../game/systems/origin';
+import { warmImage, warmVillageStartup } from '../game/art/startupCache';
 import './entry-screen.css';
 
 export function EntryScreen({ children, kind = '' }: { children: ReactNode; kind?: string }) {
+  useEffect(() => {
+    // One shared backdrop, fetched at low priority while choosing a character.
+    // It never gates entry and reuses the same URL as the menu stylesheet.
+    void warmImage('/assets/ui/cultivation/ui-night-v1.png');
+  }, []);
   return (
     <main className={`entry-screen entry-${kind}`} style={{ backgroundImage: `url('${optimizedAsset('/assets/ui/login-v5.png')}')` }}>
       <div className="entry-vignette" aria-hidden="true" />
@@ -40,6 +48,10 @@ export function StartScreen({ onStart }: { onStart: () => void }) {
   const player = useGame((s) => s.player),
     mapId = useGame((s) => s.mapId);
   const map = getMap(mapId);
+  const hero = heroFor(player).id, child = usesChildSprite(player);
+  useEffect(() => {
+    if(mapId==='vuong_gia_thon')void warmVillageStartup(hero,child);
+  },[mapId,hero,child]);
   return (
     <EntryScreen kind="welcome">
       <section className="entry-card entry-resume" aria-label="Tiếp tục hành trình">

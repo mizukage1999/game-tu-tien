@@ -19,6 +19,7 @@ import {
 import { EquipGlyph, CultHeading, CultMeter, CultLock } from './CultivationUI';
 import { childProfileUrl } from '../../game/art/skillIcons';
 import { HeroFigure, HeroDirectionalPose } from '../HeroArt';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 const SLOT_SYMBOLS: Record<EquipSlot, string> = {
   weapon: '⚔',
@@ -110,8 +111,8 @@ export function CharacterPanel() {
     (id) => (p.inventory[id] ?? 0) > 0 && ITEMS[id]?.slot === selectedSlot,
   );
   const paperdoll = child
-    ? childProfileUrl(p.sex ?? 'female')
-    : `/assets/ui/cultivation/${p.sex === 'male' ? 'wang' : 'li'}-full-v1.png`;
+    ? childProfileUrl(p.sex ?? 'female', p.heroId)
+    : optimizedAsset(`/assets/ui/cultivation/${p.sex === 'male' ? 'wang' : 'li'}-full-v1.png`);
   const selectSlot = (slot: EquipSlot) => {
     setSelectedSlot(slot);
     setTab('equipment');

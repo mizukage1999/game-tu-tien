@@ -1,0 +1,592 @@
+{
+  "size": 128,
+  "quality": 0.95,
+  "sources": [
+    {
+      "source": "/assets/skills-schools-v1/wang_lam.png",
+      "sha256": "9dab642ad94e8c07ad0ebaafc49c0707ebbfad0c7ae1940c44a885ac0a0e4121"
+    },
+    {
+      "source": "/assets/skills-schools-v2/ly_mo_uyen.png",
+      "sha256": "def21b8f0f9cf97628da450a212e550038006f341f3834c98fbacfc049fdb507"
+    },
+    {
+      "source": "/assets/skills-schools-v2/tham_nguyet.png",
+      "sha256": "d9b80ac9c7afc6fc623ac344b8527d50faca107e1f7929b4a1716fdf7f244595"
+    },
+    {
+      "source": "/assets/skills-schools-v2/so_thien.png",
+      "sha256": "9a15b586357bdb761c95ef4ff3d3190fabee666212e313cb58facee3263ad513"
+    },
+    {
+      "source": "/assets/skills-schools-v2/hong_lien.png",
+      "sha256": "602d521dc09632e4cad7300d0460ef56c0fa0155d50be0a5e2639173b3592b36"
+    },
+    {
+      "source": "/assets/skills-schools-v2/vu_minh.png",
+      "sha256": "1cc27cbe36e937d61ca34a6e8a255914f540771f4396514fd35731e569d903a1"
+    },
+    {
+      "source": "/assets/skills-schools-v2/quan_vo_tran.png",
+      "sha256": "5598336f877cf96c4c67e33a9b8e309ec7ffac0b7f83b05ccf9cc9d040dcbdd0"
+    },
+    {
+      "source": "/assets/skills-schools-v2/diep_ly.png",
+      "sha256": "b6bf2fff16ee18b4d6bd28f0a8c79f5902c718f5b3e9ff9cbeba1621ea1b4ede"
+    },
+    {
+      "source": "/assets/skills/wang-signature-icons-v2.png",
+      "sha256": "b6792af043411361c8b39504da36233683ce8eec649acd2634d9c5cc4e176b97"
+    },
+    {
+      "source": "/assets/skills/wang-hoang-tuyen-icon-v3.png",
+      "sha256": "cde8774ff43bedcfb9d365b0172d3d5cd76109ad42c9782ec395646c3e51582a"
+    },
+    {
+      "source": "/assets/skills/wang-ritual-icons-v1.png",
+      "sha256": "94f40dcaf70be3502c7e5bab2bd4d965f41ae4f411e1eb4234d0c3b86e893a71"
+    }
+  ],
+  "layoutSources": [
+    {
+      "source": "src/data/heroSkills.ts",
+      "sha256": "ba563aede26646005d0f3590aead294c409f6a08ff6b1ca4af67d98baa972b6b"
+    },
+    {
+      "source": "src/data/heroSpellArt.ts",
+      "sha256": "3c1f35999b586a3cdedf323944a1914540bb13e0fd06ec84b8540d288a8d2da2"
+    },
+    {
+      "source": "src/data/skillCatalog.ts",
+      "sha256": "ffec491f3a70744195c7469c22761d307448073b04d8fc9ae9aab06fd6daa536"
+    },
+    {
+      "source": "src/data/wangSkills.ts",
+      "sha256": "05ca2815e9fb63ff2c581469a8214c1b193dfb29b775d19601e2ea6ed20fcfcd"
+    }
+  ],
+  "files": [
+    {
+      "id": "wang_lam_1",
+      "output": "/assets/optimized/menu-skill-wang_lam_1.171b4f6af12a.webp",
+      "bytes": 14132,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_2",
+      "output": "/assets/optimized/menu-skill-wang_lam_2.28a4c6ebf62c.webp",
+      "bytes": 10914,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_3",
+      "output": "/assets/optimized/menu-skill-wang_lam_3.e3a57507fa26.webp",
+      "bytes": 16076,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_4",
+      "output": "/assets/optimized/menu-skill-wang_lam_4.6a0f99ddabb6.webp",
+      "bytes": 14744,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_5",
+      "output": "/assets/optimized/menu-skill-wang_lam_5.3bd6027d01ef.webp",
+      "bytes": 15130,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_6",
+      "output": "/assets/optimized/menu-skill-wang_lam_6.568a31b9b692.webp",
+      "bytes": 16192,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_7",
+      "output": "/assets/optimized/menu-skill-wang_lam_7.448894faa8ff.webp",
+      "bytes": 12700,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_8",
+      "output": "/assets/optimized/menu-skill-wang_lam_8.c896aeada082.webp",
+      "bytes": 16992,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_9",
+      "output": "/assets/optimized/menu-skill-wang_lam_9.6754c3010d73.webp",
+      "bytes": 17590,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "wang_lam_10",
+      "output": "/assets/optimized/menu-skill-wang_lam_10.30c61f7d079a.webp",
+      "bytes": 16840,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_1",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_1.5eda1e039e60.webp",
+      "bytes": 9960,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_2",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_2.6d4fcda04019.webp",
+      "bytes": 13360,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_3",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_3.1628ced74faf.webp",
+      "bytes": 13420,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_4",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_4.2e316079843b.webp",
+      "bytes": 14490,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_5",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_5.8c7f3000a047.webp",
+      "bytes": 14792,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_6",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_6.e02bfc91c2f1.webp",
+      "bytes": 13972,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_7",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_7.3a90950f955b.webp",
+      "bytes": 14306,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_8",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_8.b0bf0d72c335.webp",
+      "bytes": 13584,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_9",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_9.df90aff3e14c.webp",
+      "bytes": 14140,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "ly_mo_uyen_10",
+      "output": "/assets/optimized/menu-skill-ly_mo_uyen_10.c7d0a3387f4a.webp",
+      "bytes": 12862,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_1",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_1.cfa4a873d219.webp",
+      "bytes": 11194,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_2",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_2.063444b5ccee.webp",
+      "bytes": 14680,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_3",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_3.8fd8310c90fe.webp",
+      "bytes": 16758,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_4",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_4.8194f97cb4e0.webp",
+      "bytes": 15902,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_5",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_5.736fb85d2c08.webp",
+      "bytes": 15928,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_6",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_6.44d0cc14e8c6.webp",
+      "bytes": 17344,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_7",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_7.68cf8ce70dd9.webp",
+      "bytes": 15280,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_8",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_8.242561fc632f.webp",
+      "bytes": 15724,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_9",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_9.02186ffefa5a.webp",
+      "bytes": 16446,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tham_nguyet_10",
+      "output": "/assets/optimized/menu-skill-tham_nguyet_10.0a8fd25971c8.webp",
+      "bytes": 15056,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_1",
+      "output": "/assets/optimized/menu-skill-so_thien_1.7c72f19159e4.webp",
+      "bytes": 13294,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_2",
+      "output": "/assets/optimized/menu-skill-so_thien_2.10f31b7b3866.webp",
+      "bytes": 15848,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_3",
+      "output": "/assets/optimized/menu-skill-so_thien_3.c9b205d626fd.webp",
+      "bytes": 16534,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_4",
+      "output": "/assets/optimized/menu-skill-so_thien_4.0a326c40b2a1.webp",
+      "bytes": 14954,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_5",
+      "output": "/assets/optimized/menu-skill-so_thien_5.2d06ecd529e6.webp",
+      "bytes": 15586,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_6",
+      "output": "/assets/optimized/menu-skill-so_thien_6.df20a7510e4f.webp",
+      "bytes": 14484,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_7",
+      "output": "/assets/optimized/menu-skill-so_thien_7.92772c612c4a.webp",
+      "bytes": 15620,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_8",
+      "output": "/assets/optimized/menu-skill-so_thien_8.4b7ffb1bc0c7.webp",
+      "bytes": 16012,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_9",
+      "output": "/assets/optimized/menu-skill-so_thien_9.afd4ba39ef4c.webp",
+      "bytes": 15284,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "so_thien_10",
+      "output": "/assets/optimized/menu-skill-so_thien_10.c3b7125381e5.webp",
+      "bytes": 15084,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_1",
+      "output": "/assets/optimized/menu-skill-hong_lien_1.7eb224daab8c.webp",
+      "bytes": 9844,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_2",
+      "output": "/assets/optimized/menu-skill-hong_lien_2.47b7250fd905.webp",
+      "bytes": 14456,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_3",
+      "output": "/assets/optimized/menu-skill-hong_lien_3.95abd22dd89b.webp",
+      "bytes": 15822,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_4",
+      "output": "/assets/optimized/menu-skill-hong_lien_4.df2cd0fe5213.webp",
+      "bytes": 16068,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_5",
+      "output": "/assets/optimized/menu-skill-hong_lien_5.86c5736b74e2.webp",
+      "bytes": 16552,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_6",
+      "output": "/assets/optimized/menu-skill-hong_lien_6.7e1a9276185f.webp",
+      "bytes": 12622,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_7",
+      "output": "/assets/optimized/menu-skill-hong_lien_7.c3c2095fa158.webp",
+      "bytes": 15138,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_8",
+      "output": "/assets/optimized/menu-skill-hong_lien_8.1e12aaf1c860.webp",
+      "bytes": 16464,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_9",
+      "output": "/assets/optimized/menu-skill-hong_lien_9.fdb2c178fb1e.webp",
+      "bytes": 15176,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hong_lien_10",
+      "output": "/assets/optimized/menu-skill-hong_lien_10.ce8d312ae996.webp",
+      "bytes": 13094,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_1",
+      "output": "/assets/optimized/menu-skill-vu_minh_1.18b0ed866592.webp",
+      "bytes": 13150,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_2",
+      "output": "/assets/optimized/menu-skill-vu_minh_2.d84e59f70b2a.webp",
+      "bytes": 16332,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_3",
+      "output": "/assets/optimized/menu-skill-vu_minh_3.b73fcb96396a.webp",
+      "bytes": 15056,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_4",
+      "output": "/assets/optimized/menu-skill-vu_minh_4.7fb0579d7b23.webp",
+      "bytes": 15152,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_5",
+      "output": "/assets/optimized/menu-skill-vu_minh_5.ebac445b7da8.webp",
+      "bytes": 13744,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_6",
+      "output": "/assets/optimized/menu-skill-vu_minh_6.012700342d20.webp",
+      "bytes": 14018,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_7",
+      "output": "/assets/optimized/menu-skill-vu_minh_7.a3345d808fc7.webp",
+      "bytes": 14598,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_8",
+      "output": "/assets/optimized/menu-skill-vu_minh_8.d6c5e7b86576.webp",
+      "bytes": 15270,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_9",
+      "output": "/assets/optimized/menu-skill-vu_minh_9.037f7f4b2535.webp",
+      "bytes": 14202,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "vu_minh_10",
+      "output": "/assets/optimized/menu-skill-vu_minh_10.ab90001c11ee.webp",
+      "bytes": 15344,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_1",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_1.59c57f327ffa.webp",
+      "bytes": 13394,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_2",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_2.d524e6c94983.webp",
+      "bytes": 12592,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_3",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_3.4877c1ddc7ed.webp",
+      "bytes": 13858,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_4",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_4.0bcbdca34b14.webp",
+      "bytes": 13676,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_5",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_5.6275cf9e6dff.webp",
+      "bytes": 14492,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_6",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_6.4ea16c179d0a.webp",
+      "bytes": 13850,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_7",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_7.684aa0c6c3a7.webp",
+      "bytes": 13252,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_8",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_8.a76798e926ad.webp",
+      "bytes": 14426,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_9",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_9.33236482ccda.webp",
+      "bytes": 13620,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "quan_vo_tran_10",
+      "output": "/assets/optimized/menu-skill-quan_vo_tran_10.dbf18e00207d.webp",
+      "bytes": 14618,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_1",
+      "output": "/assets/optimized/menu-skill-diep_ly_1.042f6e2faafb.webp",
+      "bytes": 14062,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_2",
+      "output": "/assets/optimized/menu-skill-diep_ly_2.5b7fc5ebe84b.webp",
+      "bytes": 15764,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_3",
+      "output": "/assets/optimized/menu-skill-diep_ly_3.590bf7f6259f.webp",
+      "bytes": 16240,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_4",
+      "output": "/assets/optimized/menu-skill-diep_ly_4.453a2f0ef159.webp",
+      "bytes": 13952,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_5",
+      "output": "/assets/optimized/menu-skill-diep_ly_5.489f6e83ebfd.webp",
+      "bytes": 13592,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_6",
+      "output": "/assets/optimized/menu-skill-diep_ly_6.d88fb83004a5.webp",
+      "bytes": 14236,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_7",
+      "output": "/assets/optimized/menu-skill-diep_ly_7.41683d1e312f.webp",
+      "bytes": 14460,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_8",
+      "output": "/assets/optimized/menu-skill-diep_ly_8.4568fccf2f9b.webp",
+      "bytes": 13834,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_9",
+      "output": "/assets/optimized/menu-skill-diep_ly_9.3f4113209e50.webp",
+      "bytes": 13398,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "diep_ly_10",
+      "output": "/assets/optimized/menu-skill-diep_ly_10.e349760137b5.webp",
+      "bytes": 14708,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "hoa_ma_chi",
+      "output": "/assets/optimized/menu-skill-hoa_ma_chi.047fc0555172.webp",
+      "bytes": 13272,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "dao_hoa_hoang_tuyen",
+      "output": "/assets/optimized/menu-skill-dao_hoa_hoang_tuyen.b9eba73e91c2.webp",
+      "bytes": 12252,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tich_diet_chi",
+      "output": "/assets/optimized/menu-skill-tich_diet_chi.bb546e1d98a8.webp",
+      "bytes": 10794,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "tram_la_quyet",
+      "output": "/assets/optimized/menu-skill-tram_la_quyet.e38da740e441.webp",
+      "bytes": 13862,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "dich_linh_an",
+      "output": "/assets/optimized/menu-skill-dich_linh_an.6e77c6baae4e.webp",
+      "bytes": 11242,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "dinh_than_thuat",
+      "output": "/assets/optimized/menu-skill-dinh_than_thuat.f0eadf8fa7d4.webp",
+      "bytes": 13602,
+      "maxAlphaDifference": 0
+    },
+    {
+      "id": "luyen_hon_thuat",
+      "output": "/assets/optimized/menu-skill-luyen_hon_thuat.b1360926e9be.webp",
+      "bytes": 12640,
+      "maxAlphaDifference": 0
+    }
+  ]
+}

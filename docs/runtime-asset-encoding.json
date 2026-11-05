@@ -455,76 +455,6 @@
       "sourceSha256": "aca951ebcfc94b25c1980e1b4e605fdd3ec3cd810efd3cb516231e551e61309c"
     },
     {
-      "source": "/assets/skills-schools-v1/diep_ly.png",
-      "output": "/assets/optimized/skills-schools-v1-diep_ly.96132b2fd5f4.webp",
-      "originalBytes": 2538569,
-      "encodedBytes": 1084418,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "fb4587a26e30c7ae189a56b3b0ca8a6102544b97dd931a9e7b244f58f8a9547d"
-    },
-    {
-      "source": "/assets/skills-schools-v1/hong_lien.png",
-      "output": "/assets/optimized/skills-schools-v1-hong_lien.ef2ff8148914.webp",
-      "originalBytes": 2783020,
-      "encodedBytes": 1094316,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "52e53723706f5a70918efe0ea109c8942be5b56508da6bfd989ce464611fe042"
-    },
-    {
-      "source": "/assets/skills-schools-v1/ly_mo_uyen.png",
-      "output": "/assets/optimized/skills-schools-v1-ly_mo_uyen.3b86b82e5498.webp",
-      "originalBytes": 2671208,
-      "encodedBytes": 1009174,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "9b71b43463374c83c48dd787820d234c2afe7319769f9782cd8cc06338df6c6d"
-    },
-    {
-      "source": "/assets/skills-schools-v1/quan_vo_tran.png",
-      "output": "/assets/optimized/skills-schools-v1-quan_vo_tran.141cf2e3a725.webp",
-      "originalBytes": 2829667,
-      "encodedBytes": 1033538,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "2844a38da60acd8e51a313de7a48ec62e792da296ea2208dd542099d23f42f5c"
-    },
-    {
-      "source": "/assets/skills-schools-v1/so_thien.png",
-      "output": "/assets/optimized/skills-schools-v1-so_thien.3e106028d7dc.webp",
-      "originalBytes": 2672957,
-      "encodedBytes": 1033756,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "5b453a28e5701b7e9c81f1cc5c1bcc2977afcb2d80852b752c30e95a8b1d813f"
-    },
-    {
-      "source": "/assets/skills-schools-v1/tham_nguyet.png",
-      "output": "/assets/optimized/skills-schools-v1-tham_nguyet.beff05f0d5e6.webp",
-      "originalBytes": 2777043,
-      "encodedBytes": 1123064,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "4fc0de66fd684ef6d58e84f8edb4394665297a0aa3ca7082e1ff790eb654bb1b"
-    },
-    {
-      "source": "/assets/skills-schools-v1/vu_minh.png",
-      "output": "/assets/optimized/skills-schools-v1-vu_minh.8c7324e622e4.webp",
-      "originalBytes": 2930235,
-      "encodedBytes": 1100434,
-      "width": 1024,
-      "height": 1536,
-      "maxAlphaDifference": 0,
-      "sourceSha256": "cda0d46e994457be9e7d32e85ef06cc3862b3193295d8573077becfd0f4c590c"
-    },
-    {
       "source": "/assets/skills-schools-v1/wang_lam.png",
       "output": "/assets/optimized/skills-schools-v1-wang_lam.4bb42e613239.webp",
       "originalBytes": 2684766,
@@ -862,6 +792,236 @@
       "encodedBytes": 326986,
       "width": 1536,
       "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/inspect-companions-v1.png",
+      "output": "/assets/optimized/ui-cultivation-inspect-companions-v1.7f57cea87933.webp",
+      "originalBytes": 2636205,
+      "sourceSha256": "ac3a5d265f34a0d224ce242c991a15926fd735aa4a190d4708091eb49ad5d3e9",
+      "encodedBytes": 802950,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/inspect-terrace-v1.png",
+      "output": "/assets/optimized/ui-cultivation-inspect-terrace-v1.30845c8414a6.webp",
+      "originalBytes": 2318627,
+      "sourceSha256": "072d0add1d5eae90ce032766bfe2d9a9259b10aa20788ab7f7f68149c81c48b0",
+      "encodedBytes": 295756,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/li-full-v1.png",
+      "output": "/assets/optimized/ui-cultivation-li-full-v1.2cd0b2112aa7.webp",
+      "originalBytes": 2781206,
+      "sourceSha256": "6f02114e727281eeef67a239ac61ee808b028e7e0d380259fb4c9dca4c9ebf22",
+      "encodedBytes": 711368,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/mail-parchment-v1.png",
+      "output": "/assets/optimized/ui-cultivation-mail-parchment-v1.07e3e8d0ef6a.webp",
+      "originalBytes": 2803243,
+      "sourceSha256": "da720951ecad695963b3b5dc7b2bdec963c50f20f099513be9c986816d3eca0a",
+      "encodedBytes": 405522,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/meditating-heroes-v2.png",
+      "output": "/assets/optimized/ui-cultivation-meditating-heroes-v2.95e424cfed3b.webp",
+      "originalBytes": 3294391,
+      "sourceSha256": "4d766284f485af1c990c8abc5d86b4447ebe26aa6ab36c7d2a1fe95476116fa8",
+      "encodedBytes": 921652,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/quest-scenes-v1.png",
+      "output": "/assets/optimized/ui-cultivation-quest-scenes-v1.6969b7aea821.webp",
+      "originalBytes": 3857816,
+      "sourceSha256": "3f9aab152fd2654b937b2e9beeeed85bf8f46492eaa000fe8d5424d5b76559eb",
+      "encodedBytes": 817390,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/sect-mountain-v1.png",
+      "output": "/assets/optimized/ui-cultivation-sect-mountain-v1.ce7cf545800b.webp",
+      "originalBytes": 3061882,
+      "sourceSha256": "903bfb0c598ac3b4ba5dac32cc063aaf69a30fd72b98f0b93c8efa569e146e9f",
+      "encodedBytes": 556658,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/settings-night-v1.png",
+      "output": "/assets/optimized/ui-cultivation-settings-night-v1.8f5c56b5f8f1.webp",
+      "originalBytes": 2159064,
+      "sourceSha256": "4924a0b349702f029bc2f83448f1e528c5013add75bf153ad1684fe7298e9636",
+      "encodedBytes": 240884,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/skill-icons-v1.png",
+      "output": "/assets/optimized/ui-cultivation-skill-icons-v1.8acbfc5433b8.webp",
+      "originalBytes": 2883300,
+      "sourceSha256": "500c8ce254e85d04f212db8a4828f5d622e2ac37ba4036f98909c44acc570fff",
+      "encodedBytes": 530740,
+      "width": 1619,
+      "height": 971,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/training-courtyard-v2.png",
+      "output": "/assets/optimized/ui-cultivation-training-courtyard-v2.ee2bec05a5ad.webp",
+      "originalBytes": 3208649,
+      "sourceSha256": "9f2aa5e428dfe6529fba20d3f1653759acb32645822101236519e6fab5388bae",
+      "encodedBytes": 592854,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/ui-night-v1.png",
+      "output": "/assets/optimized/ui-cultivation-ui-night-v1.0758743a3cbb.webp",
+      "originalBytes": 2262537,
+      "sourceSha256": "a628f6bf104a8f0276fbbf5db625687f56af113ca6cd0f7fa7308dcc99742b11",
+      "encodedBytes": 305664,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/cultivation/wang-full-v1.png",
+      "output": "/assets/optimized/ui-cultivation-wang-full-v1.f36f24d03446.webp",
+      "originalBytes": 3016141,
+      "sourceSha256": "6f05fc3751ebdead169156c3c74287e3049fd425b185681e3efc96f518de17ea",
+      "encodedBytes": 673364,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/journey/alchemy-room-v2.png",
+      "output": "/assets/optimized/journey-alchemy-room-v2.76334d5190b2.webp",
+      "originalBytes": 2846051,
+      "sourceSha256": "46aeb30e4ef2f5c362ceb587645eda7b46fd3107b56af4f5ce522046fc4ea37c",
+      "encodedBytes": 528460,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/journey/alchemy.png",
+      "output": "/assets/optimized/journey-alchemy.28854559292e.webp",
+      "originalBytes": 2482883,
+      "sourceSha256": "0880c5e53f42c522c57907f3067bc10657fd5622addcde1d076d18b9d08a63b6",
+      "encodedBytes": 406758,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/journey/home.png",
+      "output": "/assets/optimized/journey-home.a336e8d568ed.webp",
+      "originalBytes": 2617351,
+      "sourceSha256": "9dae2adb9b795a018deb2fb60af51882e994e27ff185e142bc70489778e0536f",
+      "encodedBytes": 397216,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/journey/journey-road-v2.png",
+      "output": "/assets/optimized/journey-journey-road-v2.5e4142a5b639.webp",
+      "originalBytes": 3452360,
+      "sourceSha256": "10599c73d83ea57c8970b7dca08adf6314bdb76c8e92f9868007ab4493cb4a89",
+      "encodedBytes": 673368,
+      "width": 1254,
+      "height": 1254,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/journey/mounts.png",
+      "output": "/assets/optimized/journey-mounts.4cf46af3ec98.webp",
+      "originalBytes": 2450294,
+      "sourceSha256": "084ffd5a7388795c5cb19458bbddbc83a2e3f7085dba2318a0a3fd8cd15befe5",
+      "encodedBytes": 357556,
+      "width": 2172,
+      "height": 724,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/market-night-v1.png",
+      "output": "/assets/optimized/ui-market-night-v1.90a917a8b067.webp",
+      "originalBytes": 3040919,
+      "sourceSha256": "f1612643e28f5c61482020ec53ea0974559ce24f9e25ba22db7f52d4fd09d092",
+      "encodedBytes": 565578,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/premium-sanctum-v1.png",
+      "output": "/assets/optimized/ui-premium-sanctum-v1.d9ae0d3f0ccb.webp",
+      "originalBytes": 2623976,
+      "sourceSha256": "faa253de10decda5a39b27867c87fc55fb66c5c54df206f3de15532fdbec6530",
+      "encodedBytes": 404064,
+      "width": 1536,
+      "height": 1024,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/premium-bundles-v1.png",
+      "output": "/assets/optimized/ui-premium-bundles-v1.27b5cf48f944.webp",
+      "originalBytes": 3078442,
+      "sourceSha256": "54f4cde06c2bc2e9d7dc97b7c59a9d035f5ba3c6e3739603d7fdf19f136a2f19",
+      "encodedBytes": 737618,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/boss-hunt-world-v1.png",
+      "output": "/assets/optimized/ui-boss-hunt-world-v1.97001eb8d30d.webp",
+      "originalBytes": 3321842,
+      "sourceSha256": "b3eeb21ab0f9603c66b661b3b603a7a95abddef719a137dc1af42561031fdac6",
+      "encodedBytes": 617584,
+      "width": 1024,
+      "height": 1536,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/boss-hunt-scenes-v1.png",
+      "output": "/assets/optimized/ui-boss-hunt-scenes-v1.23a509983a95.webp",
+      "originalBytes": 3384118,
+      "sourceSha256": "5c67ac5cbd7b791c0a1fa748d20c38a99a52eb2d02aed6bef815a29c9afb8381",
+      "encodedBytes": 641350,
+      "width": 2048,
+      "height": 768,
+      "maxAlphaDifference": 0
+    },
+    {
+      "source": "/assets/ui/dungeon-environments-v1.png",
+      "output": "/assets/optimized/ui-dungeon-environments-v1.f2ea677d7982.webp",
+      "originalBytes": 3123565,
+      "sourceSha256": "7d9010368945c02526af669de2c445c5b8964095e6f8749b2757110826158388",
+      "encodedBytes": 591762,
+      "width": 1254,
+      "height": 1254,
       "maxAlphaDifference": 0
     }
   ]

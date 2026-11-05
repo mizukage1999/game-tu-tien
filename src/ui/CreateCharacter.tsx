@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { NAME_MIN, NAME_MAX, normalizeName } from '../game/systems/character';
 import { createCharacter } from '../store/gameStore';
 import { HEROES, heroFor, type HeroId } from '../data/heroes';
@@ -9,6 +9,7 @@ import { WangSkillGlyph } from './WangSkillArt';
 import './character-select.css';
 import { claimCharacterName } from '../net/characterName';
 import { optimizedAsset } from '../data/assetDelivery';
+import { warmVillageStartup } from '../game/art/startupCache';
 
 function Radar({ values }: { values: readonly number[] }) {
   const point = (i: number, radius: number) =>
@@ -60,6 +61,7 @@ function Radar({ values }: { values: readonly number[] }) {
 
 export function CreateCharacter({ onDone }: { onDone: () => void }) {
   const [selected, setSelected] = useState<HeroId>('wang_lam');
+  useEffect(() => { void warmVillageStartup(selected, true); }, [selected]);
   const [filter, setFilter] = useState('all');
   const [name, setName] = useState('');
   const [error, setError] = useState('');

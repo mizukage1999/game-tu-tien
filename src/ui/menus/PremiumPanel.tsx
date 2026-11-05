@@ -11,6 +11,7 @@ import {
 } from '../../net/premium';
 import { CultHeading } from './CultivationUI';
 import './premium.css';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 type Page = 'overview' | 'topup' | 'shop' | 'history' | 'earn';
 const PAGES = [
@@ -41,7 +42,7 @@ export function JadeBundle({ index, className = '' }: { index: number; className
       </defs>
       <image
         clipPath={`url(#${clip})`}
-        href="/assets/ui/premium-bundles-v1.png"
+        href={optimizedAsset('/assets/ui/premium-bundles-v1.png')}
         width="1024"
         height="1536"
       />

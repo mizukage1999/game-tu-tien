@@ -5,7 +5,7 @@ import { wangEffect, wangVisual, type WangVisualOptions } from '../../data/wangS
 import type { SkillId } from '../../data';
 import { heroSpell, spellVisualId } from '../../data/heroSkills';
 import type { HeroId } from '../../data/heroes';
-import { ensureHeroSpell } from '../art/runtimeAssets';
+import { ensureHeroSpell, ensureWangEffect } from '../art/runtimeAssets';
 import { performanceStore } from '../../store/performanceStore';
 import { spellFrame, spellTexture } from '../../data/heroSpellArt';
 import { effectVisible, SPELL_VISUAL_LIMIT } from '../systems/visualBudget';
@@ -90,7 +90,15 @@ export class SkillVfx {
 
   signature(id: SkillId, from: Vec2, facing: Vec2, range: number, options: WangVisualOptions = {}) {
     const art = wangEffect(id);
-    if (!art || !this.visible(from, range) || !this.scene.textures.exists(art.texture)) return;
+    if (!art || !this.visible(from, range)) return;
+    if (!this.scene.textures.exists(art.texture)) {
+      const requested = performance.now();
+      void ensureWangEffect(this.scene, id).then(ready => {
+        if (ready && this.scene.sys.isActive() && performance.now() - requested < 1500)
+          this.signature(id, from, facing, range, options);
+      });
+      return;
+    }
     if (art.grid) {
       const duration = options.duration ?? art.duration, projected = isoVector(facing.x, facing.y);
       const directed = art.motion === 'beam' || art.motion === 'crescent' || art.motion === 'finger';

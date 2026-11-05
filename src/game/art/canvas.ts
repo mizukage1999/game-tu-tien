@@ -1,10 +1,14 @@
 export type Ctx = CanvasRenderingContext2D;
 
-export function makeCanvas(w: number, h: number): [HTMLCanvasElement, Ctx] {
+export function makeCanvas(
+  w: number,
+  h: number,
+  settings?: CanvasRenderingContext2DSettings,
+): [HTMLCanvasElement, Ctx] {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
-  return [c, c.getContext('2d')!];
+  return [c, c.getContext('2d', settings)!];
 }
 
 function clamp(v: number) {
@@ -39,7 +43,15 @@ export function ellipse(ctx: Ctx, x: number, y: number, rx: number, ry: number, 
   ctx.ellipse(x, y, Math.max(0.1, rx), Math.max(0.1, ry), rot, 0, Math.PI * 2);
 }
 
-export function fillEllipse(ctx: Ctx, x: number, y: number, rx: number, ry: number, fill: string | CanvasGradient, rot = 0) {
+export function fillEllipse(
+  ctx: Ctx,
+  x: number,
+  y: number,
+  rx: number,
+  ry: number,
+  fill: string | CanvasGradient,
+  rot = 0,
+) {
   ellipse(ctx, x, y, rx, ry, rot);
   ctx.fillStyle = fill;
   ctx.fill();
@@ -51,7 +63,14 @@ export function radial(ctx: Ctx, x: number, y: number, r: number, stops: [number
   return g;
 }
 
-export function linear(ctx: Ctx, x0: number, y0: number, x1: number, y1: number, stops: [number, string][]) {
+export function linear(
+  ctx: Ctx,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  stops: [number, string][],
+) {
   const g = ctx.createLinearGradient(x0, y0, x1, y1);
   for (const [o, c] of stops) g.addColorStop(o, c);
   return g;

@@ -1,0 +1,625 @@
+/* Painted blue-gold chrome with live text and controls, scaled for both inputs. */
+.hud.hud-v5 .hud-top-left {
+  width: 308px;
+  gap: 12px;
+}
+.hud-glyph {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: #f5d48d;
+  vertical-align: middle;
+}
+.hud.hud-v5 .hud-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.hud.hud-v5 .status.panel-glass {
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 7px 10px;
+  padding: 10px 12px 9px 9px;
+  border-radius: 14px 6px 12px 8px;
+  background:
+    linear-gradient(90deg, #031b28ed 30%, #041b2ac7),
+    url('/assets/ui/cultivation/ui-night-v1.png') 66% 35% / cover;
+  box-shadow:
+    inset 0 0 0 1px #b99048,
+    0 3px 10px #0005;
+}
+.hud.hud-v5 .status::after {
+  display: none;
+}
+.hud.hud-v5 .status .avatar {
+  width: 76px;
+  height: 80px;
+  padding: 2px;
+  border: 2px solid #efce85;
+  border-radius: 50% 50% 44% 44%;
+  background: #071929;
+  box-shadow:
+    0 0 0 2px #553b1b,
+    0 0 0 3px #bd9149;
+}
+.hud.hud-v5 .avatar-level {
+  min-width: 25px;
+  height: 27px;
+  bottom: -5px;
+  right: -6px;
+  padding: 1px 4px;
+  display: grid;
+  place-items: center;
+  clip-path: polygon(15% 0, 85% 0, 100% 14%, 100% 80%, 50% 100%, 0 80%, 0 14%);
+  border: 1px solid #ffe5a7;
+  border-radius: 0;
+  background: linear-gradient(#fff0b9, #d59c3a);
+  color: #3b2407;
+  font:
+    700 15px Georgia,
+    serif;
+  text-shadow: none;
+}
+.hud.hud-v5 .status-info {
+  min-width: 0;
+  gap: 5px;
+}
+.hud.hud-v5 .status-name {
+  color: #fff0ca;
+  font:
+    700 19px Georgia,
+    'Times New Roman',
+    serif;
+  letter-spacing: 0.35px;
+}
+.hud.hud-v5 .status-realm {
+  font-size: 11px;
+  color: #f6d792;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud.hud-v5 .status-realm span {
+  color: #f5dda3;
+  margin-left: 5px;
+}
+.hud.hud-v5 .status .bar {
+  height: 16px;
+  border: 1px solid #cfb479;
+  border-radius: 20px;
+  background: #071b28;
+}
+.hud.hud-v5 .status .bar-fill {
+  border-radius: inherit;
+}
+.hud.hud-v5 .status .bar-hp .bar-fill {
+  background: linear-gradient(#ff8f80, #d42b21 50%, #9a170f);
+}
+.hud.hud-v5 .status .bar-mp .bar-fill {
+  background: linear-gradient(#56d8ff, #0b8ed9 50%, #08599e);
+}
+.hud.hud-v5 .status .bar-text {
+  font:
+    600 11px/14px 'Segoe UI',
+    sans-serif;
+}
+.hud.hud-v5 .bar .hud-glyph {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 5px;
+  top: 1px;
+  color: #fff4d9;
+  z-index: 2;
+}
+.hud.hud-v5 .status-footer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 44% minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid #8c743b66;
+  padding-top: 7px;
+}
+.hud.hud-v5 .status-footer .pk-dropdown {
+  grid-column: auto;
+  grid-row: auto;
+  width: 100%;
+}
+.hud.hud-v5 .status-footer .pk-mode-trigger {
+  border-radius: 6px;
+  min-height: 29px;
+  background: linear-gradient(120deg, #073340, #061923);
+  border-color: #cba663;
+}
+.hud.hud-v5 .status-footer .pk-mode-trigger span {
+  font:
+    700 13px Georgia,
+    serif;
+}
+.hud.hud-v5 .status-footer .status-power {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  font:
+    600 11px Georgia,
+    serif;
+  color: #f3dca3;
+  min-width: 0;
+  text-align: right;
+}
+.hud.hud-v5 .status-location .hud-glyph {
+  width: 16px;
+  height: 19px;
+}
+.hud.hud-v5 .quest-panel.panel-glass {
+  position: relative;
+  width: 100%;
+  border: 1px solid #b58d43;
+  border-radius: 13px 13px 10px 10px;
+  background: linear-gradient(110deg, #041b25ef, #052331e8);
+  box-shadow:
+    inset 0 0 0 2px #03141e,
+    0 4px 10px #0004;
+}
+.hud.hud-v5 .quest-tabs {
+  position: relative;
+  border-bottom: 1px solid #d6b36f;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+.hud.hud-v5 .quest-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 39px;
+  font:
+    700 15px Georgia,
+    serif;
+  color: #d9e5e6;
+  position: relative;
+}
+.hud.hud-v5 .quest-tabs button.active {
+  border-radius: 12px 12px 0 0;
+  color: #fff5d0;
+  background: linear-gradient(150deg, #dbad5b, #a46719 45%, #67410f);
+  box-shadow: inset 0 1px #fff1bb;
+}
+.hud.hud-v5 .quest-tabs .quest-toggle {
+  flex: 0 0 32px;
+  font-size: 28px;
+}
+.hud.hud-v5 .party-dot {
+  position: absolute;
+  right: 6px;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #ffe7a3;
+  border-radius: 50%;
+  background: #e53c30;
+}
+.hud.hud-v5 .story-tracker {
+  padding: 10px 12px;
+  background:
+    linear-gradient(90deg, #04212bed, #071d3288),
+    url('/assets/ui/cultivation/ui-night-v1.png') 90% 35% / cover;
+  border-bottom: 1px solid #a182454d;
+}
+.hud.hud-v5 .story-tracker small {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #ccd9d4;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.hud.hud-v5 .story-tracker > span {
+  display: flex;
+  justify-content: space-between;
+  color: #ffe1a0;
+  font:
+    italic 700 17px/1.5 Georgia,
+    serif;
+  padding-top: 3px;
+}
+.hud.hud-v5 .quest-list {
+  margin: 0;
+  padding: 8px;
+  max-height: 175px;
+  overflow-y: auto;
+}
+.hud.hud-v5 .quest-list li.quest-go {
+  border: 1px solid #ad8b4555;
+  padding: 9px 10px;
+  border-radius: 5px;
+  margin: 0 0 6px;
+  background: #061c25b0;
+}
+.hud.hud-v5 .quest-list li.quest-go:first-child {
+  border-color: #cfab62;
+  background: linear-gradient(110deg, #14323e, #041a23);
+  box-shadow: inset 2px 0 #ffe2a2;
+}
+.hud.hud-v5 .quest-title {
+  font:
+    700 13px/1.45 Georgia,
+    serif;
+  color: #ffe8b7;
+}
+.hud.hud-v5 .quest-obj {
+  font:
+    12px/1.5 'Segoe UI',
+    sans-serif;
+  color: #d3dfe2;
+  padding: 3px 0 0 13px;
+  position: relative;
+}
+.hud.hud-v5 .quest-obj::before {
+  content: '◇';
+  position: absolute;
+  left: 0;
+  color: #f3d18c;
+}
+.hud.hud-v5 .quest-panel .opening-guide {
+  margin: 0;
+  padding: 9px 11px 12px;
+  border: 0;
+  border-top: 1px solid #a6894955;
+  border-radius: 0;
+  background: transparent;
+  color: #f4d597;
+  font-size: 11px;
+}
+.hud.hud-v5 .opening-guide > button {
+  border: 1px solid #d6ad60;
+  color: #ffe6ac;
+  background: linear-gradient(#0f3547, #071c29);
+  font:
+    700 12px Georgia,
+    serif;
+  border-radius: 6px;
+  padding: 7px;
+}
+.hud.hud-v5 .quest-details {
+  border: 0;
+  color: #dfc18d;
+  background: #061620;
+}
+.hud.hud-v5 .party-tracker {
+  padding: 10px;
+  color: #dae5e9;
+}
+.hud.hud-v5 .party-tracker > header {
+  border-bottom: 1px solid #ac8b4e66;
+  padding: 2px 0 9px;
+  color: #f7d695;
+}
+.hud.hud-v5 .party-tracker > p {
+  margin: 10px 0;
+  text-align: center;
+}
+.hud.hud-v5 .party-members {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.hud.hud-v5 .party-member {
+  border: 1px solid #63879755;
+  border-radius: 5px;
+  background: #0b2936;
+  padding: 6px;
+  gap: 9px;
+  margin: 4px 0;
+}
+.hud.hud-v5 .party-member.self {
+  border-color: #ad935c88;
+}
+.hud.hud-v5 .party-member .hero-portrait {
+  width: 35px;
+  height: 38px;
+  object-fit: cover;
+  border: 1px solid #ad8f56;
+  border-radius: 50%;
+}
+.hud.hud-v5 .party-member b {
+  color: #f5e2b9;
+}
+.hud.hud-v5 .party-tracker footer button,
+.hud.hud-v5 .party-tracker > button {
+  border: 1px solid #bc974f;
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: #0b3040;
+  color: #f6dfa8;
+}
+.hud.hud-v5.phone .hud-top-left {
+  width: 222px;
+  max-width: 31%;
+  gap: 7px;
+  left: calc(8px + var(--hud-safe-left));
+  top: 8px;
+}
+.hud.hud-v5.phone .status.panel-glass {
+  grid-template-columns: 47px minmax(0, 1fr);
+  padding: 7px;
+  gap: 4px 7px;
+}
+.hud.hud-v5.phone .status .avatar {
+  width: 47px;
+  height: 51px;
+}
+.hud.hud-v5.phone .avatar-level {
+  height: 20px;
+  min-width: 19px;
+  font-size: 11px;
+}
+.hud.hud-v5.phone .status-name {
+  font-size: 14px;
+}
+.hud.hud-v5.phone .status-realm {
+  font-size: 8px;
+}
+.hud.hud-v5.phone .status-realm span {
+  margin-left: 2px;
+}
+.hud.hud-v5.phone .status-info {
+  gap: 3px;
+}
+.hud.hud-v5.phone .status .bar {
+  height: 11px;
+}
+.hud.hud-v5.phone .status .bar-text {
+  font-size: 8px;
+  line-height: 9px;
+}
+.hud.hud-v5.phone .bar .hud-glyph {
+  width: 8px;
+  height: 8px;
+  top: 0;
+  left: 3px;
+}
+.hud.hud-v5.phone .status-footer {
+  padding-top: 4px;
+  gap: 4px;
+}
+.hud.hud-v5.phone .status-footer .pk-mode-trigger {
+  min-height: 23px;
+  padding: 2px 4px;
+  gap: 3px;
+}
+.hud.hud-v5.phone .status-footer .pk-mode-trigger span {
+  font-size: 10px;
+}
+.hud.hud-v5.phone .status-footer .status-power {
+  font-size: 9px;
+  gap: 3px;
+}
+.hud.hud-v5.phone .status-location .hud-glyph {
+  width: 12px;
+  height: 15px;
+}
+.hud.hud-v5.phone .quest-tabs button {
+  min-height: 29px;
+  font-size: 12px;
+  gap: 5px;
+  padding: 4px;
+}
+.hud.hud-v5.phone .quest-tabs .quest-toggle {
+  flex-basis: 24px;
+  font-size: 23px;
+}
+.hud.hud-v5.phone .hud-glyph {
+  width: 16px;
+  height: 16px;
+}
+.hud.hud-v5.phone .story-tracker {
+  display: block;
+  padding: 6px 8px;
+}
+.hud.hud-v5.phone .story-tracker small {
+  font-size: 9px;
+  gap: 5px;
+}
+.hud.hud-v5.phone .story-tracker > span {
+  font-size: 13px;
+  line-height: 1.3;
+}
+.hud.hud-v5.phone .quest-list {
+  padding: 5px;
+  max-height: 66px;
+  overflow: auto;
+}
+.hud.hud-v5.phone .quest-list li.quest-go {
+  padding: 6px;
+  margin-bottom: 0;
+}
+.hud.hud-v5.phone .quest-title {
+  font-size: 10px;
+}
+.hud.hud-v5.phone .quest-obj {
+  font-size: 9px;
+}
+.hud.hud-v5.phone .quest-panel .opening-guide {
+  padding: 6px 7px 8px;
+  font-size: 9px;
+  gap: 5px;
+}
+.hud.hud-v5.phone .opening-guide > button {
+  padding: 4px;
+  font-size: 10px;
+  min-height: 27px;
+}
+.hud.hud-v5.phone .quest-details {
+  display: none;
+}
+.hud.hud-v5.phone .party-tracker {
+  padding: 7px;
+  font-size: 10px;
+}
+.hud.hud-v5.phone .party-member .hero-portrait {
+  width: 29px;
+  height: 32px;
+}
+.hud.hud-v5.phone .party-members {
+  max-height: 126px;
+}
+.hud.hud-v5.phone .quest-panel.collapsed {
+  width: 100%;
+}
+@media (max-height: 410px) {
+  .hud.hud-v5.phone .story-tracker {
+    padding-block: 4px;
+  }
+  .hud.hud-v5.phone .quest-list {
+    max-height: 56px;
+  }
+}
+
+/* One native font across the live HUD; avoid mixed serif/fallback faces. */
+.hud.hud-v5 :is(.hud-top-left, .hud-top-right),
+.hud.hud-v5 :is(.hud-top-left, .hud-top-right) * {
+  font-family: var(--font) !important;
+  font-style: normal !important;
+  letter-spacing: normal;
+}
+.hud.hud-v5:not(.phone) .hud-top-left {
+  width: clamp(228px, 20vw, 260px);
+  gap: 8px;
+  top: 12px;
+  left: 14px;
+}
+.hud.hud-v5:not(.phone) .status.panel-glass {
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 5px 7px;
+  padding: 7px 9px;
+}
+.hud.hud-v5:not(.phone) .status .avatar {
+  width: 54px;
+  height: 58px;
+}
+.hud.hud-v5:not(.phone) .avatar-level {
+  height: 22px;
+  min-width: 21px;
+  font-size: 12px;
+}
+.hud.hud-v5:not(.phone) .status-info {
+  gap: 3px;
+}
+.hud.hud-v5:not(.phone) .status-name {
+  font-size: 15px;
+  line-height: 1.15;
+  font-weight: 600;
+}
+.hud.hud-v5:not(.phone) .status-realm {
+  font-size: 9px;
+  line-height: 1.2;
+}
+.hud.hud-v5:not(.phone) .status .bar {
+  height: 13px;
+}
+.hud.hud-v5:not(.phone) .status .bar-text {
+  font-size: 9px;
+  line-height: 11px;
+}
+.hud.hud-v5:not(.phone) .bar .hud-glyph {
+  width: 9px;
+  height: 9px;
+}
+.hud.hud-v5:not(.phone) .status-footer {
+  padding-top: 4px;
+}
+.hud.hud-v5:not(.phone) .status-footer .pk-mode-trigger {
+  min-height: 24px;
+  padding: 3px 5px;
+}
+.hud.hud-v5:not(.phone) .status-footer .pk-mode-trigger span {
+  font-size: 11px;
+  font-weight: 600;
+}
+.hud.hud-v5:not(.phone) .status-footer .status-power {
+  font-size: 9px;
+  font-weight: 500;
+}
+.hud.hud-v5:not(.phone) .quest-tabs button {
+  min-height: 31px;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 5px;
+}
+.hud.hud-v5:not(.phone) .quest-tabs .quest-toggle {
+  font-size: 23px;
+  flex-basis: 26px;
+}
+.hud.hud-v5:not(.phone) .quest-tabs .hud-glyph {
+  width: 17px;
+  height: 17px;
+}
+.hud.hud-v5:not(.phone) .story-tracker {
+  padding: 6px 9px;
+}
+.hud.hud-v5:not(.phone) .story-tracker small {
+  font-size: 9px;
+  gap: 5px;
+}
+.hud.hud-v5:not(.phone) .story-tracker > span {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.hud.hud-v5:not(.phone) .quest-list {
+  max-height: 132px;
+  padding: 6px;
+  /* Keep wheel/trackpad scrolling without the native desktop scrollbar. */
+  scrollbar-width: none;
+}
+.hud.hud-v5:not(.phone) .quest-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+.hud.hud-v5:not(.phone) .quest-list li.quest-go {
+  padding: 6px 7px;
+  margin-bottom: 4px;
+}
+.hud.hud-v5:not(.phone) .quest-title {
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.hud.hud-v5:not(.phone) .quest-obj {
+  font-size: 10px;
+  line-height: 1.4;
+  padding-top: 2px;
+}
+.hud.hud-v5:not(.phone) .quest-panel .opening-guide {
+  padding: 6px 8px 9px;
+  font-size: 10px;
+}
+.hud.hud-v5:not(.phone) .opening-guide > button {
+  padding: 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.hud.hud-v5:not(.phone) .party-tracker {
+  padding: 8px;
+  font-size: 11px;
+}
+.hud.hud-v5:not(.phone) .party-members {
+  max-height: 160px;
+}
+.hud.hud-v5:not(.phone) .party-member {
+  padding: 5px;
+  gap: 7px;
+}
+.hud.hud-v5:not(.phone) .party-member .hero-portrait {
+  width: 28px;
+  height: 31px;
+}
+@media (max-height: 650px) {
+  .hud.hud-v5:not(.phone) .quest-list {
+    max-height: 100px;
+  }
+}

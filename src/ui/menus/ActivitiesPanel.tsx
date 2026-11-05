@@ -6,7 +6,6 @@ import { EventBus } from '../../game/EventBus';
 import { getMap } from '../../game/maps';
 import { useGame } from '../../store/gameStore';
 import { isChildhood } from '../../game/systems/origin';
-import { SkyRacePanel } from './SkyRacePanel';
 import {
   ActivityArtwork,
   ActivityClock,
@@ -14,7 +13,6 @@ import {
   ActivityRewards,
   ActivityTabIcon,
   ActivityTitle,
-  type ActivityPage,
 } from './ActivityPresentation';
 import './competitive.css';
 import './activities.css';
@@ -132,14 +130,14 @@ function TimedActivity({ kind }: { kind: ActivityKind }) {
   );
 }
 export function ActivitiesPanel() {
-  const [kind, setKind] = useState<ActivityPage>('treasure');
+  const [kind, setKind] = useState<ActivityKind>('treasure');
   useEffect(() => {
     void activityAction('treasure');
   }, []);
   return (
     <section className="activities-panel activities-v2">
       <nav className="activity-tabs" aria-label="Chọn hoạt động">
-        {(['treasure', 'ruins', 'race'] as const).map((k) => (
+        {(['treasure', 'ruins'] as const).map((k) => (
           <button
             type="button"
             key={k}
@@ -150,17 +148,13 @@ export function ActivitiesPanel() {
           >
             <ActivityTabIcon kind={k} />
             <span>
-              {k === 'treasure'
-                ? 'Thiên Giáng Dị Bảo'
-                : k === 'ruins'
-                  ? 'Động Phủ Viễn Cổ'
-                  : 'Ngự Kiếm Vượt Thiên Quan'}
+              {k === 'treasure' ? 'Thiên Giáng Dị Bảo' : 'Động Phủ Viễn Cổ'}
             </span>
           </button>
         ))}
       </nav>
       <div className="activity-page">
-        {kind === 'race' ? <SkyRacePanel /> : <TimedActivity key={kind} kind={kind} />}
+        <TimedActivity key={kind} kind={kind} />
       </div>
     </section>
   );

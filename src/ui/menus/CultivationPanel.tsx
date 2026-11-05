@@ -14,6 +14,7 @@ import { HeroMeditation } from '../HeroArt';
 import { RealmBadge } from '../RealmBadge';
 import { CultHeading } from './CultivationUI';
 import './cultivation-panel.css';
+import { REALM_CREST_ASSET } from '../../game/art/realmCrests';
 
 const number = (n: number) => Math.floor(n).toLocaleString('vi-VN');
 
@@ -22,7 +23,7 @@ function Crest({ index }: { index: number }) {
     <i
       className="training-crest"
       aria-hidden="true"
-      style={{ backgroundPosition: `${(index % 3) * 50}% ${(Math.floor(index / 3) * 100) / 3}%` }}
+      style={{ backgroundImage: `url('${REALM_CREST_ASSET}')`, backgroundPosition: `${(index % 3) * 50}% ${(Math.floor(index / 3) * 100) / 3}%` }}
     />
   );
 }

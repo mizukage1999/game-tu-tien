@@ -43,7 +43,6 @@ export function buildWangSheet(art: WangEffectArt, source: HTMLImageElement) {
     );
   }
   sheets.set(art.texture, canvas);
-  urls.set(art.texture, canvas.toDataURL('image/png'));
   const icon = document.createElement('canvas');
   icon.width = icon.height = 96;
   const c = icon.getContext('2d')!;
@@ -62,6 +61,14 @@ export function buildWangSheet(art: WangEffectArt, source: HTMLImageElement) {
   icons.set(art.texture, icon.toDataURL('image/png'));
   return canvas;
 }
+/** Legacy DOM previews request a PNG only when opened, never during game startup. */
+export function wangSheetUrl(art: WangEffectArt) {
+  if (!urls.has(art.texture)) {
+    const canvas = sheets.get(art.texture);
+    if (canvas) urls.set(art.texture, canvas.toDataURL('image/png'));
+  }
+  return urls.get(art.texture);
+}
 export function registerWangIcons(source: HTMLImageElement, ritual = false) {
   const order = ritual ? WANG_RITUAL_ICON_ORDER : WANG_ICON_ORDER;
   order.forEach((id, index) => {
@@ -73,9 +80,6 @@ export function registerWangIcons(source: HTMLImageElement, ritual = false) {
     ctx.drawImage(source, (index % 2) * w, Math.floor(index / 2) * h, w, h, 0, 0, 128, 128);
     icons.set(WANG_EFFECT_ART[id].texture, canvas.toDataURL('image/png'));
   });
-}
-export function wangSheetUrl(art: WangEffectArt) {
-  return urls.get(art.texture);
 }
 export function registerWangGateIcon(source: HTMLImageElement) {
   const canvas=document.createElement('canvas');

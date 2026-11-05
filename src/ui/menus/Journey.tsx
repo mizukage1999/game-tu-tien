@@ -16,6 +16,7 @@ import './journey-v2.css';
 import { HomeBoard, CompanionPanel } from './CultivatorLife';
 import { JourneyGlyph } from './JourneyGlyph';
 import { AlchemyPanel } from './AlchemyPanel';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 const TABS = [
   { id: 'story', label: 'Tiên Lộ' },
@@ -108,7 +109,7 @@ export function Journey() {
                 return (
                   <article className="immortal-card" key={mount.id}>
                     <div className={`journey-mount-art mount-${mount.id}`}>
-                      <img src="/assets/journey/mounts.png" alt="" />
+                      <img src={optimizedAsset('/assets/journey/mounts.png')} alt="" />
                     </div>
                     <h4>{mount.name}</h4>
                     <p>{mount.desc}</p>

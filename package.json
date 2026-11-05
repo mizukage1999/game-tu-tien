@@ -17,6 +17,9 @@
     "competition:verify": "node scripts/verify-competitive-sql.mjs",
     "sky-race:verify": "node scripts/verify-sky-race-sql.mjs",
     "assets:optimize": "node scripts/optimize-runtime-assets.mjs",
+    "assets:icons": "node scripts/build-ui-icons.mjs",
+    "assets:menu": "node scripts/build-menu-icons.mjs",
+    "assets:startup": "node scripts/build-startup-assets.mjs",
     "assets:verify": "node scripts/verify-runtime-assets.mjs"
   },
   "dependencies": {

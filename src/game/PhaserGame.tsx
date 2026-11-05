@@ -15,6 +15,11 @@ import {
 import { performanceStore, sampleRenderedFrame } from '../store/performanceStore';
 import { settingsStore, useSettings } from '../store/settingsStore';
 import { LoadingScreen } from '../ui/LoadingScreen';
+import {
+  clearStartupWarmCache,
+  readyStartupTextures,
+  subscribeStartupImages,
+} from './art/startupCache';
 
 let game: Phaser.Game | null = null;
 
@@ -121,13 +126,23 @@ export function saveNow() {
   if (world?.scene.isActive() && world.player?.active) world.save();
 }
 
-export function PhaserGame() {
+export function PhaserGame({ started = true }: { started?: boolean }) {
   const brightness = useSettings((s) => s.preferences.brightness);
   const host = useRef<HTMLDivElement>(null);
+  const startRequested = useRef(started);
+  const launch = useRef<() => void>(() => {});
+  startRequested.current = started;
+  useEffect(() => {
+    if (started) launch.current();
+  }, [started]);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [destination, setDestination] = useState({ mapId: gameStore.getState().mapId, mapName: '', phase: 'game' as 'game' | 'map' });
+  const [destination, setDestination] = useState({
+    mapId: gameStore.getState().mapId,
+    mapName: '',
+    phase: 'game' as 'game' | 'map',
+  });
 
   useEffect(() => {
     if (!host.current) return;
@@ -139,6 +154,7 @@ export function PhaserGame() {
     let alive = true;
     let enteredWorld = false;
     let frameReady = false;
+    let renderingCovered = false;
     const failed = (message: string) => {
       if (!alive) return;
       frameReady = false;
@@ -167,12 +183,16 @@ export function PhaserGame() {
         render: { antialias: true, antialiasGL: false, roundPixels: false, batchSize: 2048 },
         // No game object uses pre-FX. Its default framebuffer pool costs tens of MB.
         disablePreFX: true,
-        disablePostFX: mobile || mode > 0,
+        // The painted world already has its CSS grade. Skip allocating the
+        // full-screen post-FX framebuffer pool just for an optional vignette.
+        disablePostFX: true,
         loader: { maxParallelDownloads: mobile ? 3 : 6, imageLoadType: 'HTMLImageElement' },
         input: { activePointers: 3 },
         fps: { target: 60, smoothStep: true },
         audio: { noAudio: true },
-        scene: [PreloadScene, WorldScene],
+        // Warm the GPU while the player is choosing a name. Map loading is
+        // launched separately, after character creation/session state is ready.
+        scene: [],
         callbacks: {
           preBoot: (g) => g.registry.set('boot-mode', mode),
           postBoot: (g) => g.canvas.addEventListener('webglcontextlost', lost),
@@ -186,6 +206,15 @@ export function PhaserGame() {
       };
     }
     const current = game;
+    const renderStep = current.step.bind(current);
+    const updateStep = current.headlessStep.bind(current);
+    const step = (time: number, delta: number) => {
+      // Keep simulation, damage, timers and multiplayer running behind a menu.
+      // Retain the last canvas frame instead of submitting the hidden map to
+      // the GPU on every frame while the browser is painting the menu.
+      renderingCovered = frameReady && !!gameStore.getState().menu;
+      (renderingCovered ? updateStep : renderStep)(time, delta);
+    };
     const watchLoading = () => {
       clearTimeout(stalled);
       stalled = setTimeout(
@@ -193,7 +222,43 @@ export function PhaserGame() {
         45_000,
       );
     };
-    watchLoading();
+    let launched = false;
+    let warmTimer: ReturnType<typeof setTimeout> | undefined;
+    const uploadWarmTexture = () => {
+      warmTimer = undefined;
+      if (!alive || startRequested.current || !current.isRunning) return;
+      const next = readyStartupTextures().find((entry) => !current.textures.exists(entry.key));
+      if (!next) return;
+      try {
+        current.textures.addImage(next.key, next.image);
+      } catch {
+        return;
+      } // Normal map loading/recovery owns an unavailable context.
+      warmTimer = setTimeout(uploadWarmTexture, 16);
+    };
+    const queueWarmTexture = () => {
+      if (warmTimer === undefined) warmTimer = setTimeout(uploadWarmTexture, 16);
+    };
+    const stopWarmTextures = subscribeStartupImages(queueWarmTexture);
+    const launchWorld = () => {
+      if (!alive || launched || !startRequested.current || !current.isRunning) return;
+      launched = true;
+      clearTimeout(warmTimer);
+      current.loop.wake();
+      watchLoading();
+      current.scene.add('World', WorldScene, false);
+      current.scene.add('Preload', PreloadScene, true);
+    };
+    launch.current = launchWorld;
+    const rendererReady = () =>
+      queueMicrotask(() => {
+        if (!alive) return;
+        current.loop.callback = step;
+        if (!startRequested.current) current.loop.sleep();
+        queueWarmTexture();
+        launchWorld();
+      });
+    current.events.once(Phaser.Core.Events.READY, rendererReady);
     const updateProgress = (progress: number) => setLoadingProgress(Math.round(progress * 100));
     const assetsReady = () => {
       enteredWorld = true;
@@ -206,7 +271,11 @@ export function PhaserGame() {
     };
     const assetsLoading = (target?: { mapId?: string; mapName?: string }) => {
       frameReady = false;
-      setDestination({ mapId: target?.mapId ?? gameStore.getState().mapId, mapName: target?.mapName ?? '', phase: enteredWorld ? 'map' : 'game' });
+      setDestination({
+        mapId: target?.mapId ?? gameStore.getState().mapId,
+        mapName: target?.mapName ?? '',
+        phase: enteredWorld ? 'map' : 'game',
+      });
       clearTimeout(stable);
       setError('');
       setLoadingProgress(0);
@@ -215,12 +284,17 @@ export function PhaserGame() {
     };
     const assetError = () =>
       failed('Không chuẩn bị được dữ liệu bản đồ. Hãy thử lại với cấu hình nhẹ.');
-    const frame = () => sampleRenderedFrame(performance.now(),frameReady&&(current.scene.isActive('World')||!!socialStore.getState().duel));
+    const frame = () =>
+      sampleRenderedFrame(
+        performance.now(),
+        frameReady && !renderingCovered && (current.scene.isActive('World') || !!socialStore.getState().duel),
+      );
     game.events.on(Phaser.Core.Events.STEP, frame);
     game.events.on('assets-progress', updateProgress);
     game.events.on('assets-ready', assetsReady);
     game.events.on('assets-loading', assetsLoading);
     game.events.on('assets-error', assetError);
+    launchWorld();
     if (game.scene.isActive('World')) assetsReady();
     const stopFitting = fitTurnedCanvas(game);
     if (import.meta.env.DEV)
@@ -234,6 +308,11 @@ export function PhaserGame() {
     window.addEventListener('beforeunload', onUnload);
     return () => {
       alive = false;
+      launch.current = () => {};
+      clearTimeout(warmTimer);
+      stopWarmTextures();
+      clearStartupWarmCache();
+      current.events.off(Phaser.Core.Events.READY, rendererReady);
       clearTimeout(stable);
       clearTimeout(stalled);
       finishGameBoot(storage);
@@ -245,7 +324,10 @@ export function PhaserGame() {
       current.events.off('assets-loading', assetsLoading);
       current.events.off('assets-error', assetError);
       current.events.off(Phaser.Core.Events.STEP, frame);
+      current.loop.callback = renderStep;
       current.destroy(true);
+      // Phaser destroys on its next frame; the empty preview loop may be asleep.
+      if (current.isRunning && !current.loop.running) current.loop.wake();
       if (game === current) game = null;
     };
   }, []);
@@ -255,14 +337,22 @@ export function PhaserGame() {
       <div
         ref={host}
         className="game-host"
-        style={{ filter: brightness === 100 ? undefined : `brightness(${brightness / 100})` }}
+        style={{
+          visibility: started ? 'visible' : 'hidden',
+          filter: brightness === 100 ? undefined : `brightness(${brightness / 100})`,
+        }}
       />
-      {loading && (
-        <LoadingScreen progress={loadingProgress} {...destination} error={error} onRetry={() => {
-                saveNow();
-                requestCanvasRecovery(bootStorage());
-                window.location.reload();
-              }} />
+      {started && loading && (
+        <LoadingScreen
+          progress={loadingProgress}
+          {...destination}
+          error={error}
+          onRetry={() => {
+            saveNow();
+            requestCanvasRecovery(bootStorage());
+            window.location.reload();
+          }}
+        />
       )}
     </>
   );

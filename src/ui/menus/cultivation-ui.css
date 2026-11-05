@@ -14,6 +14,7 @@
   background:
     linear-gradient(90deg, #03101a28, #03101a5e),
     url('/assets/ui/cultivation/ui-night-v1.png') left center/cover;
+  background-color: #07121e;
   color: var(--cult-text);
   box-shadow:
     0 20px 80px #000c,
@@ -43,8 +44,8 @@
   white-space: nowrap;
   text-shadow: 0 2px 2px #000;
 }
-.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3 img,
-.hud .menu-window.menu-character > .menu-header h3 img {
+.hud .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3 :is(img, .menu-sprite),
+.hud .menu-window.menu-character > .menu-header h3 :is(img, .menu-sprite) {
   width: 46px;
   height: 46px;
   object-fit: contain;
@@ -317,9 +318,7 @@
   aspect-ratio: 1;
   flex-shrink: 0;
   vertical-align: middle;
-  background-image: url('/assets/ui/cultivation/skill-icons-alpha-v2.png');
-  background-size: 500% 300%;
-  background-repeat: no-repeat;
+  object-fit: contain;
   border-radius: 50%;
   filter: drop-shadow(0 2px 3px #000a);
 }
@@ -538,6 +537,12 @@
   top: 22%;
   width: 86px;
   opacity: 0.8;
+}
+.cult-skill-preview:not(.playing) .cult-preview-symbol {
+  width: 116px;
+  right: calc(50% - 58px);
+  top: calc(50% - 58px);
+  opacity: 0.68;
 }
 .cult-preview-play {
   position: absolute;
@@ -1521,8 +1526,8 @@
   font-size: 20px;
   gap: 6px;
 }
-.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3 img,
-.hud.phone .menu-window.menu-character > .menu-header h3 img {
+.hud.phone .menu-window:is(.menu-skills, .menu-bag, .menu-mail, .menu-social, .menu-quests, .menu-sect, .menu-settings, .menu-cultivate, .menu-journey) > .menu-header h3 :is(img, .menu-sprite),
+.hud.phone .menu-window.menu-character > .menu-header h3 :is(img, .menu-sprite) {
   width: 28px;
   height: 28px;
 }

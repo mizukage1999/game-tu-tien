@@ -7,12 +7,14 @@ import { HeroPortrait } from './HeroPortrait';
 import { PkModeDropdown } from './PkModeDropdown';
 import { ChildHeroPortrait } from './HeroArt';
 import { heroFor } from '../data/heroes';
+import { HudFrame, HudGlyph } from './HudGlyph';
 
 function Bar({ value, max, kind }: { value: number; max: number; kind: 'hp' | 'mp' }) {
   const pct = Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100));
   return (
     <div className={`bar bar-${kind}`}>
       <div className="bar-fill" style={{ width: `${pct}%` }} />
+      <HudGlyph kind={kind} />
       <span className="bar-text">
         {Math.round(value)} / {max}
       </span>
@@ -28,6 +30,7 @@ export function StatusBars() {
 
   return (
     <div className="status panel-glass">
+      <HudFrame />
       <div className={`avatar ${status === 'downed' ? 'avatar-down' : ''}`}>
         {usesChildSprite(player) ? (
           <ChildHeroPortrait id={heroFor(player).id} />
@@ -39,7 +42,7 @@ export function StatusBars() {
         </span>
       </div>
       <div className="status-info">
-        <div className="status-name">{heroName(player)}</div>
+        <div className="status-name" title={heroName(player)}>{heroName(player)}</div>
         <div className="status-realm">
           Lv.{player.level} <span>{childhood ? 'Phàm Nhân' : realmNameAtLevel(player.level)}</span>
         </div>
@@ -54,9 +57,12 @@ export function StatusBars() {
           </span>
         </div>
       </div>
-      <PkModeDropdown />
-      <div className="status-power">
-        {childhood ? 'Vương Gia Thôn' : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
+      <div className="status-footer">
+        <PkModeDropdown />
+        <div className={`status-power ${childhood ? 'status-location' : ''}`}>
+          {childhood && <HudGlyph kind="pin" />}
+          {childhood ? 'Vương Gia Thôn' : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
+        </div>
       </div>
     </div>
   );

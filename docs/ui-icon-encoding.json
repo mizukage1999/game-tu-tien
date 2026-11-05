@@ -1,0 +1,381 @@
+{
+  "encoder": "Chromium Canvas WebP",
+  "quality": 0.95,
+  "layoutSha256": "543aa89b896b8382cd7678a23dd644a7ddf6f1f87d3b31ceb77369d09e5259b1",
+  "sources": [
+    {
+      "source": "/assets/ui/cultivation/bag-items-v1.png",
+      "sha256": "b0e391da73ba87495c11f3eb86dcb077c57d428c5fed9d1151b5d3e378d211ae"
+    },
+    {
+      "source": "/assets/ui/cultivation/skill-icons-alpha-v2.png",
+      "sha256": "7c35b352e4de1d04041619efb656790aea2c3e70c4dfa56a610a6cad9a395b01"
+    },
+    {
+      "source": "/assets/ui/loading-crests-v2.png",
+      "sha256": "e6901cecc063b1a04f8b87fee1fe717a79f5a857e0ed836126f93e623291fcbc"
+    }
+  ],
+  "files": [
+    {
+      "key": "item:0",
+      "output": "/assets/optimized/ui-icon-item-0.235ae5205826.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 35872,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:1",
+      "output": "/assets/optimized/ui-icon-item-1.a3c72f7d3743.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 45478,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:2",
+      "output": "/assets/optimized/ui-icon-item-2.1b002baec058.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 35844,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:3",
+      "output": "/assets/optimized/ui-icon-item-3.3b9523f93224.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 29560,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:4",
+      "output": "/assets/optimized/ui-icon-item-4.0aae3d30669d.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 43076,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:5",
+      "output": "/assets/optimized/ui-icon-item-5.71e151e726d2.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 36178,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:6",
+      "output": "/assets/optimized/ui-icon-item-6.9637de198106.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 39860,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:7",
+      "output": "/assets/optimized/ui-icon-item-7.80f3caa1f43c.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 36690,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:8",
+      "output": "/assets/optimized/ui-icon-item-8.7a77bb7345ca.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 37154,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:9",
+      "output": "/assets/optimized/ui-icon-item-9.de3eae917363.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 37888,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:10",
+      "output": "/assets/optimized/ui-icon-item-10.8d2fc31aabbc.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 47540,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:11",
+      "output": "/assets/optimized/ui-icon-item-11.c0d1288e2cd1.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 42494,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:12",
+      "output": "/assets/optimized/ui-icon-item-12.0ec7fbe2c65a.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 39216,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:13",
+      "output": "/assets/optimized/ui-icon-item-13.3280367e6940.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 47754,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:14",
+      "output": "/assets/optimized/ui-icon-item-14.64dd57226cb1.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 35082,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:15",
+      "output": "/assets/optimized/ui-icon-item-15.d08d0e3cc08d.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 35066,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:16",
+      "output": "/assets/optimized/ui-icon-item-16.a9a1028d9464.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 45308,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:17",
+      "output": "/assets/optimized/ui-icon-item-17.52f2f2780323.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 31232,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:18",
+      "output": "/assets/optimized/ui-icon-item-18.aade17241702.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 36870,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:19",
+      "output": "/assets/optimized/ui-icon-item-19.848338b523af.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 36804,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:20",
+      "output": "/assets/optimized/ui-icon-item-20.2a7a577b4354.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 41002,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:21",
+      "output": "/assets/optimized/ui-icon-item-21.edc3b3417e36.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 38732,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:22",
+      "output": "/assets/optimized/ui-icon-item-22.2ce804b13abd.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 36334,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "item:23",
+      "output": "/assets/optimized/ui-icon-item-23.91d4c612fefd.webp",
+      "width": 256,
+      "height": 256,
+      "encodedBytes": 33418,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:hoa_ma_chi",
+      "output": "/assets/optimized/ui-icon-skill-hoa_ma_chi.64d6e784434a.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 17360,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:dao_hoa_hoang_tuyen",
+      "output": "/assets/optimized/ui-icon-skill-dao_hoa_hoang_tuyen.25967fb06b20.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 15430,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:dinh_than_thuat",
+      "output": "/assets/optimized/ui-icon-skill-dinh_than_thuat.ff938de808e1.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 19644,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:tram_la_quyet",
+      "output": "/assets/optimized/ui-icon-skill-tram_la_quyet.53a8168b33d6.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 17294,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:dich_linh_an",
+      "output": "/assets/optimized/ui-icon-skill-dich_linh_an.4a5c718aa41e.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 17402,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:basic",
+      "output": "/assets/optimized/ui-icon-skill-basic.275cf3c634ed.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 19070,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:bang_tam_tram",
+      "output": "/assets/optimized/ui-icon-skill-bang_tam_tram.556d9bfc9252.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 18282,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:phi_kiem",
+      "output": "/assets/optimized/ui-icon-skill-phi_kiem.e17999b232b8.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 20846,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:han_bang_tran",
+      "output": "/assets/optimized/ui-icon-skill-han_bang_tran.8e2eff0f42ad.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 17952,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:than_phap",
+      "output": "/assets/optimized/ui-icon-skill-than_phap.0dd7b76784e3.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 16814,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:loi_kich",
+      "output": "/assets/optimized/ui-icon-skill-loi_kich.7f066525556e.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 17596,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:hoa_lien",
+      "output": "/assets/optimized/ui-icon-skill-hoa_lien.5324b3f71df1.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 16516,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:moc_linh",
+      "output": "/assets/optimized/ui-icon-skill-moc_linh.656324e05426.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 14960,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:kim_cang",
+      "output": "/assets/optimized/ui-icon-skill-kim_cang.ee8f90d54a28.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 18102,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "skill:phong_nhan",
+      "output": "/assets/optimized/ui-icon-skill-phong_nhan.9adcaa1c05d2.webp",
+      "width": 128,
+      "height": 128,
+      "encodedBytes": 17334,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "crest:0",
+      "output": "/assets/optimized/ui-icon-crest-0.dd84e02950a5.webp",
+      "width": 512,
+      "height": 512,
+      "encodedBytes": 171348,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "crest:1",
+      "output": "/assets/optimized/ui-icon-crest-1.2f3559acf8df.webp",
+      "width": 512,
+      "height": 512,
+      "encodedBytes": 187798,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "crest:2",
+      "output": "/assets/optimized/ui-icon-crest-2.3a216be42eb1.webp",
+      "width": 512,
+      "height": 512,
+      "encodedBytes": 163644,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "crest:3",
+      "output": "/assets/optimized/ui-icon-crest-3.2f326f5d5210.webp",
+      "width": 512,
+      "height": 512,
+      "encodedBytes": 188288,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "crest:4",
+      "output": "/assets/optimized/ui-icon-crest-4.36d0a41389c6.webp",
+      "width": 512,
+      "height": 512,
+      "encodedBytes": 188034,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "crest:5",
+      "output": "/assets/optimized/ui-icon-crest-5.1790d3aeb7aa.webp",
+      "width": 512,
+      "height": 512,
+      "encodedBytes": 173144,
+      "maxAlphaDifference": 0
+    }
+  ]
+}

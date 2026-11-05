@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { optimizedAsset } from '../../data/assetDelivery';
 import { ATLAS_PLACES } from '../../data/worldAtlas';
 import { getMap } from '../../game/maps';
 import { EventBus } from '../../game/EventBus';
@@ -50,7 +51,7 @@ export function WorldAtlas() {
     <div className="atlas-main">
       <div className="atlas-map-viewport" ref={viewport} tabIndex={0} aria-label="Bản đồ thế giới, cuộn để xem các vùng">
         <div className="atlas-painted-map" style={{ width: `${zoom * fitWidth}px` }}>
-          <img src="/assets/maps/world-chart-v4.png" alt="Sơn hà, thành trấn, tông môn, rừng trúc, thác nước và bí cảnh" draggable={false} />
+          <img src={optimizedAsset('/assets/maps/world-chart-v4.png')} alt="Sơn hà, thành trấn, tông môn, rừng trúc, thác nước và bí cảnh" draggable={false} />
           <div className="atlas-map-title" aria-hidden="true"><small>CỬU HUYỀN</small><span>Sơn Hà Đồ</span></div>
           <MapCompass />
           {ATLAS_PLACES.map(m => <button key={m.id} className={`atlas-pin ${m.primary ? 'atlas-primary' : ''} ${m.id === here ? 'here' : ''} ${m.id === selected ? 'selected' : ''} ${reason(m.id) ? 'locked' : ''}`}

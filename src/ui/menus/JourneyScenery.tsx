@@ -1,3 +1,5 @@
+import { optimizedAsset } from '../../data/assetDelivery';
+
 /** Lightweight vector scenery stays sharp at phone and desktop resolutions. */
 export function JourneyScenery({ village = false }: { village?: boolean }) {
   return <svg className="journey-scenery" viewBox="0 0 800 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -13,10 +15,10 @@ export function JourneyScenery({ village = false }: { village?: boolean }) {
     <path d="M0 199 70 160 145 186 212 146 285 177 370 166 445 207 530 174 600 190 700 150 800 176V240H0" fill="#214c52"/>
     <path d="M340 240q78-67 160-36t300-20v56" fill="#7cb6b7"/>
     <path d="M519 219q62-71 121-9m-118 5q60-61 116-9" fill="none" stroke="#d2c29a" strokeWidth="7"/>
-    <svg x="475" y="48" width="165" height="165" viewBox="0 0 514 542"><image href="/assets/maps/world-nature.png" width="1536" height="1024"/></svg>
-    {village ? <svg x="590" y="72" width="220" height="150" viewBox="0 0 668 476"><image href="/assets/maps/world-village.png" width="1536" height="1024"/></svg>
-      : <svg x="565" y="30" width="240" height="190" viewBox="0 0 607 573"><image href="/assets/maps/sect-v2.png" width="1536" height="1024"/></svg>}
-    <svg x="700" y="105" width="140" height="145" viewBox="1052 553 484 471"><image href="/assets/maps/sect-v2.png" width="1536" height="1024"/></svg>
+    <svg x="475" y="48" width="165" height="165" viewBox="0 0 514 542"><image href={optimizedAsset('/assets/maps/world-nature.png')} width="1536" height="1024"/></svg>
+    {village ? <svg x="590" y="72" width="220" height="150" viewBox="0 0 668 476"><image href={optimizedAsset('/assets/maps/world-village.png')} width="1536" height="1024"/></svg>
+      : <svg x="565" y="30" width="240" height="190" viewBox="0 0 607 573"><image href={optimizedAsset('/assets/maps/sect-v2.png')} width="1536" height="1024"/></svg>}
+    <svg x="700" y="105" width="140" height="145" viewBox="1052 553 484 471"><image href={optimizedAsset('/assets/maps/sect-v2.png')} width="1536" height="1024"/></svg>
     <path d="M0 228q150-17 300 0t500 0" fill="none" stroke="#b7d1c0" strokeOpacity=".2" strokeWidth="18"/>
   </svg>;
 }

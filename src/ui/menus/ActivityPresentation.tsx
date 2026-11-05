@@ -1,8 +1,7 @@
-import { useId, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import { optimizedAsset } from '../../data/assetDelivery';
-import { ACTIVITY_ART } from '../../game/systems/worldActivities';
-import { inventoryIconRegion } from '../../game/art/inventoryIcons';
-import { SKY_ART, SKY_ROWS } from '../skyRaceArt';
+import { ACTIVITY_ART, type ActivityKind } from '../../game/systems/worldActivities';
+import { inventoryIconUrl } from '../../game/art/inventoryIcons';
 
 export type ActivityPage = 'treasure' | 'ruins' | 'race';
 const SCENES = optimizedAsset('/assets/ui/activities-scenes-v2.png');
@@ -27,21 +26,13 @@ export function ActivityArtwork({ kind }: { kind: ActivityPage }) {
     />
   );
 }
-export function ActivityTabIcon({ kind }: { kind: ActivityPage }) {
-  const [top, height] = SKY_ROWS[4];
-  const style: CSSProperties =
-    kind === 'race'
-      ? {
-          backgroundImage: `url(${SKY_ART})`,
-          backgroundSize: `800% ${(1086 / height) * 100}%`,
-          backgroundPosition: `100% ${(top / (1086 - height)) * 100}%`,
-        }
-      : {
-          backgroundImage: `url(${ACTIVITY_ART})`,
-          backgroundSize: kind === 'ruins' ? `800% ${(1086 / 184) * 100}%` : '800% 600%',
-          backgroundPosition:
-            kind === 'treasure' ? '0% 0%' : `${(4 * 100) / 7}% ${(208 / (1086 - 184)) * 100}%`,
-        };
+export function ActivityTabIcon({ kind }: { kind: ActivityKind }) {
+  const style: CSSProperties = {
+    backgroundImage: `url(${ACTIVITY_ART})`,
+    backgroundSize: kind === 'ruins' ? `800% ${(1086 / 184) * 100}%` : '800% 600%',
+    backgroundPosition:
+      kind === 'treasure' ? '0% 0%' : `${(4 * 100) / 7}% ${(208 / (1086 - 184)) * 100}%`,
+  };
   return <span className={`activity-tab-icon ${kind}`} style={style} aria-hidden="true" />;
 }
 export function ActivityMark({ kind }: { kind: 'time' | 'place' | 'trophy' | 'book' | 'people' }) {
@@ -95,25 +86,8 @@ export function ActivityClock({
   );
 }
 export function ActivityItemArt({ id }: { id: string }) {
-  const region = inventoryIconRegion(id),
-    clip = `activity-item-${useId().replace(/:/g, '')}`;
-  if (!region) return null;
-  const [x, y, width, height] = region;
-  return (
-    <svg viewBox={region.join(' ')} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <defs>
-        <clipPath id={clip}>
-          <rect x={x} y={y} width={width} height={height} />
-        </clipPath>
-      </defs>
-      <image
-        href={optimizedAsset('/assets/ui/cultivation/bag-items-v1.png')}
-        width="1536"
-        height="1024"
-        clipPath={`url(#${clip})`}
-      />
-    </svg>
-  );
+  const url = inventoryIconUrl(id);
+  return url ? <img src={url} alt="" aria-hidden="true" /> : null;
 }
 export function ActivityRewards() {
   const rewards = [

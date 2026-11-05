@@ -6,6 +6,8 @@ import type { SkillId } from '../data';
 import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
 import { schoolSheet, spellCell } from '../data/heroSpellArt';
 import { directionalCell, HERO_ATLASES } from '../game/art/heroAtlas';
+import startup from '../data/startupAssets.json';
+import { menuSkillIcon } from '../data/menuIcons';
 
 /** Clip to the atlas cell itself as well as the viewport, including letterboxed SVGs. */
 function AtlasCrop({
@@ -84,15 +86,13 @@ export function HeroDirectionalPose({
   );
 }
 export function ChildHeroPortrait({ id, className = '' }: { id: HeroId; className?: string }) {
-  const [x, y, width] = directionalCell('children', heroRow(id), 0);
   return (
-    <AtlasCrop
+    <img
       className={`hero-portrait ${className}`}
-      box={[x + 16, y + 2, width - 32, 110]}
-      source="children"
-      width={1284}
-      height={1225}
-      directory="/assets/heroes-v8"
+      src={(startup.urls as Record<string,string>)[`head-${id}`]}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
     />
   );
 }
@@ -125,14 +125,13 @@ export function HeroMeditation({ id, className = '' }: { id: HeroId; className?:
 }
 
 export function RosterPortrait({ id, className = '' }: { id: HeroId; className?: string }) {
-  const row = heroRow(id);
   return (
-    <AtlasCrop
+    <img
       className={`hero-portrait ${className}`}
-      box={[(row % 4) * 384 + 74, Math.floor(row / 4) * 512 + 12, 236, 226]}
-      source="roster"
-      width={1536}
-      height={1024}
+      src={(startup.urls as Record<string, string>)[`adult-head-${id}`]}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
     />
   );
 }
@@ -164,15 +163,16 @@ export function HeroPose({
 export function HeroSpellGlyph({ id, className = '' }: { id: SkillId; className?: string }) {
   const art = heroSpell(id);
   if (!art) return null;
+  const icon = menuSkillIcon(id);
   return (
     <span className={`hero-spell-glyph ${className}`} aria-hidden="true">
-      <AtlasCrop
+      {icon ? <svg viewBox="0 0 128 128" aria-hidden="true"><image href={icon} width="128" height="128" /></svg> : <AtlasCrop
         box={spellCell(art.id)}
         source={art.hero}
         directory={schoolSheet(art.hero).directory}
         width={schoolSheet(art.hero).width}
         height={schoolSheet(art.hero).height}
-      />
+      />}
     </span>
   );
 }

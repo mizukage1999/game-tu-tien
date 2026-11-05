@@ -4,7 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { BossHuntPanel } from './BossHuntPanel';
 import { gameStore, newPlayer } from '../../store/gameStore';
-import { bossCatalog } from '../../data/bossCatalog';
+import { bossCatalog, loadBossCatalog } from '../../data/bossCatalog';
 import { DUNGEONS, MONSTERS } from '../../data';
 import { dungeonVariant } from '../../data/dungeonCatalog';
 import { getMap } from '../../game/maps';
@@ -35,7 +35,8 @@ const input = (selector: string, value: string) =>
     )!.set!.call(e, value);
     e.dispatchEvent(new Event(e.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
   });
-beforeEach(() => {
+beforeEach(async () => {
+  await loadBossCatalog();
   previous = gameStore.getState();
   previousHunt = bossHuntStore.getState();
   const initial = newPlayer(),

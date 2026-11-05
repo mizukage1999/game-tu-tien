@@ -11,10 +11,11 @@ import { OpeningGuide } from './OpeningGuide';
 import { AdventureGuide } from './AdventureGuide';
 import { PartyTracker } from './PartyTracker';
 import { useSocial } from '../store/socialStore';
+import { HudFrame, HudGlyph } from './HudGlyph';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
-  const hasParty = useSocial(s => !!s.partyId);
+  const hasParty = useSocial((s) => !!s.partyId);
   const phone = usePhoneLayout();
   const setMenu = useGame((s) => s.setMenu);
   const player = useGame((s) => s.player);
@@ -25,53 +26,98 @@ export function QuestPanel() {
   const active = Object.entries(quests)
     .filter(([, q]) => q.status !== 'done')
     .filter(([id]) => !!QUESTS[id])
-    .sort(([a], [b]) => a === tracked ? -1 : b === tracked ? 1 : a === nextStory ? -1 : b === nextStory ? 1 : (QUESTS[a].kind === QUESTS[b].kind ? a.localeCompare(b) : QUESTS[a].kind === 'main' ? -1 : 1));
+    .sort(([a], [b]) =>
+      a === tracked
+        ? -1
+        : b === tracked
+          ? 1
+          : a === nextStory
+            ? -1
+            : b === nextStory
+              ? 1
+              : QUESTS[a].kind === QUESTS[b].kind
+                ? a.localeCompare(b)
+                : QUESTS[a].kind === 'main'
+                  ? -1
+                  : 1,
+    );
 
   return (
     <div className={`quest-panel panel-glass ${open ? '' : 'collapsed'}`}>
+      <HudFrame />
       <div className="quest-tabs">
         <button className={tab === 'quest' ? 'active' : ''} onClick={() => setTab('quest')}>
+          <HudGlyph kind="quest" />
           Nhiệm Vụ
         </button>
         <button className={tab === 'team' ? 'active' : ''} onClick={() => setTab('team')}>
-          Đội{hasParty && <span className="party-dot" aria-label="Đã có tổ đội"> ●</span>}
+          <HudGlyph kind="party" />
+          Tổ Đội{hasParty && <span className="party-dot" aria-label="Đã có tổ đội" />}
         </button>
-        <button className="quest-toggle" onClick={() => setOpen(!open)} aria-label="Thu gọn">
+        <button
+          className="quest-toggle"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? 'Thu gọn' : 'Mở rộng'}
+          aria-expanded={open}
+        >
           {open ? '‹' : '›'}
         </button>
       </div>
       {open && tab === 'quest' && (
         <>
-        <button className="story-tracker" onClick={() => setMenu('journey')}>
-          <small>{originText(nextStory ? storyChapter(nextStory) : 'Thanh Vân Truyện',player)}</small>
-          <span>{nextStory ? QUESTS[nextStory].name : 'Tiên lộ đang viết tiếp'} <b>›</b></span>
-        </button>
-        <ul className="quest-list">
-          {active.length === 0 && <li className="muted">Không có nhiệm vụ. Hãy tìm NPC có dấu !</li>}
-          {(phone ? active.slice(0, 1) : active).map(([id, q]) => {
-            const def = QUESTS[id];
-            const remaining = def.objectives.map((o, i) => ({ o, i })).filter(({ o, i }) => (q.progress[i] ?? 0) < o.count);
-            return (
-              <li key={id} className={`quest-go ${q.status === 'ready' ? 'ready' : ''}`} onClick={() => EventBus.emit('cmd:questGo', id)} title="Bấm để tự chạy tới">
-                <div className="quest-title">
-                  <span className={`quest-kind ${def.kind}`}>[{def.kind === 'main' ? 'Chính' : 'Phụ'}]</span> {def.name}
-                </div>
-                {q.status === 'ready' && def.turnIn ? (
-                  <div className="quest-obj done">Trả nhiệm vụ: {npcName(def.turnIn)}</div>
-                ) : (
-                  (phone ? remaining.slice(0, 1) : def.objectives.map((o, i) => ({ o, i }))).map(({ o, i }) => (
-                    <div key={i} className="quest-obj">
-                      {objectiveText(o, questNames)} ({q.progress[i] ?? 0}/{o.count})
-                    </div>
-                  ))
-                )}
-              </li>
-            );
-          })}
-        </ul>
-        <OpeningGuide />
-        <AdventureGuide />
-        {phone && <button className="quest-details" onClick={() => setMenu('journey')}>Tiên Lộ · Xem chi tiết ›</button>}
+          <button className="story-tracker" onClick={() => setMenu('journey')}>
+            <small>
+              <HudGlyph kind="book" />
+              {originText(nextStory ? storyChapter(nextStory) : 'Thanh Vân Truyện', player)}
+            </small>
+            <span>
+              {nextStory ? QUESTS[nextStory].name : 'Tiên lộ đang viết tiếp'} <b>›</b>
+            </span>
+          </button>
+          <ul className="quest-list">
+            {active.length === 0 && (
+              <li className="muted">Không có nhiệm vụ. Hãy tìm NPC có dấu !</li>
+            )}
+            {(phone ? active.slice(0, 1) : active).map(([id, q]) => {
+              const def = QUESTS[id];
+              const remaining = def.objectives
+                .map((o, i) => ({ o, i }))
+                .filter(({ o, i }) => (q.progress[i] ?? 0) < o.count);
+              return (
+                <li
+                  key={id}
+                  className={`quest-go ${q.status === 'ready' ? 'ready' : ''}`}
+                  onClick={() => EventBus.emit('cmd:questGo', id)}
+                  title="Bấm để tự chạy tới"
+                >
+                  <div className="quest-title">
+                    <span className={`quest-kind ${def.kind}`}>
+                      [{def.kind === 'main' ? 'Chính' : 'Phụ'}]
+                    </span>{' '}
+                    {def.name}
+                  </div>
+                  {q.status === 'ready' && def.turnIn ? (
+                    <div className="quest-obj done">Trả nhiệm vụ: {npcName(def.turnIn)}</div>
+                  ) : (
+                    (phone ? remaining.slice(0, 2) : def.objectives.map((o, i) => ({ o, i }))).map(
+                      ({ o, i }) => (
+                        <div key={i} className="quest-obj">
+                          {objectiveText(o, questNames)} ({q.progress[i] ?? 0}/{o.count})
+                        </div>
+                      ),
+                    )
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <OpeningGuide />
+          <AdventureGuide />
+          {phone && (
+            <button className="quest-details" onClick={() => setMenu('journey')}>
+              Tiên Lộ · Xem chi tiết ›
+            </button>
+          )}
         </>
       )}
       {open && tab === 'team' && <PartyTracker />}

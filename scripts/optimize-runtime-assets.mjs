@@ -11,7 +11,7 @@ const only = new Set(process.argv.slice(2));
 const publicRoot = path.join(root, 'public'),
   output = path.join(publicRoot, 'assets/optimized');
 fs.mkdirSync(output, { recursive: true });
-const directories = ['maps', 'monsters', 'heroes-v8', 'heroes-v7', 'skills', 'skills-schools-v1','skills-schools-v2'];
+const directories = ['maps', 'monsters', 'heroes-v8', 'heroes-v7', 'skills', 'skills-schools-v1','skills-schools-v2', 'ui/cultivation', 'journey'];
 const sources = directories.flatMap((directory) =>
   fs
     .readdirSync(path.join(publicRoot, 'assets', directory))
@@ -24,6 +24,12 @@ sources.push(
   '/assets/ui/sky-race-v1.png',
   '/assets/ui/world-activities-v1.png',
   '/assets/ui/buff-icons-v1.png',
+  '/assets/ui/market-night-v1.png',
+  '/assets/ui/premium-sanctum-v1.png',
+  '/assets/ui/premium-bundles-v1.png',
+  '/assets/ui/boss-hunt-world-v1.png',
+  '/assets/ui/boss-hunt-scenes-v1.png',
+  '/assets/ui/dungeon-environments-v1.png',
   ...['skills-ice.png', 'beast-snow.png', 'weapon-red.png'].map(
     (name) => `/assets/sprites/${name}`,
   ),
@@ -42,7 +48,7 @@ sources.push(
     (name) => `/assets/ui/item-${name}.png`,
   ),
 );
-const files = sources.filter(
+const files = [...new Set(sources)].filter(
   (url) =>
     (!only.size || only.has(url)) &&
     fs.existsSync(path.join(publicRoot, url)) &&

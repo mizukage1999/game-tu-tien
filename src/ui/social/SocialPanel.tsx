@@ -15,6 +15,7 @@ import { useAccount } from '../../net/session';
 import { CultHeading } from '../menus/CultivationUI';
 import { CorrespondenceIcon } from './CorrespondenceIcon';
 import './correspondence.css';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 type SocialTab = 'friends' | 'invites';
 type StatusFilter = 'all' | 'online' | 'offline';
@@ -26,7 +27,7 @@ const searchName = (value: string) =>
     .replace(/đ/gi, 'd')
     .toLocaleLowerCase('vi');
 const portrait = (sex: SocialPresence['sex']) =>
-  `/assets/ui/cultivation/${sex === 'male' ? 'wang' : 'li'}-full-v1.png`;
+  optimizedAsset(`/assets/ui/cultivation/${sex === 'male' ? 'wang' : 'li'}-full-v1.png`);
 
 function FriendAvatar({ profile }: { profile?: SocialPresence }) {
   return (
@@ -219,7 +220,7 @@ export function SocialPanel() {
                   <div className={`correspondence-friend-hero ${profile ? '' : 'unknown'}`}>
                     {profile ? (
                       <img
-                        src={`/assets/ui/cultivation/${profile.sex === 'male' ? 'wang' : 'li'}-full-v1.png`}
+                        src={optimizedAsset(`/assets/ui/cultivation/${profile.sex === 'male' ? 'wang' : 'li'}-full-v1.png`)}
                         className="correspondence-hero-person"
                         alt=""
                       />

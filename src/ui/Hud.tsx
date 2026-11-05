@@ -25,6 +25,7 @@ import { useGame } from '../store/gameStore';
 import { usePerformanceTier } from '../store/performanceStore';
 import './mobile.css';
 import './presentation-v5.css';
+import './hud-chrome.css';
 
 export function Hud() {
   const inDungeon = useGame((s) => s.dungeon !== null);

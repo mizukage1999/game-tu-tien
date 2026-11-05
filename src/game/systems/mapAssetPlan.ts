@@ -2,6 +2,27 @@ import { DUNGEONS, MONSTERS } from '../../data';
 import { BESTIARY, speciesArt } from '../../data/bestiary';
 import type { MapDef } from '../maps/MapBuilder';
 
+/** The village has its own prepared pack; distant scenery loads on later maps. */
+export function openingMapPlan(mapId: string, child: boolean) {
+  return {
+    world:
+      mapId === 'vuong_gia_thon'
+        ? []
+        : [
+            'world-sect',
+            'world-nature',
+            'world-village',
+            'world-people',
+            'world-buildings-v4',
+            'world-nature-v4',
+            'world-props-v4',
+            'world-materials-v4',
+            'world-vistas-v4',
+          ],
+    combat: !child,
+  };
+}
+
 /** Include every possible wave and boss on a shared dungeon map, not just its first wave. */
 export function mapMonsterArt(map: MapDef) {
   const types = new Set(map.monsters.map((m) => m.type));

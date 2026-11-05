@@ -1,0 +1,271 @@
+{
+  "urls": {
+    "hero-child-wang_lam": "/assets/optimized/startup-hero-child-wang_lam.ea334ba1eb97.webp",
+    "portrait-wang_lam": "/assets/optimized/startup-portrait-wang_lam.feb60d6852c7.webp",
+    "head-wang_lam": "/assets/optimized/startup-head-wang_lam.67673dddbc49.webp",
+    "adult-head-wang_lam": "/assets/optimized/startup-adult-head-wang_lam.22bb394891a4.webp",
+    "hero-adult-wang_lam": "/assets/optimized/startup-hero-adult-wang_lam.20d94e125fc7.webp",
+    "hero-child-ly_mo_uyen": "/assets/optimized/startup-hero-child-ly_mo_uyen.43c6392ffbeb.webp",
+    "portrait-ly_mo_uyen": "/assets/optimized/startup-portrait-ly_mo_uyen.8af72c178fb2.webp",
+    "head-ly_mo_uyen": "/assets/optimized/startup-head-ly_mo_uyen.dfad14deb4f2.webp",
+    "adult-head-ly_mo_uyen": "/assets/optimized/startup-adult-head-ly_mo_uyen.f1cd9084a5ca.webp",
+    "hero-adult-ly_mo_uyen": "/assets/optimized/startup-hero-adult-ly_mo_uyen.43cbd26896ec.webp",
+    "hero-child-tham_nguyet": "/assets/optimized/startup-hero-child-tham_nguyet.28ec96630d7c.webp",
+    "portrait-tham_nguyet": "/assets/optimized/startup-portrait-tham_nguyet.80bc5f02fe01.webp",
+    "head-tham_nguyet": "/assets/optimized/startup-head-tham_nguyet.cb9aeb6015d0.webp",
+    "adult-head-tham_nguyet": "/assets/optimized/startup-adult-head-tham_nguyet.0b8c70b6653f.webp",
+    "hero-adult-tham_nguyet": "/assets/optimized/startup-hero-adult-tham_nguyet.b02da71cde64.webp",
+    "hero-child-so_thien": "/assets/optimized/startup-hero-child-so_thien.d8e804b2f85b.webp",
+    "portrait-so_thien": "/assets/optimized/startup-portrait-so_thien.97dfc2584060.webp",
+    "head-so_thien": "/assets/optimized/startup-head-so_thien.3324b96c5496.webp",
+    "adult-head-so_thien": "/assets/optimized/startup-adult-head-so_thien.25484ece59cb.webp",
+    "hero-adult-so_thien": "/assets/optimized/startup-hero-adult-so_thien.14c2b8390977.webp",
+    "hero-child-hong_lien": "/assets/optimized/startup-hero-child-hong_lien.9a0adeb8e7c2.webp",
+    "portrait-hong_lien": "/assets/optimized/startup-portrait-hong_lien.c9137a47d8ff.webp",
+    "head-hong_lien": "/assets/optimized/startup-head-hong_lien.012dccc527c5.webp",
+    "adult-head-hong_lien": "/assets/optimized/startup-adult-head-hong_lien.e6a8dbc7da37.webp",
+    "hero-adult-hong_lien": "/assets/optimized/startup-hero-adult-hong_lien.4f57ad608665.webp",
+    "hero-child-vu_minh": "/assets/optimized/startup-hero-child-vu_minh.b42448ca3be9.webp",
+    "portrait-vu_minh": "/assets/optimized/startup-portrait-vu_minh.efa15786ed13.webp",
+    "head-vu_minh": "/assets/optimized/startup-head-vu_minh.462aa6b65fb9.webp",
+    "adult-head-vu_minh": "/assets/optimized/startup-adult-head-vu_minh.c5a57a505108.webp",
+    "hero-adult-vu_minh": "/assets/optimized/startup-hero-adult-vu_minh.0b9388f56374.webp",
+    "hero-child-quan_vo_tran": "/assets/optimized/startup-hero-child-quan_vo_tran.e4ae985ce9f2.webp",
+    "portrait-quan_vo_tran": "/assets/optimized/startup-portrait-quan_vo_tran.336f58976dfa.webp",
+    "head-quan_vo_tran": "/assets/optimized/startup-head-quan_vo_tran.dc06c9c39374.webp",
+    "adult-head-quan_vo_tran": "/assets/optimized/startup-adult-head-quan_vo_tran.d52df9528f7a.webp",
+    "hero-adult-quan_vo_tran": "/assets/optimized/startup-hero-adult-quan_vo_tran.808a397be8b6.webp",
+    "hero-child-diep_ly": "/assets/optimized/startup-hero-child-diep_ly.2c371af503b4.webp",
+    "portrait-diep_ly": "/assets/optimized/startup-portrait-diep_ly.4d7cf650c0ab.webp",
+    "head-diep_ly": "/assets/optimized/startup-head-diep_ly.452a29736138.webp",
+    "adult-head-diep_ly": "/assets/optimized/startup-adult-head-diep_ly.00fbcfaaac22.webp",
+    "hero-adult-diep_ly": "/assets/optimized/startup-hero-adult-diep_ly.6a9f5a1143fd.webp",
+    "realm-crests": "/assets/optimized/startup-realm-crests.5588dbe782f0.webp",
+    "npc-vuong_phu": "/assets/optimized/startup-npc-vuong_phu.7675818653cb.webp",
+    "npc-vuong_mau": "/assets/optimized/startup-npc-vuong_mau.2cbcd711584d.webp",
+    "npc-duoc_ba": "/assets/optimized/startup-npc-duoc_ba.4d20a0d8ed0c.webp",
+    "npc-tien_sinh": "/assets/optimized/startup-npc-tien_sinh.da297f9d3ce8.webp",
+    "npc-vuong_thuc": "/assets/optimized/startup-npc-vuong_thuc.e4049bfd5756.webp",
+    "npc-a_moc": "/assets/optimized/startup-npc-a_moc.842089805822.webp",
+    "village": "/assets/optimized/startup-village.fbf5e1a3b6a8.webp",
+    "materials": "/assets/optimized/startup-materials.4bfd48b156be.webp",
+    "ground-0-0": "/assets/optimized/startup-ground-0-0.fa24ed65d500.webp",
+    "ground-1024-0": "/assets/optimized/startup-ground-1024-0.1a6b4279547f.webp",
+    "ground-2048-0": "/assets/optimized/startup-ground-2048-0.312f63b49c17.webp",
+    "ground-3072-0": "/assets/optimized/startup-ground-3072-0.0a83b7f3f6a0.webp",
+    "ground-0-1024": "/assets/optimized/startup-ground-0-1024.0b49788950da.webp",
+    "ground-1024-1024": "/assets/optimized/startup-ground-1024-1024.1d929558df5a.webp",
+    "ground-2048-1024": "/assets/optimized/startup-ground-2048-1024.ccb756900d59.webp",
+    "ground-3072-1024": "/assets/optimized/startup-ground-3072-1024.bbdc0afec1a4.webp"
+  },
+  "frames": {
+    "village25d-home": [
+      2,
+      2,
+      485,
+      456
+    ],
+    "village25d-apothecary": [
+      491,
+      2,
+      512,
+      422
+    ],
+    "village25d-school": [
+      1007,
+      2,
+      496,
+      443
+    ],
+    "village25d-well": [
+      1507,
+      2,
+      325,
+      407
+    ],
+    "village25d-workbench": [
+      2,
+      462,
+      473,
+      336
+    ],
+    "village25d-shrine": [
+      479,
+      462,
+      450,
+      386
+    ],
+    "village25d-willow": [
+      933,
+      462,
+      473,
+      483
+    ],
+    "village25d-peach": [
+      1410,
+      462,
+      512,
+      405
+    ],
+    "village25d-bridge": [
+      2,
+      949,
+      480,
+      392
+    ],
+    "village25d-fence": [
+      486,
+      949,
+      436,
+      445
+    ],
+    "village25d-herbs": [
+      926,
+      949,
+      496,
+      435
+    ],
+    "village25d-lantern": [
+      1426,
+      949,
+      376,
+      410
+    ],
+    "village-reference-court-notice": [
+      2,
+      1398,
+      376,
+      332
+    ],
+    "npc-village-vuong_phu": [
+      382,
+      1398,
+      180,
+      180
+    ],
+    "npc-village-vuong_mau": [
+      566,
+      1398,
+      180,
+      180
+    ],
+    "npc-village-duoc_ba": [
+      750,
+      1398,
+      180,
+      180
+    ],
+    "npc-village-tien_sinh": [
+      934,
+      1398,
+      180,
+      180
+    ],
+    "npc-village-vuong_thuc": [
+      1118,
+      1398,
+      180,
+      180
+    ],
+    "npc-village-a_moc": [
+      1302,
+      1398,
+      180,
+      180
+    ]
+  },
+  "npcBounds": {
+    "vuong_phu": {
+      "top": 5,
+      "bottom": 177
+    },
+    "vuong_mau": {
+      "top": 15,
+      "bottom": 175
+    },
+    "duoc_ba": {
+      "top": 22,
+      "bottom": 177
+    },
+    "tien_sinh": {
+      "top": 3,
+      "bottom": 174
+    },
+    "vuong_thuc": {
+      "top": 2,
+      "bottom": 174
+    },
+    "a_moc": {
+      "top": 10,
+      "bottom": 173
+    }
+  },
+  "heroIds": [
+    "wang_lam",
+    "ly_mo_uyen",
+    "tham_nguyet",
+    "so_thien",
+    "hong_lien",
+    "vu_minh",
+    "quan_vo_tran",
+    "diep_ly"
+  ],
+  "groundPages": [
+    {
+      "key": "ground-0-0",
+      "x": 0,
+      "y": 0,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "key": "ground-1024-0",
+      "x": 1024,
+      "y": 0,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "key": "ground-2048-0",
+      "x": 2048,
+      "y": 0,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "key": "ground-3072-0",
+      "x": 3072,
+      "y": 0,
+      "width": 512,
+      "height": 1024
+    },
+    {
+      "key": "ground-0-1024",
+      "x": 0,
+      "y": 1024,
+      "width": 1024,
+      "height": 810
+    },
+    {
+      "key": "ground-1024-1024",
+      "x": 1024,
+      "y": 1024,
+      "width": 1024,
+      "height": 810
+    },
+    {
+      "key": "ground-2048-1024",
+      "x": 2048,
+      "y": 1024,
+      "width": 1024,
+      "height": 810
+    },
+    {
+      "key": "ground-3072-1024",
+      "x": 3072,
+      "y": 1024,
+      "width": 512,
+      "height": 810
+    }
+  ]
+}

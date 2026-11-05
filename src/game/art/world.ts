@@ -36,6 +36,7 @@ export function registerWorldArt(scene: Phaser.Scene) {
   if (scene.textures.exists('world-people')) {
     const source = scene.textures.get('world-people').getSourceImage() as HTMLImageElement;
     for (const [i, id] of ['vuong_phu', 'vuong_mau', 'duoc_ba', 'tien_sinh', 'vuong_thuc', 'giu_suoi'].entries()) {
+      if (scene.textures.exists(`npc-village-${id}`)) continue;
       const [canvas, ctx] = makeCanvas(180, 180);
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(source, (i % 3) * source.width / 3, Math.floor(i / 3) * source.height / 2, source.width / 3, source.height / 2, 0, 0, 180, 180);

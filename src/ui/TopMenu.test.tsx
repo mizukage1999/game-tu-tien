@@ -5,6 +5,34 @@ import { it, expect } from 'vitest';
 import { TopMenu } from './TopMenu';
 import { gameStore, newPlayer } from '../store/gameStore';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+it('opens on mouse press once, and keeps keyboard and touch activation working', () => {
+  const previous = gameStore.getState(),
+    host = document.createElement('div'),
+    root = createRoot(host);
+  gameStore.setState({ player: { ...newPlayer(), admitted: true }, menu: null });
+  try {
+    act(() => root.render(<TopMenu />));
+    const bag = host.querySelector<HTMLButtonElement>('.menu-btn-bag')!;
+    const press = (pointerType: string) => {
+      const event = new MouseEvent('pointerdown', { bubbles: true, button: 0 });
+      Object.defineProperty(event, 'pointerType', { value: pointerType });
+      act(() => bag.dispatchEvent(event));
+    };
+    press('mouse');
+    expect(gameStore.getState().menu).toBe('bag');
+    act(() => bag.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })));
+    expect(gameStore.getState().menu).toBe('bag');
+    act(() => bag.click());
+    expect(gameStore.getState().menu).toBeNull();
+    press('touch');
+    expect(gameStore.getState().menu).toBeNull();
+    act(() => bag.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })));
+    expect(gameStore.getState().menu).toBe('bag');
+  } finally {
+    act(() => root.unmount());
+    gameStore.setState(previous);
+  }
+});
 it('shows every desktop feature directly and keeps mobile compact', () => {
   const previous = gameStore.getState(),
     host = document.createElement('div'),

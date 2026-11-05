@@ -22,13 +22,15 @@ export interface BossEntry {
   dungeon?: DungeonEntry;
 }
 let catalog: BossEntry[] | undefined;
-/** Build only when the hunt screen opens; keep the login path unchanged. */
-export function bossCatalog(): BossEntry[] {
-  if (catalog) return catalog;
+let pending: Promise<BossEntry[]> | undefined;
+function* buildCatalog(): Generator<void, BossEntry[]> {
   const entries: BossEntry[] = [];
   for (const mapId of MAP_IDS) {
     const map = getMap(mapId);
-    if (map.arena || map.private) continue;
+    if (map.arena || map.private) {
+      yield;
+      continue;
+    }
     const seen = new Set<string>();
     for (const spawn of map.monsters) {
       if (seen.has(spawn.type)) continue;
@@ -50,6 +52,7 @@ export function bossCatalog(): BossEntry[] {
           y: spawn.y,
         });
     }
+    yield;
   }
   for (const dungeon of DUNGEON_CATALOG) {
     const def = DUNGEONS[dungeonVariant(dungeon)],
@@ -64,10 +67,41 @@ export function bossCatalog(): BossEntry[] {
       dungeon,
     });
   }
-  catalog = entries.sort(
+  return entries.sort(
     (a, b) => MONSTERS[a.type].level - MONSTERS[b.type].level || a.key.localeCompare(b.key),
   );
+}
+/** Synchronous access for data tools; live UI uses the yielding loader below. */
+export function bossCatalog(): BossEntry[] {
+  if (catalog) return catalog;
+  const work = buildCatalog();
+  let next = work.next();
+  while (!next.done) next = work.next();
+  catalog = next.value;
   return catalog;
+}
+export function cachedBossCatalog() {
+  return catalog ?? null;
+}
+/** Keep cold map generation out of the click/render task. Share one in-flight build. */
+export function loadBossCatalog(): Promise<BossEntry[]> {
+  if (catalog) return Promise.resolve(catalog);
+  if (pending) return pending;
+  const yieldTurn = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+  pending = (async () => {
+    const work = buildCatalog();
+    let next: IteratorResult<void, BossEntry[]>;
+    do {
+      await yieldTurn();
+      if (catalog) return catalog;
+      next = work.next();
+    } while (!next.done);
+    catalog = next.value;
+    return catalog;
+  })().finally(() => {
+    pending = undefined;
+  });
+  return pending;
 }
 export function bossTheme(def: MonsterDef): {
   art: number;

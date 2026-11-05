@@ -35,3 +35,77 @@ for (const file of report.files) {
 console.log(
   `Verified ${report.files.length} delivery images, source hashes, atlas dimensions and alpha records.`,
 );
+
+const icons = JSON.parse(fs.readFileSync(path.join(root, 'src/data/uiIconAssets.json'), 'utf8'));
+const iconReport = JSON.parse(
+  fs.readFileSync(path.join(root, 'docs/ui-icon-encoding.json'), 'utf8'),
+);
+const iconLayout = fs.readFileSync(path.join(root, 'src/data/uiIconLayout.json'));
+const layout = JSON.parse(iconLayout.toString());
+const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
+if (digest(iconLayout) !== iconReport.layoutSha256)
+  throw Error('UI icon layout changed. Run npm run assets:icons.');
+for (const source of iconReport.sources)
+  if (digest(fs.readFileSync(path.join(root, 'public', source.source))) !== source.sha256)
+    throw Error(`UI icon source changed: ${source.source}. Run npm run assets:icons.`);
+const expectedIcons = new Set([
+  ...layout.inventory.map((_, index) => `item:${index}`),
+  ...layout.skills.map((id) => `skill:${id}`),
+  ...Array.from({ length: layout.crests }, (_, index) => `crest:${index}`),
+]);
+if (
+  Object.keys(icons).length !== expectedIcons.size ||
+  iconReport.files.length !== expectedIcons.size
+)
+  throw Error('UI icon manifest is incomplete. Run npm run assets:icons.');
+for (const file of iconReport.files) {
+  const bytes = fs.readFileSync(path.join(root, 'public', file.output));
+  if (
+    !expectedIcons.delete(file.key) ||
+    icons[file.key] !== file.output ||
+    file.maxAlphaDifference !== 0 ||
+    bytes.length !== file.encodedBytes ||
+    !file.output.includes(digest(bytes).slice(0, 12)) ||
+    bytes.subarray(0, 4).toString() !== 'RIFF' ||
+    bytes.subarray(8, 12).toString() !== 'WEBP'
+  )
+    throw Error(`Invalid UI icon: ${file.key}. Run npm run assets:icons.`);
+}
+console.log(`Verified ${iconReport.files.length} precut UI icons and their source hashes.`);
+
+const menuIcons=JSON.parse(fs.readFileSync(path.join(root,'src/data/menuIconAssets.json'),'utf8'));
+const menuReport=JSON.parse(fs.readFileSync(path.join(root,'docs/menu-icon-encoding.json'),'utf8'));
+for(const source of menuReport.layoutSources)
+  if(digest(fs.readFileSync(path.join(root,source.source)))!==source.sha256)
+    throw Error(`Menu icon layout changed: ${source.source}. Run npm run assets:menu.`);
+for(const source of menuReport.sources)
+  if(digest(fs.readFileSync(path.join(root,'public',source.source)))!==source.sha256)
+    throw Error(`Menu icon source changed: ${source.source}. Run npm run assets:menu.`);
+for(const file of menuReport.files){
+  const bytes=fs.readFileSync(path.join(root,'public',file.output));
+  if(menuIcons[file.id]!==file.output||file.bytes!==bytes.length||file.maxAlphaDifference!==0||!file.output.includes(digest(bytes).slice(0,12))||bytes.subarray(8,12).toString()!=='WEBP')
+    throw Error(`Invalid menu icon: ${file.id}. Run npm run assets:menu.`);
+}
+if(Object.keys(menuIcons).length!==menuReport.files.length)throw Error('Menu icon report is incomplete.');
+console.log(`Verified ${menuReport.files.length} menu skill icons and their source hashes.`);
+
+const startupFile=fs.readFileSync(path.join(root,'src/data/startupAssets.json'));
+const startup=JSON.parse(startupFile.toString());
+const startupReport=JSON.parse(fs.readFileSync(path.join(root,'docs/startup-asset-encoding.json'),'utf8'));
+if(digest(startupFile)!==startupReport.manifestSha256)
+  throw Error('Startup atlas metadata changed. Run npm run assets:startup.');
+for(const source of startupReport.sources)
+  if(digest(fs.readFileSync(path.join(root,source.source)))!==source.sha256)
+    throw Error(`Startup source changed: ${source.source}. Run npm run assets:startup.`);
+for(const file of startupReport.files){
+  const bytes=fs.readFileSync(path.join(root,'public',file.url));
+  if(startup.urls[file.key]!==file.url||file.bytes!==bytes.length||file.maxAlphaDifference!==0||!file.url.includes(digest(bytes).slice(0,12))||bytes.subarray(8,12).toString()!=='WEBP')
+    throw Error(`Invalid startup asset: ${file.key}. Run npm run assets:startup.`);
+}
+const atlas=startupReport.files.find(file=>file.key==='village');
+for(const [key,[x,y,width,height]] of Object.entries(startup.frames))
+  if(x<0||y<0||width<=0||height<=0||x+width>atlas.width||y+height>atlas.height)
+    throw Error(`Startup frame exceeds atlas: ${key}.`);
+if(Object.keys(startup.urls).length!==startupReport.files.length)
+  throw Error('Startup asset report is incomplete.');
+console.log(`Verified ${startupReport.files.length} prepared startup assets, geometry and source hashes.`);

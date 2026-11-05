@@ -84,6 +84,9 @@ export function App() {
   return (
     <div className={`app${turned ? ' turned' : ''}`} data-performance={performanceTier}>
       <MobileViewport />
+      {!needsLogin && !control.blocked && !maintenanceBlocks(control) && (
+        <PhaserGame started={ready && entered} />
+      )}
       {control.blocked || maintenanceBlocks(control) ? (
         <div className="server-gate">
           <section>
@@ -107,7 +110,6 @@ export function App() {
         <StartScreen onStart={() => setEntered(true)} />
       ) : ready ? (
         <>
-          <PhaserGame />
           {/* Warm sun from the north-east and cool shade below: the grade that ties the
               painted tiles together without touching the HUD. */}
           <div className="world-grade" aria-hidden="true" />

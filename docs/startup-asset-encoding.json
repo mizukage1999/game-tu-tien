@@ -1,0 +1,556 @@
+{
+  "quality": 0.95,
+  "sources": [
+    {
+      "source": "public/assets/heroes-v8/children.png",
+      "sha256": "ebc766f4897eb2864f4cd16bdd380643cc32ed8297b74fb8eb4b115cf81db8e5"
+    },
+    {
+      "source": "public/assets/heroes-v8/adults.png",
+      "sha256": "ff1974d8a8894b68082503a7ce9ad1fb22626e3f2f50d7df0f64da7dd0b84f5d"
+    },
+    {
+      "source": "public/assets/heroes-v8/casting.png",
+      "sha256": "0850ca87a2984a768396a72127a013d6321d15d257e02fc21913acb6c879f85e"
+    },
+    {
+      "source": "public/assets/heroes-v7/roster.png",
+      "sha256": "3b18acee9d2eefdb16e261413f0bb5ea6aaf421730507f74a0ed7fcf439c202f"
+    },
+    {
+      "source": "public/assets/maps/village-architecture-v3.png",
+      "sha256": "757ff73fdc4d0f387f039e6f58cb9c9e142c0a2b0b39710ef457d71cca26951f"
+    },
+    {
+      "source": "public/assets/maps/village-nature-v3.png",
+      "sha256": "dafd0dceda0d7efbd0e7319c364c43603d4f712e18966a0daa6a7f25c468605e"
+    },
+    {
+      "source": "public/assets/maps/world-people.png",
+      "sha256": "31b9fc30343c1febe85d6d232fd6d30b0397674707e25d78b185f9fcfaa967ef"
+    },
+    {
+      "source": "public/assets/ui/cultivation/realm-crests-v1.png",
+      "sha256": "a77d31dc82a1ca56266d74c918675547dd0237cfc4c4c49fad56e833c0b496e6"
+    },
+    {
+      "source": "public/assets/maps/travel-people-v2.png",
+      "sha256": "f15e2fc074e0560cd5664aac0d4c4d3e6e0cc319299f19869c4769cf41188a87"
+    },
+    {
+      "source": "public/assets/maps/courtyard-architecture.png",
+      "sha256": "071c61bcf4d4c31712b7dfdef2cf4aefdc314a980ffee03fc7603247ef03983d"
+    },
+    {
+      "source": "public/assets/maps/world-materials-v4.png",
+      "sha256": "5f5c92d2c418c7ce50d5c5574e65e32dfa81cbc589b0c19657d56aec0a529fd3"
+    },
+    {
+      "source": "src/data/heroes.ts",
+      "sha256": "da3c7459ad5bdd7ed76c3d2d22944ae0da0bfc2e62dae500908fe1954111c5ce"
+    },
+    {
+      "source": "src/data/villageStartupLayout.ts",
+      "sha256": "81e13ab896732360eaa6bd33e5d10fb6d5a2ab0b1cfa1387910ab05ff1b0f752"
+    },
+    {
+      "source": "src/game/art/heroAtlas.ts",
+      "sha256": "d72f4807be02c472149e3b3582e935520fa9441aa1fc55c8331543c3d0540edf"
+    },
+    {
+      "source": "src/game/art/prepareHeroSheet.ts",
+      "sha256": "d52cfe322b255a4d20d90d2d1fb2b16cce909467fd23b2a8c698e438b2d3fce2"
+    },
+    {
+      "source": "src/game/maps/worldMaps.ts",
+      "sha256": "7d837657f20755514486a8b086683bc06c9a93d9374749245ebd71fda85ab462"
+    },
+    {
+      "source": "src/game/maps/MapBuilder.ts",
+      "sha256": "839c5173b50d69d453a31ba2a0ab34546c07dcf0da204594ace08a0a40fb2fef"
+    },
+    {
+      "source": "src/game/art/worldGround.ts",
+      "sha256": "81cea99ef6669d7cb642c444e51d3a0df2ef0dadf8c8d92b70e0bb86c355d0e8"
+    },
+    {
+      "source": "src/game/art/villageGround.ts",
+      "sha256": "5e46fdb5469a675f943d3ed9f5198ee2fb6b41b5ed635cdc18b82c0ef8a9fc7e"
+    },
+    {
+      "source": "src/game/art/worldPalette.ts",
+      "sha256": "4602afee45c4442eb3d43be88a2b81debbb467aa3300f45b251be10bbded5fa6"
+    },
+    {
+      "source": "src/game/art/canvas.ts",
+      "sha256": "bfd2cea407668d77c619a796e7614fa9c806655abb7b21114c4f5ad12d75ce2b"
+    },
+    {
+      "source": "src/game/art/tiles.ts",
+      "sha256": "551ebf49b27a5309357f75bbb5ff7a81b6a31e5aa6b0c8d72418dbef2ef0fc0b"
+    },
+    {
+      "source": "src/game/art/iso.ts",
+      "sha256": "5d4190ab8071a1628befb8d12b8a69651c190a1e3d0ababbfe8b7f63aa60b5f3"
+    }
+  ],
+  "files": [
+    {
+      "key": "hero-child-wang_lam",
+      "url": "/assets/optimized/startup-hero-child-wang_lam.ea334ba1eb97.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 101394
+    },
+    {
+      "key": "portrait-wang_lam",
+      "url": "/assets/optimized/startup-portrait-wang_lam.feb60d6852c7.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 4260
+    },
+    {
+      "key": "head-wang_lam",
+      "url": "/assets/optimized/startup-head-wang_lam.67673dddbc49.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 9058
+    },
+    {
+      "key": "adult-head-wang_lam",
+      "url": "/assets/optimized/startup-adult-head-wang_lam.22bb394891a4.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 43206
+    },
+    {
+      "key": "hero-adult-wang_lam",
+      "url": "/assets/optimized/startup-hero-adult-wang_lam.20d94e125fc7.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 266326
+    },
+    {
+      "key": "hero-child-ly_mo_uyen",
+      "url": "/assets/optimized/startup-hero-child-ly_mo_uyen.43c6392ffbeb.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 110052
+    },
+    {
+      "key": "portrait-ly_mo_uyen",
+      "url": "/assets/optimized/startup-portrait-ly_mo_uyen.8af72c178fb2.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 4416
+    },
+    {
+      "key": "head-ly_mo_uyen",
+      "url": "/assets/optimized/startup-head-ly_mo_uyen.dfad14deb4f2.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 10344
+    },
+    {
+      "key": "adult-head-ly_mo_uyen",
+      "url": "/assets/optimized/startup-adult-head-ly_mo_uyen.f1cd9084a5ca.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 44878
+    },
+    {
+      "key": "hero-adult-ly_mo_uyen",
+      "url": "/assets/optimized/startup-hero-adult-ly_mo_uyen.43cbd26896ec.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 295054
+    },
+    {
+      "key": "hero-child-tham_nguyet",
+      "url": "/assets/optimized/startup-hero-child-tham_nguyet.28ec96630d7c.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 123772
+    },
+    {
+      "key": "portrait-tham_nguyet",
+      "url": "/assets/optimized/startup-portrait-tham_nguyet.80bc5f02fe01.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 4996
+    },
+    {
+      "key": "head-tham_nguyet",
+      "url": "/assets/optimized/startup-head-tham_nguyet.cb9aeb6015d0.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 9796
+    },
+    {
+      "key": "adult-head-tham_nguyet",
+      "url": "/assets/optimized/startup-adult-head-tham_nguyet.0b8c70b6653f.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 37394
+    },
+    {
+      "key": "hero-adult-tham_nguyet",
+      "url": "/assets/optimized/startup-hero-adult-tham_nguyet.b02da71cde64.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 276676
+    },
+    {
+      "key": "hero-child-so_thien",
+      "url": "/assets/optimized/startup-hero-child-so_thien.d8e804b2f85b.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 102092
+    },
+    {
+      "key": "portrait-so_thien",
+      "url": "/assets/optimized/startup-portrait-so_thien.97dfc2584060.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 4034
+    },
+    {
+      "key": "head-so_thien",
+      "url": "/assets/optimized/startup-head-so_thien.3324b96c5496.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 8978
+    },
+    {
+      "key": "adult-head-so_thien",
+      "url": "/assets/optimized/startup-adult-head-so_thien.25484ece59cb.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 39910
+    },
+    {
+      "key": "hero-adult-so_thien",
+      "url": "/assets/optimized/startup-hero-adult-so_thien.14c2b8390977.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 275552
+    },
+    {
+      "key": "hero-child-hong_lien",
+      "url": "/assets/optimized/startup-hero-child-hong_lien.9a0adeb8e7c2.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 125880
+    },
+    {
+      "key": "portrait-hong_lien",
+      "url": "/assets/optimized/startup-portrait-hong_lien.c9137a47d8ff.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 5442
+    },
+    {
+      "key": "head-hong_lien",
+      "url": "/assets/optimized/startup-head-hong_lien.012dccc527c5.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 11406
+    },
+    {
+      "key": "adult-head-hong_lien",
+      "url": "/assets/optimized/startup-adult-head-hong_lien.e6a8dbc7da37.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 48608
+    },
+    {
+      "key": "hero-adult-hong_lien",
+      "url": "/assets/optimized/startup-hero-adult-hong_lien.4f57ad608665.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 314408
+    },
+    {
+      "key": "hero-child-vu_minh",
+      "url": "/assets/optimized/startup-hero-child-vu_minh.b42448ca3be9.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 106684
+    },
+    {
+      "key": "portrait-vu_minh",
+      "url": "/assets/optimized/startup-portrait-vu_minh.efa15786ed13.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 4402
+    },
+    {
+      "key": "head-vu_minh",
+      "url": "/assets/optimized/startup-head-vu_minh.462aa6b65fb9.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 9162
+    },
+    {
+      "key": "adult-head-vu_minh",
+      "url": "/assets/optimized/startup-adult-head-vu_minh.c5a57a505108.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 50148
+    },
+    {
+      "key": "hero-adult-vu_minh",
+      "url": "/assets/optimized/startup-hero-adult-vu_minh.0b9388f56374.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 273172
+    },
+    {
+      "key": "hero-child-quan_vo_tran",
+      "url": "/assets/optimized/startup-hero-child-quan_vo_tran.e4ae985ce9f2.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 142726
+    },
+    {
+      "key": "portrait-quan_vo_tran",
+      "url": "/assets/optimized/startup-portrait-quan_vo_tran.336f58976dfa.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 5792
+    },
+    {
+      "key": "head-quan_vo_tran",
+      "url": "/assets/optimized/startup-head-quan_vo_tran.dc06c9c39374.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 11478
+    },
+    {
+      "key": "adult-head-quan_vo_tran",
+      "url": "/assets/optimized/startup-adult-head-quan_vo_tran.d52df9528f7a.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 47812
+    },
+    {
+      "key": "hero-adult-quan_vo_tran",
+      "url": "/assets/optimized/startup-hero-adult-quan_vo_tran.808a397be8b6.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 294342
+    },
+    {
+      "key": "hero-child-diep_ly",
+      "url": "/assets/optimized/startup-hero-child-diep_ly.2c371af503b4.webp",
+      "width": 1024,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 140788
+    },
+    {
+      "key": "portrait-diep_ly",
+      "url": "/assets/optimized/startup-portrait-diep_ly.4d7cf650c0ab.webp",
+      "width": 128,
+      "height": 128,
+      "maxAlphaDifference": 0,
+      "bytes": 5626
+    },
+    {
+      "key": "head-diep_ly",
+      "url": "/assets/optimized/startup-head-diep_ly.452a29736138.webp",
+      "width": 129,
+      "height": 110,
+      "maxAlphaDifference": 0,
+      "bytes": 11754
+    },
+    {
+      "key": "adult-head-diep_ly",
+      "url": "/assets/optimized/startup-adult-head-diep_ly.00fbcfaaac22.webp",
+      "width": 236,
+      "height": 226,
+      "maxAlphaDifference": 0,
+      "bytes": 47204
+    },
+    {
+      "key": "hero-adult-diep_ly",
+      "url": "/assets/optimized/startup-hero-adult-diep_ly.6a9f5a1143fd.webp",
+      "width": 1280,
+      "height": 640,
+      "maxAlphaDifference": 0,
+      "bytes": 330600
+    },
+    {
+      "key": "realm-crests",
+      "url": "/assets/optimized/startup-realm-crests.5588dbe782f0.webp",
+      "width": 768,
+      "height": 512,
+      "maxAlphaDifference": 0,
+      "bytes": 291090
+    },
+    {
+      "key": "npc-vuong_phu",
+      "url": "/assets/optimized/startup-npc-vuong_phu.7675818653cb.webp",
+      "width": 180,
+      "height": 180,
+      "maxAlphaDifference": 0,
+      "bytes": 10950
+    },
+    {
+      "key": "npc-vuong_mau",
+      "url": "/assets/optimized/startup-npc-vuong_mau.2cbcd711584d.webp",
+      "width": 180,
+      "height": 180,
+      "maxAlphaDifference": 0,
+      "bytes": 9946
+    },
+    {
+      "key": "npc-duoc_ba",
+      "url": "/assets/optimized/startup-npc-duoc_ba.4d20a0d8ed0c.webp",
+      "width": 180,
+      "height": 180,
+      "maxAlphaDifference": 0,
+      "bytes": 11940
+    },
+    {
+      "key": "npc-tien_sinh",
+      "url": "/assets/optimized/startup-npc-tien_sinh.da297f9d3ce8.webp",
+      "width": 180,
+      "height": 180,
+      "maxAlphaDifference": 0,
+      "bytes": 10222
+    },
+    {
+      "key": "npc-vuong_thuc",
+      "url": "/assets/optimized/startup-npc-vuong_thuc.e4049bfd5756.webp",
+      "width": 180,
+      "height": 180,
+      "maxAlphaDifference": 0,
+      "bytes": 10070
+    },
+    {
+      "key": "npc-a_moc",
+      "url": "/assets/optimized/startup-npc-a_moc.842089805822.webp",
+      "width": 180,
+      "height": 180,
+      "maxAlphaDifference": 0,
+      "bytes": 8652
+    },
+    {
+      "key": "village",
+      "url": "/assets/optimized/startup-village.fbf5e1a3b6a8.webp",
+      "width": 2048,
+      "height": 1732,
+      "maxAlphaDifference": 0,
+      "bytes": 1428310
+    },
+    {
+      "key": "materials",
+      "url": "/assets/optimized/startup-materials.4bfd48b156be.webp",
+      "width": 1024,
+      "height": 768,
+      "maxAlphaDifference": 0,
+      "bytes": 488570
+    },
+    {
+      "key": "ground-0-0",
+      "url": "/assets/optimized/startup-ground-0-0.fa24ed65d500.webp",
+      "width": 1026,
+      "height": 1026,
+      "maxAlphaDifference": 0,
+      "bytes": 228296
+    },
+    {
+      "key": "ground-1024-0",
+      "url": "/assets/optimized/startup-ground-1024-0.1a6b4279547f.webp",
+      "width": 1026,
+      "height": 1026,
+      "maxAlphaDifference": 0,
+      "bytes": 483932
+    },
+    {
+      "key": "ground-2048-0",
+      "url": "/assets/optimized/startup-ground-2048-0.312f63b49c17.webp",
+      "width": 1026,
+      "height": 1026,
+      "maxAlphaDifference": 0,
+      "bytes": 266210
+    },
+    {
+      "key": "ground-3072-0",
+      "url": "/assets/optimized/startup-ground-3072-0.0a83b7f3f6a0.webp",
+      "width": 514,
+      "height": 1026,
+      "maxAlphaDifference": 0,
+      "bytes": 33024
+    },
+    {
+      "key": "ground-0-1024",
+      "url": "/assets/optimized/startup-ground-0-1024.0b49788950da.webp",
+      "width": 1026,
+      "height": 812,
+      "maxAlphaDifference": 0,
+      "bytes": 37676
+    },
+    {
+      "key": "ground-1024-1024",
+      "url": "/assets/optimized/startup-ground-1024-1024.1d929558df5a.webp",
+      "width": 1026,
+      "height": 812,
+      "maxAlphaDifference": 0,
+      "bytes": 265580
+    },
+    {
+      "key": "ground-2048-1024",
+      "url": "/assets/optimized/startup-ground-2048-1024.ccb756900d59.webp",
+      "width": 1026,
+      "height": 812,
+      "maxAlphaDifference": 0,
+      "bytes": 257732
+    },
+    {
+      "key": "ground-3072-1024",
+      "url": "/assets/optimized/startup-ground-3072-1024.bbdc0afec1a4.webp",
+      "width": 514,
+      "height": 812,
+      "maxAlphaDifference": 0,
+      "bytes": 32840
+    }
+  ],
+  "manifestSha256": "d9e0b72d42764f5e4b0fcf3737ee2561f41f595db2dbda416f39f72b74b91856"
+}

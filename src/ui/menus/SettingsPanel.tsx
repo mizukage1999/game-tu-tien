@@ -15,6 +15,7 @@ import { EventBus } from '../../game/EventBus';
 import { AccountPanel } from '../AccountPanel';
 import { CultHeading } from './CultivationUI';
 import './settings.css';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 type SettingsTab = 'general' | 'graphics' | 'controls' | 'account' | 'data';
 const TABS = [
@@ -124,8 +125,8 @@ export function SettingsPanel() {
   const account = useAccount(),
     child = isChildhood(player);
   const portrait = child
-    ? childProfileUrl(player.sex ?? 'female')
-    : `/assets/ui/cultivation/${player.sex === 'male' ? 'wang' : 'li'}-full-v1.png`;
+    ? childProfileUrl(player.sex ?? 'female', player.heroId)
+    : optimizedAsset(`/assets/ui/cultivation/${player.sex === 'male' ? 'wang' : 'li'}-full-v1.png`);
   useEffect(() => {
     const sync = () => setFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', sync);

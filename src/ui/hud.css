@@ -922,13 +922,38 @@ kbd {
   background: #00000073;
   display: grid;
   place-items: center;
+  contain: layout paint;
 }
 .menu-window {
   width: min(680px, 94vw);
   max-height: 84vh;
   display: flex;
   flex-direction: column;
-  animation: toast-in 0.2s;
+  /* Painting a full atlas-backed window during a transform animation makes
+     the first click wait on large compositor layers on weaker devices. */
+  animation: none;
+}
+.app:has(.menu-backdrop) > .world-grade {
+  display: none;
+}
+/* Menu windows cover the world. Exclude the WebGL layer and its HUD from
+   browser compositing as well as skipping Phaser draws; keep simulation live. */
+.app:has(.menu-backdrop) > .game-host {
+  visibility: hidden !important;
+}
+.hud:has(.menu-backdrop) > :is(.hud-top-left, .hud-top-right, .hud-bottom-left, .hud-bottom-center, .skill-bar, .childhood-actions, .exp-bar, .joystick) {
+  visibility: hidden;
+}
+.hud .menu-backdrop {
+  background: #07141e;
+}
+.hud .menu-window :is(img, svg) {
+  filter: none;
+}
+.hud .menu-backdrop,
+.hud .menu-window {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .menu-header {
   display: flex;
@@ -2879,7 +2904,7 @@ kbd {
   gap: 8px;
 }
 
-.menu-header h3 img {
+.menu-header h3 :is(img, .menu-sprite) {
   width: 34px;
   height: 34px;
   object-fit: contain;

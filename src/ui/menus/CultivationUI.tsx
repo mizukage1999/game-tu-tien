@@ -1,9 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { ITEMS, type SkillId } from '../../data';
 import { useGame } from '../../store/gameStore';
-import { itemIconUrl } from '../../game/art/icons';
+import { itemIconUrl, skillSpriteUrl } from '../../game/art/icons';
 import './cultivation-ui.css';
-import { SKILL_ATLAS_ORDER } from '../../game/art/skillIcons';
 import { usePremium } from '../../net/premium';
 import { heroSpell } from '../../data/heroSkills';
 import { HeroSpellGlyph } from '../HeroArt';
@@ -13,12 +12,12 @@ import { WangSkillGlyph } from '../WangSkillArt';
 export function SkillGlyph({ id, className = '' }: { id: SkillId; className?: string }) {
   if (wangEffect(id)?.grid) return <WangSkillGlyph id={id} className={`cult-skill-glyph ${className}`} />;
   if (heroSpell(id)) return <HeroSpellGlyph id={id} className={`cult-skill-glyph ${className}`} />;
-  const index = SKILL_ATLAS_ORDER.indexOf(id);
   return (
-    <span
+    <img
       aria-hidden="true"
+      alt=""
       className={`cult-skill-glyph ${className}`}
-      style={{ backgroundPosition: `${(index % 5) * 25}% ${Math.floor(index / 5) * 50}%` }}
+      src={skillSpriteUrl(id)}
     />
   );
 }

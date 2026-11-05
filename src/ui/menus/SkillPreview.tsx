@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SkillId } from '../../data';
 import { wangEffect, wangVisual } from '../../data/wangSkills';
 import { wangSheetUrl } from '../../game/art/wangEffects';
@@ -7,8 +7,9 @@ import { SkillGlyph } from './CultivationUI';
 import { heroFor } from '../../data/heroes';
 import { heroSpell } from '../../data/heroSkills';
 import { HeroEffectArt, HeroPose } from '../HeroArt';
-import { spellFrame } from '../../data/heroSpellArt';
+import { spellAsset, spellFrame } from '../../data/heroSpellArt';
 import { WangEffectFrame } from '../WangSkillArt';
+import { optimizedAsset } from '../../data/assetDelivery';
 
 function SignaturePreview({ id, age }: { id: SkillId; age: number }) {
   const art = wangEffect(id)!,
@@ -48,10 +49,51 @@ export function SkillPreview({ id }: { id: SkillId }) {
     sex = player.sex,
     [play, setPlay] = useState(0),
     [playing, setPlaying] = useState(false),
+    [requested, setRequested] = useState(false),
+    [preparing, setPreparing] = useState(false),
+    [previewError, setPreviewError] = useState(false),
     [age, setAge] = useState(0);
+  const request = useRef(0),
+    previewImages = useRef<HTMLImageElement[]>([]);
   const art = wangEffect(id),
-    sheet = art && wangSheetUrl(art),
+    sheet = art && !art.grid && wangSheetUrl(art),
     spell = heroSpell(id);
+  useEffect(
+    () => () => {
+      request.current++;
+      previewImages.current = [];
+    },
+    [],
+  );
+  const showPreview = async () => {
+    if (preparing) return;
+    const ticket = ++request.current;
+    setPreparing(true);
+    setPreviewError(false);
+    const urls = spell
+      ? [spellAsset(spell.hero), '/assets/heroes-v7/poses.png']
+      : art
+        ? [art.url, `/assets/ui/cultivation/${sex === 'male' ? 'wang' : 'li'}-full-v1.png`]
+        : [];
+    previewImages.current = urls.map((url) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = optimizedAsset(url);
+      return image;
+    });
+    try {
+      await Promise.all(previewImages.current.map((image) => image.decode()));
+      if (ticket !== request.current) return;
+      setRequested(true);
+      setPlay((n) => n + 1);
+      setAge(0);
+      setPlaying(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+    } catch {
+      if (ticket === request.current) setPreviewError(true);
+    } finally {
+      if (ticket === request.current) setPreparing(false);
+    }
+  };
   useEffect(() => {
     if (!playing || (!spell && !art?.grid)) return;
     const duration = spell?.duration ?? art!.duration + (art!.motion === 'bind' ? 400 : 0);
@@ -69,23 +111,30 @@ export function SkillPreview({ id }: { id: SkillId }) {
   return (
     <div className={`cult-skill-preview ${playing ? 'playing' : ''}`} key={id}>
       <div className="cult-preview-floor" />
-      {heroSpell(id) ? (
-        <HeroPose
-          id={heroFor(player).id}
-          pose={playing ? 4 : 0}
-          className="cult-preview-hero roster-preview-hero"
-        />
-      ) : (
-        <img
-          className="cult-preview-hero"
-          src={`/assets/ui/cultivation/${sex === 'male' ? 'wang' : 'li'}-full-v1.png`}
-          alt=""
-        />
-      )}
+      {requested &&
+        (heroSpell(id) ? (
+          <HeroPose
+            id={heroFor(player).id}
+            pose={playing ? 4 : 0}
+            className="cult-preview-hero roster-preview-hero"
+          />
+        ) : (
+          <img
+            className="cult-preview-hero"
+            src={optimizedAsset(
+              `/assets/ui/cultivation/${sex === 'male' ? 'wang' : 'li'}-full-v1.png`,
+            )}
+            alt=""
+          />
+        ))}
       <span className="cult-preview-target" aria-hidden="true">
         ◆
       </span>
-      {spell ? (
+      {!requested ? (
+        <span className="cult-preview-symbol-wrap">
+          <SkillGlyph id={id} className="cult-preview-symbol" />
+        </span>
+      ) : spell ? (
         <HeroEffectArt
           key={`${id}-${play}`}
           id={id}
@@ -123,14 +172,13 @@ export function SkillPreview({ id }: { id: SkillId }) {
       <button
         className="cult-preview-play"
         aria-label="Xem thử hiệu ứng kỹ năng"
-        onClick={() => {
-          setPlay((n) => n + 1);
-          setAge(0);
-          setPlaying(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-        }}
+        disabled={preparing}
+        onClick={() => void showPreview()}
       >
         <span aria-hidden="true">▶</span>
-        <b>Xem chiêu</b>
+        <b>
+          {preparing ? 'Đang tải chiêu…' : previewError ? 'Chưa tải được · Thử lại' : 'Xem chiêu'}
+        </b>
       </button>
       <small>Diễn võ · Xem trước</small>
     </div>

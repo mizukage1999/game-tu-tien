@@ -1,9 +1,9 @@
 import { useId, type CSSProperties } from 'react';
-import { wangIconArt, wangEffect, wangFrameRect, wangSheetLayout } from '../data/wangSkills';
+import { wangIconArt, wangEffect, wangFrameRect } from '../data/wangSkills';
 import { optimizedAsset } from '../data/assetDelivery';
-import { wangSheetUrl } from '../game/art/wangEffects';
 import type { SkillId } from '../data';
 import './wang-skills-v2.css';
+import { menuSkillIcon } from '../data/menuIcons';
 
 function Crop({
   box,
@@ -49,6 +49,8 @@ function Crop({
 export function WangSkillGlyph({ id, className = '' }: { id: SkillId; className?: string }) {
   const art = wangIconArt(id);
   if (!art) return null;
+  const prepared = menuSkillIcon(id);
+  if (prepared) return <Crop box={{ x: 0, y: 0, width: 128, height: 128 }} source={prepared} width={128} height={128} className={`wang-skill-glyph ${className}`} skill={id} />;
   const { index, size } = art,
     columns = art.columns ?? 2,
     cell = size / columns;
@@ -81,22 +83,13 @@ export function WangEffectFrame({
 }) {
   const art = wangEffect(id);
   if (!art) return null;
-  const normalized = wangSheetUrl(art),
-    grid = wangSheetLayout(art);
-  const width = normalized ? grid.columns * grid.cell : (art.sourceSize?.width ?? 1536),
-    height = normalized ? grid.rows * grid.cell : (art.sourceSize?.height ?? 1024);
-  const box = normalized
-    ? {
-        x: (frame % grid.columns) * grid.cell,
-        y: Math.floor(frame / grid.columns) * grid.cell,
-        width: grid.cell,
-        height: grid.cell,
-      }
-    : wangFrameRect(width, height, frame, art);
+  const width = art.sourceSize?.width ?? 1536,
+    height = art.sourceSize?.height ?? 1024;
+  const box = wangFrameRect(width, height, frame, art);
   return (
     <Crop
       box={box}
-      source={normalized ?? optimizedAsset(art.url)}
+      source={optimizedAsset(art.url)}
       width={width}
       height={height}
       className={className}

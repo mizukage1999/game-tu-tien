@@ -32,7 +32,7 @@ import { flightRotation } from '../systems/flightVisual';
 import { adventure } from '../systems/adventure';
 import type { Pose } from '../../net/presence';
 import { heroFor } from '../../data/heroes';
-import { directionalArt } from '../art/directionalHeroes';
+import { directionalArt, ensureDirectionalHero } from '../art/directionalHeroes';
 import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
 import { activeStatusEffects } from '../systems/statusEffects';
@@ -62,7 +62,7 @@ const AUTO_TARGET_RANGE = 420;
 const AUTO_LOOT_RANGE = 180;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  readonly ctrl: AnimationController;
+  ctrl: AnimationController;
   /** The drawn body. The physics sprite underneath is invisible: it lives in map
    *  space, while everything visible is placed through the isometric projection. */
   readonly art: Phaser.GameObjects.Sprite;
@@ -154,6 +154,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   get facing(): Vec2 {
     return this.mapFacing??dirVector(this.dir);
+  }
+
+  /** Change only the drawn rig; admission must not rebuild the map or physics. */
+  async refreshAppearance() {
+    const p = gameStore.getState().player, id = heroFor(p).id, child = usesChildSprite(p);
+    const ready = await ensureDirectionalHero(this.world, id, child);
+    const current = gameStore.getState().player;
+    if (!ready || !this.active || !this.art.active || heroFor(current).id !== id || usesChildSprite(current) !== child) return;
+    const key = directionalArt(id, child);
+    if (this.art.texture.key === key) return;
+    this.cancelPendingInput();
+    this.ctrl.destroy();
+    this.art.anims.stop();
+    this.art.setTexture(key);
+    this.ctrl = new AnimationController(this.art, key);
+    this.ctrl.play('idle', this.visualDir);
   }
 
   cancelPendingInput() { this.bufferedInput.clear(); }
@@ -290,7 +306,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** Copies flashing/alpha from the hidden physics sprite onto the drawn body. */
   private syncLook() {
-    this.art.setAlpha(this.alpha).setScale(this.scaleX, this.scaleY);
+    const breath = this.ctrl.currentAnim === 'idle' && !this.activeMount
+      ? Math.sin(this.world.time.now / 700) * 0.007 : 0;
+    this.art.setAlpha(this.alpha).setScale(this.scaleX, this.scaleY * (1 + breath));
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
     else if (this.isTinted) this.art.setTint(this.tintTopLeft);
     else this.art.clearTint();

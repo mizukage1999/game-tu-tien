@@ -1,4 +1,7 @@
 import Phaser from 'phaser';
+import { sameMinimap } from '../systems/uiSnapshot';
+import { ADMISSION_QUEST } from '../../data/world';
+import { ensureDirectionalHero } from '../art/directionalHeroes';
 import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
@@ -8,11 +11,12 @@ import { WorldActivity } from '../systems/WorldActivity';
 import { activityPlan } from '../systems/worldActivities';
 import { activityAction,activityNow,activityStore } from '../../net/worldActivities';
 import { buildVillageGround } from '../art/villageGround';
+import { addPreparedVillageGround, villageGroundKeys } from '../art/villageStartup';
 import { VillageAtmosphere } from '../art/VillageAtmosphere';
 import { buildWorldGround } from '../art/worldGround';
 import { worldTheme } from '../art/worldPalette';
 import { publishWorldPreview } from '../art/worldPreview';
-import { iso, uniso, isoBounds, isoX, isoY } from '../art/iso';
+import { iso, uniso, isoBounds, isoX, isoY, setIsoOrigin } from '../art/iso';
 import { TERRAIN, TILE } from '../art/tiles';
 import { EventBus, virtualInput } from '../EventBus';
 import { Player } from '../entities/Player';
@@ -288,7 +292,8 @@ export class WorldScene extends Phaser.Scene {
     cam.setBounds(0, 0, view.width, view.height);
     // The camera follows a proxy: the player's physics body lives in map space,
     // the diamond it stands on lives on screen.
-    this.camTarget = this.add.image(start.x, start.y, 'fx_dot').setVisible(false).setDepth(-10001);
+    const cameraStart = iso(start.x, start.y);
+    this.camTarget = this.add.image(cameraStart.x, cameraStart.y, 'fx_dot').setVisible(false).setDepth(-10001);
     // Frame the village slightly ahead of the hero so roofs and the road ahead
     // remain visible above the mobile controls.
     cam.startFollow(this.camTarget, false, 0.12, 0.12, 0, map.id === 'vuong_gia_thon' ? 72 : 0);
@@ -347,6 +352,7 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(()=>this.activity?.destroy());
     this.game.events.emit('assets-progress', 1);
     this.worldBuilt = true;
+    this.syncUi();
     this.game.events.emit('assets-ready');
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -355,25 +361,30 @@ export class WorldScene extends Phaser.Scene {
       this.inArena = false;
       this.cleanups.forEach((fn) => fn());
       this.cleanups = [];
+      clearGroundTextures(this);
     });
   }
 
   // ---- construction ------------------------------------------------------
 
   private buildTerrain(map: MapDef) {
-    clearGroundTextures(this);
+    clearGroundTextures(this,map.id==='vuong_gia_thon'?villageGroundKeys():undefined);
+    setIsoOrigin(map.width*TILE,map.height*TILE);
     const data = map.terrain.map((row, y) =>
       row.map((t, x) => TERRAIN[t].base + (hash(x, y) % TERRAIN[t].variants)),
     );
     // The visible ground is one pre-baked isometric canvas; the grid below stays
     // flat and invisible so collision, path-finding and AI never meet the
     // projection at all.
+    const prepared = map.id==='vuong_gia_thon'&&addPreparedVillageGround(this);
+    if(!prepared){
     const ground = this.textures.exists('world-materials-v4')
       ? buildWorldGround(map, this.textures.get('world-materials-v4').getSourceImage() as HTMLImageElement)
       : map.id === 'vuong_gia_thon' && this.textures.exists('village-materials-v3')
       ? buildVillageGround(map, this.textures.get('village-materials-v3').getSourceImage() as HTMLImageElement)
       : buildIsoGround(map);
     addGroundTextures(this, ground.canvas);
+    }
 
     const tm = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
     const tileset = tm.addTilesetImage('tiles', 'tiles', TILE, TILE, 0, 0)!;
@@ -950,13 +961,15 @@ export class WorldScene extends Phaser.Scene {
     window.addEventListener('blur', loseFocus);
     this.cleanups.push(() => window.removeEventListener('blur', loseFocus));
     const unsub = gameStore.subscribe((s, prev) => {
+      if (isChildhood(s.player) && s.quests[ADMISSION_QUEST] && !prev.quests[ADMISSION_QUEST]) {
+        void ensureDirectionalHero(this, heroFor(s.player).id, false);
+      }
       if (lifeProgress(s.player).retreat && !lifeProgress(prev.player).retreat) {
         this.player.stopMeditate();
         this.player.clearRoute();
       }
       if (isChildhood(s.player) !== isChildhood(prev.player)) {
-        const pos = this.player.feet;
-        this.time.delayedCall(0, () => this.scene.restart({ mapId: this.mapId, pos }));
+        void this.player.refreshAppearance();
       }
       if (s.player.level > prev.player.level) {
         this.vfx.ascend(this.player, s.player.realmIndex > prev.player.realmIndex);
@@ -1164,13 +1177,14 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (s.menu === 'boss') publishBossSightings({ mapId: this.map.id, sightings: this.monsters.filter(m => !m.hideStrength).map((m, i) => ({ id: m.netId || `local:${i}`, type: m.type, homeX: m.brain.home.x, homeY: m.brain.home.y, hp: m.hp, maxHp: m.def.hp, alive: m.alive, respawnAt: m.respawnAt, generation: m.generation })) });
-    patch.minimap = {
+    const minimap = {
       player: { x: p.x, y: p.y },
       monsters: this.monsters.filter((m) => m.alive).map((m) => ({ x: m.x, y: m.y, boss: !!m.def.boss && !m.hideStrength, ...(!m.hideStrength ? { level: m.def.level, name: m.def.name } : {}) })),
       npcs: this.npcs.map((n) => ({ x: n.x, y: n.y })),
       loot: (this.loot.getChildren() as LootDrop[]).map((l) => ({ x: l.x, y: l.y })),
     };
-    s.patch(patch);
+    if (!sameMinimap(s.minimap, minimap)) patch.minimap = minimap;
+    if (Object.keys(patch).length) s.patch(patch);
   }
 
   private perSecond() {

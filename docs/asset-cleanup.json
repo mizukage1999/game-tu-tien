@@ -1,0 +1,90 @@
+{
+  "reason": "School V1 sheets superseded by V2; wang_lam V1 remains active and is retained.",
+  "bytesRemoved": 26681399,
+  "files": [
+    {
+      "file": "public/assets/skills-schools-v1/diep_ly.png",
+      "bytes": 2538569,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "fb4587a26e30c7ae189a56b3b0ca8a6102544b97dd931a9e7b244f58f8a9547d"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-diep_ly.96132b2fd5f4.webp",
+      "bytes": 1084418,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "96132b2fd5f4d5c9b07a13c6c585627a93bea796f719a8605f67dfe706b73174"
+    },
+    {
+      "file": "public/assets/skills-schools-v1/hong_lien.png",
+      "bytes": 2783020,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "52e53723706f5a70918efe0ea109c8942be5b56508da6bfd989ce464611fe042"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-hong_lien.ef2ff8148914.webp",
+      "bytes": 1094316,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "ef2ff81489145b5ee2faee92d4304b82c201f7db35c8d44647fc13efe92eeb05"
+    },
+    {
+      "file": "public/assets/skills-schools-v1/ly_mo_uyen.png",
+      "bytes": 2671208,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "9b71b43463374c83c48dd787820d234c2afe7319769f9782cd8cc06338df6c6d"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-ly_mo_uyen.3b86b82e5498.webp",
+      "bytes": 1009174,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "3b86b82e54987473148a1f90a4e4521a8cccc8faf3ebb3a43579e0faf0927b2d"
+    },
+    {
+      "file": "public/assets/skills-schools-v1/quan_vo_tran.png",
+      "bytes": 2829667,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "2844a38da60acd8e51a313de7a48ec62e792da296ea2208dd542099d23f42f5c"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-quan_vo_tran.141cf2e3a725.webp",
+      "bytes": 1033538,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "141cf2e3a725b72a0ae03bad246133b3a089bc2cf684bb6adc5d4d01ef70612f"
+    },
+    {
+      "file": "public/assets/skills-schools-v1/so_thien.png",
+      "bytes": 2672957,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "5b453a28e5701b7e9c81f1cc5c1bcc2977afcb2d80852b752c30e95a8b1d813f"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-so_thien.3e106028d7dc.webp",
+      "bytes": 1033756,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "3e106028d7dc886a7bd6cc16bc0c80d1e5e7cdf08de9126f1d9406c1f20a6d86"
+    },
+    {
+      "file": "public/assets/skills-schools-v1/tham_nguyet.png",
+      "bytes": 2777043,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "4fc0de66fd684ef6d58e84f8edb4394665297a0aa3ca7082e1ff790eb654bb1b"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-tham_nguyet.beff05f0d5e6.webp",
+      "bytes": 1123064,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "beff05f0d5e61bc07ff33c9f184c483b867e13beb37fd9c062576b3e18fad787"
+    },
+    {
+      "file": "public/assets/skills-schools-v1/vu_minh.png",
+      "bytes": 2930235,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "cda0d46e994457be9e7d32e85ef06cc3862b3193295d8573077becfd0f4c590c"
+    },
+    {
+      "file": "public/assets/optimized/skills-schools-v1-vu_minh.8c7324e622e4.webp",
+      "bytes": 1100434,
+      "reason": "Retired school V1; schoolSheet selects V2 for every school except wang_lam",
+      "sha256": "8c7324e622e4d5eca4ce7dec1fc7c963f1ed08fdd63180b3409c1b255ce0466c"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { realmStyle, type RealmIdentity, type RealmStyle } from '../systems/realmStyle';
+import { ensureRealmCrests, REALM_CREST_TEXTURE } from '../art/realmCrests';
 
-export const REALM_CREST_TEXTURE = 'realm-crests-v1';
 /** Shared by the local player, remote players and wandering cultivators. */
 export class RealmNameplate extends Phaser.GameObjects.Container {
   private crest: Phaser.GameObjects.Image;
@@ -62,6 +62,14 @@ export class RealmNameplate extends Phaser.GameObjects.Container {
     this.appearance = style;
     this.playerName.setText(name).setColor(color);
     const decorated = style.index >= 0;
+    if (decorated && !this.scene.textures.exists(REALM_CREST_TEXTURE)) {
+      void ensureRealmCrests(this.scene).then((ready) => {
+        if (!ready || !this.scene?.sys.isActive() || !this.crest.active) return;
+        const index = this.appearance.index;
+        this.crest.setVisible(index >= 0);
+        if (index >= 0) this.crest.setTexture(REALM_CREST_TEXTURE, index).setDisplaySize(120, 60);
+      });
+    }
     this.crest.setVisible(decorated && this.scene.textures.exists(REALM_CREST_TEXTURE));
     if (decorated && this.crest.visible)
       this.crest.setTexture(REALM_CREST_TEXTURE, style.index).setDisplaySize(120, 60);

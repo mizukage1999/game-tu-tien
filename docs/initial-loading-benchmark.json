@@ -1,0 +1,635 @@
+{
+  "date": "2026-11-04",
+  "setup": {
+    "browser": "Chrome headless",
+    "renderer": "WebGL SwiftShader",
+    "viewport": [
+      844,
+      390
+    ],
+    "deviceScaleFactor": 1,
+    "cpuSlowdown": 4,
+    "downloadBytesPerSecond": 1500000,
+    "latencyMs": 60,
+    "httpCache": false,
+    "profiler": true,
+    "backend": "disabled"
+  },
+  "before": {
+    "elapsedMs": 20252.59999999404,
+    "prepMs": 2636.0999999940395,
+    "worldMs": 717.3999999910593,
+    "files": 22,
+    "requests": 24,
+    "downloadBytes": 11301125,
+    "renderer": 2,
+    "browserErrors": [],
+    "assetRequests": [
+      {
+        "url": "/assets/optimized/ui-loading-landscape-v2.e9c98372edbe.webp",
+        "bytes": 411410,
+        "duration": 845.7999999970198
+      },
+      {
+        "url": "/assets/optimized/ui-loading-crests-v2.0a3664564b9e.webp",
+        "bytes": 980224,
+        "duration": 4673.0999999940395
+      },
+      {
+        "url": "/assets/optimized/heroes-v8-children.d5d5138ecd6e.webp",
+        "bytes": 758904,
+        "duration": 3231.7999999970198
+      },
+      {
+        "url": "/assets/ui/top-menu-icons-v2.webp",
+        "bytes": 311372,
+        "duration": 1175.2000000029802
+      },
+      {
+        "url": "/assets/ui/item-linh-khi.png",
+        "bytes": 12032,
+        "duration": 191.1000000089407
+      },
+      {
+        "url": "/assets/ui/item-linh-thach.png",
+        "bytes": 9699,
+        "duration": 174.40000000596046
+      },
+      {
+        "url": "/assets/optimized/ui-cultivation-realm-crests-v1.99a73c805225.webp",
+        "bytes": 942204,
+        "duration": 4564.600000008941
+      },
+      {
+        "url": "/assets/optimized/maps-thiet-tru.5d7a5a3f9529.webp",
+        "bytes": 358684,
+        "duration": 2733.2999999970198
+      },
+      {
+        "url": "/assets/optimized/maps-courtyard-architecture.f6912137edf7.webp",
+        "bytes": 433066,
+        "duration": 2898.2000000029802
+      },
+      {
+        "url": "/assets/optimized/ui-cultivation-bag-items-v1.3d17f4240243.webp",
+        "bytes": 1071190,
+        "duration": 3817.2000000029802
+      },
+      {
+        "url": "/assets/optimized/ui-cultivation-skill-icons-alpha-v2.f821b06da784.webp",
+        "bytes": 1208798,
+        "duration": 4396.399999991059
+      },
+      {
+        "url": "/assets/ui/item-hoi-xuan-dan.png",
+        "bytes": 17477,
+        "duration": 188.70000000298023
+      },
+      {
+        "url": "/assets/ui/item-nhan-bac.png",
+        "bytes": 13685,
+        "duration": 110.20000000298023
+      },
+      {
+        "url": "/assets/ui/item-kiem-pho.png",
+        "bytes": 13621,
+        "duration": 141.90000000596046
+      },
+      {
+        "url": "/assets/sprites/manifest.json",
+        "bytes": 739,
+        "duration": 65.70000000298023
+      },
+      {
+        "url": "/assets/optimized/maps-world-people.c713be554b7c.webp",
+        "bytes": 310750,
+        "duration": 1148.2000000029802
+      },
+      {
+        "url": "/assets/optimized/maps-world-materials-v4.5d9186bf093e.webp",
+        "bytes": 805668,
+        "duration": 2742.3999999910593
+      },
+      {
+        "url": "/assets/optimized/maps-world-props-v4.a444d196d525.webp",
+        "bytes": 910178,
+        "duration": 2945.5999999940395
+      },
+      {
+        "url": "/assets/optimized/maps-village-architecture-v3.a0c0f7ed1a9c.webp",
+        "bytes": 542782,
+        "duration": 1737.7000000029802
+      },
+      {
+        "url": "/assets/optimized/maps-village-nature-v3.708f26ad000c.webp",
+        "bytes": 647128,
+        "duration": 3003
+      },
+      {
+        "url": "/assets/optimized/maps-village-materials-v3.fe32279640f9.webp",
+        "bytes": 639772,
+        "duration": 2991.4000000059605
+      },
+      {
+        "url": "/assets/optimized/maps-village-dawn-v3.2181011c658b.webp",
+        "bytes": 255778,
+        "duration": 1253.7999999970198
+      },
+      {
+        "url": "/assets/optimized/sprites-skills-ice.e606ba4e0f89.webp",
+        "bytes": 528602,
+        "duration": 1930.5999999940395
+      },
+      {
+        "url": "/assets/sprites/skills-ice.json",
+        "bytes": 117362,
+        "duration": 315.20000000298023
+      }
+    ]
+  },
+  "after": {
+    "first": {
+      "elapsedMs": 15095,
+      "prepMs": 1818.4000000059605,
+      "worldMs": 724.1999999880791,
+      "files": 15,
+      "requests": 20,
+      "downloadBytes": 6699894,
+      "renderer": 2,
+      "browserErrors": [],
+      "assetRequests": [
+        {
+          "url": "/assets/optimized/ui-loading-landscape-v2.e9c98372edbe.webp",
+          "bytes": 411410,
+          "duration": 1434.4000000059605
+        },
+        {
+          "url": "/assets/optimized/heroes-v8-children.d5d5138ecd6e.webp",
+          "bytes": 758904,
+          "duration": 1519.7999999821186
+        },
+        {
+          "url": "/assets/ui/top-menu-icons-v2.webp",
+          "bytes": 311372,
+          "duration": 1052
+        },
+        {
+          "url": "/assets/optimized/ui-icon-crest-0.dd84e02950a5.webp",
+          "bytes": 171348,
+          "duration": 703.0999999940395
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-17.52f2f2780323.webp",
+          "bytes": 31232,
+          "duration": 310
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-16.a9a1028d9464.webp",
+          "bytes": 45308,
+          "duration": 338.7999999821186
+        },
+        {
+          "url": "/assets/optimized/maps-courtyard-architecture.f6912137edf7.webp",
+          "bytes": 433066,
+          "duration": 1779.7000000178814
+        },
+        {
+          "url": "/assets/optimized/maps-thiet-tru.5d7a5a3f9529.webp",
+          "bytes": 358684,
+          "duration": 1594.5
+        },
+        {
+          "url": "/assets/ui/item-linh-thach.png",
+          "bytes": 9699,
+          "duration": 240.2000000178814
+        },
+        {
+          "url": "/assets/ui/item-linh-khi.png",
+          "bytes": 12032,
+          "duration": 246.69999998807907
+        },
+        {
+          "url": "/assets/ui/item-hoi-xuan-dan.png",
+          "bytes": 17477,
+          "duration": 124.7000000178814
+        },
+        {
+          "url": "/assets/ui/item-nhan-bac.png",
+          "bytes": 13685,
+          "duration": 219.5
+        },
+        {
+          "url": "/assets/ui/item-kiem-pho.png",
+          "bytes": 13621,
+          "duration": 171.69999998807907
+        },
+        {
+          "url": "/assets/optimized/maps-world-people.c713be554b7c.webp",
+          "bytes": 310750,
+          "duration": 1247.6000000238419
+        },
+        {
+          "url": "/assets/optimized/maps-world-materials-v4.5d9186bf093e.webp",
+          "bytes": 805668,
+          "duration": 4476.199999988079
+        },
+        {
+          "url": "/assets/optimized/maps-world-props-v4.a444d196d525.webp",
+          "bytes": 910178,
+          "duration": 4771.699999988079
+        },
+        {
+          "url": "/assets/optimized/maps-village-architecture-v3.a0c0f7ed1a9c.webp",
+          "bytes": 542782,
+          "duration": 2662.7000000178814
+        },
+        {
+          "url": "/assets/optimized/maps-village-nature-v3.708f26ad000c.webp",
+          "bytes": 647128,
+          "duration": 2999.5999999940395
+        },
+        {
+          "url": "/assets/optimized/maps-village-materials-v3.fe32279640f9.webp",
+          "bytes": 639772,
+          "duration": 2413.5
+        },
+        {
+          "url": "/assets/optimized/maps-village-dawn-v3.2181011c658b.webp",
+          "bytes": 255778,
+          "duration": 1267.9000000059605
+        }
+      ]
+    },
+    "last": {
+      "elapsedMs": 18450.90000000596,
+      "prepMs": 1705.199999988079,
+      "worldMs": 828.7000000178814,
+      "files": 15,
+      "requests": 20,
+      "downloadBytes": 6699894,
+      "renderer": 2,
+      "browserErrors": [],
+      "assetRequests": [
+        {
+          "url": "/assets/optimized/ui-loading-landscape-v2.e9c98372edbe.webp",
+          "bytes": 411410,
+          "duration": 1666.7000000178814
+        },
+        {
+          "url": "/assets/optimized/heroes-v8-children.d5d5138ecd6e.webp",
+          "bytes": 758904,
+          "duration": 8030.699999988079
+        },
+        {
+          "url": "/assets/ui/top-menu-icons-v2.webp",
+          "bytes": 311372,
+          "duration": 3524.9000000059605
+        },
+        {
+          "url": "/assets/optimized/ui-icon-crest-0.dd84e02950a5.webp",
+          "bytes": 171348,
+          "duration": 2185
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-17.52f2f2780323.webp",
+          "bytes": 31232,
+          "duration": 789.9000000059605
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-16.a9a1028d9464.webp",
+          "bytes": 45308,
+          "duration": 837.7999999821186
+        },
+        {
+          "url": "/assets/optimized/maps-courtyard-architecture.f6912137edf7.webp",
+          "bytes": 433066,
+          "duration": 4803.399999976158
+        },
+        {
+          "url": "/assets/ui/item-linh-thach.png",
+          "bytes": 9699,
+          "duration": 601.0999999940395
+        },
+        {
+          "url": "/assets/optimized/maps-thiet-tru.5d7a5a3f9529.webp",
+          "bytes": 358684,
+          "duration": 4614.800000011921
+        },
+        {
+          "url": "/assets/ui/item-linh-khi.png",
+          "bytes": 12032,
+          "duration": 1509.5
+        },
+        {
+          "url": "/assets/ui/item-hoi-xuan-dan.png",
+          "bytes": 17477,
+          "duration": 1246.7999999821186
+        },
+        {
+          "url": "/assets/ui/item-nhan-bac.png",
+          "bytes": 13685,
+          "duration": 126.7999999821186
+        },
+        {
+          "url": "/assets/ui/item-kiem-pho.png",
+          "bytes": 13621,
+          "duration": 145.59999999403954
+        },
+        {
+          "url": "/assets/optimized/maps-world-people.c713be554b7c.webp",
+          "bytes": 310750,
+          "duration": 1614.300000011921
+        },
+        {
+          "url": "/assets/optimized/maps-world-materials-v4.5d9186bf093e.webp",
+          "bytes": 805668,
+          "duration": 4185.199999988079
+        },
+        {
+          "url": "/assets/optimized/maps-world-props-v4.a444d196d525.webp",
+          "bytes": 910178,
+          "duration": 4306.4000000059605
+        },
+        {
+          "url": "/assets/optimized/maps-village-architecture-v3.a0c0f7ed1a9c.webp",
+          "bytes": 542782,
+          "duration": 2521.5999999940395
+        },
+        {
+          "url": "/assets/optimized/maps-village-nature-v3.708f26ad000c.webp",
+          "bytes": 647128,
+          "duration": 2945.199999988079
+        },
+        {
+          "url": "/assets/optimized/maps-village-materials-v3.fe32279640f9.webp",
+          "bytes": 639772,
+          "duration": 2264
+        },
+        {
+          "url": "/assets/optimized/maps-village-dawn-v3.2181011c658b.webp",
+          "bytes": 255778,
+          "duration": 1413.1000000238419
+        }
+      ]
+    },
+    "elapsedSamplesMs": [
+      15095,
+      14413.6,
+      18450.9
+    ]
+  },
+  "regression": {
+    "checks": [
+      "child hero and six NPCs render",
+      "opening village skips UI atlases, realm crests and unused legacy combat",
+      "all 45 precut icons decode successfully",
+      "adult visitor loads the complete realm crest sheet on demand",
+      "adult visitor upgrades from fallback to directional art",
+      "visitor Wang skill loads all animation frames on demand",
+      "one visitor skill does not pull unrelated Wang effects",
+      "admission loads adult art, legacy hit animations and the chosen school combat",
+      "combat map loads monsters and companion fallback",
+      "adult can return to the village",
+      "no browser exceptions across map transitions"
+    ],
+    "errors": []
+  },
+  "preparedStartup": {
+    "date": "2026-11-04",
+    "build": "production, offline backend, profiling hooks",
+    "cold": {
+      "elapsedMs": 11755.5,
+      "warmMs": null,
+      "prepMs": 102.2999999821186,
+      "worldMs": 1468,
+      "terrainMs": 15,
+      "files": 16,
+      "requests": 22,
+      "downloadBytes": 4438762,
+      "renderer": 2,
+      "browserErrors": [],
+      "assetRequests": [
+        {
+          "url": "/assets/optimized/ui-loading-landscape-v2.e9c98372edbe.webp",
+          "bytes": 411410,
+          "duration": 920
+        },
+        {
+          "url": "/assets/ui/top-menu-icons-v2.webp",
+          "bytes": 311372,
+          "duration": 761
+        },
+        {
+          "url": "/assets/optimized/ui-icon-crest-0.dd84e02950a5.webp",
+          "bytes": 171348,
+          "duration": 570.5999999940395
+        },
+        {
+          "url": "/assets/optimized/startup-head-wang_lam.67673dddbc49.webp",
+          "bytes": 9058,
+          "duration": 175.19999998807907
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-17.52f2f2780323.webp",
+          "bytes": 31232,
+          "duration": 250.80000001192093
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-16.a9a1028d9464.webp",
+          "bytes": 45308,
+          "duration": 301.69999998807907
+        },
+        {
+          "url": "/assets/ui/item-linh-thach.png",
+          "bytes": 9699,
+          "duration": 275
+        },
+        {
+          "url": "/assets/ui/item-linh-khi.png",
+          "bytes": 12032,
+          "duration": 354.5
+        },
+        {
+          "url": "/assets/ui/item-hoi-xuan-dan.png",
+          "bytes": 17477,
+          "duration": 391.40000000596046
+        },
+        {
+          "url": "/assets/ui/item-nhan-bac.png",
+          "bytes": 13685,
+          "duration": 247.2999999821186
+        },
+        {
+          "url": "/assets/ui/item-kiem-pho.png",
+          "bytes": 13621,
+          "duration": 249.69999998807907
+        },
+        {
+          "url": "/assets/optimized/startup-hero-child-wang_lam.ea334ba1eb97.webp",
+          "bytes": 101394,
+          "duration": 348.90000000596046
+        },
+        {
+          "url": "/assets/optimized/startup-village.dc89bf2c2f7e.webp",
+          "bytes": 1430058,
+          "duration": 6332
+        },
+        {
+          "url": "/assets/optimized/maps-village-dawn-v3.2181011c658b.webp",
+          "bytes": 255778,
+          "duration": 1503.4000000059605
+        },
+        {
+          "url": "/assets/optimized/startup-ground-0-0.fa24ed65d500.webp",
+          "bytes": 228296,
+          "duration": 1418.0999999940395
+        },
+        {
+          "url": "/assets/optimized/startup-ground-1024-0.1a6b4279547f.webp",
+          "bytes": 483932,
+          "duration": 2178
+        },
+        {
+          "url": "/assets/optimized/startup-ground-2048-0.312f63b49c17.webp",
+          "bytes": 266210,
+          "duration": 1256.5
+        },
+        {
+          "url": "/assets/optimized/startup-ground-3072-0.0a83b7f3f6a0.webp",
+          "bytes": 33024,
+          "duration": 350.80000001192093
+        },
+        {
+          "url": "/assets/optimized/startup-ground-0-1024.0b49788950da.webp",
+          "bytes": 37676,
+          "duration": 170.5
+        },
+        {
+          "url": "/assets/optimized/startup-ground-1024-1024.1d929558df5a.webp",
+          "bytes": 265580,
+          "duration": 2029
+        },
+        {
+          "url": "/assets/optimized/startup-ground-2048-1024.ccb756900d59.webp",
+          "bytes": 257732,
+          "duration": 1848
+        },
+        {
+          "url": "/assets/optimized/startup-ground-3072-1024.bbdc0afec1a4.webp",
+          "bytes": 32840,
+          "duration": 130.2000000178814
+        }
+      ]
+    },
+    "prepared": {
+      "elapsedMs": 3735.899999976158,
+      "warmMs": 4996.800000011921,
+      "prepMs": 68.5,
+      "worldMs": 1382.7999999821186,
+      "terrainMs": 18.100000023841858,
+      "files": 5,
+      "requests": 11,
+      "downloadBytes": 1046242,
+      "renderer": 2,
+      "browserErrors": [],
+      "assetRequests": [
+        {
+          "url": "/assets/optimized/ui-loading-landscape-v2.e9c98372edbe.webp",
+          "bytes": 411410,
+          "duration": 777.1999999880791
+        },
+        {
+          "url": "/assets/ui/top-menu-icons-v2.webp",
+          "bytes": 311372,
+          "duration": 603.9000000059605
+        },
+        {
+          "url": "/assets/optimized/ui-icon-crest-0.dd84e02950a5.webp",
+          "bytes": 171348,
+          "duration": 497.19999998807907
+        },
+        {
+          "url": "/assets/optimized/startup-head-wang_lam.67673dddbc49.webp",
+          "bytes": 9058,
+          "duration": 116.10000002384186
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-17.52f2f2780323.webp",
+          "bytes": 31232,
+          "duration": 191.7000000178814
+        },
+        {
+          "url": "/assets/ui/item-linh-thach.png",
+          "bytes": 9699,
+          "duration": 216.39999997615814
+        },
+        {
+          "url": "/assets/optimized/ui-icon-item-16.a9a1028d9464.webp",
+          "bytes": 45308,
+          "duration": 236.7999999821186
+        },
+        {
+          "url": "/assets/ui/item-linh-khi.png",
+          "bytes": 12032,
+          "duration": 297.40000000596046
+        },
+        {
+          "url": "/assets/ui/item-hoi-xuan-dan.png",
+          "bytes": 17477,
+          "duration": 335.80000001192093
+        },
+        {
+          "url": "/assets/ui/item-nhan-bac.png",
+          "bytes": 13685,
+          "duration": 128
+        },
+        {
+          "url": "/assets/ui/item-kiem-pho.png",
+          "bytes": 13621,
+          "duration": 148.80000001192093
+        }
+      ]
+    },
+    "note": "Prepared sample awaits background image decoding and idle GPU uploads on character selection before pressing Enter Game. Cold sample blocks prepared asset requests on selection and allows them at entry; renderer can still warm on selection. HTTP cache disabled. Four times CPU slowdown, WebGL SwiftShader, 12 Mbps/60ms. Not a physical phone measurement.",
+    "entryChecks": {
+      "checks": [
+        "entry warms and parks renderer without starting world or loading overlay",
+        "invalid character name never starts the world",
+        "unmounting a parked renderer completes destruction",
+        "entry can mount a new renderer after cleanup",
+        "valid character starts exactly one playable world",
+        "entry initializes minimap and player position before revealing the world",
+        "entry, cleanup and reentry have no browser exceptions"
+      ],
+      "errors": []
+    },
+    "worldChecks": {
+      "checks": [
+        "child hero and six NPCs render",
+        "opening village skips UI atlases, realm crests and unused legacy combat",
+        "all 45 precut icons decode successfully",
+        "adult visitor loads the complete realm crest sheet on demand",
+        "adult visitor upgrades from fallback to directional art",
+        "visitor Wang skill loads all animation frames on demand",
+        "one visitor skill does not pull unrelated Wang effects",
+        "admission loads adult art, legacy hit animations and the chosen school combat",
+        "combat map loads monsters and companion fallback",
+        "adult can return to the village",
+        "all sixteen adult/child sheets keep every eight-direction animation",
+        "returning to the village restores exactly eight prepared ground pages",
+        "no browser exceptions across map transitions"
+      ],
+      "errors": []
+    },
+    "worldCheckViewports": [
+      [
+        844,
+        390
+      ],
+      [
+        1440,
+        900
+      ]
+    ]
+  }
+}

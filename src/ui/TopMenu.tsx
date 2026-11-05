@@ -1,6 +1,6 @@
 import { useGame, type MenuTab } from '../store/gameStore';
 import { isChildhood } from '../game/systems/origin';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { MarketSection } from '../game/systems/marketUi';
 import { MenuSprite } from './MenuSprite';
 import { pendingMailCount, useMail } from '../net/gameMail';
@@ -29,6 +29,7 @@ const ITEMS: { id: MenuTab; label: string; marketSection?: MarketSection }[] = [
 
 export function TopMenu({ phone = false }: { phone?: boolean }) {
   const [more, setMore] = useState(false);
+  const pointerActivated = useRef(false);
   const menu = useGame((s) => s.menu);
   const setMenu = useGame((s) => s.setMenu);
   const marketSection = useGame((s) => s.marketSection);
@@ -36,6 +37,14 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
   const childhood = useGame((s) => isChildhood(s.player));
   const pendingMail = useMail((s) => pendingMailCount(s.mails));
   const common: MenuTab[] = ['character', 'bag', 'journey', 'skills'];
+  const activate = (it: (typeof ITEMS)[number]) => {
+    setMore(false);
+    setMenu(
+      menu === it.id && (!it.marketSection || marketSection === it.marketSection) ? null : it.id,
+    );
+    if (it.marketSection) patch({ marketSection: it.marketSection });
+    if (it.id === 'journey') patch({ journeySection: 'story' });
+  };
   const button = (it: (typeof ITEMS)[number]) => (
     <button
       key={`${it.id}-${it.marketSection ?? ''}`}
@@ -47,15 +56,18 @@ export function TopMenu({ phone = false }: { phone?: boolean }) {
           : it.label
       }
       className={`menu-btn menu-btn-${it.id} ${menu === it.id && (!it.marketSection || marketSection === it.marketSection) ? 'active' : ''}`}
-      onClick={() => {
-        setMore(false);
-        setMenu(
-          menu === it.id && (!it.marketSection || marketSection === it.marketSection)
-            ? null
-            : it.id,
-        );
-        if (it.marketSection) patch({ marketSection: it.marketSection });
-        if (it.id === 'journey') patch({ journeySection: 'story' });
+      onPointerDown={(e) => {
+        pointerActivated.current = false;
+        if (e.button !== 0 || e.pointerType === 'touch') return;
+        pointerActivated.current = true;
+        e.preventDefault();
+        activate(it);
+      }}
+      onClick={(e) => {
+        // Keyboard and assistive activation still use click. Pointer input
+        // opens on press, before the world can process the release underneath.
+        if (!pointerActivated.current || e.detail === 0) activate(it);
+        pointerActivated.current = false;
       }}
     >
       <span className="menu-glyph">

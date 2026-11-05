@@ -389,11 +389,14 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
     restore(hp, mp) {
       const { player: p, stats } = get();
+      const nextHp = Math.min(stats.maxHp, Math.max(0, p.hp + hp));
+      const nextMp = Math.min(stats.maxMp, Math.max(0, p.mp + mp));
+      if (nextHp === p.hp && nextMp === p.mp) return;
       set({
         player: {
           ...p,
-          hp: Math.min(stats.maxHp, Math.max(0, p.hp + hp)),
-          mp: Math.min(stats.maxMp, Math.max(0, p.mp + mp)),
+          hp: nextHp,
+          mp: nextMp,
         },
       });
     },
@@ -680,6 +683,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
     setAuto(auto) {
       if (auto && isChildhood(get().player)) return;
+      if (get().auto === auto) return;
       set({ auto });
       get().addLog(auto ? 'Bật tự động chiến đấu' : 'Tắt tự động chiến đấu');
     },

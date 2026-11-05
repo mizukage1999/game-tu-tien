@@ -38,7 +38,7 @@ export function DungeonScenery({ art }: { art: number }) {
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
     >
-      <image href="/assets/ui/dungeon-environments-v1.png" width="2048" height="2048" />
+      <image href={optimizedAsset('/assets/ui/dungeon-environments-v1.png')} width="2048" height="2048" />
     </svg>
   );
 }
