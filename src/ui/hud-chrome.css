@@ -665,3 +665,207 @@
     max-height: 100px;
   }
 }
+
+/* Dragon / cherry-bridge skin. Paint only: keep the compact PC and phone geometry above. */
+.hud.hud-v5 .hud-frame {
+  border: 1px solid #e3b65e;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 2px #071923,
+    inset 0 0 0 3px #b5833866;
+}
+.hud.hud-v5 .hud-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+}
+.hud-corner-tl {
+  top: -2px;
+  left: -2px;
+}
+.hud-corner-tr {
+  top: -2px;
+  right: -2px;
+  transform: scaleX(-1);
+}
+.hud-corner-bl {
+  bottom: -2px;
+  left: -2px;
+  transform: scaleY(-1);
+}
+.hud-corner-br {
+  bottom: -2px;
+  right: -2px;
+  transform: scale(-1);
+}
+.hud.hud-v5 .status.panel-glass {
+  border-radius: 20px 10px 14px 10px;
+  background:
+    linear-gradient(90deg, #031820e0 25%, #031b2970),
+    url('/assets/ui/hud-cherry-bridge-v2.webp') right center / cover;
+  box-shadow:
+    inset 0 0 0 1px #f7d387,
+    0 2px 6px #0006;
+}
+.hud.hud-v5 .status .avatar {
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #173749 55%, #071923 70%);
+  box-shadow: none;
+}
+.hud.hud-v5 .status .avatar .hero-portrait {
+  position: absolute;
+  inset: 8%;
+  width: 84%;
+  height: 84%;
+  object-fit: cover;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+}
+.hud.hud-v5 .status .avatar::after {
+  content: '';
+  position: absolute;
+  inset: -9%;
+  background: url('/assets/ui/hud-dragon-rim-v2.webp') center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.hud.hud-v5 .avatar-level {
+  z-index: 1;
+}
+.hud.hud-v5 .status-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  min-width: 0;
+}
+.hud.hud-v5 .status-heading .status-name {
+  min-width: 0;
+}
+.hud.hud-v5 .status-school {
+  flex: 0 0 auto;
+  padding: 1px 4px;
+  border: 1px solid #dbacff;
+  border-radius: 3px 8px;
+  background: linear-gradient(#7934a5, #3a135f);
+  box-shadow: inset 0 0 0 1px #eeccff22;
+  color: #f9e7ff;
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+.hud.hud-v5.phone .status-school {
+  font-size: 7px;
+  padding-inline: 3px;
+}
+.hud.hud-v5 .status .bar {
+  border-color: #ffe0a0;
+  box-shadow:
+    0 0 0 1px #8e6329,
+    inset 0 1px 2px #000b;
+}
+.hud.hud-v5 .status .bar-fill {
+  box-shadow:
+    inset 0 1px 1px #ffffffbd,
+    inset 0 -1px 1px #0007;
+}
+.hud.hud-v5 .status .bar-hp .bar-fill {
+  background: linear-gradient(#ffbab0, #f24d3c 24%, #d51919 55%, #8f0609 80%, #d22b18);
+}
+.hud.hud-v5 .status .bar-mp .bar-fill {
+  background: linear-gradient(#9ef5ff, #11c9ff 25%, #0783e5 55%, #073aad 82%, #155cb7);
+}
+.hud.hud-v5 .status .bar-text {
+  text-shadow: 0 1px 2px #300a04;
+}
+.hud.hud-v5 .status-footer {
+  border-top-color: #e6c07155;
+}
+.hud.hud-v5 .status-footer .pk-mode-trigger {
+  background: linear-gradient(#133744, #061c27 55%, #0c2730);
+  border-color: #efc674;
+  box-shadow: inset 0 1px #fff2c044;
+}
+.hud.hud-v5 .status-power .pk-swords {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+.hud.hud-v5.phone .status-power .pk-swords {
+  width: 10px;
+  height: 10px;
+}
+.hud.hud-v5 .quest-panel.panel-glass {
+  border-radius: 15px 15px 12px 12px;
+  /* The lantern hangs outside; list and tab scrolling/clipping stay on their own boxes. */
+  overflow: visible;
+  background: linear-gradient(120deg, #061e28f5, #102d3bef 65%, #041721f5);
+  border-color: #d2a24d;
+  box-shadow:
+    inset 0 0 0 2px #03141e,
+    0 3px 8px #0005;
+}
+.hud.hud-v5 .quest-tabs {
+  background: linear-gradient(#0d2b3a, #051b27);
+  border-bottom-color: #f0c46e;
+}
+.hud.hud-v5 .quest-tabs button.active {
+  border-radius: 12px 20px 0 0;
+  background: linear-gradient(165deg, #ffe0a2, #d39739 14%, #975511 55%, #d39b37);
+  box-shadow:
+    inset 0 1px #fff5c9,
+    inset 0 -2px #ffe2a1;
+  text-shadow: 0 1px 2px #613207;
+}
+.hud.hud-v5 .party-dot {
+  background: radial-gradient(circle at 35% 25%, #ffbdb2, #ff3623 45%, #b30d0a);
+  box-shadow: 0 0 0 1px #8b551c;
+}
+.hud.hud-v5 .story-tracker {
+  background:
+    linear-gradient(90deg, #041e28f0, #061c2b99 62%, #061c2b10),
+    url('/assets/ui/hud-cherry-bridge-v2.webp') right center / cover;
+  border-bottom-color: #dcb66566;
+}
+.hud.hud-v5 .story-tracker > span {
+  color: #ffe4a4;
+  text-shadow: 0 1px 2px #000;
+}
+.hud.hud-v5 .quest-list li.quest-go:first-child {
+  border-color: #efc378;
+  border-radius: 6px;
+  background: linear-gradient(120deg, #102e3ada, #071b25d9);
+  box-shadow:
+    inset 1px 0 #fff0b4,
+    inset 0 1px #f6d38744;
+}
+.hud.hud-v5 .quest-panel .opening-guide {
+  border-top-color: #d4b77566;
+}
+.hud.hud-v5 .opening-guide > button {
+  color: #fff1bf;
+  background: linear-gradient(#e9b758, #b57419 15%, #754209 60%, #b77b20);
+  border-color: #ffe29d;
+  box-shadow: inset 0 0 0 1px #ffd47b70;
+  text-shadow: 0 1px #51310c;
+  white-space: nowrap;
+}
+.hud.hud-v5 .quest-panel .hud-lantern {
+  position: absolute;
+  left: -9px;
+  top: 31px;
+  width: 16px;
+  height: 51px;
+  z-index: 2;
+  pointer-events: none;
+}
+.hud.hud-v5.phone .quest-panel .hud-lantern {
+  left: -6px;
+  top: 27px;
+  width: 11px;
+  height: 35px;
+}

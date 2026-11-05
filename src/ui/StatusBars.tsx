@@ -4,7 +4,7 @@ import { itemIconUrl } from '../game/art/icons';
 import { heroName, isChildhood, usesChildSprite } from '../game/systems/origin';
 import { battlePower } from '../game/systems/adventure';
 import { HeroPortrait } from './HeroPortrait';
-import { PkModeDropdown } from './PkModeDropdown';
+import { CrossedSwords, PkModeDropdown } from './PkModeDropdown';
 import { ChildHeroPortrait } from './HeroArt';
 import { heroFor } from '../data/heroes';
 import { HudFrame, HudGlyph } from './HudGlyph';
@@ -42,7 +42,12 @@ export function StatusBars() {
         </span>
       </div>
       <div className="status-info">
-        <div className="status-name" title={heroName(player)}>{heroName(player)}</div>
+        <div className="status-heading">
+          <div className="status-name" title={heroName(player)}>
+            {heroName(player)}
+          </div>
+          <span className="status-school">{heroFor(player).school}</span>
+        </div>
         <div className="status-realm">
           Lv.{player.level} <span>{childhood ? 'Phàm Nhân' : realmNameAtLevel(player.level)}</span>
         </div>
@@ -61,6 +66,7 @@ export function StatusBars() {
         <PkModeDropdown />
         <div className={`status-power ${childhood ? 'status-location' : ''}`}>
           {childhood && <HudGlyph kind="pin" />}
+          {!childhood && <CrossedSwords />}
           {childhood ? 'Vương Gia Thôn' : `Lực chiến ${battlePower(stats).toLocaleString('vi-VN')}`}
         </div>
       </div>

@@ -53,22 +53,43 @@ export function HudGlyph({ kind }: { kind: 'hp' | 'mp' | 'book' | 'quest' | 'par
 
 export function HudFrame() {
   return (
-    <svg
-      className="hud-frame"
-      viewBox="0 0 320 140"
-      preserveAspectRatio="none"
-      fill="none"
-      aria-hidden="true"
-    >
+    <div className="hud-frame" aria-hidden="true">
+      {['tl', 'tr', 'bl', 'br'].map((corner) => (
+        <svg
+          key={corner}
+          className={`hud-corner hud-corner-${corner}`}
+          viewBox="0 0 32 32"
+          fill="none"
+        >
+          <path d="M1 31V15C1 6 6 1 15 1h16M4 30V16C4 8 8 4 16 4h14" stroke="#bd8a3d" />
+          <path
+            d="M2 24c6-3 4-11 11-11 5 0 6 6 2 7-4 1-5-4-1-4M5 6c6 3 11-5 19-3M6 5c3 6-5 11-3 19M7 13l6-6 4 1-9 9Z"
+            stroke="#ffe2a0"
+            strokeWidth="1.2"
+          />
+          <path d="m4 4 3-2 3 3-5 5-3-3Z" fill="#ffe6b0" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+/** Small static ornament: no timer, filter animation or pointer target. */
+export function HudLantern() {
+  return (
+    <svg className="hud-lantern" viewBox="0 0 32 102" fill="none" aria-hidden="true">
       <path
-        d="M2 25V9Q2 2 10 2h112l5-1h66l5 1h112q8 0 8 8v120q0 8-8 8H180l-20-2-20 2H10q-8 0-8-8V25Z"
-        stroke="#a77c39"
+        d="M16 1v13m-8 2 8-6 8 6M6 20l-3 4 3 35-3 4h26l-3-4 3-35-3-4Z"
+        fill="#7e3c12"
+        stroke="#eec369"
       />
-      <path
-        d="M5 27V13l8-8h108M199 5h108l8 8v16M5 112v15l8 8h122l25-2 25 2h122l8-8v-16M1 20l7 5-4 9m315-14-7 5 4 9M145 136l15-4 15 4m-22 0 7-2 7 2"
-        stroke="#f1d38b"
-        strokeWidth="1.2"
-      />
+      <path d="M7 25h18v32H7Z" fill="#ffbf40" stroke="#fff0af" />
+      <path d="M11 25h10v32H11Z" fill="#ffdf7c" />
+      <path d="m16 29 6 12-6 12-6-12Z" fill="#fff2b6" stroke="#eeb351" />
+      <path d="M4 22h24M4 60h24M16 64v9" stroke="#ffdf8e" strokeWidth="2" />
+      <path d="m16 71-4 5 4 5 4-5Z" fill="#dd4930" stroke="#ffce77" />
+      <path d="m14 80-5 19 5-3 2 5 2-5 5 3-5-19Z" fill="#c32b23" />
+      <path d="m16 82-2 14m3-14 2 14" stroke="#f56843" />
     </svg>
   );
 }

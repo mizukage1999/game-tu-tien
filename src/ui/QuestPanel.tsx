@@ -11,7 +11,7 @@ import { OpeningGuide } from './OpeningGuide';
 import { AdventureGuide } from './AdventureGuide';
 import { PartyTracker } from './PartyTracker';
 import { useSocial } from '../store/socialStore';
-import { HudFrame, HudGlyph } from './HudGlyph';
+import { HudFrame, HudGlyph, HudLantern } from './HudGlyph';
 
 export function QuestPanel() {
   const quests = useGame((s) => s.quests);
@@ -45,6 +45,7 @@ export function QuestPanel() {
   return (
     <div className={`quest-panel panel-glass ${open ? '' : 'collapsed'}`}>
       <HudFrame />
+      {open && <HudLantern />}
       <div className="quest-tabs">
         <button className={tab === 'quest' ? 'active' : ''} onClick={() => setTab('quest')}>
           <HudGlyph kind="quest" />
