@@ -67,7 +67,7 @@
     },
     {
       "source": "src/game/maps/MapBuilder.ts",
-      "sha256": "839c5173b50d69d453a31ba2a0ab34546c07dcf0da204594ace08a0a40fb2fef"
+      "sha256": "3cdbbaeffb4b408a562dbc75bb19bd61f0d519023a24b9b12e01401819188c87"
     },
     {
       "source": "src/game/art/worldGround.ts",
@@ -87,11 +87,11 @@
     },
     {
       "source": "src/game/art/tiles.ts",
-      "sha256": "551ebf49b27a5309357f75bbb5ff7a81b6a31e5aa6b0c8d72418dbef2ef0fc0b"
+      "sha256": "75a1a9ed2ae9d8e5dee7bb347513934c5135e94e858238be507c3b0a2cde0d50"
     },
     {
       "source": "src/game/art/iso.ts",
-      "sha256": "5d4190ab8071a1628befb8d12b8a69651c190a1e3d0ababbfe8b7f63aa60b5f3"
+      "sha256": "b669b19f5241cd5a590753f8a9fba6d6345f49a0188a70e3644169dd1b9567fc"
     }
   ],
   "files": [

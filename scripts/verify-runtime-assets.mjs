@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { assetSourceHash } from './lib/asset-source-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const report = JSON.parse(
@@ -43,7 +44,7 @@ const iconReport = JSON.parse(
 const iconLayout = fs.readFileSync(path.join(root, 'src/data/uiIconLayout.json'));
 const layout = JSON.parse(iconLayout.toString());
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
-if (digest(iconLayout) !== iconReport.layoutSha256)
+if (assetSourceHash('uiIconLayout.json', iconLayout) !== iconReport.layoutSha256)
   throw Error('UI icon layout changed. Run npm run assets:icons.');
 for (const source of iconReport.sources)
   if (digest(fs.readFileSync(path.join(root, 'public', source.source))) !== source.sha256)
@@ -76,7 +77,7 @@ console.log(`Verified ${iconReport.files.length} precut UI icons and their sourc
 const menuIcons=JSON.parse(fs.readFileSync(path.join(root,'src/data/menuIconAssets.json'),'utf8'));
 const menuReport=JSON.parse(fs.readFileSync(path.join(root,'docs/menu-icon-encoding.json'),'utf8'));
 for(const source of menuReport.layoutSources)
-  if(digest(fs.readFileSync(path.join(root,source.source)))!==source.sha256)
+  if(assetSourceHash(source.source,fs.readFileSync(path.join(root,source.source)))!==source.sha256)
     throw Error(`Menu icon layout changed: ${source.source}. Run npm run assets:menu.`);
 for(const source of menuReport.sources)
   if(digest(fs.readFileSync(path.join(root,'public',source.source)))!==source.sha256)
@@ -92,10 +93,10 @@ console.log(`Verified ${menuReport.files.length} menu skill icons and their sour
 const startupFile=fs.readFileSync(path.join(root,'src/data/startupAssets.json'));
 const startup=JSON.parse(startupFile.toString());
 const startupReport=JSON.parse(fs.readFileSync(path.join(root,'docs/startup-asset-encoding.json'),'utf8'));
-if(digest(startupFile)!==startupReport.manifestSha256)
+if(assetSourceHash('startupAssets.json',startupFile)!==startupReport.manifestSha256)
   throw Error('Startup atlas metadata changed. Run npm run assets:startup.');
 for(const source of startupReport.sources)
-  if(digest(fs.readFileSync(path.join(root,source.source)))!==source.sha256)
+  if(assetSourceHash(source.source,fs.readFileSync(path.join(root,source.source)))!==source.sha256)
     throw Error(`Startup source changed: ${source.source}. Run npm run assets:startup.`);
 for(const file of startupReport.files){
   const bytes=fs.readFileSync(path.join(root,'public',file.url));

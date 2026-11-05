@@ -3,6 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { assetBrowser } from './lib/asset-browser.mjs';
+import { assetSourceHash } from './lib/asset-source-hash.mjs';
 import ts from 'typescript';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -199,10 +200,10 @@ try {
         quality: 0.95,
         sources: sourceFiles.map((source) => ({
           source,
-          sha256: hash(fs.readFileSync(path.join(root, source))),
+          sha256: assetSourceHash(source, fs.readFileSync(path.join(root, source))),
         })),
         files,
-        manifestSha256: hash(fs.readFileSync(path.join(root, 'src/data/startupAssets.json'))),
+        manifestSha256: assetSourceHash('startupAssets.json', fs.readFileSync(path.join(root, 'src/data/startupAssets.json'))),
       },
       null,
       2,

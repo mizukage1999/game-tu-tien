@@ -6,6 +6,7 @@ import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { assetSourceHash } from './lib/asset-source-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicRoot = path.join(root, 'public');
@@ -179,7 +180,7 @@ try {
       {
         encoder: 'Chromium Canvas WebP',
         quality: 0.95,
-        layoutSha256: hash(fs.readFileSync(layoutFile)),
+        layoutSha256: assetSourceHash(layoutFile, fs.readFileSync(layoutFile)),
         sources: sources.map((source) => ({
           source,
           sha256: hash(fs.readFileSync(path.join(publicRoot, source))),

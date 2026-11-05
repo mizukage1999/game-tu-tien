@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { assetBrowser } from './lib/asset-browser.mjs';
+import { assetSourceHash } from './lib/asset-source-hash.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const browser = await assetBrowser(root);
@@ -56,7 +57,7 @@ try {
     'src/data/heroSpellArt.ts',
     'src/data/skillCatalog.ts',
     'src/data/wangSkills.ts',
-  ].map((source) => ({ source, sha256: hash(fs.readFileSync(path.join(root, source))) }));
+  ].map((source) => ({ source, sha256: assetSourceHash(source, fs.readFileSync(path.join(root, source))) }));
   fs.writeFileSync(
     path.join(root, 'docs/menu-icon-encoding.json'),
     JSON.stringify({ size: 128, quality: 0.95, sources, layoutSources, files }, null, 2) + '\n',

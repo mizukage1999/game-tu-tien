@@ -1,0 +1,542 @@
+{
+  "date": "2026-11-05",
+  "setup": {
+    "build": "production, minified, React production, original entry graph",
+    "backend": "offline-isolated; name reservation and reward RPC latency not measured",
+    "cache": "cold HTTP cache, 12 Mbps / 40 ms latency",
+    "viewport": "1280x720",
+    "cpuThrottle": 1,
+    "gpu": "ANGLE (Intel, Intel(R) HD Graphics 620 (0x00005916) Direct3D11 vs_5_0 ps_5_0, D3D11-27.20.100.8681)"
+  },
+  "startup": {
+    "coldSelection": {
+      "samplesMs": [
+        3331.7,
+        2268.3
+      ],
+      "minMs": 2268.3,
+      "maxMs": 3331.7,
+      "meanMs": 2800
+    },
+    "warmSelection": {
+      "samplesMs": [
+        1445.3,
+        1344.2
+      ],
+      "minMs": 1344.2,
+      "maxMs": 1445.3,
+      "meanMs": 1394.8
+    },
+    "coldVillage": {
+      "samplesMs": [
+        7358.5,
+        6069.4
+      ],
+      "minMs": 6069.4,
+      "maxMs": 7358.5,
+      "meanMs": 6713.9
+    },
+    "warmVillage": {
+      "samplesMs": [
+        2248.5,
+        2135.1
+      ],
+      "minMs": 2135.1,
+      "maxMs": 2248.5,
+      "meanMs": 2191.8
+    }
+  },
+  "questDurationMs": 85774.3,
+  "quests": [
+    {
+      "id": "village_0",
+      "name": "Sớm Mai Vương Gia",
+      "ms": 4322,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_1",
+      "name": "Hai Gàu Nước Giếng",
+      "ms": 7842.2,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_2",
+      "name": "Tiếng Đục Dưới Hiên",
+      "ms": 2877.4,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_3",
+      "name": "Mùi Thuốc Quen Thuộc",
+      "ms": 3938.9,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_4",
+      "name": "Dưới Bóng Liễu Già",
+      "ms": 10150.7,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_5",
+      "name": "Một Chữ Tiên",
+      "ms": 13933.2,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_6",
+      "name": "Lời Dặn Trước Ngày Đi",
+      "ms": 8580,
+      "maxLongTaskMs": 0
+    },
+    {
+      "id": "village_7",
+      "name": "Qua Khỏi Lũy Tre",
+      "ms": 25061.8,
+      "maxLongTaskMs": 3057
+    },
+    {
+      "id": "village_8",
+      "name": "Tĩnh Tâm Trước Sơn Môn",
+      "ms": 4747.2,
+      "maxLongTaskMs": 87
+    },
+    {
+      "id": "village_9",
+      "name": "Bước Đầu Nhập Đạo",
+      "ms": 4213.6,
+      "maxLongTaskMs": 98
+    }
+  ],
+  "reward": {
+    "label": "reward-99-client-apply",
+    "start": 97685.30000001192,
+    "end": 97960.10000002384,
+    "ms": 274.80000001192093,
+    "longTasks": 0,
+    "maxLongTaskMs": 0,
+    "p95FrameMs": 219.20000004768372,
+    "note": "Uses actual applyReceipt with a local fixture; server/inbox/save/RPC time excluded, not a real mail claim"
+  },
+  "menus": [
+    {
+      "menu": "character",
+      "inputToDomMs": 15.6,
+      "inputToTwoRafMs": 255.9,
+      "maxLongTaskMs": 255
+    },
+    {
+      "menu": "bag",
+      "inputToDomMs": 29.2,
+      "inputToTwoRafMs": 195.7,
+      "maxLongTaskMs": 148
+    },
+    {
+      "menu": "cultivate",
+      "inputToDomMs": 115.6,
+      "inputToTwoRafMs": 240.1,
+      "maxLongTaskMs": 119
+    },
+    {
+      "menu": "journey",
+      "inputToDomMs": 117.3,
+      "inputToTwoRafMs": 351.9,
+      "maxLongTaskMs": 121
+    },
+    {
+      "menu": "skills",
+      "inputToDomMs": 11.7,
+      "inputToTwoRafMs": 561.4,
+      "maxLongTaskMs": 132
+    },
+    {
+      "menu": "mail",
+      "inputToDomMs": 2.4,
+      "inputToTwoRafMs": 49.7,
+      "maxLongTaskMs": 0
+    },
+    {
+      "menu": "quests",
+      "inputToDomMs": 4.7,
+      "inputToTwoRafMs": 251.1,
+      "maxLongTaskMs": 51
+    },
+    {
+      "menu": "social",
+      "inputToDomMs": 4.6,
+      "inputToTwoRafMs": 119.7,
+      "maxLongTaskMs": 0
+    },
+    {
+      "menu": "sect",
+      "inputToDomMs": 5.8,
+      "inputToTwoRafMs": 47.7,
+      "maxLongTaskMs": 0
+    },
+    {
+      "menu": "premium",
+      "inputToDomMs": 5,
+      "inputToTwoRafMs": 55.4,
+      "maxLongTaskMs": 51
+    },
+    {
+      "menu": "shop",
+      "inputToDomMs": 6.6,
+      "inputToTwoRafMs": 109.3,
+      "maxLongTaskMs": 0
+    },
+    {
+      "menu": "dungeon",
+      "inputToDomMs": 15.8,
+      "inputToTwoRafMs": 72.4,
+      "maxLongTaskMs": 67
+    },
+    {
+      "menu": "boss",
+      "inputToDomMs": 2.5,
+      "inputToTwoRafMs": 25.5,
+      "maxLongTaskMs": 0
+    },
+    {
+      "menu": "companions",
+      "inputToDomMs": 9.4,
+      "inputToTwoRafMs": 60.8,
+      "maxLongTaskMs": 74
+    },
+    {
+      "menu": "ranking",
+      "inputToDomMs": 14.9,
+      "inputToTwoRafMs": 64.4,
+      "maxLongTaskMs": 59
+    },
+    {
+      "menu": "ranked",
+      "inputToDomMs": 2.5,
+      "inputToTwoRafMs": 34.4,
+      "maxLongTaskMs": 0
+    },
+    {
+      "menu": "activities",
+      "inputToDomMs": 4.6,
+      "inputToTwoRafMs": 68.2,
+      "maxLongTaskMs": 62
+    },
+    {
+      "menu": "settings",
+      "inputToDomMs": 8.8,
+      "inputToTwoRafMs": 80.4,
+      "maxLongTaskMs": 0
+    }
+  ],
+  "maps": [
+    {
+      "label": "village_7",
+      "totalWalkAndLoadMs": 25061.8,
+      "loadingIntervalsMs": [
+        12054.9
+      ],
+      "maxLongTaskMs": 3057,
+      "slowCalls": [
+        {
+          "name": "createWorld",
+          "ms": 2863.9
+        },
+        {
+          "name": "buildTerrain",
+          "ms": 440.4
+        },
+        {
+          "name": "buildDecor",
+          "ms": 29.1
+        }
+      ],
+      "transferBytes": 11455845
+    },
+    {
+      "label": "travel:dai_thua_vien",
+      "totalWalkAndLoadMs": 19911.4,
+      "loadingIntervalsMs": [
+        13396.4
+      ],
+      "maxLongTaskMs": 3290,
+      "slowCalls": [
+        {
+          "name": "createWorld",
+          "ms": 2907.8
+        },
+        {
+          "name": "buildTerrain",
+          "ms": 1611.7
+        },
+        {
+          "name": "buildDecor",
+          "ms": 26
+        }
+      ],
+      "transferBytes": 12199449
+    },
+    {
+      "label": "travel:linh_son_tong",
+      "totalWalkAndLoadMs": 11566.6,
+      "loadingIntervalsMs": [
+        853.3
+      ],
+      "maxLongTaskMs": 574,
+      "slowCalls": [
+        {
+          "name": "createWorld",
+          "ms": 470.2
+        },
+        {
+          "name": "buildTerrain",
+          "ms": 395.2
+        },
+        {
+          "name": "buildDecor",
+          "ms": 9
+        }
+      ],
+      "transferBytes": 0
+    },
+    {
+      "label": "travel:dinh_ta",
+      "totalWalkAndLoadMs": 7691.1,
+      "loadingIntervalsMs": [
+        795.7
+      ],
+      "maxLongTaskMs": 428,
+      "slowCalls": [
+        {
+          "name": "createWorld",
+          "ms": 410.2
+        },
+        {
+          "name": "buildTerrain",
+          "ms": 353
+        }
+      ],
+      "transferBytes": 0
+    },
+    {
+      "label": "travel:dai_thua_vien",
+      "totalWalkAndLoadMs": 16617.1,
+      "loadingIntervalsMs": [
+        721.5,
+        927.7
+      ],
+      "maxLongTaskMs": 561,
+      "slowCalls": [
+        {
+          "name": "createWorld",
+          "ms": 539.9
+        },
+        {
+          "name": "buildTerrain",
+          "ms": 463.7
+        },
+        {
+          "name": "createWorld",
+          "ms": 349.4
+        }
+      ],
+      "transferBytes": 12199449
+    }
+  ],
+  "resources": [
+    {
+      "stage": "startup",
+      "transferBytes": 5974574,
+      "requests": 39
+    },
+    {
+      "stage": "create-and-enter",
+      "transferBytes": 1527911,
+      "requests": 13
+    },
+    {
+      "stage": "village_0",
+      "transferBytes": 21312,
+      "requests": 2
+    },
+    {
+      "stage": "village_3",
+      "transferBytes": 12148,
+      "requests": 1
+    },
+    {
+      "stage": "village_4",
+      "transferBytes": 8860,
+      "requests": 1
+    },
+    {
+      "stage": "village_5",
+      "transferBytes": 10430,
+      "requests": 2
+    },
+    {
+      "stage": "village_6",
+      "transferBytes": 0,
+      "requests": 2
+    },
+    {
+      "stage": "village_7",
+      "transferBytes": 11455845,
+      "requests": 20
+    },
+    {
+      "stage": "village_8",
+      "transferBytes": 266570,
+      "requests": 1
+    },
+    {
+      "stage": "village_9",
+      "transferBytes": 394307,
+      "requests": 7
+    },
+    {
+      "stage": "menu:bag",
+      "transferBytes": 195604,
+      "requests": 5
+    },
+    {
+      "stage": "menu:cultivate",
+      "transferBytes": 1552490,
+      "requests": 3
+    },
+    {
+      "stage": "menu:journey",
+      "transferBytes": 1491372,
+      "requests": 2
+    },
+    {
+      "stage": "menu:mail",
+      "transferBytes": 405784,
+      "requests": 1
+    },
+    {
+      "stage": "menu:boss",
+      "transferBytes": 2354064,
+      "requests": 4
+    },
+    {
+      "stage": "menu:activities",
+      "transferBytes": 2097180,
+      "requests": 7
+    },
+    {
+      "stage": "menu:premium",
+      "transferBytes": 1142251,
+      "requests": 2
+    },
+    {
+      "stage": "menu:sect",
+      "transferBytes": 1230600,
+      "requests": 2
+    },
+    {
+      "stage": "menu:shop",
+      "transferBytes": 565858,
+      "requests": 1
+    },
+    {
+      "stage": "menu:ranking",
+      "transferBytes": 373427,
+      "requests": 1
+    },
+    {
+      "stage": "menu:dungeon",
+      "transferBytes": 592050,
+      "requests": 2
+    },
+    {
+      "stage": "menu:settings",
+      "transferBytes": 241119,
+      "requests": 1
+    },
+    {
+      "stage": "travel:dai_thua_vien",
+      "transferBytes": 12199449,
+      "requests": 57
+    },
+    {
+      "stage": "menu:companions",
+      "transferBytes": 1042259,
+      "requests": 1
+    },
+    {
+      "stage": "travel:linh_son_tong",
+      "transferBytes": 0,
+      "requests": 1
+    },
+    {
+      "stage": "travel:dinh_ta",
+      "transferBytes": 0,
+      "requests": 1
+    }
+  ],
+  "largeAssets": [
+    {
+      "url": "/assets/optimized/startup-village.fbf5e1a3b6a8.webp",
+      "bytes": 1428707,
+      "ms": 5853,
+      "stage": "startup"
+    },
+    {
+      "url": "/assets/optimized/skills-schools-v1-wang_lam.4bb42e613239.webp",
+      "bytes": 1107414,
+      "ms": 2378,
+      "stage": "travel:dai_thua_vien"
+    },
+    {
+      "url": "/assets/optimized/skills-wang-luyen-hon-thuat-v1.5c97360a10d6.webp",
+      "bytes": 1103464,
+      "ms": 3781,
+      "stage": "travel:dai_thua_vien"
+    },
+    {
+      "url": "/assets/optimized/monsters-boss-v6.99c8a852bd8a.webp",
+      "bytes": 1094552,
+      "ms": 8249,
+      "stage": "menu:boss"
+    },
+    {
+      "url": "/assets/optimized/ui-world-activities-v1.7f78fdc237e3.webp",
+      "bytes": 1065698,
+      "ms": 6234,
+      "stage": "menu:activities"
+    },
+    {
+      "url": "/assets/optimized/ui-spirit-beasts-v2.a6c7feb4c473.webp",
+      "bytes": 1042259,
+      "ms": 8174,
+      "stage": "menu:companions"
+    },
+    {
+      "url": "/assets/optimized/heroes-v7-roster.018f4701a3e4.webp",
+      "bytes": 972202,
+      "ms": 4251,
+      "stage": "startup"
+    },
+    {
+      "url": "/assets/optimized/skills-wang-tich-diet-chi-v1.e34fdc52948d.webp",
+      "bytes": 957664,
+      "ms": 5435,
+      "stage": "travel:dai_thua_vien"
+    },
+    {
+      "url": "/assets/optimized/skills-wang-dinh-than-v2.ccd9591e80bf.webp",
+      "bytes": 950874,
+      "ms": 4226,
+      "stage": "travel:dai_thua_vien"
+    },
+    {
+      "url": "/assets/optimized/skills-wang-dich-linh-an-v2.11de41eb8234.webp",
+      "bytes": 941634,
+      "ms": 4799,
+      "stage": "travel:dai_thua_vien"
+    }
+  ],
+  "errors": [],
+  "failedRequests": []
+}
