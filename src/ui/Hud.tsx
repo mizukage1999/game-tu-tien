@@ -2,6 +2,7 @@ import { StatusBars } from './StatusBars';
 import { WorldStatusEffects } from './StatusEffects';
 import { PowerGrowthNotice } from './PowerGrowthNotice';
 import { CompetitiveWatcher } from './CompetitiveWatcher';
+import { AppearanceNotice } from './AppearanceNotice';
 import { QuestPanel } from './QuestPanel';
 import { TopMenu } from './TopMenu';
 import { CloudBadge } from './CloudBadge';
@@ -52,6 +53,7 @@ export function Hud() {
       <TribulationOverlay/>
       <Toasts />
       <PowerGrowthNotice />
+      <AppearanceNotice />
       <CompetitiveWatcher />
       <DownedOverlay />
       <div className="hud-bottom-left">

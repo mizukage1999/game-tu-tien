@@ -20,6 +20,8 @@ import { EquipGlyph, CultHeading, CultMeter, CultLock } from './CultivationUI';
 import { childProfileUrl } from '../../game/art/skillIcons';
 import { HeroFigure, HeroDirectionalPose } from '../HeroArt';
 import { optimizedAsset } from '../../data/assetDelivery';
+import { wornCosmetics } from '../../game/systems/cosmetics';
+import { CosmeticArt } from '../CosmeticArt';
 
 const SLOT_SYMBOLS: Record<EquipSlot, string> = {
   weapon: '⚔',
@@ -142,7 +144,7 @@ export function CharacterPanel() {
         <span className="cult-hero-seal" aria-hidden="true">
           道
         </span>
-        {p.heroId ? (
+        {p.heroId&&!child&&(wornCosmetics(p).outfit||wornCosmetics(p).weapon) ? <CosmeticArt hero={p.heroId} look={wornCosmetics(p)} kind={wornCosmetics(p).weapon?'world':'portrait'} className="cult-hero-art"/> : p.heroId ? (
           child ? (
             <HeroDirectionalPose id={p.heroId} child className="cult-hero-art child" />
           ) : (
@@ -161,6 +163,7 @@ export function CharacterPanel() {
           />
         )}
         <div className="cult-paperdoll-caption">
+          {!child&&<button className="cult-btn character-appearance" onClick={()=>setMenu('appearance')}>♜ Ngoại trang</button>}
           <span>{child ? 'VƯƠNG GIA THÔN' : 'NGƯỜI TU ĐẠO'}</span>
           <h2>{heroName(p)}</h2>
         </div>

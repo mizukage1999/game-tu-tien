@@ -28,11 +28,10 @@ import { lifeProgress } from '../systems/life';
 import { skillLoadout, skillUnlocked } from '../systems/skills';
 import { heroDirection, type HeroDirection } from '../art/heroDirections';
 import { realmNameAtLevel } from '../systems/progression';
-import { flightRotation } from '../systems/flightVisual';
 import { adventure } from '../systems/adventure';
 import type { Pose } from '../../net/presence';
 import { heroFor } from '../../data/heroes';
-import { directionalArt, ensureDirectionalHero } from '../art/directionalHeroes';
+import { directionalArt } from '../art/directionalHeroes';
 import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
 import { activeStatusEffects } from '../systems/statusEffects';
@@ -40,6 +39,10 @@ import { statusEffectStore } from '../../store/statusEffectStore';
 import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
 import { HERO_WORLD_SCALE } from '../art/heroVisual';
 import { placeActor } from '../art/actorDepth';
+import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures';
+import { CosmeticWeapon } from '../art/CosmeticWeapon';
+import { wornCosmetics } from '../systems/cosmetics';
+import { appearanceStore } from '../../store/appearanceStore';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -89,6 +92,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private nameplate: RealmNameplate;
   private nameBounds = new Phaser.Geom.Rectangle();
   private nameBoundsFrame = -1;
+  private appearanceLease?: AppearanceLease;
+  private appearanceRequest = 0;
+  private weaponLook: CosmeticWeapon;
   private bar: Phaser.GameObjects.Graphics;
   private route: Vec2[] = [];
   private autoRoute: Vec2[] = [];
@@ -132,6 +138,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.shadow = world.add.image(spot.x, spot.y, 'shadow').setDepth(-100);
     this.mountArt = world.add.image(spot.x, spot.y, 'immortal-sword').setVisible(false);
+    this.weaponLook = new CosmeticWeapon(world);
     this.realmAura=world.add.image(spot.x,spot.y,'circle_gold').setVisible(false).setAlpha(.35).setBlendMode(Phaser.BlendModes.ADD);
     this.nameplate = new RealmNameplate(world,{level:p.level,child:isChildhood(p)},heroName(p));
     this.bar = world.add.graphics().setDepth(90000);
@@ -154,6 +161,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     ) as Keys;
 
     this.ctrl.play('idle', this.dir);
+    void this.refreshAppearance();
   }
 
   get facing(): Vec2 {
@@ -163,17 +171,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Change only the drawn rig; admission must not rebuild the map or physics. */
   async refreshAppearance() {
     const p = gameStore.getState().player, id = heroFor(p).id, child = usesChildSprite(p);
-    const ready = await ensureDirectionalHero(this.world, id, child);
+    const request = ++this.appearanceRequest, look = appearanceStore.getState().preview ?? wornCosmetics(p);
+    const lease = await acquireAppearance(this.world,id,child,look.outfit);
     const current = gameStore.getState().player;
-    if (!ready || !this.active || !this.art.active || heroFor(current).id !== id || usesChildSprite(current) !== child) return;
-    const key = directionalArt(id, child);
-    if (this.art.texture.key === key) return;
+    if (!lease) {
+      if(this.active&&request===this.appearanceRequest&&this.world.sys.isActive())gameStore.getState().toast('Chưa tải được ngoại trang. Mở Ngoại Trang và thử lại.');
+      return;
+    }
+    while(this.ctrl.locked&&this.active&&request===this.appearanceRequest)await new Promise(resolve=>setTimeout(resolve,30));
+    if (!this.active || !this.art.active || request!==this.appearanceRequest || heroFor(current).id !== id || usesChildSprite(current) !== child) {lease.release();return;}
+    const key = lease.key;
+    if (this.art.texture.key === key) {lease.release();return;}
     this.cancelPendingInput();
     this.ctrl.destroy();
     this.art.anims.stop();
     this.art.setTexture(key);
     this.ctrl = new AnimationController(this.art, key);
     this.ctrl.play('idle', this.visualDir);
+    this.appearanceLease?.release();this.appearanceLease=lease;
   }
 
   cancelPendingInput() { this.bufferedInput.clear(); }
@@ -303,13 +318,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const mount = this.activeMount;
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
-    if (mount) placeActor(this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(mount.id==='crane'&&isoVector(this.facing.x,this.facing.y).x<0).setRotation(mount.id==='sword'?flightRotation(this.facing):0), spot.x, spot.y - lift + (mount.id==='sword'?-1:20), spot.y - .1);
+    const look = appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),this.art.frame.cutY>=480);
+    if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;
     this.nameplate.sync({level:p.level,child:isChildhood(p)},heroName(p));
     this.syncLook();
     placeActor(this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]),spot.x,spot.y-lift+3,spot.y-.2);
-    if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
+    if(p.realmIndex>0&&!this.isTinted&&!this.tintFill&&!this.art.texture.key.includes('-outfit-'))this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) * HERO_WORLD_SCALE - lift);
     this.drawBar({x:spot.x,y:spot.y-lift});
@@ -682,10 +699,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   networkPose():Pose {
     const s=gameStore.getState(),p=s.player,stats=s.stats,mount=this.activeMount;
     const body=this.body as Phaser.Physics.Arcade.Body;
-    return {x:Math.round(this.x),y:Math.round(this.y),dir:this.dir,visualDir:this.visualDir,dx:this.facing.x,dy:this.facing.y,moving:Math.hypot(body.velocity.x,body.velocity.y)>8,mount:mount?.id??null,showMount:mount?.showMount??false,child:isChildhood(p),realm:isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level),sect:adventure(p).boundSect,pkMode:p.pkMode??'peace',combat:{atk:stats.atk,def:stats.def,maxHp:stats.maxHp,hp:p.hp,maxMp:stats.maxMp,mp:p.mp,critRate:stats.critRate,critMul:stats.critMul,level:p.level,loadout:skillLoadout(p),skills:p.skills??{}}};
+    return {x:Math.round(this.x),y:Math.round(this.y),cosmetics:wornCosmetics(p),dir:this.dir,visualDir:this.visualDir,dx:this.facing.x,dy:this.facing.y,moving:Math.hypot(body.velocity.x,body.velocity.y)>8,mount:mount?.id??null,showMount:mount?.showMount??false,child:isChildhood(p),realm:isChildhood(p)?'Phàm Nhân':realmNameAtLevel(p.level),sect:adventure(p).boundSect,pkMode:p.pkMode??'peace',combat:{atk:stats.atk,def:stats.def,maxHp:stats.maxHp,hp:p.hp,maxMp:stats.maxMp,mp:p.mp,critRate:stats.critRate,critMul:stats.critMul,level:p.level,loadout:skillLoadout(p),skills:p.skills??{}}};
   }
 
   destroy(fromScene?: boolean) {
+    this.appearanceRequest++;this.appearanceLease?.release();this.weaponLook?.destroy();
     statusEffectStore.getState().sync([]);
     this.realmAura?.destroy();
     this.art?.destroy();

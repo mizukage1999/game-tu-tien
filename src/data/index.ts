@@ -13,6 +13,7 @@ import { COMBAT_ITEMS, COMBAT_SKILLS } from './combatExpansion';
 import { WANG_SKILLS } from './wangSkills';
 import { HERO_SKILLS, type HeroSkillId } from './heroSkills';
 import type { HeroId } from './heroes';
+import { COSMETIC_ITEMS } from './cosmetics';
 import { HEROES } from './heroes';
 import { BESTIARY, BESTIARY_MONSTERS, restyleLegacyMonsters } from './bestiary';
 import { cultivationLoot } from './cultivationBalance';
@@ -294,7 +295,7 @@ export const MONSTERS: Record<string, MonsterDef> = Object.fromEntries(
     },
   ]),
 );
-const ITEM_DEFINITIONS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS, ...OPENING_ITEMS };
+const ITEM_DEFINITIONS: Record<string, ItemDef> = { ...(itemsJson as unknown as Record<string, ItemDef>), ...buildEquipment(), ...EXPANSION_ITEMS, ...COMBAT_ITEMS, ...OPENING_ITEMS, ...COSMETIC_ITEMS };
 for (let level=10;level<=120;level+=10) for(const kind of ['treasure','ruins'] as const) {
   const base=Object.values(MONSTERS).find(m=>m.boss)!;
   MONSTERS[`activity_${kind}_${level}`]={...base,name:kind==='treasure'?'Kim Lân Thủ Bảo':'Cổ Đại Thạch Vệ',level,

@@ -16,7 +16,7 @@ const server = vi.hoisted(() => ({ get: vi.fn(), refresh: vi.fn() }));
 vi.mock('../useLeaderboard', () => ({
   useLeaderboard: (...args: unknown[]) => server.get(...args),
 }));
-vi.mock('../../game/art/icons', () => ({ itemIconUrl: (id: string) => `/${id}.png` }));
+vi.mock('../../game/art/icons', () => ({ itemIconUrl: (id: string) => `/${id}.png`,skillSpriteUrl:(id:string)=>`/skill/${id}.png` }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 let host: HTMLDivElement,
   root: Root,

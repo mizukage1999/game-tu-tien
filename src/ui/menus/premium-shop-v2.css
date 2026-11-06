@@ -1,0 +1,349 @@
+.menu-backdrop:has(.menu-premium) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.hud .menu-premium .jade-page-shop {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.jade-shop-body {
+  display: grid;
+  grid-template-columns: 142px minmax(0, 1fr);
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+.jade-page-shop .jade-shop-toolbar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 10px;
+  min-height: 0;
+  border: 1px solid #b58f4a66;
+  border-radius: 8px;
+  padding: 8px;
+  background: #061725dd;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.jade-page-shop .jade-shop-toolbar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.jade-page-shop .jade-shop-toolbar nav button {
+  flex: none;
+  min-height: 48px;
+  white-space: normal;
+  font-size: 14px;
+  text-align: left;
+  padding: 8px;
+}
+.jade-page-shop .jade-shop-toolbar > span {
+  justify-content: center;
+  margin-top: auto;
+  font-size: 18px;
+}
+.jade-page-shop .jade-shop-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(245px, 0.44fr);
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+}
+.jade-showcase {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 10px;
+  min-width: 0;
+}
+.jade-fashion-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+  min-height: 110px;
+  padding: 12px 18px;
+  border: 1px solid #b49453;
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, #062744dd, #10233955),
+    url('/assets/ui/ranked-arena-v3.webp') center 40% / cover;
+}
+.jade-fashion-banner small {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #d1c9b3;
+}
+.jade-fashion-banner h2 {
+  font:
+    italic 700 30px Cambria,
+    Georgia,
+    serif;
+  color: #ffe2a4;
+  margin: 5px 0;
+}
+.jade-fashion-banner p {
+  font-size: 12px;
+  color: #d4e2ec;
+  margin: 0;
+}
+.jade-fashion-banner button {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.jade-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  background: #061925;
+  border: 1px solid #8d774b88;
+  border-radius: 5px;
+  padding: 5px 12px;
+  color: #e3c995;
+}
+.jade-search input {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  color: #e1e6ed;
+  border: 0;
+  padding: 3px;
+  font:
+    13px Cambria,
+    Georgia,
+    serif;
+}
+.jade-search button {
+  background: transparent;
+  color: #e3c995;
+  border: 0;
+  font-size: 20px;
+}
+.jade-page-shop .jade-product-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+  padding: 3px;
+  flex: 1;
+  align-content: start;
+}
+.jade-page-shop .jade-product {
+  min-width: 0;
+  border-radius: 9px;
+  padding: 8px 5px;
+  background: radial-gradient(ellipse at 50% 40%, #283f7b66, transparent 70%), #07121fdc;
+}
+.jade-page-shop .jade-product > .cosmetic-art,
+.jade-page-shop .jade-product > img {
+  height: clamp(90px, 15vh, 155px);
+  width: 100%;
+  object-fit: contain;
+  margin: 0;
+}
+.jade-page-shop .jade-product h3 {
+  font-size: 14px;
+  min-height: 32px;
+  margin: 6px 0 4px;
+}
+.jade-page-shop .jade-product > b {
+  background: linear-gradient(100deg, #8a642b, #e6b34c, #8a642b);
+  border-radius: 20px;
+  padding: 4px 8px;
+  color: #15222a;
+  min-width: 75%;
+  justify-content: center;
+  font-size: 16px;
+}
+.jade-page-shop .jade-product > b .jade-coin {
+  width: 18px;
+  height: 18px;
+}
+.jade-page-shop .jade-product-status {
+  font-size: 10px;
+  padding: 2px 5px;
+}
+.jade-page-shop .jade-product > small {
+  font-size: 10px;
+}
+.jade-page-shop .jade-product-detail {
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  background: radial-gradient(ellipse at 50% 30%, #284c7055, transparent 60%), #061622;
+}
+.jade-page-shop .jade-product-description > .cosmetic-art {
+  height: clamp(150px, 30vh, 310px);
+  width: 100%;
+  margin: 0 0 10px;
+}
+.jade-page-shop .jade-product-detail h2 {
+  font-size: 24px;
+  color: #ffe2a4;
+}
+.jade-page-shop .jade-product-detail footer {
+  gap: 8px;
+}
+.jade-page-shop .jade-product-detail footer button {
+  flex: none;
+  min-height: 36px;
+}
+@media (max-width: 1100px) {
+  .jade-page-shop .jade-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px), (max-height: 560px) {
+  .hud .menu-window.menu-premium {
+    width: calc(100% - 12px);
+    height: calc(100% - 12px);
+  }
+  .hud .menu-premium > .menu-header {
+    padding: 3px 10px;
+  }
+  .hud .menu-premium > .menu-header h3 {
+    font-size: 21px;
+  }
+  .hud .menu-premium > .menu-header h3 img {
+    width: 30px;
+    height: 30px;
+  }
+  .hud .menu-premium > .menu-header .close {
+    width: 30px;
+    height: 30px;
+    font-size: 23px;
+  }
+  .hud .menu-premium > .menu-content {
+    padding: 5px;
+  }
+  .jade-page-shop .jade-pages {
+    gap: 4px;
+  }
+  .jade-page-shop .jade-pages button {
+    min-height: 29px;
+    font-size: 11px;
+    padding: 3px;
+  }
+  .jade-page-shop > .jade-message {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+  .hud .menu-premium .jade-page-shop {
+    gap: 6px;
+  }
+  .jade-shop-body {
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 6px;
+  }
+  .jade-page-shop .jade-shop-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.6fr);
+    gap: 6px;
+  }
+  .jade-page-shop .jade-shop-toolbar {
+    padding: 4px;
+    gap: 5px;
+  }
+  .jade-page-shop .jade-shop-toolbar nav {
+    gap: 4px;
+  }
+  .jade-page-shop .jade-shop-toolbar nav button {
+    min-height: 34px;
+    font-size: 11px;
+    padding: 5px;
+  }
+  .jade-page-shop .jade-shop-toolbar > span {
+    font-size: 14px;
+  }
+  .jade-showcase {
+    gap: 5px;
+  }
+  .jade-fashion-banner {
+    min-height: 68px;
+    padding: 6px 9px;
+  }
+  .jade-fashion-banner h2 {
+    font-size: 20px;
+    margin: 3px 0;
+  }
+  .jade-fashion-banner small {
+    font-size: 7px;
+  }
+  .jade-fashion-banner p {
+    font-size: 10px;
+  }
+  .jade-fashion-banner button {
+    font-size: 10px;
+    padding: 5px;
+    min-height: 30px;
+  }
+  .jade-search {
+    padding: 2px 7px;
+  }
+  .jade-search input {
+    font-size: 11px;
+  }
+  .jade-page-shop .jade-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .jade-page-shop .jade-product {
+    padding: 4px;
+  }
+  .jade-page-shop .jade-product > .cosmetic-art,
+  .jade-page-shop .jade-product > img {
+    height: 78px;
+  }
+  .jade-page-shop .jade-product h3 {
+    font-size: 11px;
+    min-height: 26px;
+    margin: 4px 0;
+  }
+  .jade-page-shop .jade-product > b {
+    font-size: 12px;
+    padding: 2px 5px;
+  }
+  .jade-page-shop .jade-product > small {
+    font-size: 8px;
+  }
+  .jade-page-shop .jade-product-detail {
+    padding: 7px;
+  }
+  .jade-page-shop .jade-product-description {
+    padding: 5px;
+  }
+  .jade-page-shop .jade-product-description > .cosmetic-art {
+    height: 100px;
+  }
+  .jade-page-shop .jade-product-detail h2 {
+    font-size: 17px;
+  }
+  .jade-page-shop .jade-product-detail footer {
+    padding: 6px;
+  }
+  .jade-page-shop .jade-product-detail footer button {
+    min-height: 28px;
+    font-size: 11px;
+    padding: 4px;
+  }
+  .jade-page-shop .jade-product-detail footer > span {
+    font-size: 10px;
+    margin: 4px 0;
+  }
+  .jade-page-shop .jade-product-detail footer b {
+    font-size: 12px;
+  }
+  .jade-page-shop .jade-product-detail footer > small {
+    font-size: 8px;
+    margin-top: 3px;
+  }
+}

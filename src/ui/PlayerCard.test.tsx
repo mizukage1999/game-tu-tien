@@ -19,7 +19,7 @@ vi.mock('../net/socialBridge', () => ({
   requestFriend: vi.fn(),
   removeFriend: vi.fn(),
 }));
-vi.mock('../game/art/icons', () => ({ itemIconUrl: (id: string) => `/item/${id}.png` }));
+vi.mock('../game/art/icons', () => ({ itemIconUrl: (id: string) => `/item/${id}.png`,skillSpriteUrl:(id:string)=>`/skill/${id}.png` }));
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 let host: HTMLDivElement, root: Root;
 let previousSocial: ReturnType<typeof socialStore.getState>,

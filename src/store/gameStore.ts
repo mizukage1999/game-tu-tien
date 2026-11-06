@@ -40,6 +40,8 @@ import { recoverPartyRun } from '../game/systems/partyDungeon';
 import { chooseSkill, skillUnlocked, skillLoadout } from '../game/systems/skills';
 import { retiredSkill } from '../data/skillCatalog';
 import { premiumStore } from '../net/premium';
+import { chooseCosmetic } from '../game/systems/cosmetics';
+import type { CosmeticSlot } from '../data/cosmetics';
 import { equipmentBaseId, equipmentInstanceId, findOwnedEquipment, isIndividualEquipment, normalizeEquipment } from '../game/systems/equipment';
 import {
   GARDEN_COOLDOWN_MS, herbCooldownMs, herbYield, HOME_MAX_LEVEL, HOME_QUEST,
@@ -75,7 +77,7 @@ export interface MinimapData {
   loot: Vec2[];
 }
 
-export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map' | 'boss' | 'ranking' | 'companions' | 'ranked' | 'activities';
+export type MenuTab = 'character' | 'bag' | 'cultivate' | 'skills' | 'dungeon' | 'mail' | 'quests' | 'shop' | 'social' | 'settings' | 'journey' | 'sect' | 'premium' | 'map' | 'boss' | 'ranking' | 'companions' | 'ranked' | 'activities' | 'appearance';
 
 export interface DungeonHud {
   id: string;
@@ -145,6 +147,7 @@ export interface GameState {
   spendMp(amount: number): boolean;
   consumeItem(id: string): void;
   equip(id: string): void;
+  wearCosmetic(slot: CosmeticSlot, id: string | null): boolean;
   unequip(slot: EquipSlot): void;
   questEvent(ev: GameEvent): void;
   acceptQuest(id: string): void;
@@ -426,6 +429,13 @@ export const gameStore = createStore<GameState>()((set, get) => {
       if (id === 'hoi_xuan_dan') get().recordPractice('potion');
     },
 
+    wearCosmetic(slot, id) {
+      const s=get(), look=chooseCosmetic(s.player,slot,id);
+      if(id&&isChildhood(s.player)){s.toast('Nhập môn trước khi mặc ngoại trang.', 'info');return false;}
+      if(!look){s.toast('Chưa sở hữu ngoại trang này. Có thể xem thử trước.', 'warn');return false;}
+      set({player:{...s.player,cosmetics:look}});
+      return true;
+    },
     equip(id) {
       const def = ITEMS[id];
       const s = get();

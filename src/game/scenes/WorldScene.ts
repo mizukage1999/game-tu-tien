@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { sameMinimap } from '../systems/uiSnapshot';
 import { ADMISSION_QUEST } from '../../data/world';
 import { ensureDirectionalHero } from '../art/directionalHeroes';
+import { wornCosmetics } from '../systems/cosmetics';
+import { appearanceStore } from '../../store/appearanceStore';
 import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
@@ -976,7 +978,8 @@ export class WorldScene extends Phaser.Scene {
         this.player.stopMeditate();
         this.player.clearRoute();
       }
-      if (isChildhood(s.player) !== isChildhood(prev.player)) {
+      const look=wornCosmetics(s.player),beforeLook=wornCosmetics(prev.player);
+      if (isChildhood(s.player) !== isChildhood(prev.player) || s.player.heroId!==prev.player.heroId || look.outfit!==beforeLook.outfit) {
         void this.player.refreshAppearance();
       }
       if (s.player.level > prev.player.level) {
@@ -984,6 +987,7 @@ export class WorldScene extends Phaser.Scene {
       }
     });
     this.cleanups.push(unsub);
+    this.cleanups.push(appearanceStore.subscribe((s,prev)=>{if(s.preview!==prev.preview)void this.player.refreshAppearance();}));
   }
 
   // ---- main loop ---------------------------------------------------------

@@ -12,6 +12,10 @@ import {
 import { CultHeading } from './CultivationUI';
 import './premium.css';
 import { optimizedAsset } from '../../data/assetDelivery';
+import { cosmeticDefinition } from '../../data/cosmetics';
+import { appearanceStore } from '../../store/appearanceStore';
+import { CosmeticArt } from '../CosmeticArt';
+import './premium-shop-v2.css';
 
 type Page = 'overview' | 'topup' | 'shop' | 'history' | 'earn';
 const PAGES = [
@@ -64,12 +68,14 @@ export function PremiumPanel() {
 function PremiumSession() {
   const { user } = useAccount(),
     premium = usePremium(),
-    sync = useGame((s) => s.syncPremium);
+    sync = useGame((s) => s.syncPremium),
+    setMenu = useGame((s) => s.setMenu);
   const [page, setPage] = useState<Page>('overview'),
     [topupTab, setTopupTab] = useState('packs'),
     [group, setGroup] = useState('all'),
     [selected, setSelected] = useState<string>(JADE_ENTITLEMENT.id),
-    [notice, setNotice] = useState('');
+    [notice, setNotice] = useState(''),
+    [query, setQuery] = useState('');
   useEffect(() => {
     const id = user?.id;
     if (id)
@@ -84,7 +90,11 @@ function PremiumSession() {
     setPage(next);
     setNotice('');
   };
-  const products = JADE_SHOP.filter((p) => group === 'all' || p.group === group);
+  const products = JADE_SHOP.filter(
+    (p) =>
+      (group === 'all' || p.group === group) &&
+      p.name.toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi')),
+  );
   const product = products.find((p) => p.id === selected) ?? products[0];
   const owned = premium.items.includes(JADE_ENTITLEMENT.id);
   const buy = async () => {
@@ -120,6 +130,7 @@ function PremiumSession() {
               {label}
             </button>
           ))}
+          <button onClick={() => setMenu('appearance')}>Ngoại Trang ↗</button>
         </nav>
         {!user && (
           <p className="jade-message">Đăng nhập tài khoản để xem số dư và sử dụng Tiên Ngọc.</p>
@@ -288,7 +299,7 @@ function PremiumSession() {
           </>
         )}
         {page === 'shop' && (
-          <>
+          <div className="jade-shop-body">
             <div className="jade-shop-toolbar">
               <nav aria-label="Loại vật phẩm Tiên Ngọc">
                 {(
@@ -296,6 +307,7 @@ function PremiumSession() {
                     ['all', 'Tất cả'],
                     ['rare', 'Vật phẩm hiếm'],
                     ['outfit', 'Ngoại trang'],
+                    ['weapon', 'Skin vũ khí'],
                     ['power', 'Tăng lực'],
                     ['other', 'Khác'],
                   ] as const
@@ -317,31 +329,77 @@ function PremiumSession() {
               </span>
             </div>
             <div className="jade-shop-layout">
-              <div className="jade-product-grid">
-                {products.map((p) => (
+              <div className="jade-showcase">
+                <div className="jade-fashion-banner">
+                  <div>
+                    <small>NGOẠI TRANG · DIỆN MẠO RIÊNG</small>
+                    <h2>Thanh Vân Tiên Y</h2>
+                    <p>Thử bộ mới trên chính nhân vật của bạn</p>
+                  </div>
                   <button
-                    key={p.id}
-                    data-jade-product={p.id}
-                    className={`jade-product ${product?.id === p.id ? 'selected' : ''}`}
-                    onClick={() => setSelected(p.id)}
+                    className="cult-btn gold"
+                    onClick={() => {
+                      appearanceStore.setState({ selection: 'ao_thanh_van' });
+                      setMenu('appearance');
+                    }}
                   >
-                    <span className={`jade-product-status ${p.live ? 'live' : ''}`}>
-                      {p.live ? (owned ? 'Đã sở hữu' : 'Đang mở') : 'Sắp mở'}
-                    </span>
-                    <img src={itemIconUrl('icon' in p ? p.icon : p.id)} alt="" />
-                    <h3>{p.name}</h3>
-                    <b>
-                      <JadeCoin />
-                      {n(p.price)}
-                    </b>
-                    <small>{p.live ? 'Giới hạn: 1 / tài khoản' : 'Giá tham khảo'}</small>
+                    Xem ngoại trang ›
                   </button>
-                ))}
+                </div>
+                <label className="jade-search">
+                  ⌕{' '}
+                  <input
+                    aria-label="Tìm vật phẩm Tiên Ngọc"
+                    placeholder="Tìm vật phẩm…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                  {query && (
+                    <button onClick={() => setQuery('')} aria-label="Xóa tìm kiếm">
+                      ×
+                    </button>
+                  )}
+                </label>
+                <div className="jade-product-grid">
+                  {products.map((p) => (
+                    <button
+                      key={p.id}
+                      data-jade-product={p.id}
+                      className={`jade-product ${product?.id === p.id ? 'selected' : ''}`}
+                      onClick={() => setSelected(p.id)}
+                    >
+                      <span className={`jade-product-status ${p.live ? 'live' : ''}`}>
+                        {p.live ? (owned ? 'Đã sở hữu' : 'Đang mở') : 'Sắp mở'}
+                      </span>
+                      {cosmeticDefinition(p.id) ? (
+                        <CosmeticArt kind="icon" id={p.id} />
+                      ) : (
+                        <img src={itemIconUrl('icon' in p ? p.icon : p.id)} alt="" />
+                      )}
+                      <h3>{p.name}</h3>
+                      <b>
+                        <JadeCoin />
+                        {n(p.price)}
+                      </b>
+                      <small>{p.live ? 'Giới hạn: 1 / tài khoản' : 'Giá tham khảo'}</small>
+                    </button>
+                  ))}
+                  {!products.length && (
+                    <p className="jade-message">Không tìm thấy vật phẩm phù hợp.</p>
+                  )}
+                </div>
               </div>
               {product && (
                 <section className="jade-product-detail">
                   <div className="jade-product-description">
-                    <img src={itemIconUrl('icon' in product ? product.icon : product.id)} alt="" />
+                    {cosmeticDefinition(product.id) ? (
+                      <CosmeticArt kind="icon" id={product.id} />
+                    ) : (
+                      <img
+                        src={itemIconUrl('icon' in product ? product.icon : product.id)}
+                        alt=""
+                      />
+                    )}
                     <small>{product.live ? 'TIÊN PHÁP BẢO' : 'VẬT PHẨM XEM TRƯỚC'}</small>
                     <h2>{product.name}</h2>
                     <p>{product.detail}</p>
@@ -367,6 +425,18 @@ function PremiumSession() {
                     )}
                   </div>
                   <footer>
+                    {cosmeticDefinition(product.id) && (
+                      <button
+                        className="cult-btn gold"
+                        data-action="view-cosmetic"
+                        onClick={() => {
+                          appearanceStore.setState({ selection: product.id });
+                          setMenu('appearance');
+                        }}
+                      >
+                        Xem & thử ngoại trang
+                      </button>
+                    )}
                     <span>
                       Giá đổi{' '}
                       <b>
@@ -412,7 +482,7 @@ function PremiumSession() {
                 </section>
               )}
             </div>
-          </>
+          </div>
         )}
         {page === 'history' && (
           <section className="jade-history">

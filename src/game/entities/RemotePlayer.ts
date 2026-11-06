@@ -12,12 +12,14 @@ import { directionalArt, ensureDirectionalHero } from '../art/directionalHeroes'
 import { heroFor } from '../../data/heroes';
 import { heroDirection, type HeroDirection } from '../art/heroDirections';
 import { isoVector } from '../art/iso';
-import { flightRotation } from '../systems/flightVisual';
 import type { SkillId } from '../../data';
 import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
 import { HERO_WORLD_SCALE } from '../art/heroVisual';
 import { placeActor } from '../art/actorDepth';
+import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures';
+import { parseCosmeticLook } from '../../data/cosmetics';
+import { CosmeticWeapon } from '../art/CosmeticWeapon';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -39,6 +41,11 @@ export class RemotePlayer {
   private mountArt:Phaser.GameObjects.Image;
   private bubble?:Phaser.GameObjects.Text;
   private stopParty:()=>void;
+  private appearanceLease?: AppearanceLease;
+  private appearanceRequest=0;
+  private lookIdentity='';
+  private lookRetryAt=0;
+  private weaponLook: CosmeticWeapon;
   get userId(){return this.state.userId;}
 
   constructor(
@@ -56,6 +63,7 @@ export class RemotePlayer {
     this.ctrl = new AnimationController(this.sprite, art);
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     this.mountArt=world.add.image(spot.x,spot.y,'immortal-sword').setVisible(false);
+    this.weaponLook=new CosmeticWeapon(world);
     this.nameplate = new RealmNameplate(world,{level:state.combat?.level,realm:state.realm,child:state.child},state.name,STRANGER_COLOR);
     this.nameplate.setVisible(settingsStore.getState().preferences.showNames);
     this.ctrl.play('idle', state.visualDir??state.dir);
@@ -68,13 +76,12 @@ export class RemotePlayer {
     this.applyPartyStyle();
     // Party membership changes without a new presence entry, so re-check often.
     this.stopParty=socialStore.subscribe(() => this.applyPartyStyle());
+    this.refreshLook();
   }
 
   apply(next: RemotePlayerState) {
-    ensureDirectionalHero(this.sprite.scene, heroFor(next).id, !!next.child);
-    const art=directionalArt(heroFor(next).id,!!next.child);
-    if(this.sprite.texture.key!==art&&this.sprite.scene.textures.exists(art)){this.ctrl.destroy();this.sprite.setTexture(art);this.ctrl=new AnimationController(this.sprite,art);}
     this.state = next;
+    this.refreshLook();
     this.target.x = next.x;
     this.target.y = next.y;
     this.nameplate.sync({level:next.combat?.level,realm:next.realm,child:next.child},next.name);
@@ -82,23 +89,35 @@ export class RemotePlayer {
   }
 
   update(dt: number) {
-    const authored = directionalArt(heroFor(this.state).id, !!this.state.child);
-    if (this.sprite.texture.key !== authored && this.sprite.scene.textures.exists(authored)) {
-      this.ctrl.destroy(); this.sprite.setTexture(authored); this.ctrl = new AnimationController(this.sprite, authored);
-    }
+    this.refreshLook();
     // Interpolation stays in map space; only the drawn position is projected.
     this.map = stepToward(this.map, this.target, dt);
     const spot = iso(this.map.x, this.map.y);
     const lift=this.state.mount?44+Math.sin(this.sprite.scene.time.now/500)*2:0;
     placeActor(this.sprite,spot.x,spot.y-lift,spot.y).setAlpha(this.state.combat?.hp === 0 ? .45 : 1);
     const face={x:this.state.dx??0,y:this.state.dy??1};
+    const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y),look=parseCosmeticLook(this.state.cosmetics);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},dir,!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,this.sprite.frame.cutY>=480);
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
-    if(this.state.mount)placeActor(this.mountArt.setTexture(`immortal-${this.state.mount}`).setDisplaySize(160,100).setRotation(this.state.mount==='sword'?flightRotation(face):0).setFlipX(this.state.mount==='crane'&&isoVector(face.x,face.y).x<0),spot.x,spot.y-lift+(this.state.mount==='sword'?-1:20),spot.y-.1);
+    if(this.state.mount)this.weaponLook.placeMount(this.mountArt,this.state.mount,face,spot,lift);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)*HERO_WORLD_SCALE-lift,settingsStore.getState().preferences.showNames);
     this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)*HERO_WORLD_SCALE-lift);
-    const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y);
     this.ctrl.play(this.state.combat?.hp===0?'downed':this.state.moving ? 'run' : 'idle', dir);
+  }
+
+  private refreshLook() {
+    const id=heroFor(this.state).id,child=!!this.state.child,look=parseCosmeticLook(this.state.cosmetics),signature=`${id}:${child}:${look.outfit}`;
+    if(signature===this.lookIdentity||performance.now()<this.lookRetryAt)return;
+    this.lookIdentity=signature;const request=++this.appearanceRequest,scene=this.sprite.scene;
+    void acquireAppearance(scene,id,child,look.outfit).then(async lease=>{
+      if(!lease){if(request===this.appearanceRequest){this.lookIdentity='';this.lookRetryAt=performance.now()+10000;}return;}
+      while(this.ctrl.locked&&this.sprite.active&&request===this.appearanceRequest)await new Promise(resolve=>setTimeout(resolve,30));
+      if(!this.sprite.active||request!==this.appearanceRequest){lease.release();return;}
+      if(this.sprite.texture.key===lease.key){lease.release();return;}
+      this.ctrl.destroy();this.sprite.anims.stop();this.sprite.setTexture(lease.key);this.ctrl=new AnimationController(this.sprite,lease.key);
+      this.appearanceLease?.release();this.appearanceLease=lease;
+    });
   }
 
   /** Party members get a green name and a soft glow so you can spot them in a crowd. */
@@ -123,6 +142,7 @@ export class RemotePlayer {
   }
 
   destroy() {
+    this.appearanceRequest++;this.appearanceLease?.release();this.weaponLook.destroy();
     this.stopParty?.();this.ctrl.destroy();this.mountArt.destroy();this.bubble?.destroy();
     this.tintTween?.stop();
     this.nameplate.destroy();

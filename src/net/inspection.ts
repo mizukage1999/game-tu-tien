@@ -18,11 +18,14 @@ import type { PlayerSave } from '../game/systems/save';
 import type { QuestLog } from '../game/systems/quest';
 import { skillLevel, skillLoadout, skillUnlocked } from '../game/systems/skills';
 import { parsePkMode, type PkMode } from './worldProtocol';
+import { parseCosmeticLook, type CosmeticLook } from '../data/cosmetics';
+import { wornCosmetics } from '../game/systems/cosmetics';
 
 /** Only public character information; never ship the save, bag or account wallet. */
 export interface PlayerInspection {
   userId: string;
   heroId: HeroId;
+  cosmetics?: CosmeticLook;
   sex: 'male' | 'female';
   child: boolean;
   level: number;
@@ -67,6 +70,7 @@ export function buildInspection(
   return {
     userId,
     heroId: hero.id,
+    cosmetics: child ? {outfit:null,weapon:null} : wornCosmetics(p),
     sex: hero.sex,
     child,
     level: p.level,
@@ -254,6 +258,7 @@ export function parseInspection(value: unknown): PlayerInspection | null {
   return {
     userId: p.userId,
     heroId: p.heroId,
+    cosmetics: p.child ? {outfit:null,weapon:null} : parseCosmeticLook(p.cosmetics),
     sex: p.sex as 'male' | 'female',
     child: p.child,
     level: p.level,

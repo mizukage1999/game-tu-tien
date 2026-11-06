@@ -22,8 +22,10 @@ import { ActivitiesPanel } from './ActivitiesPanel';
 import { ActivitiesFrame } from './ActivityPresentation';
 import { MenuSprite } from '../MenuSprite';
 import { CrossedSwords } from '../PkModeDropdown';
+import { AppearancePanel } from './AppearancePanel';
 
 const TITLES: Record<MenuTab, string> = {
+  appearance:'Ngoại Trang',
   ranked:'Tỷ Võ Xếp Hạng', activities:'Hoạt Động',
   companions: 'Linh Thú',
   character: 'Nhân Vật',
@@ -42,6 +44,7 @@ const TITLES: Record<MenuTab, string> = {
 };
 
 const CONTENT: Record<MenuTab, () => JSX.Element> = {
+  appearance:AppearancePanel,
   ranked:RankedArenaPanel, activities:ActivitiesPanel,
   companions: CompanionPanel,
   character: CharacterPanel,
@@ -71,7 +74,7 @@ export function Menus() {
     <div className="menu-backdrop" onPointerDown={(e) => e.target === e.currentTarget && setMenu(null)}>
       <div className={`menu-window panel-ornate menu-${feature}`}>
         {feature === 'activities' && <ActivitiesFrame />}
-        {['ranked','skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking','companions'].includes(menu)&&<CultivationCorners/>}
+        {['appearance','ranked','skills','character','bag','mail','social','quests','sect','settings','cultivate','journey','dungeon','shop','boss','premium','ranking','companions'].includes(menu)&&<CultivationCorners/>}
         <div className="menu-header">
           <h3>
             {feature === 'ranked' ? <CrossedSwords /> : feature !== 'activities' && <MenuSprite kind={feature} />}

@@ -2,11 +2,13 @@ import type { Dir } from '../game/types';
 import { isHeroId, type HeroId } from '../data/heroes';
 import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
 import { parseCombatStats, parsePkMode, type CombatStats, type PkMode } from './worldProtocol';
+import { parseCosmeticLook, type CosmeticLook } from '../data/cosmetics';
 
 export type Sex = 'female' | 'male';
 
 /** What travels over the wire for one player's movement. */
 export interface Pose {
+  cosmetics?: CosmeticLook;
   visualDir?: HeroDirection;
   dx?: number;
   dy?: number;
@@ -42,6 +44,7 @@ export interface RemotePlayerState extends Pose {
 const DIRS: Dir[] = ['down', 'up', 'left', 'right'];
 export function poseExtras(r: Record<string, unknown>): Partial<Pose> {
   return {
+    ...(r.cosmetics !== undefined ? { cosmetics: parseCosmeticLook(r.cosmetics) } : {}),
     ...(HERO_DIRECTIONS.includes(r.visualDir as HeroDirection)
       ? { visualDir: r.visualDir as HeroDirection }
       : {}),
@@ -230,6 +233,8 @@ export function shouldPublish(
     prev.showMount !== next.showMount ||
     prev.pkMode !== next.pkMode ||
     prev.child !== next.child ||
+    prev.cosmetics?.outfit !== next.cosmetics?.outfit ||
+    prev.cosmetics?.weapon !== next.cosmetics?.weapon ||
     prev.combat?.hp !== next.combat?.hp ||
     prev.realm !== next.realm
   )

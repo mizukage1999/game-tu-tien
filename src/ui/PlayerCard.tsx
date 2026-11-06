@@ -29,6 +29,7 @@ import {
 } from './menus/CultivationUI';
 import './social/player-inspection.css';
 import { RealmBadge } from './RealmBadge';
+import { CosmeticArt } from './CosmeticArt';
 
 const TABS = [
   ['overview', '☯', 'Tổng quan'],
@@ -279,7 +280,7 @@ function InspectionCard({ id }: { id: string }) {
             {data?.child ? (
               <HeroDirectionalPose id={hero.id} child className="inspect-figure child" />
             ) : (
-              <HeroFigure id={hero.id} className="inspect-figure" />
+              data?.cosmetics?.outfit||data?.cosmetics?.weapon?<CosmeticArt hero={hero.id} look={data.cosmetics} kind={data.cosmetics.weapon?'world':'portrait'} className="inspect-figure"/>:<HeroFigure id={hero.id} className="inspect-figure" />
             )}
             {tab === 'equipment' && (
               <div className="inspect-gear-orbit">

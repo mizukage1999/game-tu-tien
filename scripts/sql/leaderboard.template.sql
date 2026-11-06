@@ -71,6 +71,7 @@ declare
  upgrade integer; pets_score bigint := 0; clears bigint := 0; boss_kills bigint := 0;
  selected jsonb := '[]'; defaults jsonb; sk text; skill jsonb; valid boolean;
  known_equipped boolean; q jsonb := game_rank_private.obj(snapshot->'quests');
+ appearance jsonb := '{"outfit":null,"weapon":null}'; appearance_slot text; cosmetic_id text;
 begin
  select data into catalog from game_rank_private.balance where id;
  if catalog is null then raise exception 'LEADERBOARD_BALANCE_MISSING'; end if;
@@ -80,6 +81,15 @@ begin
  base := catalog->'levels'->lvl::text; realm_idx := (base->>'realmIndex')::integer;
  child := p->>'origin'='vuong_gia_thon' and (p->'admitted') is distinct from 'true'::jsonb;
  child := coalesce(child,false);
+ if not child then
+  foreach appearance_slot in array array['outfit','weapon'] loop
+   cosmetic_id := game_rank_private.obj(p->'cosmetics')->>appearance_slot;
+   if coalesce(catalog#>array['cosmetics',appearance_slot] ? cosmetic_id,false)
+     and game_rank_private.num(game_rank_private.obj(p->'inventory')->cosmetic_id,0,1000000)>=1 then
+    appearance := jsonb_set(appearance,array[appearance_slot],to_jsonb(cosmetic_id));
+   end if;
+  end loop;
+ end if;
  hero_id := p->>'heroId';
  if not (catalog->'heroes' ? coalesce(hero_id,'')) then hero_id := case when p->>'sex'='male' then 'wang_lam' else 'ly_mo_uyen' end; end if;
  hero := catalog->'heroes'->hero_id; sex := hero->>'sex';
@@ -158,7 +168,7 @@ begin
    'rank',sect_rank,'pkMode',case when p->>'pkMode' in ('sect','all') then p->>'pkMode' else 'peace' end,
    'stats',jsonb_build_object('maxHp',hp,'maxMp',mp,'atk',atk,'def',def,'critRate',0.15,'critMul',1.8,'speed',190),
    'hp',floor(game_rank_private.num(p->'hp',0,hp)),'mp',floor(game_rank_private.num(p->'mp',0,mp)),'power',power,
-   'equipment',equipment,'skills',skills,'mounts',mounts,'companions',companions,
+   'equipment',equipment,'skills',skills,'mounts',mounts,'companions',companions,'cosmetics',appearance,
    'friendCount',least(30,jsonb_array_length(game_rank_private.arr(p->'friends'))),
    'progress',jsonb_build_object('clears',clears,'explored',least(10000000,jsonb_array_length(game_rank_private.arr(p#>'{world,discovered}'))),
     'gathered',game_rank_private.total(p#>'{immortal,gathered}'),'crafted',game_rank_private.total(p#>'{immortal,crafted}'),

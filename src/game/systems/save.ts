@@ -12,6 +12,7 @@ import { enhancementLevel } from './enhancement';
 import { normalizeEquipment } from './equipment';
 import { isHeroId, heroFor, type HeroId } from '../../data/heroes';
 import { parsePkMode, type PkMode } from '../../net/worldProtocol';
+import { parseCosmeticLook, type CosmeticLook } from '../../data/cosmetics';
 
 export const SAVE_KEY = 'tu-tien-demo-save';
 const SAVE_VERSION = 1;
@@ -47,6 +48,7 @@ export interface FriendRef {
 }
 
 export interface PlayerSave {
+  cosmetics?: CosmeticLook;
   adminRevision?: number;
   /** Server receipt revision prevents delayed autosaves from undoing mail rewards. */
   mailRevision?: number;
@@ -132,6 +134,7 @@ export function deserialize(raw: string | null): SaveData | null {
     if (!isHeroId(data.player.heroId)) delete data.player.heroId;
     else data.player.sex = heroFor(data.player).sex;
     data.player.inventory ??= {};
+    data.player.cosmetics = parseCosmeticLook(data.player.cosmetics);
     data.player.pkMode=parsePkMode(data.player.pkMode);
     data.player.equipment ??= {};
     const realmIndex = REALMS.findIndex((realm) => data.player.level <= realm.maxLevel);

@@ -387,6 +387,23 @@ try {
       MAX_LEVEL,
     'natural EXP progression cap remains separate from public profile validation',
   );
+  const cosmeticPlayer={...base('Cosmetic profile',99),cosmetics:{outfit:'ao_huyet_nguyet',weapon:'kiem_anh_cuu_huyen'},inventory:{ao_huyet_nguyet:1,kiem_anh_cuu_huyen:1}};
+  await put(owner,cosmeticPlayer);
+  const getLook=async()=>scalar("select entry#>'{inspection,cosmetics}' from game_rank_private.entries where user_id=$1",[owner]);
+  check(JSON.stringify(await getLook())===JSON.stringify(cosmeticPlayer.cosmetics),'public projector includes owned cosmetic IDs');
+  const cosmeticStats=await scalar("select entry#>'{inspection,stats}' from game_rank_private.entries where user_id=$1",[owner]);
+  await put(owner,{...cosmeticPlayer,inventory:{},cosmetics:{outfit:'ao_huyet_nguyet',weapon:'kiem_anh_cuu_huyen'}});
+  const missingLook=await getLook();check(missingLook.outfit===null&&missingLook.weapon===null,'unowned cosmetic IDs stay out of public profiles');
+  check(JSON.stringify(await scalar("select entry#>'{inspection,stats}' from game_rank_private.entries where user_id=$1",[owner]))===JSON.stringify(cosmeticStats),'cosmetics do not alter projected combat stats');
+  await put(owner,{...cosmeticPlayer,cosmetics:{outfit:'not-an-outfit',weapon:'ao_huyet_nguyet'}});
+  const wrongLook=await getLook();check(wrongLook.outfit===null&&wrongLook.weapon===null,'unknown and wrong-slot cosmetic IDs are rejected');
+  await put(owner,cosmeticPlayer);
+  const beforeAppearance=await scalar("select jsonb_build_object('data',data,'updated_at',updated_at) from public.saves where user_id=$1",[owner]);
+  await db.exec("update game_rank_private.entries set entry=entry #- '{inspection,cosmetics}'");
+  await db.exec(fs.readFileSync('supabase/appearance-profiles.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/appearance-profiles.sql','utf8'));
+  check((await getLook()).outfit==='ao_huyet_nguyet','cosmetic migration rebuilds offline profiles and is repeatable');
+  check(JSON.stringify(beforeAppearance)===JSON.stringify(await scalar("select jsonb_build_object('data',data,'updated_at',updated_at) from public.saves where user_id=$1",[owner])),'cosmetic migration leaves private saves and timestamps untouched');
   console.log(`${checks} leaderboard SQL checks passed.`);
 } catch (error) {
   console.error(

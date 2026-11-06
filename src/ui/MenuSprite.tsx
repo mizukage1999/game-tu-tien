@@ -2,6 +2,7 @@ import type { MenuTab } from '../store/gameStore';
 import { CrestArt } from './SpiritArt';
 const FRAMES: Record<Exclude<MenuTab, 'companions'> | 'more', number> = {
   character: 0,
+  appearance: 0,
   skills: 1,
   bag: 2,
   quests: 3,

@@ -1,3 +1,4 @@
+import { OUTFITS, WEAPON_SKINS } from './cosmetics';
 /** Presentation only: these packs are not payment offers or client-side rewards. */
 export const JADE_PACK_PREVIEWS = [
   { jade: 60, bonus: 0, vnd: 25000, art: 0 },
@@ -38,15 +39,20 @@ export const JADE_SHOP = [
     live: false,
     detail: 'Gian hàng nguyên liệu quý đang được chuẩn bị.',
   },
-  {
-    id: 'ao_tuyet_vu',
-    icon: 'armor_blue',
-    name: 'Ngoại Trang · Tuyết Vũ',
-    group: 'outfit',
-    price: 1280,
+  ...OUTFITS.map((o) => ({
+    ...o,
+    group: 'outfit' as const,
     live: false,
-    detail: 'Mẫu ngoại trang dự kiến. Chưa mở bán hoặc thay đổi ngoại hình.',
-  },
+    detail:
+      'Đổi màu trang phục, giữ nguyên sức mạnh. Có thể xem trước và thử trong map; chưa mở bán bằng Tiên Ngọc.',
+  })),
+  ...WEAPON_SKINS.map((o) => ({
+    ...o,
+    group: 'weapon' as const,
+    live: false,
+    detail:
+      'Kiếm ảnh theo hướng nhân vật, đổi cả phi kiếm khi ngự hành. Chỉ đổi diện mạo, không cộng chỉ số; chưa mở bán.',
+  })),
   {
     id: 'tui_duong_linh',
     icon: 'thuc_an_linh_thu',

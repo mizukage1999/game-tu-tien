@@ -12,6 +12,7 @@ import {
 import { itemIconUrl } from '../../game/art/icons';
 import { useGame } from '../../store/gameStore';
 import { HeroFigure, HeroDirectionalPose, RosterPortrait, ChildHeroPortrait } from '../HeroArt';
+import { CosmeticArt } from '../CosmeticArt';
 import { RealmBadge } from '../RealmBadge';
 import { CultHeading, SkillGlyph } from './CultivationUI';
 import { SectGlyph } from './SectGlyph';
@@ -93,7 +94,7 @@ function RankCrest({
 }
 function Figure({ entry }: { entry: RankingEntry }) {
   const p = entry.inspection;
-  return p.child ? <HeroDirectionalPose id={p.heroId} child /> : <HeroFigure id={p.heroId} />;
+  return p.child ? <HeroDirectionalPose id={p.heroId} child /> : p.cosmetics?.outfit||p.cosmetics?.weapon?<CosmeticArt hero={p.heroId} look={p.cosmetics} kind={p.cosmetics.weapon?'world':'portrait'}/>:<HeroFigure id={p.heroId} />;
 }
 function Portrait({ entry }: { entry: RankingEntry }) {
   const p = entry.inspection;
