@@ -1,0 +1,503 @@
+.hud .menu-backdrop:has(.menu-ranked) {
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+.hud .menu-window.menu-ranked {
+  width: min(1440px, calc(100% - 24px));
+  height: min(900px, calc(100% - 24px));
+  max-height: none;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #e5b866;
+  border-radius: 16px;
+  background: #061a2b url('/assets/ui/ranked-arena-v3.webp') center bottom / cover;
+  box-shadow:
+    inset 0 0 0 3px #061725,
+    inset 0 0 0 4px #c79b4b;
+}
+.menu-ranked .menu-header {
+  background: linear-gradient(90deg, #031522ed, #03152255);
+  border-bottom: 1px solid #d5a857;
+  flex: 0 0 auto;
+}
+.menu-ranked .menu-header h3 {
+  color: #ffe2a0;
+}
+.menu-ranked .menu-header .pk-swords {
+  width: 32px;
+  height: 32px;
+  color: #f5cd7c;
+}
+.menu-ranked .menu-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0;
+}
+.ranked-panel.ranked-arena {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.9fr) minmax(280px, 1.4fr) minmax(235px, 1fr);
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  padding: 20px 16px;
+  gap: 16px;
+  background: linear-gradient(#06172b50, #04152710);
+  font-family: var(--font);
+}
+.ranked-arena .ranked-card {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  border: 1px solid #c99d52;
+  border-radius: 16px 8px;
+  background: linear-gradient(140deg, #031521f5, #061b2de6 70%, #092b4066);
+  padding: clamp(12px, 1.5vw, 22px);
+}
+.ranked-arena .ranked-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.ranked-arena .ranked-intro > small {
+  letter-spacing: normal;
+  text-align: center;
+  color: #dbe8ef;
+}
+.ranked-arena .ranked-intro h2 {
+  text-align: center;
+  margin: 10px 0;
+  font: 700 clamp(22px, 2.3vw, 34px) var(--font);
+}
+.ranked-rating {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+.ranked-rating .menu-icon {
+  width: clamp(52px, 6vw, 95px);
+  height: auto;
+  flex: 0 0 auto;
+}
+.ranked-rating strong {
+  color: #7fe7ff;
+  font-size: clamp(26px, 3vw, 46px);
+  text-shadow: 0 0 12px #1684d499;
+  white-space: nowrap;
+}
+.ranked-rating strong small {
+  font-size: 12px;
+  font-weight: 400;
+  color: #d8e9ef;
+}
+.ranked-arena .ranked-rules p {
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #c29c5240;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ranked-arena .ranked-record {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  text-align: center;
+  border: 1px solid #b38b4c77;
+  border-radius: 7px;
+  margin: 14px 0;
+  padding: 10px 3px;
+}
+.ranked-arena .ranked-record span {
+  font-size: 12px;
+}
+.ranked-arena .ranked-record b {
+  font-size: 27px;
+  margin-top: 3px;
+}
+.ranked-arena .btn {
+  margin: 0;
+  font-family: inherit;
+  font-size: 12px;
+}
+.ranked-arena .ranked-join {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: auto;
+  min-height: 40px;
+}
+.ranked-join .pk-swords {
+  width: 20px;
+  height: 20px;
+}
+.ranked-arena .ranked-practice {
+  margin-top: 8px;
+  background: linear-gradient(#163650, #0a1e31);
+  border-color: #d3ac65;
+  min-height: 36px;
+}
+.ranked-arena .competitive-note {
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.ranked-arena .competitive-note summary {
+  cursor: pointer;
+}
+.ranked-arena .competitive-note p {
+  font-size: 10px;
+}
+.ranked-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  text-align: center;
+}
+.ranked-phases {
+  display: flex;
+  list-style: none;
+  width: 100%;
+  margin: 0 0 24px;
+  padding: 0;
+  gap: 5px;
+}
+.ranked-phases li {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 12px;
+  color: #a7b9d3;
+  background: #0b2239d9;
+  border: 1px solid #8298b16b;
+  border-radius: 5px 15px 15px 5px;
+}
+.ranked-phases li.active {
+  color: #fff4c8;
+  border-color: #ffdc84;
+  background: linear-gradient(#b77d21, #75420b, #bb8629);
+  box-shadow: 0 0 9px #ffcb6144;
+}
+.ranked-search-status {
+  min-height: 115px;
+  width: 100%;
+}
+.ranked-search-status h3 {
+  font: 700 clamp(20px, 2vw, 29px) var(--font);
+  color: #ffdda0;
+  margin: 10px 0;
+  text-shadow: 0 2px 2px #07121c;
+}
+.ranked-arena .ranked-search-status p {
+  font-size: 12px;
+  margin: 8px 0;
+}
+.ranked-search-status time {
+  color: #ffe6a6;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.ranked-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid #ebbd4b33;
+  border-top-color: #ffe295;
+  animation: ranked-spin 1.1s linear infinite;
+}
+@keyframes ranked-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ranked-spinner {
+    animation: none;
+  }
+}
+.ranked-versus {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+  align-items: center;
+  margin: auto 0;
+  gap: 4px;
+}
+.ranked-duelist {
+  min-width: 0;
+}
+.ranked-portrait {
+  width: min(130px, 100%);
+  aspect-ratio: 1;
+  margin: auto;
+  border-radius: 50%;
+  border: 2px solid #f0c275;
+  box-shadow:
+    0 0 0 4px #50351b88,
+    inset 0 0 25px #3d6c9966;
+  background: #0b2941;
+  overflow: hidden;
+}
+.ranked-portrait .hero-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ranked-unknown {
+  display: grid;
+  place-items: center;
+  color: #5895d0;
+  background: radial-gradient(ellipse at bottom, #184876, #041528);
+}
+.ranked-unknown span {
+  font-size: 64px;
+  font-weight: 700;
+}
+.ranked-duelist b {
+  display: block;
+  margin: 12px 0 3px;
+  color: #ffe2a0;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ranked-duelist small {
+  font-size: 11px;
+  color: #e3e6e9;
+}
+.ranked-vs {
+  font:
+    italic 700 38px Georgia,
+    serif;
+  color: #ffdb71;
+  text-shadow: 0 0 12px #e69720;
+}
+.ranked-arena .ranked-cancel {
+  color: #ffebae;
+  border-color: #f8cc77;
+  background: linear-gradient(#a82e18, #6a100c);
+  min-height: 43px;
+  min-width: 165px;
+  margin-top: 20px;
+  font-size: 17px;
+}
+.ranked-feedback {
+  padding: 7px;
+  border-radius: 5px;
+  background: #041322cc;
+}
+.ranked-arena .ranked-board {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(#041724f5 20%, #05192adf 70%, #092b4370);
+}
+.ranked-board header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 9px;
+  border-bottom: 1px solid #ceaa6a55;
+  padding-bottom: 12px;
+}
+.ranked-board header h3 {
+  width: 100%;
+  margin: 0;
+  color: #ffe0a1;
+  font-size: 20px;
+}
+.ranked-board header .btn {
+  padding: 5px 9px;
+}
+.ranked-arena .ranked-table {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin-top: 9px;
+  scrollbar-width: thin;
+}
+.ranked-arena .ranked-table table {
+  font-size: 12px;
+}
+.ranked-arena .ranked-table :is(th, td) {
+  padding: 9px 4px;
+}
+.ranked-arena .ranked-table th {
+  color: #f5da9f;
+  position: sticky;
+  top: 0;
+  background: #061b2b;
+}
+.ranked-table td:nth-child(2) b {
+  display: block;
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ranked-place {
+  display: inline-grid;
+  width: 23px;
+  height: 27px;
+  place-items: center;
+  color: #d6e4ee;
+}
+.ranked-place:is(.place-1, .place-2, .place-3) {
+  border: 1px solid currentColor;
+  border-radius: 45% 45% 35% 35%;
+  font-weight: 700;
+}
+.ranked-place.place-1 {
+  color: #ffdb7a;
+  background: #9b6a2029;
+}
+.ranked-place.place-2 {
+  color: #b3e3ff;
+}
+.ranked-place.place-3 {
+  color: #eab49b;
+}
+.ranked-empty {
+  color: #a7bfd2;
+  text-align: center;
+}
+.hud.phone .menu-window.menu-ranked {
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+}
+.hud.phone .menu-ranked > .menu-header {
+  min-height: 36px;
+  padding: 4px 10px;
+}
+.hud.phone .menu-ranked > .menu-header h3 {
+  font-size: 16px;
+}
+.hud.phone .menu-ranked > .menu-header .pk-swords {
+  width: 24px;
+  height: 24px;
+}
+.hud.phone .ranked-panel.ranked-arena {
+  grid-template-columns: minmax(150px, 0.9fr) minmax(200px, 1.2fr) minmax(170px, 1fr);
+  min-height: 0;
+  padding: 7px;
+  gap: 7px;
+}
+.hud.phone .ranked-arena .ranked-card {
+  padding: 9px;
+}
+.hud.phone .ranked-intro > small {
+  font-size: 9px;
+}
+.hud.phone .ranked-arena .ranked-intro h2 {
+  font-size: 20px;
+  margin: 5px 0;
+}
+.hud.phone .ranked-rating {
+  margin: 0 0 5px;
+}
+.hud.phone .ranked-rating strong {
+  font-size: 27px;
+}
+.hud.phone .ranked-rating .menu-icon {
+  width: 32px;
+}
+.hud.phone .ranked-rules p:last-child {
+  display: none;
+}
+.hud.phone .ranked-arena .competitive-note {
+  margin-top: 5px;
+  font-size: 10px !important;
+}
+.hud.phone .ranked-arena .ranked-rules p {
+  font-size: 9px;
+  padding: 4px 0;
+}
+.hud.phone .ranked-arena .ranked-record {
+  margin: 6px 0;
+  padding: 4px;
+}
+.hud.phone .ranked-arena .ranked-record span {
+  font-size: 9px;
+  line-height: 1.2;
+}
+.hud.phone .ranked-arena .ranked-record b {
+  font-size: 18px;
+  line-height: 1;
+}
+.hud.phone .ranked-arena .btn {
+  font-size: 10px;
+  min-height: 28px;
+  padding: 5px;
+}
+.hud.phone .ranked-phases {
+  margin-bottom: 10px;
+}
+.hud.phone .ranked-phases li {
+  font-size: 10px;
+  padding: 5px 3px;
+}
+.hud.phone .ranked-search-status {
+  min-height: 70px;
+}
+.hud.phone .ranked-search-status h3 {
+  font-size: 17px;
+  margin: 6px 0;
+}
+.hud.phone .ranked-arena .ranked-search-status p {
+  font-size: 10px;
+}
+.hud.phone .ranked-search-status time {
+  font-size: 15px;
+}
+.hud.phone .ranked-spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+.hud.phone .ranked-portrait {
+  width: 76px;
+}
+.hud.phone .ranked-duelist b {
+  font-size: 11px;
+  margin-top: 8px;
+}
+.hud.phone .ranked-duelist small {
+  font-size: 9px;
+}
+.hud.phone .ranked-vs {
+  font-size: 28px;
+}
+.hud.phone .ranked-arena .ranked-cancel {
+  font-size: 14px;
+  margin-top: 10px;
+  min-width: 120px;
+}
+.hud.phone .ranked-board header h3 {
+  font-size: 15px;
+}
+.hud.phone .ranked-board header {
+  padding-bottom: 6px;
+  gap: 5px;
+}
+.hud.phone .ranked-arena .ranked-table table {
+  font-size: 10px;
+}
+.hud.phone .ranked-arena .ranked-table :is(th, td) {
+  padding: 6px 3px;
+}
+@media (max-width: 660px) {
+  .hud .ranked-panel.ranked-arena {
+    grid-template-columns: minmax(145px, 0.9fr) minmax(200px, 1.2fr);
+  }
+  .ranked-arena .ranked-board {
+    grid-column: 1 / -1;
+    min-height: 200px;
+  }
+}

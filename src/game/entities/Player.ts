@@ -39,6 +39,7 @@ import { activeStatusEffects } from '../systems/statusEffects';
 import { statusEffectStore } from '../../store/statusEffectStore';
 import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
 import { HERO_WORLD_SCALE } from '../art/heroVisual';
+import { placeActor } from '../art/actorDepth';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -86,6 +87,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private mountArt: Phaser.GameObjects.Image;
   private realmAura: Phaser.GameObjects.Image;
   private nameplate: RealmNameplate;
+  private nameBounds = new Phaser.Geom.Rectangle();
+  private nameBoundsFrame = -1;
   private bar: Phaser.GameObjects.Graphics;
   private route: Vec2[] = [];
   private autoRoute: Vec2[] = [];
@@ -179,7 +182,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return { x: this.x, y: this.y };
   }
 
-  get nameplateBounds() { return this.nameplate.getBounds(); }
+  get nameplateBounds() {
+    const frame = this.world.game.loop.frame;
+    if (this.nameBoundsFrame !== frame) {
+      this.nameplate.getBounds(this.nameBounds);
+      this.nameBoundsFrame = frame;
+    }
+    return this.nameBounds;
+  }
 
   private get activeMount() {
     const s = gameStore.getState();
@@ -293,12 +303,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const mount = this.activeMount;
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
-    if (mount) this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(mount.id==='crane'&&isoVector(this.facing.x,this.facing.y).x<0).setRotation(mount.id==='sword'?flightRotation(this.facing):0).setPosition(spot.x, spot.y - lift + (mount.id==='sword'?-1:20)).setDepth(spot.y - 0.1);
-    this.art.setPosition(spot.x + centerOffset, spot.y - lift).setDepth(spot.y);
+    if (mount) placeActor(this.mountArt.setTexture(`immortal-${mount.id}`).setDisplaySize(160, 100).setFlipX(mount.id==='crane'&&isoVector(this.facing.x,this.facing.y).x<0).setRotation(mount.id==='sword'?flightRotation(this.facing):0), spot.x, spot.y - lift + (mount.id==='sword'?-1:20), spot.y - .1);
+    placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;
     this.nameplate.sync({level:p.level,child:isChildhood(p)},heroName(p));
     this.syncLook();
-    this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setPosition(spot.x,spot.y-lift+3).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]).setDepth(spot.y-.2);
+    placeActor(this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]),spot.x,spot.y-lift+3,spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill)this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) * HERO_WORLD_SCALE - lift);
@@ -324,8 +334,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (ratio === this.barRatio) return;
     this.barRatio = ratio;
     this.bar.clear();
-    this.bar.fillStyle(0x10131f, 0.75).fillRoundedRect(-w / 2 - 1, 0, w + 2, 6, 2);
-    this.bar.fillStyle(0x4cd96b, 1).fillRoundedRect(-w / 2, 1, w * ratio, 4, 2);
+    // Tiny world bars render as quads, avoiding rounded-path triangulation every frame.
+    this.bar.fillStyle(0x10131f, 0.75).fillRect(-w / 2 - 1, 0, w + 2, 6);
+    this.bar.fillStyle(0x4cd96b, 1).fillRect(-w / 2, 1, w * ratio, 4);
   }
 
   // ---- auto combat -------------------------------------------------------

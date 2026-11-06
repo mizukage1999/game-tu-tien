@@ -50,7 +50,9 @@ const put = (id, p) =>
 try {
   const { HEROES } = await vite.ssrLoadModule('/src/data/heroes.ts');
   const { heroDefaultLoadout } = await vite.ssrLoadModule('/src/data/heroSkills.ts');
-  const { playerStats } = await vite.ssrLoadModule('/src/game/systems/progression.ts');
+  const { playerStats, MAX_LEVEL, MAX_PROFILE_LEVEL } = await vite.ssrLoadModule(
+    '/src/game/systems/progression.ts',
+  );
   const { buildInspection, parseInspection } = await vite.ssrLoadModule('/src/net/inspection.ts');
   const { adventure } = await vite.ssrLoadModule('/src/game/systems/adventure.ts');
   const { lifeProgress } = await vite.ssrLoadModule('/src/game/systems/life.ts');
@@ -77,7 +79,7 @@ try {
     sex: 'male',
     admitted: true,
     level,
-    realmIndex: Math.floor((level - 1) / 10),
+    realmIndex: Math.min(11, Math.floor((level - 1) / 10)),
     exp: 0,
     hp: 200,
     mp: 100,
@@ -341,6 +343,49 @@ try {
   check(
     (await scalar('select count(*) from game_rank_private.entries')) === 2,
     'migration is repeatable without duplicating players or changing saves',
+  );
+  for (const level of [283, MAX_PROFILE_LEVEL]) {
+    const p = base('High level profile', level);
+    await put(owner, p);
+    const entry = await scalar('select entry from game_rank_private.entries where user_id=$1', [
+      owner,
+    ]);
+    const expected = buildInspection(p, playerStats(p), {}, 'dai_thua_vien', owner);
+    check(
+      entry.inspection.level === level && !!parseInspection(entry.inspection),
+      `public projection preserves level ${level}`,
+    );
+    check(
+      entry.inspection.power === expected.power &&
+        entry.inspection.realmIndex === expected.realmIndex,
+      `level ${level} stats use the final realm without an invalid realm index`,
+    );
+  }
+  await put(owner, base('Migration 283', 283));
+  const before = await scalar(
+    "select jsonb_build_object('data',data,'updated_at',updated_at) from public.saves where user_id=$1",
+    [owner],
+  );
+  await db.exec(
+    "update game_rank_private.balance set data=jsonb_set(data,'{maxLevel}','120'); update game_rank_private.entries set level=120;",
+  );
+  await db.exec(fs.readFileSync('supabase/leaderboard-profile-levels.sql', 'utf8'));
+  const after = await scalar(
+    "select jsonb_build_object('data',data,'updated_at',updated_at) from public.saves where user_id=$1",
+    [owner],
+  );
+  check(
+    (await scalar('select level from game_rank_private.entries where user_id=$1', [owner])) === 283,
+    'small upgrade rebuilds a previously capped level 283 offline profile',
+  );
+  check(
+    JSON.stringify(before) === JSON.stringify(after),
+    'profile upgrade does not mutate private saves or timestamps',
+  );
+  check(
+    (await scalar("select (data->>'progressionMaxLevel')::int from game_rank_private.balance")) ===
+      MAX_LEVEL,
+    'natural EXP progression cap remains separate from public profile validation',
   );
   console.log(`${checks} leaderboard SQL checks passed.`);
 } catch (error) {

@@ -13,7 +13,7 @@ import {
 } from '../game/systems/immortal';
 import { COMPANIONS, lifeProgress, type CompanionId } from '../game/systems/life';
 import { isChildhood } from '../game/systems/origin';
-import { realmNameAtLevel, type DerivedStats } from '../game/systems/progression';
+import { MAX_PROFILE_LEVEL, realmNameAtLevel, type DerivedStats } from '../game/systems/progression';
 import type { PlayerSave } from '../game/systems/save';
 import type { QuestLog } from '../game/systems/quest';
 import { skillLevel, skillLoadout, skillUnlocked } from '../game/systems/skills';
@@ -152,7 +152,7 @@ export function parseInspection(value: unknown): PlayerInspection | null {
     !isHeroId(p.heroId) ||
     !['male', 'female'].includes(String(p.sex)) ||
     typeof p.child !== 'boolean' ||
-    !integer(p.level, 1, 999) ||
+    !integer(p.level, 1, MAX_PROFILE_LEVEL) ||
     !integer(p.realmIndex, 0, REALMS.length - 1) ||
     !short(p.realm, 50) ||
     !short(p.mapId, 50) ||

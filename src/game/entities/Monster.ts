@@ -11,6 +11,8 @@ import { GridNavigator, gridLineClear } from '../systems/gridNavigation';
 import { TILE } from '../art/tiles';
 import type { WorldMonsterState } from '../../net/worldProtocol';
 import { RealmNameplate } from './RealmNameplate';
+import { placeActor } from '../art/actorDepth';
+import { gameStore } from '../../store/gameStore';
 
 export class Monster extends Phaser.Physics.Arcade.Sprite {
   netId='';
@@ -169,8 +171,10 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
   }
 
   private syncDecor() {
+    // Full-screen menus cover the world. Keep AI/physics ticking, defer cosmetic work.
+    if (gameStore.getState().menu) return;
     const spot = iso(this.x, this.y);
-    this.art.setPosition(spot.x, spot.y).setDepth(spot.y);
+    placeActor(this.art, spot.x, spot.y, spot.y);
     this.syncLook();
     this.shadow.setPosition(spot.x, spot.y - 2);
     const visualHeight = speciesForArt(this.art.texture.key)?.height;
@@ -188,7 +192,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.label.setPosition(spot.x, top - 6);
     this.realmPlate?.place(spot.x,top-6);
     const heroName = this.world.player?.nameplateBounds;
-    const overlapsHero = !!heroName && Phaser.Geom.Intersects.RectangleToRectangle(this.realmPlate?.getBounds()??this.label.getBounds(), heroName);
+    const closeToHero = !!heroName && Math.abs(spot.x - heroName.centerX) < 160 && Math.abs(top - heroName.centerY) < 120;
+    const overlapsHero = closeToHero && Phaser.Geom.Intersects.RectangleToRectangle(this.realmPlate?.getBounds()??this.label.getBounds(), heroName);
     this.label.setVisible(!overlapsHero&&!this.hideStrength);
     this.realmPlate?.setVisible(!overlapsHero);
     this.bar.setVisible(!overlapsHero && !this.hideStrength);
@@ -198,8 +203,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
       const w = (compact ? (this.def.boss ? 46 : 28) : (this.def.boss ? 64 : 36)) / zoom;
       const h = (compact ? 2 : 3) / zoom;
       this.bar.clear();
-      this.bar.fillStyle(0x140a0a, 0.8).fillRoundedRect(spot.x - w / 2 - 1, top - 3, w + 2, h + 2, 1);
-      this.bar.fillStyle(0xe8443a, 1).fillRoundedRect(spot.x - w / 2, top - 2, Math.max(0, (w * this.hp) / this.def.hp), h, 1);
+      this.bar.fillStyle(0x140a0a, 0.8).fillRect(spot.x - w / 2 - 1, top - 3, w + 2, h + 2);
+      this.bar.fillStyle(0xe8443a, 1).fillRect(spot.x - w / 2, top - 2, Math.max(0, (w * this.hp) / this.def.hp), h);
     }
   }
 

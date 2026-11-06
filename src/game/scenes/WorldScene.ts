@@ -267,7 +267,8 @@ export class WorldScene extends Phaser.Scene {
     this.buildWorldPoints();
     if(map.id==='dong_phu') for(let i=0;i<5;i++) {
       const at=iso((7+i*2)*TILE+TILE/2,12*TILE+TILE/2);
-      const art=this.add.image(at.x,at.y-7,'immortal-thanh_linh_thao').setDisplaySize(70,44).setDepth(at.y+1).setVisible(false);
+      const art=this.add.image(at.x,at.y,'immortal-thanh_linh_thao').setOrigin(.5,.91).setDepth(at.y+1).setVisible(false);
+      art.setScale(64 / art.width);
       const label=this.add.text(at.x,at.y+18,'',{fontSize:'9px',color:'#b9dfb0',stroke:'#1e3826',strokeThickness:2,resolution:2}).setOrigin(.5).setDepth(at.y+2);
       this.gardenVisuals.push({art,label});
     }
@@ -631,16 +632,18 @@ export class WorldScene extends Phaser.Scene {
       if (this.map.blocked[node.y]?.[node.x]) continue;
       const at = iso(node.x * TILE + TILE / 2, node.y * TILE + TILE / 2);
       const village = this.mapId === 'vuong_gia_thon';
-      const painted = village && this.textures.exists('village-nature-v3') && this.textures.get('village-nature-v3').has('village25d-herbs');
+      const grass = node.item === 'thanh_linh_thao';
+      const painted = !grass && village && this.textures.exists('village-nature-v3') && this.textures.get('village-nature-v3').has('village25d-herbs');
       const detailed = node.item === 'linh_chi' || node.item === 'ngung_lo';
       const art = this.add.image(at.x, at.y - (painted || detailed ? 0 : 8), painted ? 'village-nature-v3' : `immortal-${node.item}`, painted ? 'village25d-herbs' : undefined)
         .setDisplaySize(village ? 78 : 160, village ? 58 : 100).setDepth(at.y + 1);
-      if (painted) art.setOrigin(.5, .88);
+      if (grass) art.setPosition(at.x,at.y).setOrigin(.5,.91).setScale((village ? 62 : 76)/art.width);
+      else if (painted) art.setOrigin(.5, .88);
       else if (detailed) art.setOrigin(.5, .8).setDisplaySize(144, 90);
       const label = this.add.text(at.x, at.y + 12, itemName(node.item), {
         fontFamily: 'Segoe UI, sans-serif', fontSize: village ? '12px' : '13px', color: '#c6f1cf', stroke: '#102b25', strokeThickness: 3, resolution: 2,
       }).setOrigin(0.5).setDepth(at.y + 2);
-      art.setInteractive({ useHandCursor: true, hitArea: painted ? new Phaser.Geom.Rectangle(0, 0, art.width, art.height) : detailed ? new Phaser.Geom.Rectangle(60, 14, 210, 170) : new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+      art.setInteractive({ useHandCursor: true, hitArea: painted || grass ? new Phaser.Geom.Rectangle(0, 0, art.width, art.height) : detailed ? new Phaser.Geom.Rectangle(60, 14, 210, 170) : new Phaser.Geom.Rectangle(100, 45, 120, 130), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
       art.on('pointerdown', () => this.harvest(node));
       this.herbs.push({ node, art, label });
     }
@@ -992,7 +995,19 @@ export class WorldScene extends Phaser.Scene {
     this.updateTribulation(dt);
     this.player.update(dt);
     this.companion.update(dt);
-    if(this.gardenVisuals.length){const l=lifeProgress(gameStore.getState().player);this.gardenVisuals.forEach((visual,i)=>{const plot=l.plots[i];visual.art.setVisible(!!plot);visual.label.setVisible(i<l.plots.length);if(plot){visual.art.setTexture(`immortal-${plot.herb}`).setAlpha(plot.readyDay<=l.days?1:.5);visual.label.setText(plot.readyDay<=l.days?'Có thể thu hoạch':`Còn ${plot.readyDay-l.days} ngày`);}else visual.label.setText('Đất trống');});}
+    if(this.gardenVisuals.length){const l=lifeProgress(gameStore.getState().player);this.gardenVisuals.forEach((visual,i)=>{
+      const plot=l.plots[i];visual.art.setVisible(!!plot);visual.label.setVisible(i<l.plots.length);
+      if(plot){
+        const key=`immortal-${plot.herb}`;
+        if(visual.art.texture.key!==key){
+          visual.art.setTexture(key);
+          if(plot.herb==='thanh_linh_thao')visual.art.setOrigin(.5,.91).setScale(64/visual.art.width);
+          else visual.art.setOrigin(.5,.8).setDisplaySize(70,44);
+        }
+        visual.art.setAlpha(plot.readyDay<=l.days?1:.5);
+        visual.label.setText(plot.readyDay<=l.days?'Có thể thu hoạch':`Còn ${plot.readyDay-l.days} ngày`);
+      }else visual.label.setText('Đất trống');
+    });}
     this.routeGuide.setVisible(!gameStore.getState().menu && !gameStore.getState().dialogNpc);
     this.guideTimer -= dt;
     if (this.guideTimer <= 0) { this.guideTimer = 500; this.drawRouteGuide(); }

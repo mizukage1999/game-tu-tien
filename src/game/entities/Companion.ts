@@ -8,6 +8,7 @@ import { findPath } from '../systems/path';
 import { isChildhood } from '../systems/origin';
 import type { Vec2 } from '../types';
 import type { Monster } from './Monster';
+import { placeActor } from '../art/actorDepth';
 
 export class Companion {
   private art: Phaser.GameObjects.Image;
@@ -85,7 +86,7 @@ export class Companion {
       }
     }
     const at = iso(this.pos.x, this.pos.y);
-    this.art.setPosition(at.x, at.y).setDepth(at.y - 0.1);
+    placeActor(this.art, at.x, at.y, at.y - .1);
     this.label.setPosition(at.x, at.y - 75);
     this.label.setVisible(
       !Phaser.Geom.Intersects.RectangleToRectangle(this.label.getBounds(), hero.nameplateBounds),

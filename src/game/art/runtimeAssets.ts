@@ -93,6 +93,7 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
   group(
     'core',
     () => {
+      image('immortal-thanh_linh_thao', '/assets/ui/thanh-linh-thao-v3.webp');
       for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho'])
         image(`item-sprite-${id}`, ITEM_SPRITE_ASSETS[id]);
     },

@@ -4,6 +4,7 @@ import { iso } from '../art/iso';
 import { LOOT_LIFETIME_MS, MAGNET_RADIUS, PICKUP_RADIUS } from '../systems/loot';
 import type { Vec2 } from '../types';
 import type { WorldScene } from '../scenes/WorldScene';
+import { placeActor } from '../art/actorDepth';
 
 export class LootDrop extends Phaser.Physics.Arcade.Image {
   ready = false;
@@ -67,8 +68,8 @@ export class LootDrop extends Phaser.Physics.Arcade.Image {
     if (this.collected) return false;
     this.age += dt;
     const spot = iso(this.x, this.y);
-    this.art.setPosition(spot.x, spot.y).setDepth(spot.y).setAlpha(this.alpha);
-    this.glow.setPosition(spot.x, spot.y + 2).setDepth(spot.y - 1);
+    placeActor(this.art, spot.x, spot.y, spot.y).setAlpha(this.alpha);
+    placeActor(this.glow, spot.x, spot.y + 2, spot.y - 1);
     if (this.age > LOOT_LIFETIME_MS - 5000) this.setAlpha(Math.floor(this.age / 150) % 2 ? 0.3 : 1);
     if (this.age > LOOT_LIFETIME_MS) {
       this.destroy();

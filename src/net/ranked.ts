@@ -38,7 +38,8 @@ export const rankedStore = createStore<{
   searching: boolean;
   error: string;
   busy: boolean;
-}>(() => ({ page: null, searching: false, error: '', busy: false }));
+  searchStartedAt: number | null;
+}>(() => ({ page: null, searching: false, error: '', busy: false, searchStartedAt: null }));
 export function rankedTier(rating: number) {
   return rating >= 1600
     ? 'Thiên Tôn'
@@ -124,6 +125,7 @@ async function requestRanked(
     rankedStore.setState({
       error: 'Tỷ võ xếp hạng cần kết nối tài khoản online.',
       searching: false,
+      searchStartedAt: null,
     });
     return null;
   }
@@ -146,7 +148,13 @@ async function requestRanked(
       instance !== activeSessionId(user)
     )
       return null;
-    rankedStore.setState({ page, searching: page.queue || !!page.match, busy: false });
+    const searching = page.queue || !!page.match;
+    rankedStore.setState((state) => ({
+      page,
+      searching,
+      busy: false,
+      searchStartedAt: searching ? (state.searchStartedAt ?? Date.now()) : null,
+    }));
     return page;
   } catch (error) {
     if (request !== generation) return null;
@@ -163,5 +171,11 @@ async function requestRanked(
 export function resetRanked() {
   generation++;
   pending = Promise.resolve();
-  rankedStore.setState({ page: null, searching: false, error: '', busy: false });
+  rankedStore.setState({
+    page: null,
+    searching: false,
+    error: '',
+    busy: false,
+    searchStartedAt: null,
+  });
 }

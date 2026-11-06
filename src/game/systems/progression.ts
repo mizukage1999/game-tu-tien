@@ -3,6 +3,8 @@ import type { PlayerSave } from './save';
 import { companionStats, lifeProgress } from './life';
 import { enhancementLevel } from './enhancement';
 export const MAX_LEVEL = REALMS[REALMS.length - 1].maxLevel;
+/** Public profiles preserve existing/admin levels; this does not raise the EXP progression cap. */
+export const MAX_PROFILE_LEVEL = 999;
 
 export interface ProgressState {
   level: number;

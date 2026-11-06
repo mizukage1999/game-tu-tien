@@ -573,6 +573,7 @@ export function skillIconUrl(id: string, s = 64) {
 }
 
 export function skillSpriteUrl(id: SkillId, sex: 'female' | 'male' = 'male') {
+  if (id === 'basic') return '/assets/ui/skill-basic-v3.webp';
   const heroIcon = heroSpellIcon(id);
   if (heroIcon) return heroIcon;
   const art = wangEffect(id);
