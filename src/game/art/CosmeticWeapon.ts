@@ -7,9 +7,19 @@ import { isoVector } from './iso';
 import { HERO_WORLD_SCALE } from './heroVisual';
 import type { HeroDirection } from './heroDirections';
 import type { Vec2 } from '../types';
+import { embeddedSwordHand, embeddedSwordLift } from './embeddedSword';
 
 export const COSMETIC_WEAPONS_URL = '/assets/ui/cosmetic-weapons-v1.webp';
 const TEXTURE = 'cosmetic-weapon-skins';
+/** Centre of the visible handle in each 128×256 skin cell, rather than its guard. */
+const GRIPS: Record<WeaponSkinId, readonly [number, number]> = {
+  kiem_anh_thanh_van: [67 / 128, 213 / 256],
+  kiem_anh_huyet_nguyet: [64 / 128, 213 / 256],
+  kiem_anh_cuu_huyen: [62 / 128, 213 / 256],
+};
+export function cosmeticWeaponGrip(skin: WeaponSkinId) {
+  return GRIPS[skin];
+}
 export const COSMETIC_HAND: Record<HeroDirection, [number, number, number, number]> = {
   down: [-17, -44, -0.7, 0.85],
   'down-left': [-17, -44, -0.6, 0.85],
@@ -41,6 +51,7 @@ export class CosmeticWeapon {
   private image: Phaser.GameObjects.Image;
   private skin: WeaponSkinId | null = null;
   private requested = false;
+  private visibleSkin: WeaponSkinId | null = null;
   constructor(private scene: Phaser.Scene) {
     this.image = scene.add.image(0, 0, 'shadow').setVisible(false);
   }
@@ -50,18 +61,28 @@ export class CosmeticWeapon {
     direction: HeroDirection,
     hidden: boolean,
     casting = false,
+    bodyKey = '',
+    frameY = 0,
   ) {
     this.skin = skin;
     if (skin && !this.requested) {
       this.requested = true;
       void ensureCosmeticWeapons(this.scene);
     }
+    const weaponless = bodyKey.endsWith('-weaponless'),
+      wang = bodyKey.includes('wang'),
+      drawnSkin = skin ?? (weaponless ? this.visibleSkin : null);
     const ready =
-      !!skin && this.scene.textures.exists(TEXTURE) && this.scene.textures.get(TEXTURE).has(skin);
+      !!drawnSkin &&
+      (!wang || weaponless) &&
+      this.scene.textures.exists(TEXTURE) &&
+      this.scene.textures.get(TEXTURE).has(drawnSkin);
     this.image.setVisible(ready && !hidden);
     if (!ready || hidden) return;
+    this.visibleSkin = drawnSkin;
     let [x, y, dx, dy] = COSMETIC_HAND[direction];
-    if (casting) {
+    if (wang) [x, y, dx, dy] = embeddedSwordHand(direction, casting);
+    else if (casting) {
       const side = direction.includes('right') ? 1 : -1;
       x = side * 14;
       y = -53;
@@ -69,16 +90,18 @@ export class CosmeticWeapon {
       dy = 0.15;
     }
     const back = direction.startsWith('up');
-    if (this.image.texture.key !== TEXTURE || this.image.frame.name !== skin)
-      this.image.setTexture(TEXTURE, skin!);
+    const [gripX, gripY] = cosmeticWeaponGrip(drawnSkin!),
+      poseLift = bodyKey.startsWith('hero-v8-') ? embeddedSwordLift(frameY) : 0;
+    if (this.image.texture.key !== TEXTURE || this.image.frame.name !== drawnSkin)
+      this.image.setTexture(TEXTURE, drawnSkin!);
     this.image
-      .setOrigin(0.5, 0.8)
+      .setOrigin(gripX, gripY)
       .setDisplaySize(28 * HERO_WORLD_SCALE, 78 * HERO_WORLD_SCALE)
       .setRotation(Math.atan2(dy, dx) + Math.PI / 2);
     placeActor(
       this.image,
       spot.x + x * HERO_WORLD_SCALE,
-      spot.y + y * HERO_WORLD_SCALE,
+      spot.y + (y + poseLift) * HERO_WORLD_SCALE,
       spot.y + (back ? -0.05 : 0.05),
     );
   }

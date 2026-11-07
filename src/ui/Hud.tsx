@@ -28,14 +28,14 @@ import './mobile.css';
 import './presentation-v5.css';
 import './hud-chrome.css';
 
-export function Hud() {
+export function Hud({ hidden = false }: { hidden?: boolean }) {
   const inDungeon = useGame((s) => s.dungeon !== null);
   const phone = usePhoneLayout();
   const portrait = usePortrait();
   const turned = phone && portrait;
   const tier = usePerformanceTier();
   return (
-    <div className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}${tier === 2 ? ' performance-light' : ''}`}>
+    <div hidden={hidden} className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}${tier === 2 ? ' performance-light' : ''}`}>
       <div className="hud-top-left">
         <StatusBars />
         <WorldStatusEffects />

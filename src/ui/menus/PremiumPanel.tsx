@@ -12,7 +12,9 @@ import {
 import { CultHeading } from './CultivationUI';
 import './premium.css';
 import { optimizedAsset } from '../../data/assetDelivery';
-import { cosmeticDefinition } from '../../data/cosmetics';
+import { cosmeticDefinition, compatibleWeaponSkin } from '../../data/cosmetics';
+import { heroFor } from '../../data/heroes';
+import { HERO_WEAPONS } from '../../data/heroWeapons';
 import { appearanceStore } from '../../store/appearanceStore';
 import { CosmeticArt } from '../CosmeticArt';
 import './premium-shop-v2.css';
@@ -69,7 +71,8 @@ function PremiumSession() {
   const { user } = useAccount(),
     premium = usePremium(),
     sync = useGame((s) => s.syncPremium),
-    setMenu = useGame((s) => s.setMenu);
+    setMenu = useGame((s) => s.setMenu),
+    hero = heroFor(useGame((s) => s.player));
   const [page, setPage] = useState<Page>('overview'),
     [topupTab, setTopupTab] = useState('packs'),
     [group, setGroup] = useState('all'),
@@ -93,6 +96,7 @@ function PremiumSession() {
   const products = JADE_SHOP.filter(
     (p) =>
       (group === 'all' || p.group === group) &&
+      (p.group !== 'weapon' || compatibleWeaponSkin(hero.id, p.id)) &&
       p.name.toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi')),
   );
   const product = products.find((p) => p.id === selected) ?? products[0];
@@ -385,7 +389,11 @@ function PremiumSession() {
                     </button>
                   ))}
                   {!products.length && (
-                    <p className="jade-message">Không tìm thấy vật phẩm phù hợp.</p>
+                    <p className="jade-message">
+                      {group === 'weapon'
+                        ? `${hero.school} dùng ${HERO_WEAPONS[hero.id]}. Ngoại trang phù hợp chưa mở bán.`
+                        : 'Không tìm thấy vật phẩm phù hợp.'}
+                    </p>
                   )}
                 </div>
               </div>

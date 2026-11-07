@@ -30,6 +30,8 @@ export function App() {
   const accountId = account.user?.id;
   const [ready, setReady] = useState(() => loadGame() !== null);
   const [entered, setEntered] = useState(() => consumeBootRetry(bootStorage()));
+  // Defer the first HUD mount, then preserve its state across loading/recovery.
+  const [worldUi, setWorldUi] = useState({ initialized: false, ready: false });
   useTryLockLandscape(phone);
   useEffect(() => {
     if (!accountId) return;
@@ -85,7 +87,15 @@ export function App() {
     <div className={`app${turned ? ' turned' : ''}`} data-performance={performanceTier}>
       <MobileViewport />
       {!needsLogin && !control.blocked && !maintenanceBlocks(control) && (
-        <PhaserGame started={ready && entered} />
+        <PhaserGame
+          started={ready && entered}
+          onReadyChange={(worldReady) =>
+            setWorldUi((previous) => ({
+              initialized: previous.initialized || worldReady,
+              ready: worldReady,
+            }))
+          }
+        />
       )}
       {control.blocked || maintenanceBlocks(control) ? (
         <div className="server-gate">
@@ -108,21 +118,21 @@ export function App() {
         )
       ) : ready && !entered ? (
         <StartScreen onStart={() => setEntered(true)} />
-      ) : ready ? (
+      ) : ready && worldUi.initialized ? (
         <>
           {/* Warm sun from the north-east and cool shade below: the grade that ties the
               painted tiles together without touching the HUD. */}
-          <div className="world-grade" aria-hidden="true" />
-          <Hud />
+          <div className="world-grade" aria-hidden="true" hidden={!worldUi.ready} />
+          <Hud hidden={!worldUi.ready} />
         </>
-      ) : (
+      ) : !ready ? (
         <CreateCharacter
           onDone={() => {
             setReady(true);
             setEntered(true);
           }}
         />
-      )}
+      ) : null}
     </div>
   );
 }

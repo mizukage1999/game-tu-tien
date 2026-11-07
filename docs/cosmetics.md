@@ -14,10 +14,12 @@ Trước thay đổi này, `equipment` quyết định chỉ số chiến đấu
 - Mặc bộ đã sở hữu: lưu `player.cosmetics`, giữ nguyên `equipment`, inventory và chỉ số. Thiếu vật phẩm sở hữu thì không dùng diện mạo đó.
 - Áo đổi màu trên các hướng đứng/chạy/ra chiêu của cả 8 nhân vật trưởng thành. Giữ scale thế giới `0.94`, chân, khung hình và vùng va chạm.
 - Kiếm ảnh đi theo hướng nhân vật; khi cưỡi kiếm sẽ đổi hình phi kiếm. Không thay đổi kỹ năng hay sát thương.
+- Ba skin kiếm hiện tại chỉ dành cho Kiếm Tu. Phái khác giữ vũ khí đặc trưng; giao diện thử/mặc, nhân vật local/remote và thông tin đối phương đều loại skin không tương thích. Vật phẩm đã sở hữu vẫn được giữ trong túi.
+- Vũ khí mua từ NPC được đổi sang mã trang bị cùng phẩm chất/chỉ số của phái đang chơi: kiếm, linh phù, cung, song đao, hỏa ấn, hồn phiên, thiền trượng hoặc ngọc giản. Icon trong túi/cửa hàng hiển thị đúng loại. Chưa có skin mới cho các vũ khí ngoài kiếm.
 - Người chơi từ xa nhận diện mạo đang mặc qua presence/world pose. Thông tin đối phương và bảng xếp hạng nhận cùng dữ liệu public.
 - Shop được sắp lại: nhóm bên trái, banner, tìm kiếm, lưới sản phẩm và xem chi tiết bên phải. Nút xem/thử dẫn sang đúng bộ được chọn.
 
-**Giới hạn mỹ thuật:** đây là phối màu trên dáng áo có sẵn của từng phái, chưa phải bộ áo mới với dáng và chuyển động khác hoàn toàn. Kiếm ảnh là lớp vẽ bổ sung; vũ khí đã vẽ liền trong sprite gốc của các phái vẫn thuộc hình gốc. Muốn thay hoàn toàn cung/trượng/song đao cần tách lớp hoặc vẽ lại bộ sprite tương ứng. Ngoại trang chưa áp dụng cho trẻ em trước nhập môn.
+**Giới hạn mỹ thuật:** đây là phối màu trên dáng áo có sẵn của từng phái, chưa phải bộ áo mới với dáng và chuyển động khác hoàn toàn. Với Vương Lâm, phần kiếm vẽ liền được ẩn khỏi bản sao texture khi dùng skin; cùng một mặt nạ dùng cho thế giới, người chơi từ xa và màn thử 8 hướng. Chỉ hiện lớp kiếm mới khi bản sao đã sẵn sàng, và khôi phục texture gốc khi tháo/kết thúc thử. Không sửa ảnh gốc hoặc chỉ số chiến đấu. Vũ khí đặc trưng cung/trượng/song đao của các phái khác vẫn thuộc hình gốc. Ngoại trang chưa áp dụng cho trẻ em trước nhập môn.
 
 Các mẫu ngoại trang **chưa mở bán**. Không trừ Tiên Ngọc và không tự cấp bộ chưa sở hữu. Giao dịch pháp bảo 200 Tiên Ngọc có sẵn vẫn đi qua RPC hiện hành.
 

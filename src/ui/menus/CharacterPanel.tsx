@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from 'react';
+import { heroFor } from '../../data/heroes';
 import { bonusText, EQUIP_SLOTS, ITEMS, REALMS, rarityOf, type EquipSlot } from '../../data';
 import { gameStore, itemName, useGame } from '../../store/gameStore';
 import { heroName, isChildhood } from '../../game/systems/origin';
@@ -384,7 +385,7 @@ export function CharacterPanel() {
               </CultHeading>
               <div className="cult-gear-candidates">
                 {candidate.map((id) => {
-                  const check = canEquip(id, p.level);
+                  const check = canEquip(id, p.level,heroFor(p).id);
                   return (
                     <button
                       className="cult-gear-candidate"

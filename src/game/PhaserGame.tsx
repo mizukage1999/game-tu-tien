@@ -126,8 +126,16 @@ export function saveNow() {
   if (world?.scene.isActive() && world.player?.active) world.save();
 }
 
-export function PhaserGame({ started = true }: { started?: boolean }) {
+export function PhaserGame({
+  started = true,
+  onReadyChange,
+}: {
+  started?: boolean;
+  onReadyChange?: (ready: boolean) => void;
+}) {
   const brightness = useSettings((s) => s.preferences.brightness);
+  const readyListener = useRef(onReadyChange);
+  readyListener.current = onReadyChange;
   const host = useRef<HTMLDivElement>(null);
   const startRequested = useRef(started);
   const launch = useRef<() => void>(() => {});
@@ -158,6 +166,7 @@ export function PhaserGame({ started = true }: { started?: boolean }) {
     const failed = (message: string) => {
       if (!alive) return;
       frameReady = false;
+      readyListener.current?.(false);
       clearTimeout(stable);
       clearTimeout(stalled);
       setLoading(true);
@@ -263,6 +272,7 @@ export function PhaserGame({ started = true }: { started?: boolean }) {
     const assetsReady = () => {
       enteredWorld = true;
       frameReady = true;
+      readyListener.current?.(true);
       clearTimeout(stalled);
       clearTimeout(stable);
       setError('');
@@ -271,6 +281,7 @@ export function PhaserGame({ started = true }: { started?: boolean }) {
     };
     const assetsLoading = (target?: { mapId?: string; mapName?: string }) => {
       frameReady = false;
+      readyListener.current?.(false);
       setDestination({
         mapId: target?.mapId ?? gameStore.getState().mapId,
         mapName: target?.mapName ?? '',

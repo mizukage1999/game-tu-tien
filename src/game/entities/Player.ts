@@ -43,6 +43,7 @@ import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures
 import { CosmeticWeapon } from '../art/CosmeticWeapon';
 import { wornCosmetics } from '../systems/cosmetics';
 import { appearanceStore } from '../../store/appearanceStore';
+import { cosmeticsForHero } from '../../data/cosmetics';
 
 type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>;
 
@@ -171,8 +172,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Change only the drawn rig; admission must not rebuild the map or physics. */
   async refreshAppearance() {
     const p = gameStore.getState().player, id = heroFor(p).id, child = usesChildSprite(p);
-    const request = ++this.appearanceRequest, look = appearanceStore.getState().preview ?? wornCosmetics(p);
-    const lease = await acquireAppearance(this.world,id,child,look.outfit);
+    const request = ++this.appearanceRequest, look = cosmeticsForHero(id,appearanceStore.getState().preview ?? wornCosmetics(p));
+    const lease = await acquireAppearance(this.world,id,child,look.outfit,!!look.weapon);
     const current = gameStore.getState().player;
     if (!lease) {
       if(this.active&&request===this.appearanceRequest&&this.world.sys.isActive())gameStore.getState().toast('Chưa tải được ngoại trang. Mở Ngoại Trang và thử lại.');
@@ -318,8 +319,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const mount = this.activeMount;
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
-    const look = appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player);
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),this.art.frame.cutY>=480);
+    const look = cosmeticsForHero(heroFor(gameStore.getState().player).id,appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player));
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),this.art.frame.cutY>=480,this.art.texture.key,this.art.frame.cutY);
     if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;

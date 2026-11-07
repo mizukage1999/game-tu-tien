@@ -979,7 +979,7 @@ export class WorldScene extends Phaser.Scene {
         this.player.clearRoute();
       }
       const look=wornCosmetics(s.player),beforeLook=wornCosmetics(prev.player);
-      if (isChildhood(s.player) !== isChildhood(prev.player) || s.player.heroId!==prev.player.heroId || look.outfit!==beforeLook.outfit) {
+      if (isChildhood(s.player) !== isChildhood(prev.player) || s.player.heroId!==prev.player.heroId || look.outfit!==beforeLook.outfit || !!look.weapon!==!!beforeLook.weapon) {
         void this.player.refreshAppearance();
       }
       if (s.player.level > prev.player.level) {
