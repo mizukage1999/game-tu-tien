@@ -29,6 +29,7 @@ function QueueClock({ since }: { since: number | null }) {
 }
 
 export function RankedArenaPanel() {
+  const [mobilePage, setMobilePage] = useState<'arena' | 'board'>('arena');
   const { page, error, busy, searching, searchStartedAt } = useStore(rankedStore),
     p = useGame((s) => s.player),
     status = useGame((s) => s.status),
@@ -46,34 +47,46 @@ export function RankedArenaPanel() {
     phase = matched ? 1 : searching ? 0 : page?.result ? 2 : 0,
     opponent = page?.match && (page.match.a.name === name ? page.match.b : page.match.a);
   return (
-    <section className={`ranked-panel ranked-arena ${searching ? 'is-searching' : ''}`}>
+    <section
+      className={`ranked-panel ranked-arena ${searching ? 'is-searching' : ''} mobile-${mobilePage}`}
+    >
+      <nav className="ranked-mobile-tabs" aria-label="Mục tỷ võ">
+        <button aria-pressed={mobilePage === 'arena'} onClick={() => setMobilePage('arena')}>
+          ⚔ Tìm trận · {page?.rating ?? '—'} điểm
+        </button>
+        <button aria-pressed={mobilePage === 'board'} onClick={() => setMobilePage('board')}>
+          ♛ Tiên Bảng
+        </button>
+      </nav>
       <aside className="ranked-intro ranked-card">
         <HudFrame />
-        <small>Luận Đạo · Xếp Hạng 1 vs 1</small>
-        <h2>{page ? rankedTier(page.rating) : 'Tiên Đài Tranh Phong'}</h2>
-        <div className="ranked-rating">
-          <MenuSprite kind="ranking" />
-          <strong>
-            {page?.rating ?? '—'} <small>điểm</small>
-          </strong>
-        </div>
-        <div className="ranked-rules">
-          <p>
-            Mùa tuần bắt đầu <b>{page?.season ?? '—'}</b>
-          </p>
-          <p>Thắng +20 · Thua −20 · Hòa giữ điểm</p>
-          <p>Giữ trang bị và bộ chiêu của bạn. Ghép tối đa lệch một đại cảnh giới và 15 cấp.</p>
-        </div>
-        <div className="ranked-record">
-          <span>
-            Thắng <b>{page?.wins ?? 0}</b>
-          </span>
-          <span>
-            Thua <b>{page?.losses ?? 0}</b>
-          </span>
-          <span>
-            Hòa <b>{page?.draws ?? 0}</b>
-          </span>
+        <div className="ranked-intro-summary">
+          <small>Luận Đạo · Xếp Hạng 1 vs 1</small>
+          <h2>{page ? rankedTier(page.rating) : 'Tiên Đài Tranh Phong'}</h2>
+          <div className="ranked-rating">
+            <MenuSprite kind="ranking" />
+            <strong>
+              {page?.rating ?? '—'} <small>điểm</small>
+            </strong>
+          </div>
+          <div className="ranked-rules">
+            <p>
+              Mùa tuần bắt đầu <b>{page?.season ?? '—'}</b>
+            </p>
+            <p>Thắng +20 · Thua −20 · Hòa giữ điểm</p>
+            <p>Giữ trang bị và bộ chiêu của bạn. Ghép tối đa lệch một đại cảnh giới và 15 cấp.</p>
+          </div>
+          <div className="ranked-record">
+            <span>
+              Thắng <b>{page?.wins ?? 0}</b>
+            </span>
+            <span>
+              Thua <b>{page?.losses ?? 0}</b>
+            </span>
+            <span>
+              Hòa <b>{page?.draws ?? 0}</b>
+            </span>
+          </div>
         </div>
         <button
           className="btn gold ranked-join"

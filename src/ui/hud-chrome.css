@@ -337,20 +337,20 @@
   color: #f6dfa8;
 }
 .hud.hud-v5.phone .hud-top-left {
-  width: 190px;
-  max-width: 28%;
-  gap: 5px;
+  width: 170px;
+  max-width: 26%;
+  gap: 4px;
   left: calc(8px + var(--hud-safe-left));
   top: 8px;
 }
 .hud.hud-v5.phone .status.panel-glass {
-  grid-template-columns: 40px minmax(0, 1fr);
-  padding: 6px;
-  gap: 3px 6px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  padding: 5px;
+  gap: 3px 4px;
 }
 .hud.hud-v5.phone .status .avatar {
-  width: 40px;
-  height: 43px;
+  width: 34px;
+  height: 37px;
 }
 .hud.hud-v5.phone .avatar-level {
   height: 18px;
@@ -358,7 +358,7 @@
   font-size: 10px;
 }
 .hud.hud-v5.phone .status-name {
-  font-size: 12px;
+  font-size: 11px;
 }
 .hud.hud-v5.phone .status-realm {
   font-size: 8px;
@@ -403,14 +403,16 @@
   height: 15px;
 }
 .hud.hud-v5.phone .quest-tabs button {
-  min-height: 26px;
+  min-height: 25px;
   font-size: 10px;
   gap: 4px;
   padding: 3px;
 }
 .hud.hud-v5.phone .quest-tabs .quest-toggle {
   flex-basis: 22px;
-  font-size: 21px;
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px;
 }
 .hud.hud-v5.phone .hud-glyph {
   width: 14px;
@@ -418,19 +420,23 @@
 }
 .hud.hud-v5.phone .story-tracker {
   display: block;
-  padding: 4px 6px;
+  padding: 3px 5px;
 }
 .hud.hud-v5.phone .story-tracker small {
   font-size: 8px;
   gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .hud.hud-v5.phone .story-tracker > span {
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.3;
+  padding-top: 1px;
 }
 .hud.hud-v5.phone .quest-list {
   padding: 3px;
-  max-height: 58px;
+  max-height: 48px;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -460,6 +466,16 @@
   font-size: 9px;
   min-height: 26px;
 }
+.hud.hud-v5.phone .next-goal > div {
+  gap: 1px;
+}
+.hud.hud-v5.phone .next-goal > div > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
 .hud.hud-v5.phone .quest-details {
   display: none;
 }
@@ -468,10 +484,10 @@
   font-size: 9px;
 }
 .hud.hud-v5.phone .party-member {
-  padding: 4px;
-  margin-block: 3px;
+  padding: 3px;
+  margin-block: 2px;
   gap: 5px;
-  min-height: 34px;
+  min-height: 30px;
 }
 .hud.hud-v5.phone .party-member :is(b, small) {
   font-size: 9px;
@@ -486,11 +502,12 @@
   min-height: 26px;
 }
 .hud.hud-v5.phone .party-member .hero-portrait {
-  width: 25px;
-  height: 27px;
+  width: 22px;
+  height: 24px;
 }
 .hud.hud-v5.phone .party-members {
-  max-height: 106px;
+  max-height: 72px;
+  padding-block: 2px;
 }
 .hud.hud-v5.phone .quest-panel.collapsed {
   width: 100%;
@@ -500,7 +517,7 @@
     padding-block: 3px;
   }
   .hud.hud-v5.phone .quest-list {
-    max-height: 58px;
+    max-height: 48px;
   }
 }
 

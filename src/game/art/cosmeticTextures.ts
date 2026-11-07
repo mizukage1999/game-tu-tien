@@ -5,6 +5,8 @@ import { directionalArt, ensureDirectionalHero } from './directionalHeroes';
 import { animKey, CHARACTERS, RIGS } from './generate';
 import { addStaticTexture } from './staticTexture';
 import { dyeGarmentCell } from './garmentPalette';
+import { maskEmbeddedSword, replacesEmbeddedSword } from './embeddedSword';
+import { HERO_DIRECTIONS } from './heroDirections';
 
 export interface AppearanceLease {
   key: string;
@@ -31,7 +33,14 @@ function trim(scene: Phaser.Scene, cache: Map<string, Entry>) {
     delete CHARACTERS[entry.key];
   }
 }
-async function prepare(scene: Phaser.Scene, base: string, entry: Entry, outfit: OutfitId) {
+async function prepare(
+  scene: Phaser.Scene,
+  base: string,
+  entry: Entry,
+  outfit: OutfitId | null,
+  hero: HeroId,
+  weaponless: boolean,
+) {
   const palette = OUTFITS.find((x) => x.id === outfit)!;
   const source = scene.textures.get(base).getSourceImage() as HTMLImageElement;
   const canvas = document.createElement('canvas');
@@ -42,19 +51,31 @@ async function prepare(scene: Phaser.Scene, base: string, entry: Entry, outfit: 
   const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
   // Four small cells per task keep an outfit switch from monopolizing a frame.
   for (let cell = 0; cell < 32; cell++) {
-    dyeGarmentCell(
-      pixels.data,
-      canvas.width,
-      canvas.height,
-      { x: (cell % 8) * 160, y: Math.floor(cell / 8) * 160, width: 160, height: 160 },
-      palette,
-    );
+    if (palette)
+      dyeGarmentCell(
+        pixels.data,
+        canvas.width,
+        canvas.height,
+        { x: (cell % 8) * 160, y: Math.floor(cell / 8) * 160, width: 160, height: 160 },
+        palette,
+      );
     if (cell % 4 === 3) {
       await idleFrame();
       if (!scene.sys.isActive()) throw Error('SCENE_STOPPED');
     }
   }
   ctx.putImageData(pixels, 0, 0);
+  if (weaponless)
+    for (let row = 0; row < 4; row++)
+      for (const [col, dir] of HERO_DIRECTIONS.entries())
+        maskEmbeddedSword(
+          ctx,
+          hero,
+          dir,
+          row === 3,
+          col * 160,
+          row * 160 + (row === 1 ? -1.5 : row === 2 ? 1.5 : 0),
+        );
   const texture = addStaticTexture(scene, entry.key, canvas);
   if (!texture) throw Error('COSMETIC_TEXTURE_FAILED');
   const baseTexture = scene.textures.get(base);
@@ -91,16 +112,18 @@ export async function acquireAppearance(
   hero: HeroId,
   child: boolean,
   outfit: OutfitId | null,
+  weapon = false,
 ): Promise<AppearanceLease | null> {
   if (!(await ensureDirectionalHero(scene, hero, child)) || !scene.sys.isActive()) return null;
   const base = directionalArt(hero, child);
-  if (child || !outfit) return { key: base, release() {} };
+  const weaponless = weapon && replacesEmbeddedSword(hero) && !child;
+  if (child || (!outfit && !weaponless)) return { key: base, release() {} };
   let cache = caches.get(scene.game);
   if (!cache) {
     cache = new Map();
     caches.set(scene.game, cache);
   }
-  const key = `${base}-outfit-${outfit}`;
+  const key = `${base}${outfit ? `-outfit-${outfit}` : ''}${weaponless ? '-weaponless' : ''}`;
   let entry = cache.get(key);
   if (!entry) {
     entry = {
@@ -112,7 +135,7 @@ export async function acquireAppearance(
       job: Promise.resolve(),
     };
     cache.set(key, entry);
-    entry.job = prepare(scene, base, entry, outfit);
+    entry.job = prepare(scene, base, entry, outfit, hero, weaponless);
   }
   entry.refs++;
   try {

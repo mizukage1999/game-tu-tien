@@ -42,6 +42,8 @@ import { retiredSkill } from '../data/skillCatalog';
 import { premiumStore } from '../net/premium';
 import { chooseCosmetic } from '../game/systems/cosmetics';
 import type { CosmeticSlot } from '../data/cosmetics';
+import { compatibleWeaponSkin } from '../data/cosmetics';
+import { schoolWeaponId } from '../game/systems/schoolEquipment';
 import { equipmentBaseId, equipmentInstanceId, findOwnedEquipment, isIndividualEquipment, normalizeEquipment } from '../game/systems/equipment';
 import {
   GARDEN_COOLDOWN_MS, herbCooldownMs, herbYield, HOME_MAX_LEVEL, HOME_QUEST,
@@ -431,6 +433,7 @@ export const gameStore = createStore<GameState>()((set, get) => {
 
     wearCosmetic(slot, id) {
       const s=get(), look=chooseCosmetic(s.player,slot,id);
+      if(slot==='weapon'&&!compatibleWeaponSkin(heroFor(s.player).id,id)){s.toast('Skin vũ khí này thuộc phái khác.','warn');return false;}
       if(id&&isChildhood(s.player)){s.toast('Nhập môn trước khi mặc ngoại trang.', 'info');return false;}
       if(!look){s.toast('Chưa sở hữu ngoại trang này. Có thể xem thử trước.', 'warn');return false;}
       set({player:{...s.player,cosmetics:look}});
@@ -602,8 +605,9 @@ export const gameStore = createStore<GameState>()((set, get) => {
         get().toast('Không đủ tài nguyên.', 'warn');
         return;
       }
-      get().addItem(offer.item, offer.qty);
-      get().toast(`Đã mua ${itemName(offer.item)}`);
+      const item=schoolWeaponId(offer.item,heroFor(get().player).id);
+      get().addItem(item, offer.qty);
+      get().toast(`Đã mua ${itemName(item)}`);
     },
 
     upgradeSkill(id) {

@@ -2,6 +2,7 @@ import { ITEMS, REALMS, type RealmDef } from '../../data';
 import type { PlayerSave } from './save';
 import { companionStats, lifeProgress } from './life';
 import { enhancementLevel } from './enhancement';
+import { heroFor, type HeroId } from '../../data/heroes';
 export const MAX_LEVEL = REALMS[REALMS.length - 1].maxLevel;
 /** Public profiles preserve existing/admin levels; this does not raise the EXP progression cap. */
 export const MAX_PROFILE_LEVEL = 999;
@@ -100,9 +101,11 @@ export function applyBreakthrough(s: ProgressState) {
 
 export type EquipCheck = { ok: true } | { ok: false; reason: string };
 
-export function canEquip(itemId: string, level: number): EquipCheck {
+export function canEquip(itemId: string, level: number, heroId?: HeroId): EquipCheck {
   const def = ITEMS[itemId];
   if (!def?.slot) return { ok: false, reason: 'Vật phẩm này không thể trang bị.' };
+  if (heroId && def.hero && def.hero !== heroId)
+    return { ok: false, reason: `Trang bị dành cho ${heroFor({ heroId: def.hero }).school}.` };
   const req = def.reqLevel ?? 1;
   if (level < req) return { ok: false, reason: `Cần Lv.${req} để trang bị ${def.name}.` };
   return { ok: true };

@@ -95,6 +95,30 @@
   gap: 12px;
   min-height: 0;
 }
+.appearance-native-weapon {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(180px, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  overflow: auto;
+}
+.appearance-native-weapon > .cosmetic-art {
+  min-height: 0;
+  max-height: 100%;
+  height: 100%;
+}
+.appearance-native-weapon h2 {
+  color: #ffe2a4;
+  font-size: 22px;
+}
+.appearance-native-weapon p {
+  color: #c5d6e4;
+  line-height: 1.6;
+  font-size: 13px;
+  margin: 12px 0;
+}
 .appearance-frame {
   position: relative;
   border: 1px solid #b9914b;

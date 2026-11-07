@@ -18,7 +18,7 @@ import { worldInputBlocked } from '../systems/inputFocus';
 import { HERO_WORLD_SCALE } from '../art/heroVisual';
 import { placeActor } from '../art/actorDepth';
 import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures';
-import { parseCosmeticLook } from '../../data/cosmetics';
+import { cosmeticsForHero } from '../../data/cosmetics';
 import { CosmeticWeapon } from '../art/CosmeticWeapon';
 
 const PARTY_COLOR = '#7dffa8';
@@ -96,8 +96,8 @@ export class RemotePlayer {
     const lift=this.state.mount?44+Math.sin(this.sprite.scene.time.now/500)*2:0;
     placeActor(this.sprite,spot.x,spot.y-lift,spot.y).setAlpha(this.state.combat?.hp === 0 ? .45 : 1);
     const face={x:this.state.dx??0,y:this.state.dy??1};
-    const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y),look=parseCosmeticLook(this.state.cosmetics);
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},dir,!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,this.sprite.frame.cutY>=480);
+    const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y),look=cosmeticsForHero(heroFor(this.state).id,this.state.cosmetics);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},dir,!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,this.sprite.frame.cutY>=480,this.sprite.texture.key,this.sprite.frame.cutY);
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
     if(this.state.mount)this.weaponLook.placeMount(this.mountArt,this.state.mount,face,spot,lift);
     this.shadow.setPosition(spot.x, spot.y - 2);
@@ -107,10 +107,10 @@ export class RemotePlayer {
   }
 
   private refreshLook() {
-    const id=heroFor(this.state).id,child=!!this.state.child,look=parseCosmeticLook(this.state.cosmetics),signature=`${id}:${child}:${look.outfit}`;
+    const id=heroFor(this.state).id,child=!!this.state.child,look=cosmeticsForHero(id,this.state.cosmetics),signature=`${id}:${child}:${look.outfit}:${!!look.weapon}`;
     if(signature===this.lookIdentity||performance.now()<this.lookRetryAt)return;
     this.lookIdentity=signature;const request=++this.appearanceRequest,scene=this.sprite.scene;
-    void acquireAppearance(scene,id,child,look.outfit).then(async lease=>{
+    void acquireAppearance(scene,id,child,look.outfit,!!look.weapon).then(async lease=>{
       if(!lease){if(request===this.appearanceRequest){this.lookIdentity='';this.lookRetryAt=performance.now()+10000;}return;}
       while(this.ctrl.locked&&this.sprite.active&&request===this.appearanceRequest)await new Promise(resolve=>setTimeout(resolve,30));
       if(!this.sprite.active||request!==this.appearanceRequest){lease.release();return;}

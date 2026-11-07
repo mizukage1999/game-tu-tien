@@ -83,3 +83,15 @@ it('renders queue failures in the panel and keeps offline and child matchmaking 
   });
   expect(host.querySelector<HTMLButtonElement>('.ranked-join')!.disabled).toBe(true);
 });
+it('switches the phone leaderboard page without cancelling an active matchmaking queue', () => {
+  act(() => rankedStore.setState({ searching: true, searchStartedAt: Date.now() - 5000 }));
+  const tabs = host.querySelectorAll<HTMLButtonElement>('.ranked-mobile-tabs button');
+  act(() => tabs[1].click());
+  expect(host.querySelector('.ranked-panel')!.classList.contains('mobile-board')).toBe(true);
+  expect(tabs[1].getAttribute('aria-pressed')).toBe('true');
+  expect(rankedStore.getState().searching).toBe(true);
+  act(() => tabs[0].click());
+  expect(host.querySelector('.ranked-panel')!.classList.contains('mobile-arena')).toBe(true);
+  expect(host.querySelector('time')!.textContent).toBe('00:05');
+  expect(rankedAction).not.toHaveBeenCalledWith('leave');
+});

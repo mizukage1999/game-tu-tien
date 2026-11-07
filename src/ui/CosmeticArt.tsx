@@ -1,11 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { OUTFITS, WEAPON_SKINS, type CosmeticLook } from '../data/cosmetics';
+import { OUTFITS, WEAPON_SKINS, cosmeticsForHero, type CosmeticLook } from '../data/cosmetics';
 import { heroRow, type HeroId } from '../data/heroes';
 import { optimizedAsset } from '../data/assetDelivery';
 import { directionalAsset } from '../game/art/directionalHeroes';
 import { HERO_DIRECTIONS, type HeroDirection } from '../game/art/heroDirections';
-import { COSMETIC_HAND, COSMETIC_WEAPONS_URL } from '../game/art/CosmeticWeapon';
+import {
+  COSMETIC_HAND,
+  COSMETIC_WEAPONS_URL,
+  cosmeticWeaponGrip,
+} from '../game/art/CosmeticWeapon';
 import { dyeGarmentCell } from '../game/art/garmentPalette';
+import {
+  embeddedSwordHand,
+  maskEmbeddedSword,
+  replacesEmbeddedSword,
+} from '../game/art/embeddedSword';
 
 const images = new Map<string, Promise<HTMLImageElement>>();
 function load(url: string) {
@@ -51,10 +60,12 @@ export function CosmeticArt({
     let cancelled = false;
     setFailed(false);
     const render = async () => {
+      const candidate={outfit:look?.outfit??null,weapon:look?.weapon??null},
+        effectiveLook = hero ? cosmeticsForHero(hero, candidate) : candidate;
       const canvas = ref.current;
       if (!canvas) return;
       const weapon = WEAPON_SKINS.find((x) => x.id === id),
-        outfit = OUTFITS.find((x) => x.id === (id ?? look?.outfit));
+        outfit = OUTFITS.find((x) => x.id === (id ?? effectiveLook?.outfit));
       const source = await load(
         kind === 'icon'
           ? weapon
@@ -64,6 +75,8 @@ export function CosmeticArt({
             ? directionalAsset(hero!, false)
             : '/assets/heroes-v7/roster.png',
       );
+      const swords =
+        kind === 'world' && effectiveLook?.weapon ? await load(COSMETIC_WEAPONS_URL) : null;
       if (cancelled) return;
       const w = kind === 'world' ? 160 : kind === 'portrait' ? 384 : weapon ? 128 : 192,
         h = kind === 'world' ? 160 : kind === 'portrait' ? 512 : weapon ? 256 : 288;
@@ -83,15 +96,17 @@ export function CosmeticArt({
         dyeGarmentCell(pixels.data, w, h, { x: 0, y: 0, width: w, height: h }, outfit);
         ctx.putImageData(pixels, 0, 0);
       }
-      if (kind === 'world' && look?.weapon) {
-        const swords = await load(COSMETIC_WEAPONS_URL);
-        if (cancelled) return;
-        const index = WEAPON_SKINS.findIndex((x) => x.id === look.weapon),
-          [x, y, dx, dy] = COSMETIC_HAND[direction];
+      if (kind === 'world' && effectiveLook?.weapon) {
+        maskEmbeddedSword(ctx, hero!, direction);
+        const index = WEAPON_SKINS.findIndex((x) => x.id === effectiveLook.weapon),
+          [x, y, dx, dy] = replacesEmbeddedSword(hero!)
+            ? embeddedSwordHand(direction)
+            : COSMETIC_HAND[direction];
+        const [gripX, gripY] = cosmeticWeaponGrip(effectiveLook.weapon);
         ctx.save();
         ctx.translate(80 + x, 150 + y);
         ctx.rotate(Math.atan2(dy, dx) + Math.PI / 2);
-        ctx.drawImage(swords, index * 128, 0, 128, 256, -14, -78 * 0.8, 28, 78);
+        ctx.drawImage(swords!, index * 128, 0, 128, 256, -28 * gripX, -78 * gripY, 28, 78);
         ctx.restore();
       }
     };

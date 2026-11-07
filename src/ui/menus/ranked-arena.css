@@ -35,6 +35,7 @@
   padding: 0;
 }
 .ranked-panel.ranked-arena {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(210px, 0.9fr) minmax(280px, 1.4fr) minmax(235px, 1fr);
   height: 100%;
@@ -61,10 +62,23 @@
   flex-direction: column;
   align-items: stretch;
 }
-.ranked-arena .ranked-intro > small {
+.ranked-arena .ranked-intro-summary > small {
+  display: block;
   letter-spacing: normal;
   text-align: center;
   color: #dbe8ef;
+}
+.ranked-mobile-tabs {
+  display: none;
+}
+.ranked-intro-summary {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.ranked-arena .ranked-intro > .btn {
+  flex: none;
 }
 .ranked-arena .ranked-intro h2 {
   text-align: center;
@@ -500,4 +514,163 @@
     grid-column: 1 / -1;
     min-height: 200px;
   }
+}
+
+/* Match controls stay visible; the seasonal board has its own phone page. */
+.hud.phone .menu-ranked > .menu-content {
+  overflow: hidden;
+}
+.hud.phone .ranked-panel.ranked-arena {
+  grid-template-columns: minmax(165px, 0.8fr) minmax(185px, 1.2fr);
+  grid-template-rows: 29px minmax(0, 1fr);
+  padding: 5px;
+  gap: 6px;
+  overflow: hidden;
+}
+.hud.phone .ranked-mobile-tabs {
+  display: flex;
+  grid-column: 1/-1;
+  gap: 6px;
+  min-height: 0;
+}
+.hud.phone .ranked-mobile-tabs button {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #b58d4f;
+  border-radius: 5px;
+  background: #082136;
+  color: #d8e8f5;
+  font: 11px var(--font);
+  padding: 4px;
+}
+.hud.phone .ranked-mobile-tabs button[aria-pressed='true'] {
+  background: linear-gradient(#a3742f, #57370c);
+  color: #ffe3a1;
+  border-color: #f4d28b;
+}
+.hud.phone .ranked-arena .ranked-intro {
+  overflow: hidden;
+  padding: 6px;
+  gap: 4px;
+}
+.hud.phone .ranked-intro-summary {
+  overflow: auto;
+  scrollbar-width: none;
+}
+.hud.phone .ranked-intro-summary > small {
+  font-size: 9px;
+}
+.hud.phone .ranked-arena .ranked-intro h2 {
+  font-size: 17px;
+  margin: 3px 0;
+}
+.hud.phone .ranked-rating {
+  margin: 2px 0;
+  gap: 5px;
+}
+.hud.phone .ranked-rating .menu-icon {
+  width: 26px;
+}
+.hud.phone .ranked-rating strong {
+  font-size: 24px;
+}
+.hud.phone .ranked-rules p {
+  padding: 3px 0 !important;
+}
+.hud.phone .ranked-arena .ranked-record {
+  margin: 4px 0;
+  padding: 3px;
+}
+.hud.phone .ranked-arena .ranked-record b {
+  font-size: 16px;
+}
+.hud.phone .ranked-arena .ranked-join,
+.hud.phone .ranked-arena .ranked-practice {
+  margin-top: 0;
+  min-height: 31px;
+  font-size: 11px;
+  white-space: normal;
+}
+.hud.phone .ranked-arena .ranked-board {
+  display: none;
+}
+.hud.phone .ranked-arena.mobile-board {
+  grid-template-columns: minmax(0, 1fr);
+}
+.hud.phone .ranked-arena.mobile-board :is(.ranked-intro, .ranked-stage) {
+  display: none;
+}
+.hud.phone .ranked-arena.mobile-board .ranked-board {
+  display: flex;
+  grid-column: 1/-1;
+  min-height: 0;
+}
+.hud.phone .ranked-board header {
+  flex-direction: row;
+  align-items: center;
+  flex: none;
+}
+.hud.phone .ranked-board header h3 {
+  font-size: 14px;
+}
+.hud.phone .ranked-arena .ranked-table table {
+  font-size: 12px;
+  width: 100%;
+}
+.hud.phone .ranked-arena .ranked-table :is(th, td) {
+  padding: 7px;
+}
+.hud.phone .ranked-stage {
+  overflow: auto;
+  scrollbar-width: none;
+}
+.hud.phone .ranked-phases {
+  margin-bottom: 4px;
+  flex: none;
+}
+.hud.phone .ranked-search-status {
+  min-height: 0;
+  flex: none;
+}
+.hud.phone .ranked-search-status h3 {
+  font-size: 15px;
+  margin: 4px 0;
+}
+.hud.phone .ranked-arena .ranked-search-status p {
+  margin: 4px 0;
+}
+.hud.phone .ranked-spinner {
+  width: 16px;
+  height: 16px;
+}
+.hud.phone .ranked-versus {
+  margin: 7px 0;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  flex: 1;
+  align-content: center;
+}
+.hud.phone .ranked-portrait {
+  width: 56px;
+}
+.hud.phone .ranked-unknown span {
+  font-size: 36px;
+}
+.hud.phone .ranked-duelist b {
+  margin-top: 5px;
+}
+.hud.phone .ranked-arena .ranked-cancel {
+  position: sticky;
+  bottom: 0;
+  flex: none;
+  margin-top: 4px;
+  min-height: 31px;
+  font-size: 12px;
+  z-index: 2;
+}
+.hud.phone .ranked-feedback {
+  max-height: 45px;
+  overflow: auto;
+  margin: 3px 0;
+  flex: none;
+  font-size: 10px;
 }

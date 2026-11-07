@@ -61,6 +61,7 @@
   gap: 10px;
   min-width: 0;
 }
+.hud .jade-page-shop .jade-shop-layout:not(:has(.jade-product-detail)){grid-template-columns:minmax(0,1fr)}
 .jade-fashion-banner {
   position: relative;
   display: flex;

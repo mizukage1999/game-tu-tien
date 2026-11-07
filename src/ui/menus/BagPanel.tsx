@@ -21,6 +21,7 @@ import {
 } from '../../game/systems/inventory';
 import { CultHeading, CultLock } from './CultivationUI';
 import { equipmentBaseId } from '../../game/systems/equipment';
+import { heroFor } from '../../data/heroes';
 import './bag.css';
 
 const RARITY_LABELS: Record<RarityId, string> = {
@@ -88,7 +89,7 @@ export function BagPanel() {
     r = def?.rarity ? rarityOf(def.rarity) : undefined;
   const n = enhancementLevel(id ? p.adventure?.enhancements[id] : 0),
     stones = enhanceCost(n)[ENHANCEMENT_STONE] ?? 0;
-  const req = id && def?.kind === 'equipment' ? canEquip(id, p.level) : null;
+  const req = id && def?.kind === 'equipment' ? canEquip(id, p.level,heroFor(p).id) : null;
   const current = def?.slot ? p.equipment[def.slot] : null,
     currentBonus = current ? ITEMS[current]?.bonus : undefined;
   const base = def?.bonus,
@@ -214,7 +215,7 @@ export function BagPanel() {
           {entries.map((e) => {
             const item = ITEMS[e.id],
               color = item?.rarity ? rarityOf(item.rarity).color : (item?.color ?? '#9ab2c0'),
-              locked = item?.kind === 'equipment' && !canEquip(e.id, p.level).ok,
+              locked = item?.kind === 'equipment' && !canEquip(e.id, p.level,heroFor(p).id).ok,
               rank = enhancementLevel(p.adventure?.enhancements[e.id]);
             return (
               <button

@@ -20,9 +20,11 @@ import {
 import { saveKey } from '../../game/systems/save';
 import { itemIconUrl } from '../../game/art/icons';
 import { gameStore, itemName, useGame } from '../../store/gameStore';
+import { schoolWeaponId } from '../../game/systems/schoolEquipment';
+import { equipmentBaseId } from '../../game/systems/equipment';
+import { heroFor } from '../../data/heroes';
 import { useSocial } from '../../store/socialStore';
 import { useAccount } from '../../net/session';
-import { heroFor } from '../../data/heroes';
 import { RosterPortrait } from '../HeroArt';
 import { CultHeading } from './CultivationUI';
 import './market.css';
@@ -125,22 +127,24 @@ function MarketSession() {
     .toLowerCase()
     .replace(/đ/g, 'd')
     .trim();
-  const offers = MARKET_OFFERS.filter(
-    (o) =>
-      (group === 'all' || inventoryGroup(o.item) === group) &&
-      (rarity === 'all' || ITEMS[o.item]?.rarity === rarity) &&
-      (!favoritesOnly || local.favorites.includes(o.key)) &&
-      itemName(o.item)
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .replace(/đ/g, 'd')
-        .includes(search),
-  ).sort((a, b) =>
-    sort === 'level'
-      ? (ITEMS[a.item]?.reqLevel ?? 1) - (ITEMS[b.item]?.reqLevel ?? 1)
-      : itemName(a.item).localeCompare(itemName(b.item), 'vi'),
-  );
+  const offers = MARKET_OFFERS.map((o) => ({ ...o, item: schoolWeaponId(o.item, heroFor(p).id) }))
+    .filter(
+      (o) =>
+        (group === 'all' || inventoryGroup(o.item) === group) &&
+        (rarity === 'all' || ITEMS[o.item]?.rarity === rarity) &&
+        (!favoritesOnly || local.favorites.includes(o.key)) &&
+        itemName(o.item)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/đ/g, 'd')
+          .includes(search),
+    )
+    .sort((a, b) =>
+      sort === 'level'
+        ? (ITEMS[a.item]?.reqLevel ?? 1) - (ITEMS[b.item]?.reqLevel ?? 1)
+        : itemName(a.item).localeCompare(itemName(b.item), 'vi'),
+    );
   const pageCount = Math.max(1, Math.ceil(offers.length / 8)),
     currentPage = Math.min(page, pageCount - 1),
     shown = offers.slice(currentPage * 8, currentPage * 8 + 8);
@@ -171,9 +175,14 @@ function MarketSession() {
   }
   function purchase() {
     if (!offer || !affordable || status !== 'alive') return;
-    const before = gameStore.getState().player.inventory[offer.item] ?? 0;
+    const quantityOwned = () =>
+      Object.entries(gameStore.getState().player.inventory).reduce(
+        (sum, [id, n]) => sum + (equipmentBaseId(id) === offer.item ? n : 0),
+        0,
+      );
+    const before = quantityOwned();
     gameStore.getState().buy('thuong_nhan', offer.index);
-    if ((gameStore.getState().player.inventory[offer.item] ?? 0) <= before) return;
+    if (quantityOwned() <= before) return;
     persist({
       ...local,
       purchases: [

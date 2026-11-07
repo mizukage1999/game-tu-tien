@@ -1,3 +1,4 @@
+import type { HeroId } from './heroes';
 /** Cosmetic IDs are inventory unlocks, never combat equipment or stat bonuses. */
 export const OUTFITS = [
   {
@@ -72,15 +73,30 @@ export const OUTFITS = [
   },
 ] as const;
 export const WEAPON_SKINS = [
-  { id: 'kiem_anh_thanh_van', name: 'Thanh Vân Kiếm Ảnh', hue: 200, color: '#72d8ff', price: 988 },
+  {
+    id: 'kiem_anh_thanh_van',
+    name: 'Thanh Vân Kiếm Ảnh',
+    hero: 'wang_lam',
+    hue: 200,
+    color: '#72d8ff',
+    price: 988,
+  },
   {
     id: 'kiem_anh_huyet_nguyet',
+    hero: 'wang_lam',
     name: 'Huyết Nguyệt Kiếm Ảnh',
     hue: 350,
     color: '#ff607c',
     price: 988,
   },
-  { id: 'kiem_anh_cuu_huyen', name: 'Cửu Huyền Kiếm Ảnh', hue: 275, color: '#ca8cff', price: 988 },
+  {
+    id: 'kiem_anh_cuu_huyen',
+    name: 'Cửu Huyền Kiếm Ảnh',
+    hero: 'wang_lam',
+    hue: 275,
+    color: '#ca8cff',
+    price: 988,
+  },
 ] as const;
 export type OutfitId = (typeof OUTFITS)[number]['id'];
 export type WeaponSkinId = (typeof WEAPON_SKINS)[number]['id'];
@@ -99,6 +115,13 @@ export function parseCosmeticLook(raw: unknown): CosmeticLook {
 }
 export function cosmeticDefinition(id: string) {
   return OUTFITS.find((x) => x.id === id) ?? WEAPON_SKINS.find((x) => x.id === id);
+}
+export function compatibleWeaponSkin(hero: HeroId, id: string | null) {
+  return id === null || WEAPON_SKINS.some((s) => s.id === id && s.hero === hero);
+}
+export function cosmeticsForHero(hero: HeroId, raw: unknown): CosmeticLook {
+  const look = parseCosmeticLook(raw);
+  return { ...look, weapon: compatibleWeaponSkin(hero, look.weapon) ? look.weapon : null };
 }
 export const COSMETIC_ITEMS = Object.fromEntries(
   [...OUTFITS, ...WEAPON_SKINS].map((x) => [
