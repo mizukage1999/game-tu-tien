@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { inventoryIconRegion } from '../game/art/inventoryIcons';
+import { inventoryIconUrl } from '../game/art/inventoryIcons';
 import { optimizedAsset } from '../data/assetDelivery';
 import { HEROES } from '../data/heroes';
 export function AdminPortrait({ hero }: { hero: string | null }) {
@@ -30,30 +30,14 @@ export function AdminPortrait({ hero }: { hero: string | null }) {
   );
 }
 export function AdminItemArt({ id }: { id: string }) {
-  const clip = useId().replace(/:/g, ''),
-    region = inventoryIconRegion(id);
-  if (!region)
+  const url = inventoryIconUrl(id);
+  if (!url)
     return (
       <span className="admin-item-fallback" aria-hidden="true">
         ◇
       </span>
     );
-  const [x, y, w, h] = region;
-  return (
-    <svg className="admin-item-art" viewBox={region.join(' ')} aria-hidden="true">
-      <defs>
-        <clipPath id={clip}>
-          <rect x={x} y={y} width={w} height={h} />
-        </clipPath>
-      </defs>
-      <image
-        href={optimizedAsset('/assets/ui/cultivation/bag-items-v1.png')}
-        clipPath={`url(#${clip})`}
-        width="1536"
-        height="1024"
-      />
-    </svg>
-  );
+  return <img className="admin-item-art" src={url} alt="" aria-hidden="true" />;
 }
 export type AdminIconName =
   | 'overview'

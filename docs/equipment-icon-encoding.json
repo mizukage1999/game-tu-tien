@@ -1,0 +1,1561 @@
+{
+  "sources": [
+    {
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "sha256": "1d252d9779410e06632ed9edb89e73b182535be838c1f650e4b2f7226b6205f4"
+    },
+    {
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "sha256": "f302228fa6b2e9a2ec2ffa0dab6b08b56e74323a5346def739117591c0fe9fd5"
+    }
+  ],
+  "files": [
+    {
+      "key": "weapon:white",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        23,
+        17,
+        171,
+        177
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11525,
+      "url": "/assets/optimized/equipment-weapon-white.bfd8cc2c3729.webp",
+      "bytes": 14632,
+      "sha256": "bfd8cc2c372940d5e7983ef5f86a76997f36183582c9186c5f5cd9a7f394d834"
+    },
+    {
+      "key": "weapon:blue",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        213,
+        15,
+        172,
+        179
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10952,
+      "url": "/assets/optimized/equipment-weapon-blue.4a213d540b10.webp",
+      "bytes": 16996,
+      "sha256": "4a213d540b10d87242c865f3b1a118f1cf4a2a45d1cfb8c900299ddb4582748c"
+    },
+    {
+      "key": "weapon:green",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        400,
+        11,
+        171,
+        183
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-weapon-green.45eb7dc493e6.webp",
+      "bytes": 15734,
+      "sha256": "45eb7dc493e67017d3816501473a11380ef476b03f2b450d212845192087f0aa"
+    },
+    {
+      "key": "weapon:purple",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        591,
+        12,
+        168,
+        182
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11936,
+      "url": "/assets/optimized/equipment-weapon-purple.1b34e7b83ab4.webp",
+      "bytes": 16478,
+      "sha256": "1b34e7b83ab4f799ece0655d5dd5c7031e0dfb48272b723a72b6f0763eb801b8"
+    },
+    {
+      "key": "weapon:orange",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        776,
+        12,
+        182,
+        182
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 9968,
+      "url": "/assets/optimized/equipment-weapon-orange.7bf27aea915b.webp",
+      "bytes": 18706,
+      "sha256": "7bf27aea915bee691509b43142b416791c03d1a491aa83471cc2f87e982d27a5"
+    },
+    {
+      "key": "weapon:red",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        969,
+        11,
+        177,
+        183
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10952,
+      "url": "/assets/optimized/equipment-weapon-red.4518923e8ea0.webp",
+      "bytes": 19982,
+      "sha256": "4518923e8ea02b786fe3655a2b7f4018a5bc1c9aa4fe832d59c2686955af8f22"
+    },
+    {
+      "key": "weapon:pink",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        1161,
+        6,
+        179,
+        188
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11280,
+      "url": "/assets/optimized/equipment-weapon-pink.191989fb276c.webp",
+      "bytes": 18298,
+      "sha256": "191989fb276ce33cb4fdeb0cf3e24a766b1573954513570587a8cb4f0c9389da"
+    },
+    {
+      "key": "armor:white",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        39,
+        216,
+        126,
+        171
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 17184,
+      "url": "/assets/optimized/equipment-armor-white.d08058ae3a28.webp",
+      "bytes": 11074,
+      "sha256": "d08058ae3a283af781e1e8f9f9e559d28ea36a20e2db13dd0b6bd0d38f7b9624"
+    },
+    {
+      "key": "armor:blue",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        214,
+        216,
+        162,
+        171
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11280,
+      "url": "/assets/optimized/equipment-armor-blue.188b8c5385b4.webp",
+      "bytes": 15494,
+      "sha256": "188b8c5385b4b7b89e3af85d579205814d44ff844cf76192af88cfea39a682d1"
+    },
+    {
+      "key": "armor:green",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        399,
+        211,
+        170,
+        176
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10952,
+      "url": "/assets/optimized/equipment-armor-green.5ab2e27ca89f.webp",
+      "bytes": 16644,
+      "sha256": "5ab2e27ca89f2c662b025ae82c6746b7f3521c271b97483cdd578fe81c8a393f"
+    },
+    {
+      "key": "armor:purple",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        581,
+        210,
+        181,
+        177
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10624,
+      "url": "/assets/optimized/equipment-armor-purple.e8357a71f0be.webp",
+      "bytes": 16274,
+      "sha256": "e8357a71f0be532ab854c4c4f26433792df4a2efc3f61f6debe95ecd2f5321e2"
+    },
+    {
+      "key": "armor:orange",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        778,
+        210,
+        173,
+        177
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10624,
+      "url": "/assets/optimized/equipment-armor-orange.84b1a3078a6e.webp",
+      "bytes": 18800,
+      "sha256": "84b1a3078a6e1563f004fa79d2c538b10acdc48e35c7ec74f5478db9e11dd340"
+    },
+    {
+      "key": "armor:red",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        968,
+        207,
+        178,
+        180
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10296,
+      "url": "/assets/optimized/equipment-armor-red.370036c6e418.webp",
+      "bytes": 18400,
+      "sha256": "370036c6e4186407c58c91790110e8acc9053e6ae46252f40220d44f57a34f98"
+    },
+    {
+      "key": "armor:pink",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        1161,
+        210,
+        182,
+        177
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10624,
+      "url": "/assets/optimized/equipment-armor-pink.dcf1aae70e2c.webp",
+      "bytes": 16416,
+      "sha256": "dcf1aae70e2c3c00430e97b5ba38cd778fa63104048d07f8e6e44a500361f52c"
+    },
+    {
+      "key": "helmet:white",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        30,
+        438,
+        142,
+        114
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15216,
+      "url": "/assets/optimized/equipment-helmet-white.31ee9263c0d5.webp",
+      "bytes": 10882,
+      "sha256": "31ee9263c0d5f0d5773461d88644c798a901c93aeed81f290be4bf6934a7d662"
+    },
+    {
+      "key": "helmet:blue",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        215,
+        415,
+        153,
+        163
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-helmet-blue.740e56ba7270.webp",
+      "bytes": 15304,
+      "sha256": "740e56ba7270471554242b35138285f8b69f8aee9461450f2343671a2fe6a61d"
+    },
+    {
+      "key": "helmet:green",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        397,
+        421,
+        157,
+        153
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10624,
+      "url": "/assets/optimized/equipment-helmet-green.acfb869cc29e.webp",
+      "bytes": 17776,
+      "sha256": "acfb869cc29e4e4acf840cabf0d09738078d3c7f1d4f576062480156a5b36e0d"
+    },
+    {
+      "key": "helmet:purple",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        582,
+        416,
+        178,
+        165
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11936,
+      "url": "/assets/optimized/equipment-helmet-purple.9612570c6300.webp",
+      "bytes": 17050,
+      "sha256": "9612570c6300b1015f8794bce9524afc951821f067c042aa552c1ba48d1b8d51"
+    },
+    {
+      "key": "helmet:orange",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        783,
+        412,
+        159,
+        169
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-helmet-orange.adaa81989fb4.webp",
+      "bytes": 19220,
+      "sha256": "adaa81989fb4c523b9fa977fbda008d3fc0c63298e23b7502f619fbd8f144aa4"
+    },
+    {
+      "key": "helmet:red",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        970,
+        409,
+        176,
+        172
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10624,
+      "url": "/assets/optimized/equipment-helmet-red.44a4cefb6799.webp",
+      "bytes": 19706,
+      "sha256": "44a4cefb67993e376d02a38eb17c9f5c5e14a22c9eba8363e0239054fdf7f454"
+    },
+    {
+      "key": "helmet:pink",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        1165,
+        424,
+        179,
+        157
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 13248,
+      "url": "/assets/optimized/equipment-helmet-pink.b7001092827c.webp",
+      "bytes": 17984,
+      "sha256": "b7001092827c7fbc3b90b6bd38fde50f34625741a1b0d65d3948d76829ed923d"
+    },
+    {
+      "key": "boots:white",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        14,
+        614,
+        166,
+        149
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 12592,
+      "url": "/assets/optimized/equipment-boots-white.e6b772f5e486.webp",
+      "bytes": 13420,
+      "sha256": "e6b772f5e486092216c3937b0e5533f30fe61eb792571a2f0f956b419a18c413"
+    },
+    {
+      "key": "boots:blue",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        206,
+        606,
+        165,
+        161
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10624,
+      "url": "/assets/optimized/equipment-boots-blue.5e8fd50e4cfd.webp",
+      "bytes": 15792,
+      "sha256": "5e8fd50e4cfd06df5d2518deb2fe640b741186bf04546e54cbfe5dc190071f53"
+    },
+    {
+      "key": "boots:green",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        399,
+        604,
+        168,
+        165
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10296,
+      "url": "/assets/optimized/equipment-boots-green.b150ee0a5e33.webp",
+      "bytes": 17412,
+      "sha256": "b150ee0a5e33327ff46fad4c3d1eb1e73dca46d185b5b816e55facc7feb0a3c5"
+    },
+    {
+      "key": "boots:purple",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        588,
+        596,
+        166,
+        177
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-boots-purple.c0cf5b1a6836.webp",
+      "bytes": 16820,
+      "sha256": "c0cf5b1a6836e66c6afea6f40f2393aba2e5c5d4228f5568cd8ab0927a794568"
+    },
+    {
+      "key": "boots:orange",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        780,
+        597,
+        162,
+        176
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 12264,
+      "url": "/assets/optimized/equipment-boots-orange.6345c59835a3.webp",
+      "bytes": 18530,
+      "sha256": "6345c59835a3b68ff9203479deb868d081a7be26718abf6299773e7e1f76e6bf"
+    },
+    {
+      "key": "boots:red",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        974,
+        594,
+        167,
+        178
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-boots-red.9df32820ca1c.webp",
+      "bytes": 18366,
+      "sha256": "9df32820ca1cc38500663ca1a9e770df850d122b3d74ecf601360dbabeb007e6"
+    },
+    {
+      "key": "boots:pink",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        1162,
+        595,
+        174,
+        176
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10296,
+      "url": "/assets/optimized/equipment-boots-pink.b8f470def03e.webp",
+      "bytes": 18030,
+      "sha256": "b8f470def03e6cb1d13f3065540d5bc9ce8dddf7b2ea3eecbbd18177f4dbfae0"
+    },
+    {
+      "key": "ring:white",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        24,
+        811,
+        153,
+        121
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15544,
+      "url": "/assets/optimized/equipment-ring-white.1bb15cfbd457.webp",
+      "bytes": 12728,
+      "sha256": "1bb15cfbd4578f6b2c0c989f40e96fea95b64c50af45d8f3e2edbc879cfe05a6"
+    },
+    {
+      "key": "ring:blue",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        219,
+        799,
+        146,
+        146
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 9968,
+      "url": "/assets/optimized/equipment-ring-blue.934cd36f80d8.webp",
+      "bytes": 16432,
+      "sha256": "934cd36f80d825bc1290d1f472c663e92b2a9d50679107d1a4a6f914f710343f"
+    },
+    {
+      "key": "ring:green",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        406,
+        792,
+        149,
+        154
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10952,
+      "url": "/assets/optimized/equipment-ring-green.19d9821a525d.webp",
+      "bytes": 15478,
+      "sha256": "19d9821a525dff555780de91578893f6d051bb562ee4fa2eb92cdb0ac5e4d349"
+    },
+    {
+      "key": "ring:purple",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        587,
+        791,
+        162,
+        153
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-ring-purple.0d0bb24d6ebe.webp",
+      "bytes": 16298,
+      "sha256": "0d0bb24d6ebe2649cb06dcdbe91d0d4f3f0a821e0b8ffd7eb3f9c95381898396"
+    },
+    {
+      "key": "ring:orange",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        785,
+        784,
+        153,
+        163
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-ring-orange.bf136873a4a1.webp",
+      "bytes": 17396,
+      "sha256": "bf136873a4a111b09c647d1525753c3f81fc4928a4d77463efc3a5ba31cbea11"
+    },
+    {
+      "key": "ring:red",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        971,
+        788,
+        164,
+        161
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10460,
+      "url": "/assets/optimized/equipment-ring-red.4bc4cdde7df3.webp",
+      "bytes": 19610,
+      "sha256": "4bc4cdde7df3a08bd20b2f9cd9cffc121b36f0f6d97a9f2500aa0257e6a45a92"
+    },
+    {
+      "key": "ring:pink",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        1169,
+        781,
+        162,
+        163
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10296,
+      "url": "/assets/optimized/equipment-ring-pink.bc05674ccbf2.webp",
+      "bytes": 18484,
+      "sha256": "bc05674ccbf214a205b2b2f852475a972618d10e26326aba39cbba495082b812"
+    },
+    {
+      "key": "amulet:white",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        41,
+        968,
+        129,
+        169
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 16200,
+      "url": "/assets/optimized/equipment-amulet-white.183a20e2d326.webp",
+      "bytes": 13214,
+      "sha256": "183a20e2d326e27ab920edefbed88a654d7127d7a3cc794f295169148d43b00f"
+    },
+    {
+      "key": "amulet:blue",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        232,
+        968,
+        119,
+        174
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18496,
+      "url": "/assets/optimized/equipment-amulet-blue.12c541197b4c.webp",
+      "bytes": 12696,
+      "sha256": "12c541197b4c96d975c9f18bd902bc2a1e1466b18c6222646b582b5c71e6c557"
+    },
+    {
+      "key": "amulet:green",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        420,
+        968,
+        137,
+        170
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15216,
+      "url": "/assets/optimized/equipment-amulet-green.40e7a34441ae.webp",
+      "bytes": 15704,
+      "sha256": "40e7a34441aef0b292e6d23eb6c7b75e0be71c2bc0280fc7fcca251df29cec42"
+    },
+    {
+      "key": "amulet:purple",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        592,
+        968,
+        165,
+        172
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10952,
+      "url": "/assets/optimized/equipment-amulet-purple.9ccc3987b04b.webp",
+      "bytes": 19268,
+      "sha256": "9ccc3987b04bea28a68c651c4973a22a5fd634b578b96fd2fc2e6ab5bd935850"
+    },
+    {
+      "key": "amulet:orange",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        788,
+        968,
+        164,
+        175
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11608,
+      "url": "/assets/optimized/equipment-amulet-orange.62e97e004ac0.webp",
+      "bytes": 19852,
+      "sha256": "62e97e004ac072854d8c53b6e9eff1c2abc83f911e3467e33f052f3d29b1a4a0"
+    },
+    {
+      "key": "amulet:red",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        979,
+        968,
+        165,
+        178
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 11936,
+      "url": "/assets/optimized/equipment-amulet-red.70c79fefdf45.webp",
+      "bytes": 20130,
+      "sha256": "70c79fefdf45dc69e7c66f5a6f18eb8bff33e4dc124d3ac9a25e6f5ee08333aa"
+    },
+    {
+      "key": "amulet:pink",
+      "source": "/assets/ui/equipment-tiers-v1.png",
+      "rect": [
+        1164,
+        968,
+        173,
+        179
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 10952,
+      "url": "/assets/optimized/equipment-amulet-pink.946f85320f66.webp",
+      "bytes": 19410,
+      "sha256": "946f85320f66a22cef3aa58bae51b60734f0605823a9550422271e4c4ac99da7"
+    },
+    {
+      "key": "weapon:white:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        39,
+        46,
+        107,
+        115
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14595,
+      "url": "/assets/optimized/equipment-weapon-white-ly_mo_uyen.5aa2166358f1.webp",
+      "bytes": 12988,
+      "sha256": "5aa2166358f1c5f7db08028b5966d6ebc8990cb9bfec00b3b126b57c64c35263"
+    },
+    {
+      "key": "weapon:blue:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        224,
+        17,
+        98,
+        161
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 22698,
+      "url": "/assets/optimized/equipment-weapon-blue-ly_mo_uyen.5542b4180be8.webp",
+      "bytes": 12896,
+      "sha256": "5542b4180be89c74c7d6964a77c721ff141f76b1d3bf67401961a0fcc44f562a"
+    },
+    {
+      "key": "weapon:green:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        413,
+        20,
+        107,
+        157
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 23136,
+      "url": "/assets/optimized/equipment-weapon-green-ly_mo_uyen.a3e2f91e81be.webp",
+      "bytes": 13084,
+      "sha256": "a3e2f91e81beb3795e1f9a76fe1a5ac255a5dd5ca8d0a274f0e9ad849fe26f72"
+    },
+    {
+      "key": "weapon:purple:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        556,
+        10,
+        138,
+        165
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18238,
+      "url": "/assets/optimized/equipment-weapon-purple-ly_mo_uyen.c08f311e3f24.webp",
+      "bytes": 16770,
+      "sha256": "c08f311e3f2455b738432d0e25c46c3b7f143f68da18ee94d0114e12ece64c8b"
+    },
+    {
+      "key": "weapon:orange:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        747,
+        12,
+        132,
+        167
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 20447,
+      "url": "/assets/optimized/equipment-weapon-orange-ly_mo_uyen.661e6f151aa5.webp",
+      "bytes": 15498,
+      "sha256": "661e6f151aa5f9e950811de22af91aade0b4d11d05760ae113520bfd63390fe1"
+    },
+    {
+      "key": "weapon:red:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        935,
+        10,
+        103,
+        169
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 23437,
+      "url": "/assets/optimized/equipment-weapon-red-ly_mo_uyen.b51ecd9cde1d.webp",
+      "bytes": 13744,
+      "sha256": "b51ecd9cde1dfa0a61a55aa3c9f2ba5067d86e5b9ce2e5c749437a544d6bc3a5"
+    },
+    {
+      "key": "weapon:pink:ly_mo_uyen",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1079,
+        14,
+        163,
+        165
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 13961,
+      "url": "/assets/optimized/equipment-weapon-pink-ly_mo_uyen.6802faaef689.webp",
+      "bytes": 18834,
+      "sha256": "6802faaef68940854bd9e222c12219e53068d36fa581a487a9167b2e4e7ff557"
+    },
+    {
+      "key": "weapon:white:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        29,
+        199,
+        139,
+        159
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 27925,
+      "url": "/assets/optimized/equipment-weapon-white-tham_nguyet.ceb86dd4130f.webp",
+      "bytes": 10370,
+      "sha256": "ceb86dd4130f9fa071dd2702ff3478b8913d877f2c81644a35ea05db0d356c9e"
+    },
+    {
+      "key": "weapon:blue:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        205,
+        196,
+        137,
+        162
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 25229,
+      "url": "/assets/optimized/equipment-weapon-blue-tham_nguyet.ba2fdbd82a7f.webp",
+      "bytes": 12500,
+      "sha256": "ba2fdbd82a7f312041cf140e0285135f473ea16fc482b0a83c4ff221ff68c636"
+    },
+    {
+      "key": "weapon:green:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        377,
+        191,
+        146,
+        167
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 22522,
+      "url": "/assets/optimized/equipment-weapon-green-tham_nguyet.1faf0b90a5a3.webp",
+      "bytes": 14688,
+      "sha256": "1faf0b90a5a3f69a191177aae49cf391c32323889296469b512b59813241b637"
+    },
+    {
+      "key": "weapon:purple:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        544,
+        194,
+        133,
+        155
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 22981,
+      "url": "/assets/optimized/equipment-weapon-purple-tham_nguyet.1f0d98d41f55.webp",
+      "bytes": 14278,
+      "sha256": "1f0d98d41f55a049a54a2ff1f6205f70404db5c911bdfbe0f0605bd81d7dbcd8"
+    },
+    {
+      "key": "weapon:orange:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        725,
+        193,
+        157,
+        165
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 23408,
+      "url": "/assets/optimized/equipment-weapon-orange-tham_nguyet.654013591d57.webp",
+      "bytes": 14860,
+      "sha256": "654013591d574b50a67bec08b2d55cf17d0b097b2cb235fb4c47b878a841fed4"
+    },
+    {
+      "key": "weapon:red:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        905,
+        189,
+        156,
+        169
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 21454,
+      "url": "/assets/optimized/equipment-weapon-red-tham_nguyet.8d08f928f790.webp",
+      "bytes": 16950,
+      "sha256": "8d08f928f790ebf2caf41226ca9bf5d736273a4f7c93a82d8cfc87a80cab1620"
+    },
+    {
+      "key": "weapon:pink:tham_nguyet",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1083,
+        191,
+        158,
+        167
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18910,
+      "url": "/assets/optimized/equipment-weapon-pink-tham_nguyet.42fc35650eda.webp",
+      "bytes": 17920,
+      "sha256": "42fc35650edab562590c3a252612a29dff2364e686521d9d435f570fcd0e7319"
+    },
+    {
+      "key": "weapon:white:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        40,
+        374,
+        108,
+        149
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 21553,
+      "url": "/assets/optimized/equipment-weapon-white-so_thien.6ddae9a62dcd.webp",
+      "bytes": 13094,
+      "sha256": "6ddae9a62dcd28354170acb4a2936d8a624754e566566f43238dc1210b6c13f2"
+    },
+    {
+      "key": "weapon:blue:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        202,
+        373,
+        145,
+        152
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 16400,
+      "url": "/assets/optimized/equipment-weapon-blue-so_thien.bddadcc5ee10.webp",
+      "bytes": 18566,
+      "sha256": "bddadcc5ee10b1c498722e36bc4868a08775a255bdf91449fe2ed20a225b4047"
+    },
+    {
+      "key": "weapon:green:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        382,
+        375,
+        142,
+        150
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15396,
+      "url": "/assets/optimized/equipment-weapon-green-so_thien.eb049d5feff3.webp",
+      "bytes": 18968,
+      "sha256": "eb049d5feff383628a935c1c113e83d5b8064da14e4bd93953df3096d750e9fb"
+    },
+    {
+      "key": "weapon:purple:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        548,
+        369,
+        154,
+        156
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 16377,
+      "url": "/assets/optimized/equipment-weapon-purple-so_thien.2c65909dfbfb.webp",
+      "bytes": 18320,
+      "sha256": "2c65909dfbfb6d8872b9aa8d20f86bc43a8e967bb4da4a1b7a79b053340b12e2"
+    },
+    {
+      "key": "weapon:orange:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        722,
+        368,
+        153,
+        160
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 17206,
+      "url": "/assets/optimized/equipment-weapon-orange-so_thien.8904dc3e7563.webp",
+      "bytes": 18260,
+      "sha256": "8904dc3e7563d3ebb20cc696bb98a7272b00ceffa832f03f975fcc734a85f9b0"
+    },
+    {
+      "key": "weapon:red:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        901,
+        371,
+        158,
+        156
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14159,
+      "url": "/assets/optimized/equipment-weapon-red-so_thien.1148b1062511.webp",
+      "bytes": 19408,
+      "sha256": "1148b10625118020957d7bac30e4523af575ad0513c0107fd5e5eda5e7806122"
+    },
+    {
+      "key": "weapon:pink:so_thien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1075,
+        369,
+        172,
+        152
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15401,
+      "url": "/assets/optimized/equipment-weapon-pink-so_thien.90c40ecaaa02.webp",
+      "bytes": 17914,
+      "sha256": "90c40ecaaa02e9099a5cb701b037969aa919eb98f01762cc7512aacca8509da7"
+    },
+    {
+      "key": "weapon:white:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        30,
+        558,
+        132,
+        125
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14607,
+      "url": "/assets/optimized/equipment-weapon-white-hong_lien.786945fe1bff.webp",
+      "bytes": 13066,
+      "sha256": "786945fe1bffb55578b723c4871181fd139c929197121147867ec8fd165dfd5c"
+    },
+    {
+      "key": "weapon:blue:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        214,
+        550,
+        117,
+        132
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14491,
+      "url": "/assets/optimized/equipment-weapon-blue-hong_lien.36badcbef4e1.webp",
+      "bytes": 15022,
+      "sha256": "36badcbef4e102a76603521648e38770a25f7fd22d097a826448067eb47b21b7"
+    },
+    {
+      "key": "weapon:green:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        377,
+        543,
+        140,
+        147
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15834,
+      "url": "/assets/optimized/equipment-weapon-green-hong_lien.f855e268e333.webp",
+      "bytes": 16230,
+      "sha256": "f855e268e33346eaf6b14ad2ec674eca48eb20e4868e7f45c00a72d01755ede0"
+    },
+    {
+      "key": "weapon:purple:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        557,
+        537,
+        138,
+        158
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 17177,
+      "url": "/assets/optimized/equipment-weapon-purple-hong_lien.cc29ab8ffda1.webp",
+      "bytes": 14666,
+      "sha256": "cc29ab8ffda148c05b01851f917df0cd4a199b750d37742b901cab162a3e4931"
+    },
+    {
+      "key": "weapon:orange:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        728,
+        537,
+        147,
+        153
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14020,
+      "url": "/assets/optimized/equipment-weapon-orange-hong_lien.9f11a89154b8.webp",
+      "bytes": 17672,
+      "sha256": "9f11a89154b8748ca40bee6adc6a0c8f6e36df249ce2b797753ced5e50e9f11f"
+    },
+    {
+      "key": "weapon:red:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        903,
+        537,
+        155,
+        158
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14999,
+      "url": "/assets/optimized/equipment-weapon-red-hong_lien.a7953eaaff2c.webp",
+      "bytes": 15820,
+      "sha256": "a7953eaaff2cf8a97ecf5945fc69dc305e699dc9dadc0994400bb8d36b3c5adc"
+    },
+    {
+      "key": "weapon:pink:hong_lien",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1085,
+        537,
+        155,
+        158
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15998,
+      "url": "/assets/optimized/equipment-weapon-pink-hong_lien.6b51e944be2a.webp",
+      "bytes": 16262,
+      "sha256": "6b51e944be2a9e03492a7ce412ca694f35cdd122cac9392485d548bcdc29bcb1"
+    },
+    {
+      "key": "weapon:white:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        43,
+        717,
+        113,
+        143
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 19382,
+      "url": "/assets/optimized/equipment-weapon-white-vu_minh.1c4a7d211a34.webp",
+      "bytes": 11920,
+      "sha256": "1c4a7d211a34d337c15c79bea383724ff3e64f8bdbe29967b153b994af9b9e15"
+    },
+    {
+      "key": "weapon:blue:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        206,
+        717,
+        124,
+        149
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18800,
+      "url": "/assets/optimized/equipment-weapon-blue-vu_minh.daff66b73e34.webp",
+      "bytes": 15808,
+      "sha256": "daff66b73e34ba1dd99b6547f5f358740755650ae3233365863444d5d8fe5fec"
+    },
+    {
+      "key": "weapon:green:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        395,
+        717,
+        118,
+        143
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18194,
+      "url": "/assets/optimized/equipment-weapon-green-vu_minh.dd83469766da.webp",
+      "bytes": 16174,
+      "sha256": "dd83469766daefe700f5dfdbfc1040331029f8daf56f108c893f521ba5183ed2"
+    },
+    {
+      "key": "weapon:purple:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        562,
+        717,
+        128,
+        145
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15786,
+      "url": "/assets/optimized/equipment-weapon-purple-vu_minh.5dbbb3951fb1.webp",
+      "bytes": 16528,
+      "sha256": "5dbbb3951fb1ed076d457e502395ba9dc8b63a8ea9460a185913600dcf0e1937"
+    },
+    {
+      "key": "weapon:orange:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        737,
+        717,
+        133,
+        147
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 13616,
+      "url": "/assets/optimized/equipment-weapon-orange-vu_minh.cf1793c0a493.webp",
+      "bytes": 18602,
+      "sha256": "cf1793c0a4939c1c83df29fafd62550d7885b93a47e8b9b1c3fd13db7dbdd0bd"
+    },
+    {
+      "key": "weapon:red:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        916,
+        717,
+        130,
+        147
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 15067,
+      "url": "/assets/optimized/equipment-weapon-red-vu_minh.2ba408574e4f.webp",
+      "bytes": 16994,
+      "sha256": "2ba408574e4f72f8e1f593f9fa7b4e56adf7550855f09682cc23064a2661d942"
+    },
+    {
+      "key": "weapon:pink:vu_minh",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1075,
+        717,
+        150,
+        148
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 13015,
+      "url": "/assets/optimized/equipment-weapon-pink-vu_minh.1486ebd0bec4.webp",
+      "bytes": 18822,
+      "sha256": "1486ebd0bec42d5e2601e45a1d8f9f061bd8542e2f67d2065929b71630b005bd"
+    },
+    {
+      "key": "weapon:white:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        54,
+        896,
+        79,
+        151
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 29637,
+      "url": "/assets/optimized/equipment-weapon-white-quan_vo_tran.4f661ef6a5c0.webp",
+      "bytes": 8146,
+      "sha256": "4f661ef6a5c08ef687c6b9ac800666bdfc1b761543226d43a03287415c325f57"
+    },
+    {
+      "key": "weapon:blue:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        225,
+        896,
+        99,
+        152
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 24568,
+      "url": "/assets/optimized/equipment-weapon-blue-quan_vo_tran.9e1286633fd7.webp",
+      "bytes": 12640,
+      "sha256": "9e1286633fd7933d7774956a9a74708e4e87f9c049c8bad0cce53a5697d3c369"
+    },
+    {
+      "key": "weapon:green:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        398,
+        896,
+        97,
+        152
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 24425,
+      "url": "/assets/optimized/equipment-weapon-green-quan_vo_tran.2ab78312d059.webp",
+      "bytes": 13152,
+      "sha256": "2ab78312d059b651d4fb00cb7d08c3de71ff2af35d9f51f0e61e7a5551b4d24c"
+    },
+    {
+      "key": "weapon:purple:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        558,
+        896,
+        117,
+        152
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 21480,
+      "url": "/assets/optimized/equipment-weapon-purple-quan_vo_tran.a8a0b75e2abf.webp",
+      "bytes": 14882,
+      "sha256": "a8a0b75e2abf1659c0d71d32e9b15e2fabfca3b71f45ce2b6b57d2b9078ebd6e"
+    },
+    {
+      "key": "weapon:orange:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        745,
+        896,
+        118,
+        155
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 21488,
+      "url": "/assets/optimized/equipment-weapon-orange-quan_vo_tran.980f7cc3df0d.webp",
+      "bytes": 16206,
+      "sha256": "980f7cc3df0d1e1b6f0980c82766bcfdc0c9d3eca3055f2e71b38d3f5d76b410"
+    },
+    {
+      "key": "weapon:red:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        916,
+        896,
+        131,
+        155
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18916,
+      "url": "/assets/optimized/equipment-weapon-red-quan_vo_tran.05b2c80c589c.webp",
+      "bytes": 17148,
+      "sha256": "05b2c80c589cc59b0d687789e754fae41a9f036dc39528d91dfb6e2b4616cbf7"
+    },
+    {
+      "key": "weapon:pink:quan_vo_tran",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1106,
+        896,
+        113,
+        154
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 19843,
+      "url": "/assets/optimized/equipment-weapon-pink-quan_vo_tran.8a45911401c0.webp",
+      "bytes": 16642,
+      "sha256": "8a45911401c00fc960a43fda7314121b76b65355d7f6e03a6435cdf3e7909019"
+    },
+    {
+      "key": "weapon:white:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        39,
+        1075,
+        111,
+        149
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 18820,
+      "url": "/assets/optimized/equipment-weapon-white-diep_ly.819cce558537.webp",
+      "bytes": 11168,
+      "sha256": "819cce558537e07357af1c7b8bf890b8a11e8f9d0a8e328e9f8ece28d8c18f2d"
+    },
+    {
+      "key": "weapon:blue:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        203,
+        1075,
+        138,
+        144
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 13755,
+      "url": "/assets/optimized/equipment-weapon-blue-diep_ly.50672fca70d9.webp",
+      "bytes": 18932,
+      "sha256": "50672fca70d9143bf448708b7b4a2666eb19f506f522a9f438cd14f11e16b6a6"
+    },
+    {
+      "key": "weapon:green:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        387,
+        1075,
+        136,
+        157
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 17144,
+      "url": "/assets/optimized/equipment-weapon-green-diep_ly.3afe3e7e8f2d.webp",
+      "bytes": 15552,
+      "sha256": "3afe3e7e8f2dff3055fb614fba4dda7c49d9bf1f70c5628ab39be29bbe5288a7"
+    },
+    {
+      "key": "weapon:purple:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        553,
+        1075,
+        145,
+        152
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14120,
+      "url": "/assets/optimized/equipment-weapon-purple-diep_ly.d564277acd25.webp",
+      "bytes": 19078,
+      "sha256": "d564277acd2511e11269ed949308dca5f689274812a039c38cf2d37e34591546"
+    },
+    {
+      "key": "weapon:orange:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        727,
+        1075,
+        145,
+        150
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14295,
+      "url": "/assets/optimized/equipment-weapon-orange-diep_ly.b19f81e7bacb.webp",
+      "bytes": 16114,
+      "sha256": "b19f81e7bacb15885ed3ae8a96e8d3d9e0178f0f802baa85235111e644a3c036"
+    },
+    {
+      "key": "weapon:red:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        899,
+        1075,
+        158,
+        153
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 13527,
+      "url": "/assets/optimized/equipment-weapon-red-diep_ly.e5f9b67aab42.webp",
+      "bytes": 16642,
+      "sha256": "e5f9b67aab4241091b022b123e67011c1e072fb2237f0c999cbf466c67119306"
+    },
+    {
+      "key": "weapon:pink:diep_ly",
+      "source": "/assets/ui/school-weapons-tiers-v1.png",
+      "rect": [
+        1076,
+        1075,
+        169,
+        151
+      ],
+      "width": 192,
+      "height": 192,
+      "maxAlphaDifference": 0,
+      "transparentPixels": 14520,
+      "url": "/assets/optimized/equipment-weapon-pink-diep_ly.10b370c6c798.webp",
+      "bytes": 18176,
+      "sha256": "10b370c6c798018014eb7c9657a346bd322341232057fda017a9a8077211c5b9"
+    }
+  ]
+}

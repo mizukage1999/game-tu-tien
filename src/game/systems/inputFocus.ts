@@ -29,6 +29,8 @@ export function dismissWorldPanel(event: Pick<KeyboardEvent, 'key' | 'target' | 
     game = gameStore.getState();
   if (
     event.key !== 'Escape' ||
+    (typeof document !== 'undefined' &&
+      !!document.querySelector('[role="alertdialog"][aria-modal="true"]')) ||
     isTypingTarget(event.target) ||
     social.card ||
     social.duel ||

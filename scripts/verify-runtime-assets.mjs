@@ -110,3 +110,17 @@ for(const [key,[x,y,width,height]] of Object.entries(startup.frames))
 if(Object.keys(startup.urls).length!==startupReport.files.length)
   throw Error('Startup asset report is incomplete.');
 console.log(`Verified ${startupReport.files.length} prepared startup assets, geometry and source hashes.`);
+
+const equipmentIcons=JSON.parse(fs.readFileSync(path.join(root,'src/data/equipmentIconAssets.json'),'utf8'));
+const equipmentReport=JSON.parse(fs.readFileSync(path.join(root,'docs/equipment-icon-encoding.json'),'utf8'));
+for(const source of equipmentReport.sources)
+  if(digest(fs.readFileSync(path.join(root,'public',source.source)))!==source.sha256)
+    throw Error('Equipment icon source changed. Run npm run assets:equipment.');
+for(const file of equipmentReport.files){
+  const bytes=fs.readFileSync(path.join(root,'public',file.url));
+  if(equipmentIcons[file.key]!==file.url||bytes.length!==file.bytes||digest(bytes)!==file.sha256||file.maxAlphaDifference!==0||file.transparentPixels<9968||file.width!==192||file.height!==192||bytes.subarray(8,12).toString()!=='WEBP')
+    throw Error(`Invalid equipment icon: ${file.key}. Run npm run assets:equipment.`);
+}
+if(equipmentReport.files.length!==91||Object.keys(equipmentIcons).length!==91||new Set(Object.values(equipmentIcons)).size!==91)
+  throw Error('Equipment tier icons must contain 91 distinct sprites.');
+console.log('Verified 91 equipment tier icons, source hashes and alpha records.');

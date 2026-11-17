@@ -35,6 +35,9 @@ it('keeps enhancement, unequip and re-equip working through the character paper-
     )!;
     expect(enhance.disabled).toBe(false);
     act(() => enhance.click());
+    expect(gameStore.getState().player.inventory.tinh_luyen_thach).toBe(3);
+    expect(host.querySelector('[role="alertdialog"]')).not.toBeNull();
+    act(() => host.querySelector<HTMLButtonElement>('[data-action="confirm-equipment"]')!.click());
     const key = gameStore.getState().player.equipment.weapon!;
     expect(equipmentBaseId(key)).toBe('weapon_white');
     expect(gameStore.getState().player.adventure?.enhancements[key]).toBe(1);

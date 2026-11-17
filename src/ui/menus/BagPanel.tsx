@@ -22,6 +22,7 @@ import {
 import { CultHeading, CultLock } from './CultivationUI';
 import { equipmentBaseId } from '../../game/systems/equipment';
 import { heroFor } from '../../data/heroes';
+import { EquipmentConfirmation, type EquipmentRequest } from './EquipmentConfirmation';
 import './bag.css';
 
 const RARITY_LABELS: Record<RarityId, string> = {
@@ -64,8 +65,6 @@ export function BagPanel() {
     equip = useGame((s) => s.equip),
     unequip = useGame((s) => s.unequip),
     consume = useGame((s) => s.consumeItem),
-    act = useGame((s) => s.adventureAction),
-    salvage = useGame((s) => s.salvageLegacy),
     patch = useGame((s) => s.patch),
     setMenu = useGame((s) => s.setMenu);
   const [group, setGroup] = useState<InventoryGroup>('all'),
@@ -74,6 +73,7 @@ export function BagPanel() {
     [sort, setSort] = useState<InventorySort>('rarity');
   const [selectedId, setSelectedId] = useState(''),
     [notice, setNotice] = useState('');
+  const [confirmation, setConfirmation] = useState<EquipmentRequest | null>(null);
   const owned = inventoryEntries(p),
     entries = filteredInventory(owned, { group, rarity, view, sort }),
     selected = entries.find((e) => e.id === selectedId) ?? entries[0];
@@ -382,17 +382,7 @@ export function BagPanel() {
                     disabled={
                       status !== 'alive' || n >= MAX_ENHANCEMENT || (p.inventory[ENHANCEMENT_STONE] ?? 0) < stones
                     }
-                    onClick={() => {
-                      act({ type: 'enhance', id });
-                      const next = enhancementLevel(
-                        gameStore.getState().player.adventure?.enhancements[id],
-                      );
-                      setNotice(
-                        next > n
-                          ? `Cường hóa thành công lên +${next}.`
-                          : `Thất bại. Trang bị giữ +${n}.`,
-                      );
-                    }}
+                    onClick={() => setConfirmation({ kind: 'enhance', id, level: n })}
                   >
                     Cường hóa{n < 12 ? ` +${n + 1}` : ''}
                   </button>
@@ -412,10 +402,7 @@ export function BagPanel() {
                     className="cult-btn"
                     data-action="salvage"
                     title="Phân giải món này thành 2 Huyền Thiết"
-                    onClick={() => {
-                      salvage(id);
-                      setNotice('Đã phân giải thành 2 Huyền Thiết.');
-                    }}
+                    onClick={() => setConfirmation({ kind: 'salvage', id, level: n })}
                   >
                     Phân giải
                   </button>
@@ -450,6 +437,7 @@ export function BagPanel() {
           </div>
         )}
       </section>
+      {confirmation && <EquipmentConfirmation request={confirmation} onClose={() => setConfirmation(null)} onResult={setNotice} />}
     </div>
   );
 }

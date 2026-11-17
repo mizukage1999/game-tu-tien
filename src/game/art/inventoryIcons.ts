@@ -2,7 +2,7 @@ import { ITEMS } from '../../data';
 import layout from '../../data/uiIconLayout.json';
 import icons from '../../data/uiIconAssets.json';
 import { equipmentBaseId } from '../systems/equipment';
-import { schoolWeaponIcon } from './schoolWeaponIcons';
+import { equipmentIconUrl } from './equipmentIcons';
 
 const ICONS: Record<string, number> = {
   hoi_xuan_dan: 6,
@@ -43,10 +43,8 @@ export function inventoryIconIndex(id: string): number | undefined {
 }
 export function inventoryIconUrl(id: string) {
   const def = ITEMS[equipmentBaseId(id)];
-  if (def?.slot === 'weapon' && def.hero) {
-    const native = schoolWeaponIcon(def.hero, def.color);
-    if (native) return native;
-  }
+  const equipment = equipmentIconUrl(def);
+  if (equipment) return equipment;
   const index = inventoryIconIndex(id);
   return index === undefined ? undefined : (icons as Record<string, string>)[`item:${index}`];
 }

@@ -729,9 +729,15 @@ export const gameStore = createStore<GameState>()((set, get) => {
     },
     salvageLegacy(id) {
       const s=get(), def=ITEMS[id];
-      if(def?.slot==='weapon'||!def?.slot||!s.removeItems({[id]:1}))return;
+      if(s.status!=='alive'||s.tribulation||Object.values(s.player.equipment).includes(id)||def?.slot==='weapon'||!def?.slot||!s.removeItems({[id]:1}))return;
       get().addItem('huyen_thiet',2);
+      const freshPlayer=get().player;
+      if(freshPlayer.adventure&&!(freshPlayer.inventory[id]>0)){
+        const enhancements={...freshPlayer.adventure.enhancements};delete enhancements[id];
+        set({player:{...freshPlayer,adventure:{...freshPlayer.adventure,enhancements}}});
+      }
       s.toast('Đã phân giải thành 2 Huyền Thiết.');
+      const fresh=get();saveGame({player:fresh.player,quests:fresh.quests,mapId:fresh.mapId,pos:fresh.spawnPos});
     },
     adventureAction(action){
       const s=get();if(s.status!=='alive'||s.tribulation)return;

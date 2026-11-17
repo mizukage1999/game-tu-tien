@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { heroFor } from '../../data/heroes';
 import { bonusText, EQUIP_SLOTS, ITEMS, REALMS, rarityOf, type EquipSlot } from '../../data';
-import { gameStore, itemName, useGame } from '../../store/gameStore';
+import { itemName, useGame } from '../../store/gameStore';
 import { heroName, isChildhood } from '../../game/systems/origin';
 import { battlePower, adventure, sectRank, SECT_RANKS } from '../../game/systems/adventure';
 import {
@@ -23,6 +23,7 @@ import { HeroFigure, HeroDirectionalPose } from '../HeroArt';
 import { optimizedAsset } from '../../data/assetDelivery';
 import { wornCosmetics } from '../../game/systems/cosmetics';
 import { CosmeticArt } from '../CosmeticArt';
+import { EquipmentConfirmation, type EquipmentRequest } from './EquipmentConfirmation';
 
 const SLOT_SYMBOLS: Record<EquipSlot, string> = {
   weapon: '⚔',
@@ -98,8 +99,8 @@ export function CharacterPanel() {
     stats = useGame((s) => s.stats),
     setMenu = useGame((s) => s.setMenu),
     equip = useGame((s) => s.equip),
-    unequip = useGame((s) => s.unequip),
-    act = useGame((s) => s.adventureAction);
+    unequip = useGame((s) => s.unequip);
+  const [confirmation, setConfirmation] = useState<EquipmentRequest | null>(null);
   const [tab, setTab] = useState<'attributes' | 'equipment'>('attributes'),
     [selectedSlot, setSelectedSlot] = useState<EquipSlot>('weapon');
   const [notice, setNotice] = useState('');
@@ -359,18 +360,7 @@ export function CharacterPanel() {
                         enhancement >= MAX_ENHANCEMENT ||
                         (p.inventory[ENHANCEMENT_STONE] ?? 0) < cost
                       }
-                      onClick={() => {
-                        act({ type: 'enhance', id: selectedId });
-                        const current = gameStore.getState().player.equipment[selectedSlot]!;
-                        const next = enhancementLevel(
-                          gameStore.getState().player.adventure?.enhancements[current],
-                        );
-                        setNotice(
-                          next > enhancement
-                            ? `Cường hóa thành công lên +${next}.`
-                            : `Cường hóa thất bại. Trang bị giữ +${enhancement}.`,
-                        );
-                      }}
+                      onClick={() => setConfirmation({ kind: 'enhance', id: selectedId, level: enhancement })}
                     >
                       Cường hóa +{Math.min(12, enhancement + 1)}
                     </button>
@@ -415,6 +405,7 @@ export function CharacterPanel() {
           )}
         </div>
       </section>
+      {confirmation && <EquipmentConfirmation request={confirmation} onClose={() => setConfirmation(null)} onResult={setNotice} />}
     </div>
   );
 }
