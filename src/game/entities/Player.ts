@@ -39,6 +39,7 @@ import { statusEffectStore } from '../../store/statusEffectStore';
 import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
 import { HERO_WORLD_SCALE } from '../art/heroVisual';
 import { isHeroCastingFrame } from '../art/heroSheetLayout';
+import { heroBodyPose, heroSkillBody } from '../art/heroActionSpec';
 import { placeActor } from '../art/actorDepth';
 import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures';
 import { CosmeticWeapon } from '../art/CosmeticWeapon';
@@ -321,7 +322,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
     const look = cosmeticsForHero(heroFor(gameStore.getState().player).id,appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player));
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY,heroBodyPose(this.art.frame));
     if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;
@@ -336,7 +337,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** Copies flashing/alpha from the hidden physics sprite onto the drawn body. */
   private syncLook() {
-    const breath = this.ctrl.currentAnim === 'idle' && !this.activeMount
+    const breath = this.ctrl.currentAnim === 'idle' && !this.activeMount && !heroBodyPose(this.art.frame)
       ? Math.sin(this.world.time.now / 700) * 0.007 : 0;
     this.art.setAlpha(this.alpha).setScale(this.scaleX * HERO_WORLD_SCALE, this.scaleY * HERO_WORLD_SCALE * (1 + breath));
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
@@ -590,8 +591,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         : store.player.sex === 'male'
           ? WANG_LIN_SKILL_ANIM[id]
           : undefined;
-    // Compact character atlases only carry the shared cast/attack poses.
-    const pose = animation && this.ctrl.rig.anims[animation] ? animation : SKILL_ANIM[id] ?? 'cast';
+    // Directional adults choose a body clip; legacy rigs keep their skill-specific animation.
+    const pose = this.ctrl.rig.anims.skill_fast ? heroSkillBody(id)
+      : animation && this.ctrl.rig.anims[animation] ? animation : SKILL_ANIM[id] ?? 'cast';
     this.ctrl.play(pose, this.visualDir, {
       lock: true,
       force: true,
@@ -674,7 +676,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     if (!this.ctrl.locked && this.dashTime <= 0) {
       knockback(this.world, this, from.x, from.y, 120);
-      this.ctrl.play('hurt', this.dir, { lock: true, force: true });
+      this.ctrl.play('hurt', this.visualDir, { lock: true, force: true });
     }
     return true;
   }
@@ -686,7 +688,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.bufferedInput.clear();
     this.dashTime = 0;
     (this.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
-    this.ctrl.play('downed', this.dir, { lock: true, force: true });
+    this.ctrl.play('downed', this.visualDir, { lock: true, force: true });
     this.setTint(0x8890a8);
     const s = gameStore.getState();
     s.patch({ status: 'downed', downedRemaining: 0 });

@@ -133,3 +133,22 @@ it('uses a native sword only for empty-handed adult Wang running frames and rest
   weapon.sync(null, { x: 0, y: 0 }, 'up', true, false, 'hero-v8-wang_lam', 320);
   expect(image.visible).toBe(false);
 });
+it('anchors the sword to action frame metadata even when the trimmed atlas has unrelated row coordinates', () => {
+  const { image, weapon } = fixture();
+  const pose = { action: 'skill_strong', hand: [-31, -55, -1, 0] as const };
+  weapon.sync(
+    'kiem_anh_cuu_huyen',
+    { x: 100, y: 200 },
+    'left',
+    false,
+    false,
+    'hero-actions-v1-wang_lam',
+    1200,
+    pose,
+  );
+  expect(image.visible).toBe(true);
+  expect(image.x).toBeCloseTo(100 - 31 * 0.94);
+  expect(image.y).toBeCloseTo(200 - 55 * 0.94);
+  weapon.sync(null, { x: 0, y: 0 }, 'left', false, false, 'hero-actions-v1-wang_lam', 1200, pose);
+  expect(image.texture.key).toBe('running-native-sword');
+});

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type Phaser from 'phaser';
 import { AnimationController } from './AnimationController';
+import { HERO_ACTIONS, setHeroAnimationDefinition } from '../art/heroActionSpec';
 
 vi.mock('phaser', () => ({
   default: {
@@ -17,6 +18,7 @@ vi.mock('../art/generate', () => ({
         attack_1: { hitFrame: 1, repeat: 0 },
         idle: { repeat: -1 },
         run: { frames: 8, repeat: -1 },
+        downed: { frames: 8, repeat: 0 },
       },
     },
     old: { originY: 1, dirs: ['down', 'side'], anims: { idle: { repeat: -1 } } },
@@ -25,6 +27,7 @@ vi.mock('../art/generate', () => ({
 }));
 
 function fixture(art = 'hero') {
+  const registered = new Map<string, { key: string }>();
   const handlers: Record<string, (...args: unknown[]) => void> = {};
   const sprite = {
     setOrigin: vi.fn(),
@@ -32,7 +35,7 @@ function fixture(art = 'hero') {
     on: vi.fn((event: string, handler: (...args: unknown[]) => void, context: unknown) => {
       handlers[event] = handler.bind(context);
     }),
-    scene: { anims: { exists: () => true } },
+    scene: { anims: { exists: () => true, get: (key: string) => registered.get(key) } },
     anims: {
       currentAnim: null as { key: string } | null,
       currentFrame: { index: 5 },
@@ -44,11 +47,48 @@ function fixture(art = 'hero') {
   return {
     controller,
     sprite,
+    install: (key: string) => {
+      const animation = { key };
+      registered.set(key, animation);
+      setHeroAnimationDefinition(animation, HERO_ACTIONS.attack_1);
+    },
     emit: (event: string, ...args: unknown[]) => handlers[event](...args),
   };
 }
 
 describe('authored hero animation events', () => {
+  it('finishes an old attack at its old hit frame when the new art arrives mid-swing', () => {
+    const { controller, sprite, emit, install } = fixture(),
+      hit = vi.fn();
+    controller.play('attack_1', 'down', { lock: true, onHit: hit });
+    install('hero:attack_1:down:authored');
+    emit('update', {}, { index: 2 });
+    emit('complete');
+    expect(hit).toHaveBeenCalledTimes(1);
+    hit.mockClear();
+    controller.play('attack_1', 'down', { lock: true, force: true, onHit: hit });
+    expect(sprite.anims.play).toHaveBeenLastCalledWith('hero:attack_1:down:authored', false);
+    emit('update', {}, { index: 2 });
+    expect(hit).not.toHaveBeenCalled();
+    emit('update', {}, { index: 4 });
+    emit('complete');
+    expect(hit).toHaveBeenCalledTimes(1);
+  });
+  it('plays a death once and holds its last pose across repeated presence updates', () => {
+    const { controller, sprite, emit } = fixture();
+    controller.play('downed', 'down');
+    sprite.anims.currentAnim = { key: 'hero:downed:down' };
+    sprite.anims.isPlaying = true;
+    controller.play('downed', 'down');
+    expect(sprite.anims.play).toHaveBeenCalledTimes(1);
+    sprite.anims.isPlaying = false;
+    emit('complete');
+    controller.play('downed', 'down');
+    expect(sprite.anims.play).toHaveBeenCalledTimes(1);
+    controller.play('idle', 'down');
+    controller.play('downed', 'down', { force: true });
+    expect(sprite.anims.play).toHaveBeenCalledTimes(3);
+  });
   it('keeps the running phase when turning and does not restart on repeated movement updates', () => {
     const { controller, sprite } = fixture();
     controller.play('run', 'down');

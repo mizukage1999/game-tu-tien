@@ -124,3 +124,27 @@ for(const file of equipmentReport.files){
 if(equipmentReport.files.length!==91||Object.keys(equipmentIcons).length!==91||new Set(Object.values(equipmentIcons)).size!==91)
   throw Error('Equipment tier icons must contain 91 distinct sprites.');
 console.log('Verified 91 equipment tier icons, source hashes and alpha records.');
+
+const actions=JSON.parse(fs.readFileSync(path.join(root,'src/data/heroActionAssets.json'),'utf8'));
+const actionReport=JSON.parse(fs.readFileSync(path.join(root,'docs/hero-action-encoding.json'),'utf8'));
+if(assetSourceHash('heroActionAssets.json',fs.readFileSync(path.join(root,'src/data/heroActionAssets.json')))!==actionReport.manifestSha256)
+  throw Error('Character action metadata changed. Run npm run assets:hero-actions.');
+for(const source of actionReport.sources)
+  if(assetSourceHash(source.source,fs.readFileSync(path.join(root,source.source)))!==source.sha256)
+    throw Error('Character action source changed: '+source.source+'. Run npm run assets:hero-actions.');
+if(actionReport.files.length!==8||Object.keys(actions).length!==8||actionReport.sourceFrames!==3584)
+  throw Error('Character actions must include all eight schools.');
+for(const file of actionReport.files){
+  const atlas=actions[file.hero];
+  if(Object.keys(atlas.frames).length!==448||atlas.pages.length!==file.pages.length)
+    throw Error('Invalid character action atlas: '+file.hero);
+  for(const [i,page]of file.pages.entries()){
+    const bytes=fs.readFileSync(path.join(root,'public',page.url));
+    if(atlas.pages[i].url!==page.url||atlas.pages[i].width!==page.width||atlas.pages[i].height!==page.height||bytes.length!==page.bytes||digest(bytes)!==page.sha256||!page.url.includes(page.sha256.slice(0,12))||page.maxAlphaDifference!==0||page.width>1024||page.height>1024||bytes.subarray(8,12).toString()!=='WEBP')
+      throw Error('Invalid character action page: '+page.url);
+  }
+  for(const f of Object.values(atlas.frames))
+    if(!Number.isInteger(f.page)||!atlas.pages[f.page]||f.x<0||f.y<0||f.w<=0||f.h<=0||f.x+f.w>atlas.pages[f.page].width||f.y+f.h>atlas.pages[f.page].height||f.ox<0||f.oy<0||f.ox+f.w>160||f.oy+f.h>160||(f.hand&&(f.hand.length!==4||f.hand.some(n=>!Number.isFinite(n)))))
+      throw Error('Invalid character action frame: '+file.hero);
+}
+console.log('Verified 3,584 authored character action frames, alpha, trim geometry and source hashes.');

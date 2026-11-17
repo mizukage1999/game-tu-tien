@@ -910,7 +910,8 @@ export class WorldScene extends Phaser.Scene {
     if (sprite.flipX) x = sprite.width - 1 - x;
     if (sprite.flipY) y = sprite.height - 1 - y;
     const alpha = this.textures.getPixelAlpha(Math.floor(x), Math.floor(y), sprite.texture.key, sprite.frame.name);
-    return alpha === null || alpha >= 64;
+    const trimmed = sprite.frame.realWidth !== sprite.frame.cutWidth || sprite.frame.realHeight !== sprite.frame.cutHeight;
+    return alpha === null ? !trimmed : alpha >= 64;
   }
 
   private startMouseWalk(point: Vec2, npc?: Npc) {

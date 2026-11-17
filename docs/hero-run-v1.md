@@ -1,5 +1,7 @@
 # Chu kỳ chạy thật theo 8 hướng
 
+C?p nh?t ti?p theo: [animation ??ng, chi?n ??u, tr?ng ??n v? t? vong](hero-actions-v1.md). C?c m? t? gi? h?nh ??ng/ra chi?u c? b?n d??i ghi l?i ph?m vi c?a l?n b? sung ch?y tr??c ??.
+
 Ngày 2026-11-17.
 
 Đã thay vòng chạy 4 frame lặp lại tư thế đứng bằng **8 tư thế chạy riêng cho mỗi hướng**, chạy ở 12 frame/giây. Cả 8 phái đều có bản trưởng thành và thưở nhỏ: 16 atlas nguồn, tổng cộng **1.024 frame chạy**. Tay, đầu gối, chân và tà áo đổi tư thế qua chu kỳ; hướng lên dùng hình nhìn từ sau.

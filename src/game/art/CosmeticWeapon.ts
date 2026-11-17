@@ -9,6 +9,7 @@ import type { HeroDirection } from './heroDirections';
 import type { Vec2 } from '../types';
 import { embeddedSwordHand, runningSwordHand } from './embeddedSword';
 import { heroRunPhase } from './heroSheetLayout';
+import type { HeroBodyPose } from './heroActionSpec';
 
 export const COSMETIC_WEAPONS_URL = '/assets/ui/cosmetic-weapons-v1.webp';
 const TEXTURE = 'cosmetic-weapon-skins';
@@ -66,6 +67,7 @@ export class CosmeticWeapon {
     casting = false,
     bodyKey = '',
     frameY = 0,
+    pose?: HeroBodyPose,
   ) {
     this.skin = skin;
     if (skin && !this.requested) {
@@ -73,10 +75,14 @@ export class CosmeticWeapon {
       void ensureCosmeticWeapons(this.scene);
     }
     const weaponless = bodyKey.endsWith('-weaponless'),
-      wang = bodyKey.startsWith('hero-v8-wang_lam') && !bodyKey.includes('-child'),
-      running = wang && heroRunPhase(frameY) >= 0,
-      drawnSkin = skin ?? (weaponless ? this.visibleSkin : null);
-    if (running && !drawnSkin && !hidden && !this.requestedDefault) {
+      wang =
+        (bodyKey.startsWith('hero-v8-wang_lam') ||
+          bodyKey.startsWith('hero-actions-v1-wang_lam')) &&
+        !bodyKey.includes('-child'),
+      running = wang && bodyKey.startsWith('hero-v8-') && heroRunPhase(frameY) >= 0,
+      emptyHand = running || (wang && !!pose),
+      drawnSkin = skin ?? (weaponless && !pose ? this.visibleSkin : null);
+    if (emptyHand && !drawnSkin && !hidden && !this.requestedDefault) {
       this.requestedDefault = true;
       void ensureImage(
         this.scene,
@@ -86,11 +92,11 @@ export class CosmeticWeapon {
         () => {},
       );
     }
-    const native = running && !drawnSkin;
+    const native = emptyHand && !drawnSkin;
     const ready = native
       ? this.scene.textures.exists(DEFAULT_SWORD)
       : !!drawnSkin &&
-        (!wang || weaponless || running) &&
+        (!wang || weaponless || emptyHand) &&
         this.scene.textures.exists(TEXTURE) &&
         this.scene.textures.get(TEXTURE).has(drawnSkin);
     this.image.setVisible(ready && !hidden);
@@ -98,9 +104,9 @@ export class CosmeticWeapon {
     if (drawnSkin) this.visibleSkin = drawnSkin;
     let [x, y, dx, dy] = COSMETIC_HAND[direction];
     if (wang)
-      [x, y, dx, dy] = running
-        ? runningSwordHand(direction, frameY)
-        : embeddedSwordHand(direction, casting);
+      [x, y, dx, dy] =
+        pose?.hand ??
+        (running ? runningSwordHand(direction, frameY) : embeddedSwordHand(direction, casting));
     else if (casting) {
       const side = direction.includes('right') ? 1 : -1;
       x = side * 14;

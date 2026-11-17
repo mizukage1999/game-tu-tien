@@ -40,6 +40,9 @@ export function registerDirectionalHeroes(
         attack_2: { frames: 3, frameRate: 8, repeat: 0, hitFrame: 1 },
         attack_3: { frames: 3, frameRate: 8, repeat: 0, hitFrame: 1 },
         cast: { frames: 3, frameRate: 7, repeat: 0, hitFrame: 1 },
+        skill_fast: { frames: 3, frameRate: 7, repeat: 0, hitFrame: 1 },
+        skill_strong: { frames: 3, frameRate: 7, repeat: 0, hitFrame: 1 },
+        skill_ultimate: { frames: 3, frameRate: 7, repeat: 0, hitFrame: 1 },
         hurt: { frames: 2, frameRate: 9, repeat: 0 },
         downed: { frames: 1, frameRate: 1, repeat: 0 },
         meditate: { frames: 1, frameRate: 1, repeat: -1 },
@@ -58,7 +61,16 @@ export function registerDirectionalHeroes(
             );
           add('idle', [0]);
           add('run', HERO_RUN_ROWS);
-          for (const anim of ['attack', 'attack_1', 'attack_2', 'attack_3', 'cast'])
+          for (const anim of [
+            'attack',
+            'attack_1',
+            'attack_2',
+            'attack_3',
+            'cast',
+            'skill_fast',
+            'skill_strong',
+            'skill_ultimate',
+          ])
             add(anim, [0, HERO_CAST_ROW, 0]);
           add('hurt', [HERO_CAST_ROW, 0]);
           add('downed', [HERO_CAST_ROW]);

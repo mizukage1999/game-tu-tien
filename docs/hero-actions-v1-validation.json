@@ -1,0 +1,307 @@
+{
+  "date": "2026-11-17",
+  "scope": "Eight adult schools after admission; eight directions per state",
+  "environment": {
+    "browser": "Headless Chrome, isolated production build with backend disabled",
+    "desktopViewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "mobileEmulation": {
+      "width": 844,
+      "height": 390,
+      "deviceScaleFactor": 2
+    }
+  },
+  "checks": {
+    "unitTests": {
+      "passed": 21,
+      "files": 6
+    },
+    "typecheck": "passed: tsc --noEmit --incremental false",
+    "lint": "passed: action modules and animation tests",
+    "runtimeAssetVerification": "passed",
+    "productionBuild": "passed: npm.cmd run build",
+    "gitDiffCheck": "passed"
+  },
+  "assets": {
+    "sourceSheets": 56,
+    "authoredPoses": 3584,
+    "animations": 448,
+    "deliveryPages": 40,
+    "deliveryBytes": 26229270,
+    "maxPageDimension": 1024,
+    "sourceDirectory": "art/hero-actions-v1",
+    "deliveryPattern": "public/assets/optimized/hero-actions-v1-*",
+    "promptFile": "docs/hero-actions-v1-prompts.json"
+  },
+  "browserChecks": [
+    {
+      "name": "character actions do not load on child entry",
+      "ok": true
+    },
+    {
+      "name": "an attack during background loading still hits exactly once",
+      "ok": true,
+      "detail": {
+        "hits": 1,
+        "logical": "idle",
+        "key": "hero-v8-wang_lam:idle:down",
+        "locked": false
+      }
+    },
+    {
+      "name": "idle switches to four genuine poses without loading UI or changing the virtual body size",
+      "ok": true,
+      "detail": {
+        "texture": "hero-actions-v1-wang_lam-p0",
+        "frames": 4,
+        "realHeight": 160,
+        "origin": 0.9375,
+        "loading": false
+      }
+    },
+    {
+      "name": "trimmed frames retain pixel selection without making transparent corners clickable",
+      "ok": true,
+      "detail": {
+        "empty": false,
+        "body": true
+      }
+    },
+    {
+      "name": "real Phaser attacks have 8/8/12/12 frames and one impact each",
+      "ok": true,
+      "detail": [
+        {
+          "kind": "attack_1",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "hitMs": 125.70000000298023,
+          "completeMs": 376
+        },
+        {
+          "kind": "skill_fast",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "hitMs": 147.5,
+          "completeMs": 431.40000000596046
+        },
+        {
+          "kind": "skill_strong",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "hitMs": 146.5,
+          "completeMs": 429.80000001192093
+        },
+        {
+          "kind": "skill_ultimate",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "hitMs": 146.59999999403954,
+          "completeMs": 429.79999999701977
+        }
+      ]
+    },
+    {
+      "name": "impact and recovery timing stay close to the original pacing",
+      "ok": true,
+      "detail": [
+        {
+          "kind": "attack_1",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "hitMs": 125.70000000298023,
+          "completeMs": 376
+        },
+        {
+          "kind": "skill_fast",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "hitMs": 147.5,
+          "completeMs": 431.40000000596046
+        },
+        {
+          "kind": "skill_strong",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "hitMs": 146.5,
+          "completeMs": 429.80000001192093
+        },
+        {
+          "kind": "skill_ultimate",
+          "hit": 1,
+          "frames": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "hitMs": 146.59999999403954,
+          "completeMs": 429.79999999701977
+        }
+      ]
+    },
+    {
+      "name": "all 448 school/state/facing animations actually play every authored frame",
+      "ok": true,
+      "detail": {
+        "animations": 448,
+        "frames": 3584,
+        "missing": []
+      }
+    },
+    {
+      "name": "all action art accepts outfit color without erasing body pixels",
+      "ok": true,
+      "detail": {
+        "color": 358791,
+        "alpha": 0
+      }
+    },
+    {
+      "name": "remote skill uses the same strong attack clip as local",
+      "ok": true,
+      "detail": {
+        "kind": "skill_strong",
+        "frames": 12
+      }
+    },
+    {
+      "name": "remote HP loss produces an authored hurt reaction",
+      "ok": true,
+      "detail": "hurt"
+    },
+    {
+      "name": "death plays once then holds its prone last frame despite continuous remote updates",
+      "ok": true,
+      "detail": {
+        "deathA": {
+          "frame": "downed_up-left_7",
+          "count": 1
+        },
+        "deathB": {
+          "frame": "downed_up-left_7",
+          "count": 1
+        }
+      }
+    },
+    {
+      "name": "only one unused school/outfit atlas group remains cached",
+      "ok": true,
+      "detail": [
+        {
+          "key": "hero-actions-v1-diep_ly",
+          "refs": 0,
+          "ready": true,
+          "pages": 5
+        },
+        {
+          "key": "hero-actions-v1-wang_lam-outfit-ao_huyet_nguyet",
+          "refs": 1,
+          "ready": true,
+          "pages": 5
+        }
+      ]
+    },
+    {
+      "name": "mobile emulation renders authored action frames at the existing scale",
+      "ok": true
+    },
+    {
+      "name": "no runtime exceptions",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "limitations": [
+    "Mobile viewport emulation; no physical phone measurement.",
+    "RemotePlayer fixtures; no live two-account network validation.",
+    "New combat actions are adult-only; childhood combat remains disabled.",
+    "Body clips are shared by action group; existing skill VFX, damage, MP and cooldown logic remain separate.",
+    "Frame assets add texture memory and background download bytes; no universal 60 FPS claim."
+  ]
+}

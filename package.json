@@ -20,6 +20,7 @@
     "assets:icons": "node scripts/build-ui-icons.mjs",
     "assets:menu": "node scripts/build-menu-icons.mjs",
     "assets:equipment": "node scripts/build-equipment-icons.mjs",
+    "assets:hero-actions": "node scripts/build-hero-actions.mjs",
     "assets:startup": "node scripts/build-startup-assets.mjs",
     "assets:verify": "node scripts/verify-runtime-assets.mjs"
   },

@@ -21,6 +21,7 @@ import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures
 import { cosmeticsForHero } from '../../data/cosmetics';
 import { CosmeticWeapon } from '../art/CosmeticWeapon';
 import { isHeroCastingFrame } from '../art/heroSheetLayout';
+import { heroBodyPose, heroSkillBody } from '../art/heroActionSpec';
 
 const PARTY_COLOR = '#7dffa8';
 const STRANGER_COLOR = '#cfe9ff';
@@ -81,7 +82,9 @@ export class RemotePlayer {
   }
 
   apply(next: RemotePlayerState) {
+    const hit = this.state.combat && next.combat && next.combat.hp > 0 && next.combat.hp < this.state.combat.hp;
     this.state = next;
+    if (hit) this.ctrl.play('hurt',next.visualDir ?? next.dir,{lock:true,force:true});
     this.refreshLook();
     this.target.x = next.x;
     this.target.y = next.y;
@@ -98,7 +101,7 @@ export class RemotePlayer {
     placeActor(this.sprite,spot.x,spot.y-lift,spot.y).setAlpha(this.state.combat?.hp === 0 ? .45 : 1);
     const face={x:this.state.dx??0,y:this.state.dy??1};
     const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y),look=cosmeticsForHero(heroFor(this.state).id,this.state.cosmetics);
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},dir,!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,isHeroCastingFrame(this.sprite.frame.cutY,this.sprite.frame.cutHeight),this.sprite.texture.key,this.sprite.frame.cutY);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},dir,!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,isHeroCastingFrame(this.sprite.frame.cutY,this.sprite.frame.cutHeight),this.sprite.texture.key,this.sprite.frame.cutY,heroBodyPose(this.sprite.frame));
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
     if(this.state.mount)this.weaponLook.placeMount(this.mountArt,this.state.mount,face,spot,lift);
     this.shadow.setPosition(spot.x, spot.y - 2);
@@ -150,7 +153,7 @@ export class RemotePlayer {
     this.shadow.destroy();
     this.sprite.destroy();
   }
-  cast(skill:SkillId,dir:HeroDirection){this.ctrl.play(skill==='basic'?'attack':skill==='than_phap'?'run':'cast',dir,{lock:skill!=='than_phap',force:true});}
+  cast(skill:SkillId,dir:HeroDirection){this.ctrl.play(skill==='basic'?'attack':skill==='than_phap'?'run':this.ctrl.rig.anims.skill_fast?heroSkillBody(skill):'cast',dir,{lock:skill!=='than_phap',force:true});}
   speech(text:string,privateChat=false){
     this.bubble?.destroy();this.bubble=this.sprite.scene.add.text(this.sprite.x,this.sprite.y-155,text.slice(0,100),{fontSize:'12px',fontFamily:'Arial',color:'#16293c',backgroundColor:privateChat?'#f2b9d9':'#f4ebda',padding:{x:8,y:5},wordWrap:{width:180},resolution:2}).setOrigin(.5,1).setDepth(95000);
     const bubble=this.bubble;this.sprite.scene.time.delayedCall(4500,()=>{bubble.destroy();if(this.bubble===bubble)this.bubble=undefined;});

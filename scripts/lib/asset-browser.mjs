@@ -15,8 +15,9 @@ export async function assetBrowser(root) {
       return;
     }
     const asset = url.startsWith('/assets/');
+    const art = url.startsWith('/art/');
     let file = path.resolve(root, asset ? 'public' : '.', '.' + decodeURIComponent(url));
-    const allowed = path.join(root, asset ? 'public/assets' : 'src') + path.sep;
+    const allowed = path.join(root, asset ? 'public/assets' : art ? 'art' : 'src') + path.sep;
     if (!file.startsWith(allowed)) {
       response.writeHead(404).end();
       return;
