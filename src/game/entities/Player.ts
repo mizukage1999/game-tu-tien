@@ -38,6 +38,7 @@ import { activeStatusEffects } from '../systems/statusEffects';
 import { statusEffectStore } from '../../store/statusEffectStore';
 import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
 import { HERO_WORLD_SCALE } from '../art/heroVisual';
+import { isHeroCastingFrame } from '../art/heroSheetLayout';
 import { placeActor } from '../art/actorDepth';
 import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures';
 import { CosmeticWeapon } from '../art/CosmeticWeapon';
@@ -320,7 +321,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
     const look = cosmeticsForHero(heroFor(gameStore.getState().player).id,appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player));
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),this.art.frame.cutY>=480,this.art.texture.key,this.art.frame.cutY);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY);
     if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;

@@ -1,5 +1,6 @@
 import type { HeroId } from '../../data/heroes';
 import { HERO_DIRECTIONS, type HeroDirection } from './heroDirections';
+import { heroRunPhase } from './heroSheetLayout';
 
 type Stroke = readonly [number, number, number, number, number];
 /** Blade/tassel silhouettes in the authored 160px Wang Lam cells, outside the body. */
@@ -99,7 +100,94 @@ export function embeddedSwordHand(direction: HeroDirection, casting = false) {
   return (casting ? HAND_CAST : HAND_IDLE)[HERO_DIRECTIONS.indexOf(direction)];
 }
 
-/** The prepared run poses move the whole hand and body together. */
-export function embeddedSwordLift(frameY: number) {
-  return frameY === 160 ? -1.5 : frameY === 320 ? 1.5 : 0;
+/** Right-hand grip centres in each of the eight newly authored running poses. */
+const HAND_RUN: readonly (readonly (readonly [number, number])[])[] = [
+  [
+    [64, 87],
+    [61, 84],
+    [64, 88],
+    [66, 85],
+    [64, 91],
+    [62, 85],
+    [64, 87],
+    [67, 88],
+  ],
+  [
+    [56, 88],
+    [53, 90],
+    [56, 93],
+    [59, 94],
+    [56, 96],
+    [54, 91],
+    [56, 91],
+    [60, 96],
+  ],
+  [
+    [55, 89],
+    [53, 90],
+    [51, 89],
+    [55, 96],
+    [56, 97],
+    [53, 91],
+    [55, 91],
+    [56, 96],
+  ],
+  [
+    [60, 91],
+    [57, 91],
+    [57, 92],
+    [61, 100],
+    [61, 98],
+    [57, 92],
+    [60, 93],
+    [61, 99],
+  ],
+  [
+    [102, 91],
+    [101, 91],
+    [102, 92],
+    [101, 89],
+    [103, 91],
+    [102, 91],
+    [102, 92],
+    [102, 90],
+  ],
+  [
+    [105, 87],
+    [105, 87],
+    [105, 90],
+    [105, 86],
+    [106, 90],
+    [105, 87],
+    [106, 90],
+    [106, 87],
+  ],
+  [
+    [104, 89],
+    [106, 93],
+    [107, 93],
+    [104, 87],
+    [105, 94],
+    [107, 94],
+    [108, 95],
+    [104, 89],
+  ],
+  [
+    [103, 85],
+    [105, 89],
+    [110, 89],
+    [109, 85],
+    [106, 92],
+    [106, 91],
+    [109, 91],
+    [108, 85],
+  ],
+];
+export function runningSwordHand(direction: HeroDirection, frameY: number) {
+  const phase = heroRunPhase(frameY);
+  if (phase < 0) return embeddedSwordHand(direction);
+  const index = HERO_DIRECTIONS.indexOf(direction),
+    [x, y] = HAND_RUN[index][phase];
+  const side = index < 4 ? -1 : 1;
+  return [x - 80, y - 150, side * 0.75, 0.7] as const;
 }

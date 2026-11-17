@@ -1,0 +1,345 @@
+{
+  "date": "2026-11-17",
+  "source": "16 selected atlases generated with built-in image_gen.imagegen; full prompts in hero-run-v1-prompts.json",
+  "authoredRunFrames": 1024,
+  "directions": 8,
+  "framesPerDirection": 8,
+  "playbackFps": 12,
+  "worldScale": 0.94,
+  "setup": {
+    "build": "production minified; original entry/import graph; isolated offline backend",
+    "browser": "headless Chrome on this Windows workspace",
+    "viewports": [
+      "1280x720 DPR1",
+      "844x390 DPR2 mobile emulation"
+    ],
+    "entryNetwork": "cold cache, 12 Mbps download, 40 ms latency",
+    "movement": "fixture input through Player.update; real Phaser animation updates",
+    "remote": "RemotePlayer constructed with a fixture presence pose, not two live accounts"
+  },
+  "checks": [
+    {
+      "name": "cold entry fetches the selected child only, not all sixteen sheets",
+      "ok": true,
+      "detail": [
+        {
+          "url": "/assets/optimized/startup-hero-child-wang_lam.e90f87e335c5.webp",
+          "bytes": 279924
+        }
+      ]
+    },
+    {
+      "name": "child movement advances all eight authored frames at the existing scale",
+      "ok": true,
+      "detail": {
+        "key": "hero-v8-wang_lam-child",
+        "rows": [
+          384,
+          512,
+          640,
+          768,
+          896,
+          1024,
+          1152,
+          256
+        ],
+        "scale": 0.94
+      }
+    },
+    {
+      "name": "adult movement has eight run frames and exactly the native hand sword",
+      "ok": true,
+      "detail": {
+        "rows": [
+          480,
+          640,
+          800,
+          960,
+          1120,
+          1280,
+          1440,
+          320
+        ],
+        "native": true,
+        "scale": 0.94
+      }
+    },
+    {
+      "name": "stopping restores the original idle frame and hides the separate native sword",
+      "ok": true
+    },
+    {
+      "name": "original combat hit frame still fires once after sheet migration",
+      "ok": true
+    },
+    {
+      "name": "all 16 variants and 128 facing animations actually advance eight separate poses",
+      "ok": true,
+      "detail": {
+        "variants": 16,
+        "animations": 128
+      }
+    },
+    {
+      "name": "outfit recolors every run phase without erasing shoes or hands",
+      "ok": true,
+      "detail": {
+        "key": "hero-v8-wang_lam-outfit-ao_huyet_nguyet-weaponless",
+        "rows": [
+          {
+            "r": 2,
+            "color": 4026,
+            "alpha": 0
+          },
+          {
+            "r": 3,
+            "color": 4346,
+            "alpha": 0
+          },
+          {
+            "r": 4,
+            "color": 3954,
+            "alpha": 0
+          },
+          {
+            "r": 5,
+            "color": 3708,
+            "alpha": 0
+          },
+          {
+            "r": 6,
+            "color": 4063,
+            "alpha": 0
+          },
+          {
+            "r": 7,
+            "color": 4138,
+            "alpha": 0
+          },
+          {
+            "r": 8,
+            "color": 3979,
+            "alpha": 0
+          },
+          {
+            "r": 9,
+            "color": 4242,
+            "alpha": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "run uses one equipped skin and no native sword",
+      "ok": true
+    },
+    {
+      "name": "remote movement shares eight authored poses, outfit, skin and scale",
+      "ok": true,
+      "detail": {
+        "frames": [
+          480,
+          640,
+          800,
+          960,
+          1120,
+          1280,
+          1440,
+          320
+        ],
+        "skin": "kiem_anh_cuu_huyen",
+        "key": "hero-v8-wang_lam-outfit-ao_huyet_nguyet-weaponless",
+        "scale": 0.94
+      }
+    },
+    {
+      "name": "mobile emulation keeps the same sprite scale and real running frames",
+      "ok": true
+    },
+    {
+      "name": "no runtime exceptions",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "unitTests": {
+    "files": 5,
+    "passed": 17
+  },
+  "productionBuild": "passed",
+  "typecheck": "passed",
+  "targetedLint": "passed",
+  "assets": [
+    {
+      "key": "hero-child-wang_lam",
+      "url": "/assets/optimized/startup-hero-child-wang_lam.e90f87e335c5.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 279680,
+      "previousBytes": 101394,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-wang_lam",
+      "url": "/assets/optimized/startup-hero-adult-wang_lam.ec324223aaed.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 570376,
+      "previousBytes": 266326,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-ly_mo_uyen",
+      "url": "/assets/optimized/startup-hero-child-ly_mo_uyen.9426e9f8b5db.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 316514,
+      "previousBytes": 110052,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-ly_mo_uyen",
+      "url": "/assets/optimized/startup-hero-adult-ly_mo_uyen.4958e92d07b3.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 708386,
+      "previousBytes": 295054,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-tham_nguyet",
+      "url": "/assets/optimized/startup-hero-child-tham_nguyet.d37bb34f422d.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 328170,
+      "previousBytes": 123772,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-tham_nguyet",
+      "url": "/assets/optimized/startup-hero-adult-tham_nguyet.d6e33c2f9e37.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 617716,
+      "previousBytes": 276676,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-so_thien",
+      "url": "/assets/optimized/startup-hero-child-so_thien.6617fb23fbec.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 284604,
+      "previousBytes": 102092,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-so_thien",
+      "url": "/assets/optimized/startup-hero-adult-so_thien.bb5ae4201bcc.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 594126,
+      "previousBytes": 275552,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-hong_lien",
+      "url": "/assets/optimized/startup-hero-child-hong_lien.006d5822cbeb.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 318572,
+      "previousBytes": 125880,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-hong_lien",
+      "url": "/assets/optimized/startup-hero-adult-hong_lien.4b51b08e12da.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 682462,
+      "previousBytes": 314408,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-vu_minh",
+      "url": "/assets/optimized/startup-hero-child-vu_minh.f415a29466ac.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 299404,
+      "previousBytes": 106684,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-vu_minh",
+      "url": "/assets/optimized/startup-hero-adult-vu_minh.2a552607f458.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 558160,
+      "previousBytes": 273172,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-quan_vo_tran",
+      "url": "/assets/optimized/startup-hero-child-quan_vo_tran.874757bf88e6.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 362948,
+      "previousBytes": 142726,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-quan_vo_tran",
+      "url": "/assets/optimized/startup-hero-adult-quan_vo_tran.0576dd0cb956.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 673242,
+      "previousBytes": 294342,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-child-diep_ly",
+      "url": "/assets/optimized/startup-hero-child-diep_ly.94a47a052384.webp",
+      "width": 1024,
+      "height": 1280,
+      "bytes": 352294,
+      "previousBytes": 140788,
+      "maxAlphaDifference": 0
+    },
+    {
+      "key": "hero-adult-diep_ly",
+      "url": "/assets/optimized/startup-hero-adult-diep_ly.53651b383c9f.webp",
+      "width": 1280,
+      "height": 1600,
+      "bytes": 672196,
+      "previousBytes": 330600,
+      "maxAlphaDifference": 0
+    }
+  ],
+  "entry": [
+    {
+      "label": "page-to-character-selection",
+      "start": 0,
+      "end": 2275.3999999910593,
+      "ms": 2275.3999999910593,
+      "longTasks": 3,
+      "maxLongTaskMs": 276,
+      "p95FrameMs": null,
+      "note": "Includes download of production JS and startup of renderer"
+    },
+    {
+      "label": "create-to-village-ready",
+      "start": 2307.5,
+      "end": 7404.399999991059,
+      "ms": 5096.899999991059,
+      "longTasks": 5,
+      "maxLongTaskMs": 578,
+      "p95FrameMs": 20.700000002980232,
+      "note": "No server name reservation in isolated run; includes assets and two animation-frame opportunities"
+    }
+  ],
+  "limits": [
+    "Mobile emulation is not a physical Android/iPhone test.",
+    "Offline checks exclude Auth, Supabase RPC and real network synchronization latency.",
+    "Eight authored run poses do not add attack/hurt/idle poses."
+  ]
+}

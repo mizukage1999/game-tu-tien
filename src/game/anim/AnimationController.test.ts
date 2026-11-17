@@ -13,7 +13,11 @@ vi.mock('../art/generate', () => ({
     eight: {
       originY: 0.9375,
       dirs: ['down', 'up-right'],
-      anims: { attack_1: { hitFrame: 1, repeat: 0 }, idle: { repeat: -1 } },
+      anims: {
+        attack_1: { hitFrame: 1, repeat: 0 },
+        idle: { repeat: -1 },
+        run: { frames: 8, repeat: -1 },
+      },
     },
     old: { originY: 1, dirs: ['down', 'side'], anims: { idle: { repeat: -1 } } },
   },
@@ -29,7 +33,12 @@ function fixture(art = 'hero') {
       handlers[event] = handler.bind(context);
     }),
     scene: { anims: { exists: () => true } },
-    anims: { currentAnim: null, isPlaying: false, play: vi.fn() },
+    anims: {
+      currentAnim: null as { key: string } | null,
+      currentFrame: { index: 5 },
+      isPlaying: false,
+      play: vi.fn(),
+    },
   };
   const controller = new AnimationController(sprite as unknown as Phaser.GameObjects.Sprite, art);
   return {
@@ -40,6 +49,23 @@ function fixture(art = 'hero') {
 }
 
 describe('authored hero animation events', () => {
+  it('keeps the running phase when turning and does not restart on repeated movement updates', () => {
+    const { controller, sprite } = fixture();
+    controller.play('run', 'down');
+    sprite.anims.isPlaying = true;
+    sprite.anims.currentAnim = { key: 'hero:run:down' };
+    controller.play('run', 'up-right');
+    expect(sprite.anims.play).toHaveBeenLastCalledWith(
+      { key: 'hero:run:up-right', startFrame: 4 },
+      false,
+    );
+    sprite.anims.currentAnim = { key: 'hero:run:up-right' };
+    sprite.anims.play.mockClear();
+    controller.play('run', 'up-right');
+    expect(sprite.anims.play).not.toHaveBeenCalled();
+    controller.play('idle', 'up-right');
+    expect(sprite.anims.play).toHaveBeenCalledWith('hero:idle:up-right', false);
+  });
   it('selects the authored diagonal and deals damage exactly once at its impact frame', () => {
     const { controller, sprite, emit } = fixture();
     const hit = vi.fn(),

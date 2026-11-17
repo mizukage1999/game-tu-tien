@@ -6,6 +6,7 @@ import { CHARACTERS, RIGS, frameName, registerCharacterArt } from './generate';
 import { ensureImage } from './lazyImage';
 import { playerArt } from '../systems/character';
 import { preparedHeroTexture } from '../../data/startupPlan';
+import { HERO_CAST_ROW, HERO_RUN_ROWS, HERO_RUN_RATE, heroSheetMetrics } from './heroSheetLayout';
 
 export function directionalArt(id: HeroId, child = false) {
   return preparedHeroTexture(id, child);
@@ -24,16 +25,16 @@ export function registerDirectionalHeroes(
   selected?: readonly { id: HeroId; child: boolean }[],
 ) {
   for (const child of [false, true]) {
-    const cell = child ? 128 : 160,
+    const { cell, foot } = heroSheetMetrics(child),
       rig = `hero_v8${child ? '_child' : ''}`;
     RIGS[rig] = {
       frameWidth: cell,
       frameHeight: cell,
-      originY: (child ? 118 : 150) / cell,
+      originY: foot / cell,
       dirs: [...HERO_DIRECTIONS],
       anims: {
         idle: { frames: 1, frameRate: 1, repeat: -1 },
-        run: { frames: 4, frameRate: 9, repeat: -1 },
+        run: { frames: HERO_RUN_ROWS.length, frameRate: HERO_RUN_RATE, repeat: -1 },
         attack: { frames: 3, frameRate: 8, repeat: 0, hitFrame: 1 },
         attack_1: { frames: 3, frameRate: 8, repeat: 0, hitFrame: 1 },
         attack_2: { frames: 3, frameRate: 8, repeat: 0, hitFrame: 1 },
@@ -51,16 +52,16 @@ export function registerDirectionalHeroes(
       const texture = scene.textures.get(key);
       if (!directionalReady(scene, hero.id, child)) {
         for (const [col, dir] of HERO_DIRECTIONS.entries()) {
-          const add = (anim: string, poses: number[]) =>
+          const add = (anim: string, poses: readonly number[]) =>
             poses.forEach((row, i) =>
               texture.add(frameName(anim, dir, i), 0, col * cell, row * cell, cell, cell),
             );
           add('idle', [0]);
-          add('run', [1, 0, 2, 0]);
+          add('run', HERO_RUN_ROWS);
           for (const anim of ['attack', 'attack_1', 'attack_2', 'attack_3', 'cast'])
-            add(anim, [0, 3, 0]);
-          add('hurt', [3, 0]);
-          add('downed', [3]);
+            add(anim, [0, HERO_CAST_ROW, 0]);
+          add('hurt', [HERO_CAST_ROW, 0]);
+          add('downed', [HERO_CAST_ROW]);
           add('meditate', [0]);
         }
       }

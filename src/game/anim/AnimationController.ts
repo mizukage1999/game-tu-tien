@@ -40,7 +40,8 @@ export class AnimationController {
     const cardinal = cardinalDirection(dir);
     const horizontal = cardinal === 'left' || cardinal === 'right';
     if (dirs.includes(cardinal)) return { key: animKey(this.art, anim, cardinal), flip: false };
-    if (dirs.includes('side') && horizontal) return { key: animKey(this.art, anim, 'side'), flip: cardinal === 'left' };
+    if (dirs.includes('side') && horizontal)
+      return { key: animKey(this.art, anim, 'side'), flip: cardinal === 'left' };
     if (dirs.includes('side')) return { key: animKey(this.art, anim, 'side'), flip: null };
     return { key: animKey(this.art, anim, dirs[0]), flip: false };
   }
@@ -53,16 +54,26 @@ export class AnimationController {
     const same = this.sprite.anims.currentAnim?.key === key && this.sprite.anims.isPlaying;
     const def = this.rig.anims[anim];
     if (same && def?.repeat === -1 && !opts.force) return true;
+    // Turning must not restart the gait at the same planted foot on every pointer move.
+    const runPhase =
+      anim === 'run' && this.current?.anim === 'run' && !opts.force && this.sprite.anims.isPlaying
+        ? this.sprite.anims.currentFrame?.index
+        : undefined;
     this.current = { anim, opts, hitFired: false };
     this.lockedFlag = !!opts.lock;
-    this.sprite.anims.play(key, false);
+    if (runPhase !== undefined && def?.frames)
+      this.sprite.anims.play({ key, startFrame: (runPhase - 1) % def.frames }, false);
+    else this.sprite.anims.play(key, false);
     return true;
   }
 
   unlock() {
     this.lockedFlag = false;
   }
-  destroy(){this.sprite.off(Phaser.Animations.Events.ANIMATION_UPDATE,this.onUpdate,this);this.sprite.off(Phaser.Animations.Events.ANIMATION_COMPLETE,this.onComplete,this);}
+  destroy() {
+    this.sprite.off(Phaser.Animations.Events.ANIMATION_UPDATE, this.onUpdate, this);
+    this.sprite.off(Phaser.Animations.Events.ANIMATION_COMPLETE, this.onComplete, this);
+  }
 
   private onUpdate(_anim: Phaser.Animations.Animation, frame: Phaser.Animations.AnimationFrame) {
     const cur = this.current;

@@ -1,4 +1,6 @@
 import { directionalCell } from './heroAtlas';
+import { HERO_CAST_ROW, HERO_RUN_ROWS, HERO_SHEET_ROWS, heroSheetMetrics } from './heroSheetLayout';
+import { runPoseBounds } from './runPoseBounds';
 
 /** Asset-build only: keep authored shoes, eight facings, scale and feet anchors. */
 export function prepareHeroSheet(
@@ -6,10 +8,9 @@ export function prepareHeroSheet(
   source: HTMLImageElement,
   casting: HTMLImageElement,
   child: boolean,
+  running: HTMLImageElement,
 ) {
-  const cell = child ? 128 : 160,
-    foot = child ? 118 : 150,
-    bodyHeight = child ? 76 : 108;
+  const { cell, foot, bodyHeight } = heroSheetMetrics(child);
   const crop = (image: HTMLImageElement, col: number, cast: boolean) => {
     const [x, y, w, h] = directionalCell(
       child ? 'children' : cast ? 'casting' : 'adults',
@@ -44,26 +45,48 @@ export function prepareHeroSheet(
   );
   const canvas = document.createElement('canvas');
   canvas.width = cell * 8;
-  canvas.height = cell * 4;
+  canvas.height = cell * HERO_SHEET_ROWS;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingQuality = 'high';
-  const draw = (p: ReturnType<typeof crop>, col: number, row: number, lift = 0) =>
+  const draw = (p: ReturnType<typeof crop>, col: number, row: number, factor = scale) =>
     ctx.drawImage(
       p.image,
       p.x,
       p.y,
       p.w,
       p.h,
-      col * cell + (cell - p.w * scale) / 2,
-      row * cell + foot - p.h * scale + lift,
-      p.w * scale,
-      p.h * scale,
+      col * cell + (cell - p.w * factor) / 2,
+      row * cell + foot - p.h * factor,
+      p.w * factor,
+      p.h * factor,
     );
-  idle.forEach((p, col) => {
-    draw(p, col, 0);
-    draw(p, col, 1, -1.5);
-    draw(p, col, 2, 1.5);
-  });
-  cast.forEach((p, col) => draw(p, col, 3));
+  idle.forEach((p, col) => draw(p, col, 0));
+  cast.forEach((p, col) => draw(p, col, HERO_CAST_ROW));
+  // Source columns are facings, source rows are successive gait phases.
+  // Use ONE scale for all 64 poses, not per-frame stretching or an idle bob.
+  const runCanvas = document.createElement('canvas');
+  runCanvas.width = running.width;
+  runCanvas.height = running.height;
+  const runContext = runCanvas.getContext('2d', { willReadFrequently: true })!;
+  runContext.drawImage(running, 0, 0);
+  const pixels = runContext.getImageData(0, 0, running.width, running.height).data;
+  const poses = HERO_RUN_ROWS.map((_, phase) =>
+    idle.map((_, col) => {
+      const x = Math.round((col * running.width) / 8),
+        y = Math.round((phase * running.height) / 8),
+        right = Math.round(((col + 1) * running.width) / 8),
+        bottom = Math.round(((phase + 1) * running.height) / 8);
+      const bounds = runPoseBounds(pixels, running.width, x, y, right, bottom);
+      if (!bounds) throw Error(`Missing running pose: hero ${row}, ${child}, ${phase}, ${col}`);
+      return { image: running, ...bounds };
+    }),
+  );
+  const runScale = Math.min(
+    bodyHeight / Math.max(...poses.flat().map((p) => p.h)),
+    (cell - 12) / Math.max(...poses.flat().map((p) => p.w)),
+  );
+  poses.forEach((directions, phase) =>
+    directions.forEach((p, col) => draw(p, col, HERO_RUN_ROWS[phase], runScale)),
+  );
   return canvas;
 }

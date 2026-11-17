@@ -66,6 +66,8 @@ const sourceFiles = [
   'src/data/villageStartupLayout.ts',
   'src/game/art/heroAtlas.ts',
   'src/game/art/prepareHeroSheet.ts',
+  'src/game/art/heroSheetLayout.ts',
+  'src/game/art/runPoseBounds.ts',
   'src/game/maps/worldMaps.ts',
   'src/game/maps/MapBuilder.ts',
   'src/game/art/worldGround.ts',
@@ -75,6 +77,27 @@ const sourceFiles = [
   'src/game/art/tiles.ts',
   'src/game/art/iso.ts',
 ];
+for (const file of fs.readdirSync(path.join(root, 'public/assets/heroes-run-v1')).filter(f => f.endsWith('.png')).sort())
+  sourceFiles.push('public/assets/heroes-run-v1/' + file);
+// A character-only rebuild must not re-encode unrelated village art with a different browser codec.
+const heroesOnly = process.argv.includes('--heroes-only');
+const previous = heroesOnly ? {
+  manifest: JSON.parse(fs.readFileSync(path.join(root, 'src/data/startupAssets.json'), 'utf8')),
+  report: JSON.parse(fs.readFileSync(path.join(root, 'docs/startup-asset-encoding.json'), 'utf8')),
+} : null;
+if (previous) {
+  const heroInputs = new Set(['src/game/art/prepareHeroSheet.ts', 'src/game/art/heroSheetLayout.ts', 'src/game/art/runPoseBounds.ts']);
+  for (const source of previous.report.sources) {
+    if (heroInputs.has(source.source) || source.source.startsWith('public/assets/heroes-run-v1/')) continue;
+    if (assetSourceHash(source.source, fs.readFileSync(path.join(root, source.source))) !== source.sha256)
+      throw Error('Non-running source changed: ' + source.source + '. Run a full assets:startup rebuild.');
+  }
+  for (const file of previous.report.files) if (!file.key.startsWith('hero-')) {
+    const bytes = fs.readFileSync(path.join(root, 'public', file.url));
+    if (bytes.length !== file.bytes || !file.url.includes(hash(bytes).slice(0, 12)))
+      throw Error('Cannot retain invalid startup asset: ' + file.key);
+  }
+}
 const browser = await assetBrowser(root);
 try {
   await browser.evaluate(`(async()=>{
@@ -98,8 +121,10 @@ try {
     const child=await load('/assets/heroes-v8/children.png'),adult=await load('/assets/heroes-v8/adults.png'),casting=await load('/assets/heroes-v8/casting.png');
     const roster=await load('/assets/heroes-v7/roster.png');
     for(const [row,hero] of HEROES.entries()){
-      const sheet=prepareHeroSheet(row,child,child,true);
+      const childRun=await load('/assets/heroes-run-v1/'+hero.id+'-child.png');
+      const sheet=prepareHeroSheet(row,child,child,true,childRun);
       await encode('hero-child-'+hero.id,sheet);
+      if(!${heroesOnly}){
       const portrait=document.createElement('canvas');portrait.width=portrait.height=128;
       portrait.getContext('2d').drawImage(sheet,0,0,128,128,0,0,128,128);await encode('portrait-'+hero.id,portrait);
       const [x,y,width]=directionalCell('children',row,0);
@@ -108,9 +133,12 @@ try {
       const adultHead=document.createElement('canvas');adultHead.width=236;adultHead.height=226;
       adultHead.getContext('2d').drawImage(roster,row%4*384+74,Math.floor(row/4)*512+12,236,226,0,0,236,226);
       await encode('adult-head-'+hero.id,adultHead);
-      await encode('hero-adult-'+hero.id,prepareHeroSheet(row,adult,casting,false));
+      }
+      const adultRun=await load('/assets/heroes-run-v1/'+hero.id+'-adult.png');
+      await encode('hero-adult-'+hero.id,prepareHeroSheet(row,adult,casting,false,adultRun));
     }
     window.heroIds=HEROES.map(h=>h.id);
+    if(${heroesOnly})return;
     const crests=await load('/assets/ui/cultivation/realm-crests-v1.png');
     const crestSheet=document.createElement('canvas');crestSheet.width=768;crestSheet.height=512;
     const crestContext=crestSheet.getContext('2d');crestContext.imageSmoothingQuality='high';
@@ -165,7 +193,7 @@ try {
     for(let i=0;i<12;i++)paint.drawImage(source,i%4*source.width/4,Math.floor(i/4)*source.height/3,source.width/4,source.height/3,i%4*256,Math.floor(i/4)*256,256,256);
     await encode('materials',materials);
   })()`);
-  await browser.evaluate(`(async()=>{
+  if (!heroesOnly) await browser.evaluate(`(async()=>{
     const {buildWorldGround}=await import('/src/game/art/worldGround.ts');
     const source=await load('/assets/maps/world-materials-v4.png');
     const ground=buildWorldGround(${JSON.stringify(villageMap)},source);window.groundPages=[];
@@ -176,11 +204,17 @@ try {
       const key='ground-'+x+'-'+y;await encode(key,page);groundPages.push({key,x,y,width,height});
     }
   })()`);
-  const keys = await browser.evaluate('Object.keys(compiled)');
+  const keys = previous ? previous.report.files.map(file => file.key) : await browser.evaluate('Object.keys(compiled)');
   const urls = {},
     files = [];
   fs.mkdirSync(path.join(root, 'public/assets/optimized'), { recursive: true });
   for (const key of keys) {
+    if (previous && !key.startsWith('hero-')) {
+      const file = previous.report.files.find(file => file.key === key);
+      urls[key] = file.url;
+      files.push(file);
+      continue;
+    }
     const { data, ...metadata } = await browser.evaluate(`compiled[${JSON.stringify(key)}]`);
     const bytes = Buffer.from(data, 'base64'),
       url = `/assets/optimized/startup-${key}.${hash(bytes).slice(0, 12)}.webp`;
@@ -188,7 +222,9 @@ try {
     urls[key] = url;
     files.push({ key, url, ...metadata, bytes: bytes.length });
   }
-  const geometry = await browser.evaluate('({frames,npcBounds,heroIds,groundPages})');
+  const geometry = previous
+    ? { frames: previous.manifest.frames, npcBounds: previous.manifest.npcBounds, heroIds: previous.manifest.heroIds, groundPages: previous.manifest.groundPages }
+    : await browser.evaluate('({frames,npcBounds,heroIds,groundPages})');
   fs.writeFileSync(
     path.join(root, 'src/data/startupAssets.json'),
     JSON.stringify({ urls, ...geometry }, null, 2) + '\n',

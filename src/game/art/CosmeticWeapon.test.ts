@@ -1,6 +1,8 @@
 import type Phaser from 'phaser';
 import { expect, it } from 'vitest';
 import { CosmeticWeapon } from './CosmeticWeapon';
+import { runningSwordHand } from './embeddedSword';
+import { HERO_DIRECTIONS } from './heroDirections';
 
 function fixture() {
   const image = {
@@ -105,16 +107,29 @@ it('anchors the right-facing handle at the authored hand instead of outside the 
   expect(image.originX).toBe(0.5);
   expect(image.originY).toBe(213 / 256);
 });
-it('moves the sword with both lifted run poses without drifting away from the hand', () => {
+it('follows the authored right hand through all eight running poses and directions', () => {
   const { image, weapon } = fixture(),
     key = 'hero-v8-wang_lam-weaponless';
-  weapon.sync('kiem_anh_cuu_huyen', { x: 100, y: 200 }, 'right', false, false, key, 0);
-  const idleY = image.y,
-    idleX = image.x;
-  weapon.sync('kiem_anh_cuu_huyen', { x: 100, y: 200 }, 'right', false, false, key, 160);
-  expect(image.y).toBeCloseTo(idleY - 1.5 * 0.94);
-  expect(image.x).toBe(idleX);
-  weapon.sync('kiem_anh_cuu_huyen', { x: 100, y: 200 }, 'right', false, false, key, 320);
-  expect(image.y).toBeCloseTo(idleY + 1.5 * 0.94);
-  expect(image.x).toBe(idleX);
+  for (const direction of HERO_DIRECTIONS)
+    for (let phase = 0; phase < 8; phase++) {
+      const frameY = (phase + 2) * 160,
+        [x, y] = runningSwordHand(direction, frameY);
+      weapon.sync('kiem_anh_cuu_huyen', { x: 100, y: 200 }, direction, false, false, key, frameY);
+      expect(image.visible).toBe(true);
+      expect(image.x).toBeCloseTo(100 + x * 0.94);
+      expect(image.y).toBeCloseTo(200 + y * 0.94);
+    }
+});
+it('uses a native sword only for empty-handed adult Wang running frames and restores baked idle', () => {
+  const { image, weapon } = fixture();
+  weapon.sync(null, { x: 0, y: 0 }, 'up', false, false, 'hero-v8-wang_lam', 320);
+  expect(image.visible).toBe(true);
+  expect(image.texture.key).toBe('running-native-sword');
+  expect(image.originX).toBe(30 / 192);
+  weapon.sync(null, { x: 0, y: 0 }, 'up', false, false, 'hero-v8-wang_lam', 0);
+  expect(image.visible).toBe(false);
+  weapon.sync(null, { x: 0, y: 0 }, 'up', false, false, 'hero-v8-wang_lam-child', 320);
+  expect(image.visible).toBe(false);
+  weapon.sync(null, { x: 0, y: 0 }, 'up', true, false, 'hero-v8-wang_lam', 320);
+  expect(image.visible).toBe(false);
 });

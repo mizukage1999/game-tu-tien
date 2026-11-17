@@ -59,7 +59,15 @@
     },
     {
       "source": "src/game/art/prepareHeroSheet.ts",
-      "sha256": "d52cfe322b255a4d20d90d2d1fb2b16cce909467fd23b2a8c698e438b2d3fce2"
+      "sha256": "f0252dd32d5d5719654a798468d8aada9d6f7d1e758c013fb311d12871b3a3fd"
+    },
+    {
+      "source": "src/game/art/heroSheetLayout.ts",
+      "sha256": "449eeef2ac065e52f710f613a6d174438bb61e2c84baa34435995e5d34aa095e"
+    },
+    {
+      "source": "src/game/art/runPoseBounds.ts",
+      "sha256": "c0c7bb1871068304e0e4677753902ae39874e1ca47511e7810dbc36790383956"
     },
     {
       "source": "src/game/maps/worldMaps.ts",
@@ -92,16 +100,80 @@
     {
       "source": "src/game/art/iso.ts",
       "sha256": "b669b19f5241cd5a590753f8a9fba6d6345f49a0188a70e3644169dd1b9567fc"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/diep_ly-adult.png",
+      "sha256": "e71a61f33d504b29df167193dc1a6fe3fd3c844a3cfc35704584dc7fa65786a4"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/diep_ly-child.png",
+      "sha256": "d6a75cb61ff598e71865deba3397738a88b997f4b1e0ac50586bbffa3a68dab7"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/hong_lien-adult.png",
+      "sha256": "96b1bbc3a0452c15a865800a939a74df52b0fee4e24420fc9c153973bd14dfe3"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/hong_lien-child.png",
+      "sha256": "c6b12c1f723ebf22d6ebbbb96437612c16e9ea6a92b17a15be18ecf1e79f93f6"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/ly_mo_uyen-adult.png",
+      "sha256": "c0048590f7bae4002c4d0d09230bbe0321468516d039ee71724421529de408fc"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/ly_mo_uyen-child.png",
+      "sha256": "542544fb004c0e17f0e851789ef034395bddf0e90e7eecd7521e7691a9c02143"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/quan_vo_tran-adult.png",
+      "sha256": "6c9633e78b5b59a8b3d31314639962e686c9e85aa0600873188871fa4f2894f7"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/quan_vo_tran-child.png",
+      "sha256": "2fe3980ef2e13055f42b45777c91fef485fe1634b9e363fa9a6772519ca87f71"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/so_thien-adult.png",
+      "sha256": "2efc6ac60e4a67177d06c04fc388960e0dd7a2b20c820e51c10ca0f4a296897c"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/so_thien-child.png",
+      "sha256": "1f736b11e98d281b3c553af41b4a4a2ee8abd3ed635c4ef7e726fb73f6d184ec"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/tham_nguyet-adult.png",
+      "sha256": "092b0052f9375db20e7ebf0ba8f274374990c55814bd24d64280e685879528c9"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/tham_nguyet-child.png",
+      "sha256": "9879c0d1e406a56a6ee51e575ba0d60cb20de37a6ca9613257d1df51f4eb3889"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/vu_minh-adult.png",
+      "sha256": "778421405c1c2d953bc891fbde85fce54a8f2bb06d98a2f362d7b73fb1849852"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/vu_minh-child.png",
+      "sha256": "661b0704853f7599a88a1c8de45512a88a783ec76109c54248225a5a580ec518"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/wang_lam-adult.png",
+      "sha256": "9b6bdb3528f3825f735b1ff20a1900c51338637172619dcb3419cdcd14dee831"
+    },
+    {
+      "source": "public/assets/heroes-run-v1/wang_lam-child.png",
+      "sha256": "bd2e0df5298b8987a5454a4fb3c30ee16b64f35afff0e5213f79b4e121cc68af"
     }
   ],
   "files": [
     {
       "key": "hero-child-wang_lam",
-      "url": "/assets/optimized/startup-hero-child-wang_lam.ea334ba1eb97.webp",
+      "url": "/assets/optimized/startup-hero-child-wang_lam.e90f87e335c5.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 101394
+      "bytes": 279680
     },
     {
       "key": "portrait-wang_lam",
@@ -129,19 +201,19 @@
     },
     {
       "key": "hero-adult-wang_lam",
-      "url": "/assets/optimized/startup-hero-adult-wang_lam.20d94e125fc7.webp",
+      "url": "/assets/optimized/startup-hero-adult-wang_lam.ec324223aaed.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 266326
+      "bytes": 570376
     },
     {
       "key": "hero-child-ly_mo_uyen",
-      "url": "/assets/optimized/startup-hero-child-ly_mo_uyen.43c6392ffbeb.webp",
+      "url": "/assets/optimized/startup-hero-child-ly_mo_uyen.9426e9f8b5db.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 110052
+      "bytes": 316514
     },
     {
       "key": "portrait-ly_mo_uyen",
@@ -169,19 +241,19 @@
     },
     {
       "key": "hero-adult-ly_mo_uyen",
-      "url": "/assets/optimized/startup-hero-adult-ly_mo_uyen.43cbd26896ec.webp",
+      "url": "/assets/optimized/startup-hero-adult-ly_mo_uyen.4958e92d07b3.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 295054
+      "bytes": 708386
     },
     {
       "key": "hero-child-tham_nguyet",
-      "url": "/assets/optimized/startup-hero-child-tham_nguyet.28ec96630d7c.webp",
+      "url": "/assets/optimized/startup-hero-child-tham_nguyet.d37bb34f422d.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 123772
+      "bytes": 328170
     },
     {
       "key": "portrait-tham_nguyet",
@@ -209,19 +281,19 @@
     },
     {
       "key": "hero-adult-tham_nguyet",
-      "url": "/assets/optimized/startup-hero-adult-tham_nguyet.b02da71cde64.webp",
+      "url": "/assets/optimized/startup-hero-adult-tham_nguyet.d6e33c2f9e37.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 276676
+      "bytes": 617716
     },
     {
       "key": "hero-child-so_thien",
-      "url": "/assets/optimized/startup-hero-child-so_thien.d8e804b2f85b.webp",
+      "url": "/assets/optimized/startup-hero-child-so_thien.6617fb23fbec.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 102092
+      "bytes": 284604
     },
     {
       "key": "portrait-so_thien",
@@ -249,19 +321,19 @@
     },
     {
       "key": "hero-adult-so_thien",
-      "url": "/assets/optimized/startup-hero-adult-so_thien.14c2b8390977.webp",
+      "url": "/assets/optimized/startup-hero-adult-so_thien.bb5ae4201bcc.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 275552
+      "bytes": 594126
     },
     {
       "key": "hero-child-hong_lien",
-      "url": "/assets/optimized/startup-hero-child-hong_lien.9a0adeb8e7c2.webp",
+      "url": "/assets/optimized/startup-hero-child-hong_lien.006d5822cbeb.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 125880
+      "bytes": 318572
     },
     {
       "key": "portrait-hong_lien",
@@ -289,19 +361,19 @@
     },
     {
       "key": "hero-adult-hong_lien",
-      "url": "/assets/optimized/startup-hero-adult-hong_lien.4f57ad608665.webp",
+      "url": "/assets/optimized/startup-hero-adult-hong_lien.4b51b08e12da.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 314408
+      "bytes": 682462
     },
     {
       "key": "hero-child-vu_minh",
-      "url": "/assets/optimized/startup-hero-child-vu_minh.b42448ca3be9.webp",
+      "url": "/assets/optimized/startup-hero-child-vu_minh.f415a29466ac.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 106684
+      "bytes": 299404
     },
     {
       "key": "portrait-vu_minh",
@@ -329,19 +401,19 @@
     },
     {
       "key": "hero-adult-vu_minh",
-      "url": "/assets/optimized/startup-hero-adult-vu_minh.0b9388f56374.webp",
+      "url": "/assets/optimized/startup-hero-adult-vu_minh.2a552607f458.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 273172
+      "bytes": 558160
     },
     {
       "key": "hero-child-quan_vo_tran",
-      "url": "/assets/optimized/startup-hero-child-quan_vo_tran.e4ae985ce9f2.webp",
+      "url": "/assets/optimized/startup-hero-child-quan_vo_tran.874757bf88e6.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 142726
+      "bytes": 362948
     },
     {
       "key": "portrait-quan_vo_tran",
@@ -369,19 +441,19 @@
     },
     {
       "key": "hero-adult-quan_vo_tran",
-      "url": "/assets/optimized/startup-hero-adult-quan_vo_tran.808a397be8b6.webp",
+      "url": "/assets/optimized/startup-hero-adult-quan_vo_tran.0576dd0cb956.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 294342
+      "bytes": 673242
     },
     {
       "key": "hero-child-diep_ly",
-      "url": "/assets/optimized/startup-hero-child-diep_ly.2c371af503b4.webp",
+      "url": "/assets/optimized/startup-hero-child-diep_ly.94a47a052384.webp",
       "width": 1024,
-      "height": 512,
+      "height": 1280,
       "maxAlphaDifference": 0,
-      "bytes": 140788
+      "bytes": 352294
     },
     {
       "key": "portrait-diep_ly",
@@ -409,11 +481,11 @@
     },
     {
       "key": "hero-adult-diep_ly",
-      "url": "/assets/optimized/startup-hero-adult-diep_ly.6a9f5a1143fd.webp",
+      "url": "/assets/optimized/startup-hero-adult-diep_ly.53651b383c9f.webp",
       "width": 1280,
-      "height": 640,
+      "height": 1600,
       "maxAlphaDifference": 0,
-      "bytes": 330600
+      "bytes": 672196
     },
     {
       "key": "realm-crests",
@@ -552,5 +624,5 @@
       "bytes": 32840
     }
   ],
-  "manifestSha256": "d9e0b72d42764f5e4b0fcf3737ee2561f41f595db2dbda416f39f72b74b91856"
+  "manifestSha256": "8664d6f6a80f53e23728f725d5eef02248241d075891b1e407a30201e24ed120"
 }

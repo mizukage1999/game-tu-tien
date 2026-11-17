@@ -7,6 +7,7 @@ import { addStaticTexture } from './staticTexture';
 import { dyeGarmentCell } from './garmentPalette';
 import { maskEmbeddedSword, replacesEmbeddedSword } from './embeddedSword';
 import { HERO_DIRECTIONS } from './heroDirections';
+import { HERO_CAST_ROW, HERO_SHEET_COLUMNS, HERO_SHEET_ROWS } from './heroSheetLayout';
 
 export interface AppearanceLease {
   key: string;
@@ -50,7 +51,7 @@ async function prepare(
   ctx.drawImage(source, 0, 0);
   const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
   // Four small cells per task keep an outfit switch from monopolizing a frame.
-  for (let cell = 0; cell < 32; cell++) {
+  for (let cell = 0; cell < HERO_SHEET_COLUMNS * HERO_SHEET_ROWS; cell++) {
     if (palette)
       dyeGarmentCell(
         pixels.data,
@@ -66,16 +67,10 @@ async function prepare(
   }
   ctx.putImageData(pixels, 0, 0);
   if (weaponless)
-    for (let row = 0; row < 4; row++)
+    // Running art has empty hands; erase only the two original baked sword poses.
+    for (const row of [0, HERO_CAST_ROW])
       for (const [col, dir] of HERO_DIRECTIONS.entries())
-        maskEmbeddedSword(
-          ctx,
-          hero,
-          dir,
-          row === 3,
-          col * 160,
-          row * 160 + (row === 1 ? -1.5 : row === 2 ? 1.5 : 0),
-        );
+        maskEmbeddedSword(ctx, hero, dir, row === HERO_CAST_ROW, col * 160, row * 160);
   const texture = addStaticTexture(scene, entry.key, canvas);
   if (!texture) throw Error('COSMETIC_TEXTURE_FAILED');
   const baseTexture = scene.textures.get(base);
