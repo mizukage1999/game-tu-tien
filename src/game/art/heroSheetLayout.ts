@@ -6,8 +6,8 @@ export const HERO_RUN_ROWS = [2, 3, 4, 5, 6, 7, 8, 9] as const;
 export const HERO_SHEET_ROWS = 10;
 export const HERO_RUN_RATE = 12;
 
-/** A slightly lower stride, keeping the planted shoe at the same world anchor. */
-export const HERO_RUN_LEG_SCALE = 0.88;
+/** Lower stride, keeping the planted shoe at the same world anchor. */
+export const HERO_RUN_LEG_SCALE = 0.78;
 export function runningPoseY(y: number, child = false) {
   const { cell, foot } = heroSheetMetrics(child);
   const hip = Math.round(cell * 0.65);
