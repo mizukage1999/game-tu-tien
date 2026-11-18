@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { cardinalDirection, heroDirection, type HeroDirection } from './heroDirections';
+import {
+  cardinalDirection,
+  heroFrameDirection,
+  heroDirection,
+  type HeroDirection,
+} from './heroDirections';
 import { inputToMap, isoVector } from './iso';
 
 describe('hero screen facing', () => {
+  it('keeps the weapon on the visible frame facing when input turns during an animation', () => {
+    expect(heroFrameDirection('run_up-right_6', 'left')).toBe('up-right');
+    expect(heroFrameDirection('skill_strong_down-left_10', 'up')).toBe('down-left');
+    expect(heroFrameDirection('__BASE', 'right')).toBe('right');
+  });
   const cases: [number, number, HeroDirection][] = [
     [0, 1, 'down'],
     [-1, 1, 'down-left'],

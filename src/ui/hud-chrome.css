@@ -886,3 +886,16 @@
   width: 11px;
   height: 35px;
 }
+
+/* Identity chrome and its buff shelf have stable bounds at every effect count. */
+.hud.hud-v5 .hud-identity { min-width: 0; }
+.hud.hud-v5 .hud-effect-slot { height: 30px; padding-top: 4px; box-sizing: border-box; }
+.hud.hud-v5.phone .hud-effect-slot { height: 25px; padding-top: 3px; }
+.hud.hud-v5 .hud-effect-slot .status-effects { min-height: 0; gap: 4px; padding: 0 2px; }
+.hud.hud-v5 .hud-effect-slot .status-effect { width: 24px; height: 24px; flex-basis: 24px; }
+.hud.hud-v5.phone .hud-effect-slot .status-effect { width: 20px; height: 20px; flex-basis: 20px; }
+.hud.hud-v5 .hud-top-left:has(> .status-effects) { gap: inherit; }
+.hud.hud-v5 .status .avatar { aspect-ratio: 1; height: auto; align-self: start; }
+.hud.hud-v5 .status .avatar .hero-portrait { inset: 13% auto auto 3%; width: 84%; height: 84%; margin: 0; }
+.hud.hud-v5 .quest-list > .quest-empty { font-size: 11px; line-height: 1.5; font-weight: 400; padding: 7px 8px; }
+.hud.hud-v5.phone .quest-list > .quest-empty { font-size: 9px; line-height: 1.45; padding: 5px 6px; }

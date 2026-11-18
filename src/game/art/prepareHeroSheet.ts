@@ -1,5 +1,12 @@
 import { directionalCell } from './heroAtlas';
-import { HERO_CAST_ROW, HERO_RUN_ROWS, HERO_SHEET_ROWS, heroSheetMetrics } from './heroSheetLayout';
+import {
+  HERO_CAST_ROW,
+  HERO_RUN_ROWS,
+  HERO_SHEET_ROWS,
+  HERO_RUN_LEG_SCALE,
+  runningPoseY,
+  heroSheetMetrics,
+} from './heroSheetLayout';
 import { runPoseBounds } from './runPoseBounds';
 
 /** Asset-build only: keep authored shoes, eight facings, scale and feet anchors. */
@@ -88,5 +95,38 @@ export function prepareHeroSheet(
   poses.forEach((directions, phase) =>
     directions.forEach((p, col) => draw(p, col, HERO_RUN_ROWS[phase], runScale)),
   );
+  const gait = document.createElement('canvas');
+  gait.width = cell * 8;
+  gait.height = cell;
+  const gaitContext = gait.getContext('2d')!;
+  const hip = Math.round(cell * 0.65),
+    hipY = runningPoseY(hip, child);
+  for (const row of HERO_RUN_ROWS) {
+    gaitContext.clearRect(0, 0, gait.width, cell);
+    gaitContext.drawImage(canvas, 0, row * cell, gait.width, cell, 0, 0, gait.width, cell);
+    ctx.clearRect(0, row * cell, gait.width, cell);
+    ctx.drawImage(
+      gait,
+      0,
+      0,
+      gait.width,
+      hip,
+      0,
+      row * cell + runningPoseY(0, child),
+      gait.width,
+      hip,
+    );
+    ctx.drawImage(
+      gait,
+      0,
+      hip,
+      gait.width,
+      cell - hip,
+      0,
+      row * cell + hipY,
+      gait.width,
+      (cell - hip) * HERO_RUN_LEG_SCALE,
+    );
+  }
   return canvas;
 }

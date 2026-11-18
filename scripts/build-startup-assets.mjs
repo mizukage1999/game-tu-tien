@@ -130,10 +130,13 @@ try {
       const [x,y,width]=directionalCell('children',row,0);
       const head=document.createElement('canvas');head.width=width-32;head.height=110;
       head.getContext('2d').drawImage(child,x+16,y+2,width-32,110,0,0,width-32,110);await encode('head-'+hero.id,head);
-      const adultHead=document.createElement('canvas');adultHead.width=236;adultHead.height=226;
-      adultHead.getContext('2d').drawImage(roster,row%4*384+74,Math.floor(row/4)*512+12,236,226,0,0,236,226);
-      await encode('adult-head-'+hero.id,adultHead);
+
       }
+      // Individual bust crops: the painted faces are not centred in their full-body cells.
+      const boxes=[[208,0,128,150],[134,0,128,150],[128,0,144,152],[153,0,144,152],[128,2,144,152],[164,2,136,150],[154,0,144,152],[146,10,144,152]];
+      const [hx,hy,hw,hh]=boxes[row], adultHead=document.createElement('canvas');adultHead.width=128;adultHead.height=152;
+      adultHead.getContext('2d').drawImage(roster,row%4*384+hx,Math.floor(row/4)*512+hy,hw,hh,0,0,128,152);
+      await encode('adult-head-'+hero.id,adultHead);
       const adultRun=await load('/assets/heroes-run-v1/'+hero.id+'-adult.png');
       await encode('hero-adult-'+hero.id,prepareHeroSheet(row,adult,casting,false,adultRun));
     }
@@ -209,7 +212,7 @@ try {
     files = [];
   fs.mkdirSync(path.join(root, 'public/assets/optimized'), { recursive: true });
   for (const key of keys) {
-    if (previous && !key.startsWith('hero-')) {
+    if (previous && !key.startsWith('hero-') && !key.startsWith('adult-head-')) {
       const file = previous.report.files.find(file => file.key === key);
       urls[key] = file.url;
       files.push(file);

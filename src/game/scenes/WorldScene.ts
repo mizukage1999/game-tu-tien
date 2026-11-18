@@ -7,13 +7,13 @@ import { appearanceStore } from '../../store/appearanceStore';
 import { DUNGEONS, ITEMS, MONSTERS, QUESTS, SKILLS, type SkillId, type WaveSpawn } from '../../data';
 import { gameStore, itemName, playerSkill, type DungeonHud, type TargetInfo } from '../../store/gameStore';
 import { buildIsoGround } from '../art/ground';
-import { addGroundTextures, clearGroundTextures, GROUND_PREFIX } from '../art/groundTextures';
+import { addGroundTextures, reuseGroundTextures, releaseGroundTextures, GROUND_PREFIX } from '../art/groundTextures';
 import { publishBossSightings } from '../../store/bossHuntStore';
 import { WorldActivity } from '../systems/WorldActivity';
 import { activityPlan } from '../systems/worldActivities';
 import { activityAction,activityNow,activityStore } from '../../net/worldActivities';
 import { buildVillageGround } from '../art/villageGround';
-import { addPreparedVillageGround, villageGroundKeys } from '../art/villageStartup';
+import { addPreparedVillageGround } from '../art/villageStartup';
 import { VillageAtmosphere } from '../art/VillageAtmosphere';
 import { buildWorldGround } from '../art/worldGround';
 import { worldTheme } from '../art/worldPalette';
@@ -50,7 +50,7 @@ import { canEnterField, fieldForLevel, FIELD_BANDS, killExp } from '../systems/s
 import { realmNameAtLevel } from '../systems/progression';
 import { saveGame } from '../systems/save';
 import { isTypingTarget } from '../systems/typing';
-import { ensureHeroSpell, finishMapAssets, queueMapAssets } from '../art/runtimeAssets';
+import { ensureHeroSpell, finishMapAssets, queueMapAssets, warmMapCombat } from '../art/runtimeAssets';
 import { heroFor } from '../../data/heroes';
 import { dismissWorldPanel, worldInputBlocked } from '../systems/inputFocus';
 import { performanceStore } from '../../store/performanceStore';
@@ -309,7 +309,7 @@ export class WorldScene extends Phaser.Scene {
     }
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitZoom, this);
     this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, this.fitZoom, this));
-    cam.fadeIn(400);
+    cam.fadeIn(160);
     if (this.game.renderer.type === Phaser.WEBGL && !this.game.config.disablePostFX && performanceStore.getState().tier === 0) {
       cam.postFX.addVignette(0.5, 0.5, 0.92, map.ambient === 'fireflies' ? 0.42 : 0.28);
     }
@@ -357,6 +357,7 @@ export class WorldScene extends Phaser.Scene {
     this.worldBuilt = true;
     this.syncUi();
     this.game.events.emit('assets-ready');
+    warmMapCombat(this);
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.cancelArenaReturn?.();
@@ -364,14 +365,13 @@ export class WorldScene extends Phaser.Scene {
       this.inArena = false;
       this.cleanups.forEach((fn) => fn());
       this.cleanups = [];
-      clearGroundTextures(this);
+      releaseGroundTextures(this);
     });
   }
 
   // ---- construction ------------------------------------------------------
 
   private buildTerrain(map: MapDef) {
-    clearGroundTextures(this,map.id==='vuong_gia_thon'?villageGroundKeys():undefined);
     setIsoOrigin(map.width*TILE,map.height*TILE);
     const data = map.terrain.map((row, y) =>
       row.map((t, x) => TERRAIN[t].base + (hash(x, y) % TERRAIN[t].variants)),
@@ -379,14 +379,14 @@ export class WorldScene extends Phaser.Scene {
     // The visible ground is one pre-baked isometric canvas; the grid below stays
     // flat and invisible so collision, path-finding and AI never meet the
     // projection at all.
-    const prepared = map.id==='vuong_gia_thon'&&addPreparedVillageGround(this);
+    const prepared = map.id==='vuong_gia_thon' ? addPreparedVillageGround(this) : reuseGroundTextures(this,map.id);
     if(!prepared){
     const ground = this.textures.exists('world-materials-v4')
       ? buildWorldGround(map, this.textures.get('world-materials-v4').getSourceImage() as HTMLImageElement)
       : map.id === 'vuong_gia_thon' && this.textures.exists('village-materials-v3')
       ? buildVillageGround(map, this.textures.get('village-materials-v3').getSourceImage() as HTMLImageElement)
       : buildIsoGround(map);
-    addGroundTextures(this, ground.canvas);
+    addGroundTextures(this, ground.canvas, map.id);
     }
 
     const tm = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
@@ -1372,7 +1372,7 @@ export class WorldScene extends Phaser.Scene {
     this.game.events.emit('assets-loading', { mapId: data.mapId ?? this.mapId, mapName: getMap(data.mapId ?? this.mapId).name });
     if (!this.map.arena) this.save();
     gameStore.getState().patch({ dialogNpc: null, menu: null });
-    this.cameras.main.fadeOut(350, 0, 0, 0);
+    this.cameras.main.fadeOut(100, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.restart(data));
   }
 

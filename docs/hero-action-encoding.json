@@ -242,7 +242,7 @@
     },
     {
       "source": "src/game/art/heroDirections.ts",
-      "sha256": "1f4383f50b9991afba678f59f285fb84b9db92feb2e95266c96c5418be425da1"
+      "sha256": "b04d105ee0c4175c58b3330430dde918fe183d3ae9f7977077683319d3b324d9"
     },
     {
       "source": "scripts/build-hero-actions.mjs",

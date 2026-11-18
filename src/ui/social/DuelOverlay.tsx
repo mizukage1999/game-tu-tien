@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useStore } from 'zustand';
 import { useSocial } from '../../store/socialStore';
 import { closeArena, readyArena, sendArenaInput } from '../../net/socialBridge';
 import { ARENA_H, ARENA_ROCKS, ARENA_W, type ArenaFighter } from '../../game/systems/arena';
@@ -21,6 +22,8 @@ import { RealmBadge } from '../RealmBadge';
 import { ArenaStatusEffects } from '../StatusEffects';
 import { INPUT_BUFFER_MS } from '../../game/systems/combatInput';
 import { RankedResult } from './RankedResult';
+import { rankedStore } from '../../net/ranked';
+import './duel-battle-hud.css';
 
 function FighterCard({ fighter: p, enemy = false, elapsed }: { fighter: ArenaFighter; enemy?: boolean; elapsed:number }) {
   const hero = heroFor(p);
@@ -52,6 +55,8 @@ function FighterCard({ fighter: p, enemy = false, elapsed }: { fighter: ArenaFig
 }
 
 export function DuelOverlay() {
+  const ranked = useStore(rankedStore, state => state.page);
+  const [recordOpen, setRecordOpen] = useState(false);
   const duel = useSocial((s) => s.duel),
     nonce = duel?.nonce;
   const move = useRef({ x: 0, y: 0 }),
@@ -176,8 +181,8 @@ export function DuelOverlay() {
       <section className="duel-arena panel-ornate">
         <header>
           <div className="duel-title">
-            <h3>{duel.rankedId?'Tỷ Võ Xếp Hạng · 1 vs 1':duel.practice ? 'Luận kiếm · Mộc Nhân' : 'Tỷ Võ · 1 vs 1'}</h3>
-            <small>Điều khiển tay · Né đòn và chọn thời điểm ra chiêu</small>
+            <h3>Luận Kiếm · Tỉ Võ</h3>
+            <small>{duel.rankedId ? 'Xếp hạng 1 vs 1' : duel.practice ? 'Luyện tay · Mộc nhân' : 'Tỉ võ 1 vs 1'}</small>
             <button className="close" aria-label="Rời tỷ võ" onClick={closeArena}>
               ×
             </button>
@@ -185,7 +190,7 @@ export function DuelOverlay() {
           <div className="duel-scoreboard">
             <FighterCard fighter={me} elapsed={s.elapsed}/>
             <div className="duel-versus">
-              <b>VS</b>
+              <b>{duel.practice ? 'Luyện tay' : '1 vs 1'}</b>
               <time>
                 {String(Math.floor(seconds / 60)).padStart(2, '0')}:
                 {String(seconds % 60).padStart(2, '0')}
@@ -194,6 +199,15 @@ export function DuelOverlay() {
             <FighterCard fighter={enemy} enemy elapsed={s.elapsed}/>
           </div>
         </header>
+        <aside className={`duel-record ${recordOpen ? 'expanded' : ''}`}>
+          <button type="button" className="duel-record-toggle" aria-expanded={recordOpen} onClick={() => setRecordOpen(!recordOpen)}>Luận Kiếm <span>{recordOpen ? '‹' : '›'}</span></button>
+          <dl>
+            <div><dt>Điểm</dt><dd>{ranked?.rating ?? '—'}</dd></div>
+            <div><dt>Thắng</dt><dd>{ranked?.wins ?? '—'}</dd></div>
+            <div><dt>Tỷ lệ</dt><dd>{ranked && ranked.wins + ranked.losses + ranked.draws > 0 ? `${Math.round(ranked.wins / (ranked.wins + ranked.losses + ranked.draws) * 100)}%` : '—'}</dd></div>
+          </dl>
+          <small>{duel.practice ? 'Luyện tay không tính điểm' : duel.rankedId ? 'Kết quả tính điểm khi trận kết thúc' : 'Giao hữu không tính điểm'}</small>
+        </aside>
         <div className="duel-battleground" style={{ backgroundImage: `url('${optimizedAsset('/assets/heroes-v7/arena.png')}')` }}>
           <div
             className="duel-stage"

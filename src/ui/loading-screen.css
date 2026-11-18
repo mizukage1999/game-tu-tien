@@ -247,3 +247,95 @@
     transition: none;
   }
 }
+
+/* Size against the actual game surface (also when Android is CSS-rotated). */
+.immortal-loading.loading-overlay {
+  container: loading-surface / size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: center;
+  padding: 30px 24px;
+  gap: 12px;
+  box-sizing: border-box;
+}
+.immortal-loading .loading-phase {
+  position: static;
+}
+.immortal-loading .loading-content {
+  max-height: 100%;
+  min-height: 0;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
+}
+.immortal-loading .loading-crest {
+  flex-shrink: 1;
+  min-height: 32px;
+  max-height: 24cqh;
+}
+.immortal-loading .loading-content > :not(.loading-crest) {
+  flex-shrink: 0;
+}
+.immortal-loading .loading-tip {
+  position: static;
+  width: min(650px, 90%);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.immortal-loading .loading-status {
+  overflow-wrap: anywhere;
+}
+@container loading-surface (max-height: 450px) {
+  .loading-content {
+    width: min(460px, 82%);
+  }
+  .loading-crest {
+    width: 60px;
+    max-height: 60px;
+  }
+  .loading-content h1 {
+    font-size: 30px;
+    margin: 0 0 4px;
+  }
+  .loading-content .loading-motto {
+    font-size: 9px;
+    margin-bottom: 8px;
+  }
+  .loading-content h2 {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+  .loading-content .loading-status {
+    font-size: 10px;
+    margin-top: 10px;
+    min-height: 15px;
+  }
+}
+@container loading-surface (max-height: 320px) {
+  .loading-crest {
+    width: 36px;
+    max-height: 36px;
+  }
+  .loading-content h1 {
+    font-size: 24px;
+  }
+  .loading-content .loading-motto {
+    display: none;
+  }
+  .loading-content h2 {
+    margin: 3px 0 8px;
+  }
+  .loading-content .loading-status {
+    margin-top: 8px;
+  }
+  .loading-content .loading-retry {
+    min-height: 26px;
+    margin-top: 4px;
+    padding: 3px 10px;
+    font-size: 10px;
+  }
+}
+
+.immortal-loading { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@container loading-surface (max-height: 450px) { .loading-content:has(.loading-retry) .loading-crest { display: none; } }

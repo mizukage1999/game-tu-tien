@@ -88,7 +88,7 @@ export function registerVillageReferenceProps(scene: Phaser.Scene) {
   }
 }
 
-export function registerCohesiveArt(scene: Phaser.Scene) {
+export function registerCohesiveArt(scene: Phaser.Scene, npcIds?: ReadonlySet<string>) {
   registerVillageReferenceProps(scene);
   const assignProps = (atlas: string, entries: [string, number][]) => {
     if (!scene.textures.exists(atlas)) return;
@@ -147,6 +147,7 @@ export function registerCohesiveArt(scene: Phaser.Scene) {
     if (!scene.textures.exists(atlas)) continue;
     const image = scene.textures.get(atlas).getSourceImage() as HTMLImageElement;
     ids.forEach((id, i) => {
+      if (npcIds && !npcIds.has(id) || scene.textures.exists(`npc-painted-${id}`)) return;
       const col = i % 3,
         row = Math.floor(i / 3);
       const rowCut = atlas === 'city-people-v2' ? [0.51, 0.495, 0.525][col] : 0.5;

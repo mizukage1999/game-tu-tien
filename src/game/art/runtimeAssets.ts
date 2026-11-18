@@ -5,20 +5,16 @@ import { optimizedAsset } from '../../data/assetDelivery';
 import { getMap } from '../maps';
 import { heroFor, type HeroId } from '../../data/heroes';
 import { spellAsset, spellSource, spellTexture } from '../../data/heroSpellArt';
-import {
-  WANG_EFFECT_ART,
-  WANG_ICON_ATLAS,
-  WANG_RITUAL_ICON_ATLAS,
-  WANG_GATE_ICON,
-  wangSheetLayout,
-} from '../../data/wangSkills';
+import { wangSheetLayout } from '../../data/wangSkills';
 import { generateArt, registerCharacterArt } from './generate';
 import { buildImmortalArt } from './immortal';
 import { COURTYARD_ATLAS, registerCourtyardFrames } from './courtyard';
-import { registerWorldArt } from './world';
+import { registerWorldArt, WORLD_PROPS } from './world';
 import { COHESION_ATLASES, registerCohesiveArt, registerVillageReferenceProps } from './cohesion';
-import { EXPANSION_ATLASES, registerExpansionArt } from './expansionArt';
-import { registerWorldStyle } from './worldStyle';
+import { registerExpansionArt } from './expansionArt';
+import { allowsWanderers } from '../systems/wanderers';
+import { lifeProgress } from '../systems/life';
+import { registerWorldStyle, worldStyleAtlas } from './worldStyle';
 import { BESTIARY_SHEETS, registerMonsterArt } from './monsterArt';
 import {
   directionalArt,
@@ -27,16 +23,18 @@ import {
   registerDirectionalHeroes,
 } from './directionalHeroes';
 import { registerHeroSpells } from './heroRoster';
-import { buildWangSheet, registerWangIcons, registerWangGateIcon } from './wangEffects';
+import { buildWangSheet } from './wangEffects';
 import { ITEM_SPRITE_ASSETS } from './icons';
 import { REALM_CREST_ASSET, REALM_CREST_TEXTURE, REALM_CREST_CELL } from './realmCrests';
 import { createSkillFxAnimations } from './fx';
 import { NPCS } from '../../data';
 import { usesChildSprite } from '../systems/origin';
 import { playerArt } from '../systems/character';
+import { skillLoadout } from '../systems/skills';
 import { NPC_SPRITES } from '../systems/npcArt';
 import { mapMonsterArt, monsterSheets, openingMapPlan } from '../systems/mapAssetPlan';
 import { ensureImage } from './lazyImage';
+import { ensureDetachedImage } from './detachedImage';
 import type { SkillId } from '../../data';
 import { wangEffect, type WangEffectArt } from '../../data/wangSkills';
 import { warmedImage, clearStartupWarmCache } from './startupCache';
@@ -135,8 +133,22 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
       () => createSkillFxAnimations(scene),
     );
   group(
-    `world:${map.id === 'vuong_gia_thon' ? 'village' : 'all'}`,
-    () => maps(plan.world),
+    `world:${map.id}`,
+    () => {
+      const needed = new Set(
+        map.decor.map((d) => worldStyleAtlas(d.key) ?? WORLD_PROPS[d.key]?.atlas),
+      );
+      maps(
+        plan.world.filter(
+          (key) =>
+            key === 'world-materials-v4' ||
+            key === 'world-vistas-v4' ||
+            needed.has(key) ||
+            (key === 'world-people' &&
+              map.npcs.some((n) => NPC_SPRITES[n.id]?.src.endsWith('/world-people.png'))),
+        ),
+      );
+    },
     () => {
       registerWorldArt(scene);
       releaseSources(scene, ['child-source', 'world-people']);
@@ -149,33 +161,6 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
     () => image(directionalArt(hero, child), directionalAsset(hero, child)),
     () => registerDirectionalHeroes(scene, [{ id: hero, child }]),
   );
-  if (plan.combat && hero === 'wang_lam')
-    group(
-      'wang-combat',
-      () => {
-        for (const art of Object.values(WANG_EFFECT_ART)) image(`${art.texture}-source`, art.url);
-        image('wang-signature-icons-source', WANG_ICON_ATLAS);
-        image('wang-ritual-icons-source', WANG_RITUAL_ICON_ATLAS);
-        image('wang-gate-icon-source', WANG_GATE_ICON);
-      },
-      () => {
-        for (const art of Object.values(WANG_EFFECT_ART)) prepareWangEffect(scene, art);
-        for (const [key, ritual] of [
-          ['wang-signature-icons-source', false],
-          ['wang-ritual-icons-source', true],
-        ] as const) {
-          if (!scene.textures.exists(key)) continue;
-          registerWangIcons(scene.textures.get(key).getSourceImage() as HTMLImageElement, ritual);
-          scene.textures.remove(key);
-        }
-        if (scene.textures.exists('wang-gate-icon-source')) {
-          registerWangGateIcon(
-            scene.textures.get('wang-gate-icon-source').getSourceImage() as HTMLImageElement,
-          );
-          scene.textures.remove('wang-gate-icon-source');
-        }
-      },
-    );
   if (village)
     group(
       'village-startup',
@@ -187,30 +172,42 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
     );
   else {
     group(
-      'cities',
-      () => maps(COHESION_ATLASES),
+      `cities:${map.id}`,
+      () =>
+        maps(
+          COHESION_ATLASES.filter(
+            (key) =>
+              (key === 'biome-props-v2' &&
+                map.decor.some((d) => /biome-(moss|dry|snow)-rock/.test(d.key))) ||
+              (key.endsWith('people-v2') &&
+                map.npcs.some(
+                  (n) =>
+                    !scene.textures.exists(NPC_SPRITES[n.id]?.texture ?? '') &&
+                    NPC_SPRITES[n.id]?.src.endsWith('/' + key + '.png'),
+                )),
+          ),
+        ),
       () => {
-        registerCohesiveArt(scene);
+        registerCohesiveArt(scene, new Set(map.npcs.map((n) => n.id)));
         releaseSources(scene, ['city-people-v2', 'travel-people-v2']);
       },
     );
-    // v8 directional heroes replace the retired simple and v5/v7 pose atlases.
-    group(
-      'actors',
-      () =>
-        maps(
-          EXPANSION_ATLASES.filter((key) => key !== 'hero-wang-simple' && key !== 'hero-li-simple'),
-        ),
-      () => {
-        registerExpansionArt(scene);
-        releaseSources(scene, [
-          'mu-uyen-child',
-          'wanderers',
-          'spirit-companions',
-          'dungeon-bosses-v3',
-        ]);
-      },
-    );
+    const actors = [
+      ...(allowsWanderers(map) ? ['wanderers'] : []),
+      ...([...mapMonsterArt(map)].some((key) => key.startsWith('dungeon_boss_'))
+        ? ['dungeon-bosses-v3']
+        : []),
+      ...(lifeProgress(player).companion ? ['spirit-companions'] : []),
+    ];
+    for (const atlas of actors)
+      group(
+        'actors:' + atlas,
+        () => maps([atlas]),
+        () => {
+          registerExpansionArt(scene);
+          releaseSources(scene, [atlas]);
+        },
+      );
   }
   if (village)
     for (const page of startup.groundPages)
@@ -247,7 +244,7 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
       },
     );
   }
-  if (plan.combat && !scene.textures.exists(spellTexture(hero)))
+  if (plan.combat && hero !== 'wang_lam' && !scene.textures.exists(spellTexture(hero)))
     group(
       `spell:${hero}`,
       () => image(spellSource(hero), spellAsset(hero)),
@@ -256,31 +253,51 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
   return count;
 }
 
-function prepareWangEffect(scene: Phaser.Scene, art: WangEffectArt) {
+function prepareWangEffect(scene: Phaser.Scene, art: WangEffectArt, image?: HTMLImageElement) {
   const source = `${art.texture}-source`;
-  if (!scene.textures.exists(source) || scene.textures.exists(art.texture)) return;
+  if ((!image && !scene.textures.exists(source)) || scene.textures.exists(art.texture)) return;
   const sheet = buildWangSheet(
     art,
-    scene.textures.get(source).getSourceImage() as HTMLImageElement,
+    image ?? (scene.textures.get(source).getSourceImage() as HTMLImageElement),
   );
   const texture = addStaticTexture(scene, art.texture, sheet)!;
   const { frames, columns, cell } = wangSheetLayout(art);
   for (let i = 0; i < frames; i++)
     texture.add(i, 0, (i % columns) * cell, Math.floor(i / columns) * cell, cell, cell);
-  scene.textures.remove(source);
+  if (scene.textures.exists(source)) scene.textures.remove(source);
 }
 
 /** A visitor can cast a Wang spell even when this client's opening map never needed it. */
 export function ensureWangEffect(scene: Phaser.Scene, id: SkillId) {
   const art = wangEffect(id);
   if (!art) return Promise.resolve(false);
-  return ensureImage(
+  return ensureDetachedImage(
     scene,
-    `${art.texture}-source`,
-    art.url,
+    art.texture,
+    optimizedAsset(art.url),
     () => scene.textures.exists(art.texture),
-    () => prepareWangEffect(scene, art),
+    (image) => prepareWangEffect(scene, art, image),
   );
+}
+
+/** Only the selected spells, after the destination is already playable. */
+export function warmMapCombat(scene: Phaser.Scene) {
+  const player = gameStore.getState().player;
+  if (usesChildSprite(player)) return;
+  const ids = skillLoadout(player).filter((id) => !!wangEffect(id));
+  scene.time.delayedCall(1500, () => {
+    void (async () => {
+      for (const id of ids) {
+        if (
+          !scene.sys.isActive() ||
+          (scene as Phaser.Scene & { transitioning?: boolean }).transitioning
+        )
+          return;
+        await ensureWangEffect(scene, id);
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      }
+    })();
+  });
 }
 
 export function finishMapAssets(scene: Phaser.Scene) {
@@ -367,4 +384,19 @@ export function ensureHeroSpell(scene: Phaser.Scene, hero: HeroId): Promise<bool
   });
   loads.set(hero, promise);
   return promise;
+}
+
+/** A newly summoned pet can appear without reloading the current map. */
+export function ensureCompanionArt(scene: Phaser.Scene) {
+  return ensureImage(
+    scene,
+    'spirit-companions',
+    '/assets/maps/spirit-companions.png',
+    () => scene.textures.exists('companion-0'),
+    () => {
+      registerExpansionArt(scene);
+      releaseSources(scene, ['spirit-companions']);
+      scene.registry.set('art-ready:actors:spirit-companions', true);
+    },
+  );
 }

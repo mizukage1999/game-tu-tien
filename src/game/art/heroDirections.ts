@@ -13,6 +13,14 @@ export const HERO_DIRECTIONS = [
 ] as const;
 export type HeroDirection = (typeof HERO_DIRECTIONS)[number];
 
+/** An attachment follows the displayed pose, even when input turns during a locked clip. */
+export function heroFrameDirection(frame: string | number, fallback: HeroDirection): HeroDirection {
+  return (
+    (String(frame).match(/_(down(?:-left|-right)?|up(?:-left|-right)?|left|right)_\d+$/)?.[1] as
+      HeroDirection | undefined) ?? fallback
+  );
+}
+
 export function heroDirection(
   x: number,
   y: number,

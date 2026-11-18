@@ -117,7 +117,11 @@ export async function assetBrowser(root) {
         return result.result.value;
       },
       async close() {
-        await send('Browser.close').catch(() => {});
+        // Chrome may close the debugging socket before answering Browser.close.
+        await Promise.race([
+          send('Browser.close').catch(() => {}),
+          new Promise(resolve => setTimeout(resolve, 750)),
+        ]);
         stop();
       },
     };

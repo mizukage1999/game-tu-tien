@@ -77,7 +77,7 @@ export function QuestPanel() {
           </button>
           <ul className="quest-list">
             {active.length === 0 && (
-              <li className="muted">Không có nhiệm vụ. Hãy tìm NPC có dấu !</li>
+              <li className="muted quest-empty">Không có nhiệm vụ. Hãy tìm NPC có dấu !</li>
             )}
             {(phone ? active.slice(0, 1) : active).map(([id, q]) => {
               const def = QUESTS[id];

@@ -26,7 +26,7 @@ import { heroName, isChildhood } from '../systems/origin';
 import { immortalProgress, MOUNTS, mountUnlocked, flightProfile } from '../systems/immortal';
 import { lifeProgress } from '../systems/life';
 import { skillLoadout, skillUnlocked } from '../systems/skills';
-import { heroDirection, type HeroDirection } from '../art/heroDirections';
+import { heroFrameDirection, heroDirection, type HeroDirection } from '../art/heroDirections';
 import { realmNameAtLevel } from '../systems/progression';
 import { adventure } from '../systems/adventure';
 import type { Pose } from '../../net/presence';
@@ -322,7 +322,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
     const look = cosmeticsForHero(heroFor(gameStore.getState().player).id,appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player));
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},this.visualDir,!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY,heroBodyPose(this.art.frame));
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},heroFrameDirection(this.art.frame.name,this.visualDir),!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY,heroBodyPose(this.art.frame));
     if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;

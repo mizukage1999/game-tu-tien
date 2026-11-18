@@ -9,6 +9,7 @@ import { isChildhood } from '../systems/origin';
 import type { Vec2 } from '../types';
 import type { Monster } from './Monster';
 import { placeActor } from '../art/actorDepth';
+import { ensureCompanionArt } from '../art/runtimeAssets';
 
 export class Companion {
   private art: Phaser.GameObjects.Image;
@@ -18,6 +19,8 @@ export class Companion {
   private think = 0;
   private attack = 0;
   private active = '';
+  private loadingArt = false;
+  private retryArtAt = 0;
   private skillTimer = 0;
   constructor(private world: WorldScene) {
     this.pos = { x: world.player.x, y: world.player.y };
@@ -43,6 +46,18 @@ export class Companion {
     this.art.setVisible(show);
     this.label.setVisible(show);
     if (!show) return;
+    if (!this.world.textures.exists(`companion-${index}`)) {
+      this.art.setVisible(false);
+      this.label.setVisible(false);
+      if (!this.loadingArt && performance.now() >= this.retryArtAt) {
+        this.loadingArt = true;
+        void ensureCompanionArt(this.world).then(ready => {
+          this.loadingArt = false;
+          if (!ready) this.retryArtAt = performance.now() + 5000;
+        });
+      }
+      return;
+    }
     if (this.active !== l.companion) {
       this.active = l.companion!;
       this.art.setTexture(`companion-${index}`).setDisplaySize(78, 78);

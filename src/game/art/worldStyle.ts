@@ -40,6 +40,9 @@ const SHEETS: { atlas: string; columns: number; rows: number; entries: Entry[] }
 ];
 
 /** Clean rectangular atlas cells, alpha retained all the way to the renderer. */
+export function worldStyleAtlas(key: string) {
+  return SHEETS.find(sheet => sheet.entries.some(entry => entry.keys.includes(key)))?.atlas;
+}
 export function registerWorldStyle(scene: Phaser.Scene) {
   for (const sheet of SHEETS) {
     if (!scene.textures.exists(sheet.atlas)) continue;

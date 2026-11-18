@@ -3,6 +3,7 @@ import startup from '../../data/startupAssets.json';
 import { VILLAGE_STARTUP_SPRITES } from '../../data/villageStartupLayout';
 import { WORLD_PROPS, worldNpcPortraits } from './world';
 import { VILLAGE_STARTUP_TEXTURE, villageGroundTexture } from '../../data/startupPlan';
+import { rememberGroundTextures } from './groundTextures';
 
 export { VILLAGE_STARTUP_TEXTURE, villageGroundTexture } from '../../data/startupPlan';
 export const villageGroundKeys = () =>
@@ -17,6 +18,7 @@ export function addPreparedVillageGround(scene: Phaser.Scene) {
     if (!texture.has('ground')) texture.add('ground', 0, 1, 1, page.width, page.height);
     scene.add.image(page.x, page.y, key, 'ground').setOrigin(0, 0).setDepth(-10000);
   }
+  rememberGroundTextures(scene, 'vuong_gia_thon', startup.groundPages.map(p => ({ key: villageGroundTexture(p.key), x: p.x, y: p.y })));
   return true;
 }
 

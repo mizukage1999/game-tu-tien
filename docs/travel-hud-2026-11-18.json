@@ -1,0 +1,582 @@
+{
+  "date": "2026-11-18",
+  "setup": {
+    "build": "production, minified, React production, original entry graph",
+    "backend": "offline-isolated; name reservation and reward RPC latency not measured",
+    "cache": "cold HTTP cache, 12 Mbps / 40 ms latency",
+    "viewport": "1280x720",
+    "cpuThrottle": 1,
+    "gpu": {
+      "devices": [
+        {
+          "vendorId": 32902,
+          "deviceId": 22806,
+          "subSysId": 341708867,
+          "revision": 2,
+          "vendorString": "",
+          "deviceString": "Intel(R) HD Graphics 620",
+          "driverVendor": "Intel",
+          "driverVersion": "27.20.100.8681"
+        },
+        {
+          "vendorId": 4318,
+          "deviceId": 4941,
+          "subSysId": 341708867,
+          "revision": 162,
+          "vendorString": "",
+          "deviceString": "NVIDIA GeForce 940MX",
+          "driverVendor": "",
+          "driverVersion": "27.21.14.5167"
+        },
+        {
+          "vendorId": 5140,
+          "deviceId": 140,
+          "subSysId": 0,
+          "revision": 0,
+          "vendorString": "",
+          "deviceString": "Microsoft Basic Render Driver",
+          "driverVendor": "",
+          "driverVersion": "10.0.17763.1"
+        }
+      ],
+      "aux": "ANGLE (Intel, Intel(R) HD Graphics 620 (0x00005916) Direct3D11 vs_5_0 ps_5_0, D3D11-27.20.100.8681)"
+    }
+  },
+  "mapTransitions": [
+    {
+      "mapId": "dai_thua_vien",
+      "beforeMs": 23916.30000001192,
+      "afterMs": 8463.299999982119,
+      "missingTextures": 0,
+      "cache": {
+        "active": "dai_thua_vien",
+        "budget": 100663296,
+        "entries": [
+          {
+            "id": "vuong_gia_thon",
+            "bytes": 26408384,
+            "pages": 8
+          },
+          {
+            "id": "dai_thua_vien",
+            "bytes": 33879040,
+            "pages": 12
+          }
+        ]
+      },
+      "maxLongTaskMs": 2577
+    },
+    {
+      "mapId": "thac_ngoc",
+      "beforeMs": 2162.7000000029802,
+      "afterMs": 3859.199999988079,
+      "missingTextures": 0,
+      "cache": {
+        "active": "thac_ngoc",
+        "budget": 100663296,
+        "entries": [
+          {
+            "id": "vuong_gia_thon",
+            "bytes": 26408384,
+            "pages": 8
+          },
+          {
+            "id": "dai_thua_vien",
+            "bytes": 33879040,
+            "pages": 12
+          },
+          {
+            "id": "thac_ngoc",
+            "bytes": 26408384,
+            "pages": 8
+          }
+        ]
+      },
+      "maxLongTaskMs": 1576
+    },
+    {
+      "mapId": "dai_thua_vien",
+      "beforeMs": 1060,
+      "afterMs": 438.80000001192093,
+      "missingTextures": 0,
+      "cache": {
+        "active": "dai_thua_vien",
+        "budget": 100663296,
+        "entries": [
+          {
+            "id": "vuong_gia_thon",
+            "bytes": 26408384,
+            "pages": 8
+          },
+          {
+            "id": "thac_ngoc",
+            "bytes": 26408384,
+            "pages": 8
+          },
+          {
+            "id": "dai_thua_vien",
+            "bytes": 33879040,
+            "pages": 12
+          }
+        ]
+      },
+      "maxLongTaskMs": 101
+    },
+    {
+      "mapId": "rung_linh_thu",
+      "beforeMs": 1354.1000000089407,
+      "afterMs": 3898.300000011921,
+      "missingTextures": 0,
+      "cache": {
+        "active": "rung_linh_thu",
+        "budget": 100663296,
+        "entries": [
+          {
+            "id": "thac_ngoc",
+            "bytes": 26408384,
+            "pages": 8
+          },
+          {
+            "id": "dai_thua_vien",
+            "bytes": 33879040,
+            "pages": 12
+          },
+          {
+            "id": "rung_linh_thu",
+            "bytes": 29273024,
+            "pages": 8
+          }
+        ]
+      },
+      "maxLongTaskMs": 2415
+    },
+    {
+      "mapId": "vuong_gia_thon",
+      "beforeMs": 908.5999999940395,
+      "afterMs": 1006.7999999821186,
+      "missingTextures": 0,
+      "cache": {
+        "active": "vuong_gia_thon",
+        "budget": 100663296,
+        "entries": [
+          {
+            "id": "dai_thua_vien",
+            "bytes": 33879040,
+            "pages": 12
+          },
+          {
+            "id": "rung_linh_thu",
+            "bytes": 29273024,
+            "pages": 8
+          },
+          {
+            "id": "vuong_gia_thon",
+            "bytes": 26408384,
+            "pages": 8
+          }
+        ]
+      },
+      "maxLongTaskMs": 463
+    }
+  ],
+  "totals": {
+    "beforeMs": 29401.70000001788,
+    "afterMs": 17666.399999976158
+  },
+  "checks": {
+    "unitTests": {
+      "passed": 37,
+      "files": 9
+    },
+    "typescript": "passed",
+    "targetedLint": "passed",
+    "assetVerification": "passed",
+    "productionBuild": "passed"
+  },
+  "uiChecks": [
+    {
+      "name": "Summoning a pet loads its art on the current map without restarting",
+      "ok": true
+    },
+    {
+      "name": "World quest panel stays fixed when buffs appear",
+      "ok": true,
+      "detail": {
+        "before": 163.046875,
+        "after": 163.046875
+      }
+    },
+    {
+      "name": "Arena field does not move or resize when both players gain buffs",
+      "ok": true,
+      "detail": {
+        "before": {
+          "x": 128,
+          "y": 201.59375,
+          "width": 1024,
+          "height": 367.21875
+        },
+        "after": {
+          "x": 128,
+          "y": 201.59375,
+          "width": 1024,
+          "height": 367.21875
+        }
+      }
+    },
+    {
+      "name": "All arena controls fit mobile 844x390",
+      "ok": true,
+      "detail": [
+        {
+          "skill": "leave",
+          "x": 792,
+          "y": 173,
+          "width": 38,
+          "height": 38,
+          "inside": true
+        },
+        {
+          "skill": "basic",
+          "x": 760.5799560546875,
+          "y": 311.0199890136719,
+          "width": 65.52001953125,
+          "height": 65.51998901367188,
+          "inside": true
+        },
+        {
+          "skill": "hoa_ma_chi",
+          "x": 709.8799438476562,
+          "y": 341.44000244140625,
+          "width": 39.780029296875,
+          "height": 39.77996826171875,
+          "inside": true
+        },
+        {
+          "skill": "dao_hoa_hoang_tuyen",
+          "x": 664.6399536132812,
+          "y": 330.5199890136719,
+          "width": 39.780029296875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "tich_diet_chi",
+          "x": 709.0999755859375,
+          "y": 291.5199890136719,
+          "width": 39.77996826171875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "tram_la_quyet",
+          "x": 667.7599487304688,
+          "y": 261.1000061035156,
+          "width": 39.780029296875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "dich_linh_an",
+          "x": 713.7799682617188,
+          "y": 225.22000122070312,
+          "width": 39.77996826171875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "dinh_than_thuat",
+          "x": 766.0399780273438,
+          "y": 224.44000244140625,
+          "width": 39.77996826171875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "than_phap",
+          "x": 624.0799560546875,
+          "y": 296.97998046875,
+          "width": 33.5400390625,
+          "height": 33.540008544921875,
+          "inside": true
+        }
+      ]
+    },
+    {
+      "name": "All arena controls fit mobile 740x360",
+      "ok": true,
+      "detail": [
+        {
+          "skill": "leave",
+          "x": 688,
+          "y": 143,
+          "width": 38,
+          "height": 38,
+          "inside": true
+        },
+        {
+          "skill": "basic",
+          "x": 656.5800170898438,
+          "y": 281.0199890136719,
+          "width": 65.51995849609375,
+          "height": 65.51998901367188,
+          "inside": true
+        },
+        {
+          "skill": "hoa_ma_chi",
+          "x": 605.8800048828125,
+          "y": 311.44000244140625,
+          "width": 39.780029296875,
+          "height": 39.77996826171875,
+          "inside": true
+        },
+        {
+          "skill": "dao_hoa_hoang_tuyen",
+          "x": 560.6400146484375,
+          "y": 300.5199890136719,
+          "width": 39.77996826171875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "tich_diet_chi",
+          "x": 605.0999755859375,
+          "y": 261.5199890136719,
+          "width": 39.780029296875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "tram_la_quyet",
+          "x": 563.760009765625,
+          "y": 231.10000610351562,
+          "width": 39.77996826171875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "dich_linh_an",
+          "x": 609.780029296875,
+          "y": 195.22000122070312,
+          "width": 39.77996826171875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "dinh_than_thuat",
+          "x": 662.0399780273438,
+          "y": 194.44000244140625,
+          "width": 39.780029296875,
+          "height": 39.779998779296875,
+          "inside": true
+        },
+        {
+          "skill": "than_phap",
+          "x": 520.0799560546875,
+          "y": 266.97998046875,
+          "width": 33.5400390625,
+          "height": 33.540008544921875,
+          "inside": true
+        }
+      ]
+    },
+    {
+      "name": "All arena controls fit mobile 640x320",
+      "ok": true,
+      "detail": [
+        {
+          "skill": "leave",
+          "x": 588,
+          "y": 103,
+          "width": 38,
+          "height": 38,
+          "inside": true
+        },
+        {
+          "skill": "basic",
+          "x": 568.1500244140625,
+          "y": 252.85000610351562,
+          "width": 54.5999755859375,
+          "height": 54.600006103515625,
+          "inside": true
+        },
+        {
+          "skill": "hoa_ma_chi",
+          "x": 525.9000244140625,
+          "y": 278.20001220703125,
+          "width": 33.14996337890625,
+          "height": 33.149993896484375,
+          "inside": true
+        },
+        {
+          "skill": "dao_hoa_hoang_tuyen",
+          "x": 488.20001220703125,
+          "y": 269.1000061035156,
+          "width": 33.14996337890625,
+          "height": 33.149993896484375,
+          "inside": true
+        },
+        {
+          "skill": "tich_diet_chi",
+          "x": 525.25,
+          "y": 236.60000610351562,
+          "width": 33.1500244140625,
+          "height": 33.149993896484375,
+          "inside": true
+        },
+        {
+          "skill": "tram_la_quyet",
+          "x": 490.79998779296875,
+          "y": 211.25001525878906,
+          "width": 33.1500244140625,
+          "height": 33.149993896484375,
+          "inside": true
+        },
+        {
+          "skill": "dich_linh_an",
+          "x": 529.1500244140625,
+          "y": 181.35000610351562,
+          "width": 33.14996337890625,
+          "height": 33.15000915527344,
+          "inside": true
+        },
+        {
+          "skill": "dinh_than_thuat",
+          "x": 572.7000122070312,
+          "y": 180.70001220703125,
+          "width": 33.14996337890625,
+          "height": 33.149993896484375,
+          "inside": true
+        },
+        {
+          "skill": "than_phap",
+          "x": 454.3999938964844,
+          "y": 241.15000915527344,
+          "width": 27.95001220703125,
+          "height": 27.949996948242188,
+          "inside": true
+        }
+      ]
+    },
+    {
+      "name": "Loading text does not overlap on 844x390",
+      "ok": true,
+      "detail": {
+        "status": {
+          "top": 263.234375,
+          "bottom": 278.234375
+        },
+        "tip": {
+          "top": 333,
+          "bottom": 360
+        },
+        "surface": {
+          "top": 0,
+          "bottom": 390
+        }
+      }
+    },
+    {
+      "name": "Loading retry stays above hint on 844x390",
+      "ok": true,
+      "detail": {
+        "retryBottom": 278.234375,
+        "tipTop": 333
+      }
+    },
+    {
+      "name": "Loading text does not overlap on 740x360",
+      "ok": true,
+      "detail": {
+        "status": {
+          "top": 222.875,
+          "bottom": 237.875
+        },
+        "tip": {
+          "top": 303,
+          "bottom": 330
+        },
+        "surface": {
+          "top": 0,
+          "bottom": 360
+        }
+      }
+    },
+    {
+      "name": "Loading retry stays above hint on 740x360",
+      "ok": true,
+      "detail": {
+        "retryBottom": 242.375,
+        "tipTop": 303
+      }
+    },
+    {
+      "name": "Loading text does not overlap on 640x320",
+      "ok": true,
+      "detail": {
+        "status": {
+          "top": 202.875,
+          "bottom": 217.875
+        },
+        "tip": {
+          "top": 263,
+          "bottom": 290
+        },
+        "surface": {
+          "top": 0,
+          "bottom": 320
+        }
+      }
+    },
+    {
+      "name": "Loading retry stays above hint on 640x320",
+      "ok": true,
+      "detail": {
+        "retryBottom": 222.375,
+        "tipTop": 263
+      }
+    },
+    {
+      "name": "Loading text does not overlap on 568x280",
+      "ok": true,
+      "detail": {
+        "status": {
+          "top": 182.875,
+          "bottom": 197.875
+        },
+        "tip": {
+          "top": 223,
+          "bottom": 250
+        },
+        "surface": {
+          "top": 0,
+          "bottom": 280
+        }
+      }
+    },
+    {
+      "name": "Loading retry stays above hint on 568x280",
+      "ok": true,
+      "detail": {
+        "retryBottom": 202.375,
+        "tipTop": 223
+      }
+    },
+    {
+      "name": "Empty quest hint uses compact mobile text",
+      "ok": true,
+      "detail": "9px"
+    },
+    {
+      "name": "No uncaught runtime errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "limitations": [
+    "One isolated production comparison, not a multi-sample benchmark.",
+    "First visits to waterfall/forest now include their own deferred assets and did not get faster in this sample.",
+    "Chrome software GPU and mobile viewport emulation, no physical phone timing.",
+    "No live backend or two-account network validation."
+  ]
+}

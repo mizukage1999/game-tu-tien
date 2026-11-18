@@ -1,6 +1,6 @@
 import type { HeroId } from '../../data/heroes';
 import { HERO_DIRECTIONS, type HeroDirection } from './heroDirections';
-import { heroRunPhase } from './heroSheetLayout';
+import { heroRunPhase, runningPoseY } from './heroSheetLayout';
 
 type Stroke = readonly [number, number, number, number, number];
 /** Blade/tassel silhouettes in the authored 160px Wang Lam cells, outside the body. */
@@ -189,5 +189,5 @@ export function runningSwordHand(direction: HeroDirection, frameY: number) {
   const index = HERO_DIRECTIONS.indexOf(direction),
     [x, y] = HAND_RUN[index][phase];
   const side = index < 4 ? -1 : 1;
-  return [x - 80, y - 150, side * 0.75, 0.7] as const;
+  return [x - 80, runningPoseY(y) - 150, side * 0.75, 0.7] as const;
 }

@@ -10,7 +10,7 @@ import { settingsStore } from '../../store/settingsStore';
 import { rosterArt } from '../art/heroRoster';
 import { directionalArt, ensureDirectionalHero } from '../art/directionalHeroes';
 import { heroFor } from '../../data/heroes';
-import { heroDirection, type HeroDirection } from '../art/heroDirections';
+import { heroFrameDirection, heroDirection, type HeroDirection } from '../art/heroDirections';
 import { isoVector } from '../art/iso';
 import type { SkillId } from '../../data';
 import { RealmNameplate } from './RealmNameplate';
@@ -101,13 +101,13 @@ export class RemotePlayer {
     placeActor(this.sprite,spot.x,spot.y-lift,spot.y).setAlpha(this.state.combat?.hp === 0 ? .45 : 1);
     const face={x:this.state.dx??0,y:this.state.dy??1};
     const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y),look=cosmeticsForHero(heroFor(this.state).id,this.state.cosmetics);
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},dir,!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,isHeroCastingFrame(this.sprite.frame.cutY,this.sprite.frame.cutHeight),this.sprite.texture.key,this.sprite.frame.cutY,heroBodyPose(this.sprite.frame));
+    this.ctrl.play(this.state.combat?.hp===0?'downed':this.state.moving ? 'run' : 'idle', dir);
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},heroFrameDirection(this.sprite.frame.name,dir),!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,isHeroCastingFrame(this.sprite.frame.cutY,this.sprite.frame.cutHeight),this.sprite.texture.key,this.sprite.frame.cutY,heroBodyPose(this.sprite.frame));
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
     if(this.state.mount)this.weaponLook.placeMount(this.mountArt,this.state.mount,face,spot,lift);
     this.shadow.setPosition(spot.x, spot.y - 2);
     this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)*HERO_WORLD_SCALE-lift,settingsStore.getState().preferences.showNames);
     this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)*HERO_WORLD_SCALE-lift);
-    this.ctrl.play(this.state.combat?.hp===0?'downed':this.state.moving ? 'run' : 'idle', dir);
   }
 
   private refreshLook() {

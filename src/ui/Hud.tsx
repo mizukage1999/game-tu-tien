@@ -37,8 +37,10 @@ export function Hud({ hidden = false }: { hidden?: boolean }) {
   return (
     <div hidden={hidden} className={`hud hud-v5${phone ? ' phone' : ''}${turned ? ' turned' : ''}${tier === 2 ? ' performance-light' : ''}`}>
       <div className="hud-top-left">
-        <StatusBars />
-        <WorldStatusEffects />
+        <div className="hud-identity">
+          <StatusBars />
+          <div className="hud-effect-slot"><WorldStatusEffects /></div>
+        </div>
         {inDungeon ? <DungeonPanel /> : <QuestPanel />}
       </div>
       <div className="hud-top-right">
