@@ -12,6 +12,8 @@ function fixture() {
     y: 0,
     originX: 0,
     originY: 0,
+    displayWidth: 0,
+    displayHeight: 0,
     texture: { key: 'shadow' },
     frame: { name: '__BASE' },
     setVisible(visible: boolean) {
@@ -28,7 +30,9 @@ function fixture() {
       this.originY = y;
       return this;
     },
-    setDisplaySize() {
+    setDisplaySize(width: number, height: number) {
+      this.displayWidth = width;
+      this.displayHeight = height;
       return this;
     },
     setRotation() {
@@ -151,4 +155,27 @@ it('anchors the sword to action frame metadata even when the trimmed atlas has u
   expect(image.y).toBeCloseTo(200 - 55 * 0.94);
   weapon.sync(null, { x: 0, y: 0 }, 'left', false, false, 'hero-actions-v1-wang_lam', 1200, pose);
   expect(image.texture.key).toBe('running-native-sword');
+});
+it('keeps the mobile sword grip attached when the body is scaled, squashed or mirrored', () => {
+  const { image, weapon } = fixture();
+  weapon.sync(
+    'kiem_anh_cuu_huyen',
+    { x: 100, y: 200 },
+    'left',
+    false,
+    false,
+    'hero-actions-v1-wang_lam',
+    0,
+    { action: 'attack', hand: [-28, -55, -1, 0] },
+    { scaleX: 0.799, scaleY: 0.75, flipX: true },
+  );
+  expect(image.x).toBeCloseTo(100 + 28 * 0.799);
+  expect(image.y).toBeCloseTo(200 - 55 * 0.75);
+  expect(image.displayWidth).toBeCloseTo(28 * 0.799);
+  expect(image.displayHeight).toBeCloseTo(78 * 0.75);
+});
+it('uses the raised fist in the left-facing recovery stride instead of the lower sleeve', () => {
+  const [x, y] = runningSwordHand('left', 800);
+  expect(x).toBe(-28);
+  expect(y).toBeCloseTo(-56.88);
 });

@@ -7,6 +7,7 @@ import { availableQuests, turnInQuests, type QuestLog } from '../systems/quest';
 import type { WorldScene } from '../scenes/WorldScene';
 import { visibleVerticalBounds } from '../art/visibleBounds';
 import { villageNpcFrame, villageNpcBounds, VILLAGE_STARTUP_TEXTURE } from '../art/villageStartup';
+import { mobileActorScale } from '../art/heroVisual';
 
 const npcBounds = new Map<string, {top:number;bottom:number}>();
 
@@ -19,6 +20,10 @@ export class Npc extends Phaser.GameObjects.Sprite {
   private marker: Phaser.GameObjects.Text;
   private shadow: Phaser.GameObjects.Image;
   private lastLog: QuestLog | null = null;
+  private baseScale = 1;
+  private headOffset = 0;
+  private layoutScale = 1;
+  private markerTween: Phaser.Tweens.Tween;
 
   constructor(
     world: WorldScene,
@@ -58,6 +63,8 @@ export class Npc extends Phaser.GameObjects.Sprite {
     this.setDepth(spot.y);
     const labelY = spot.y - (useAtlasArt ? visualHeight + 10 : Math.max(104, this.displayHeight + 12));
     const markerY = labelY - 34;
+    this.baseScale = this.scaleX;
+    this.headOffset = spot.y - labelY;
 
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     // Set resolution at construction: Canvas uses the source pixel ratio,
@@ -87,7 +94,21 @@ export class Npc extends Phaser.GameObjects.Sprite {
       })
       .setOrigin(0.5, 1)
       .setDepth(90001);
-    world.tweens.add({ targets: this.marker, y: markerY - 6, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
+    this.markerTween = world.tweens.add({ targets: this.marker, y: markerY - 6, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
+    this.fitMobileScale(!!world.registry.get('phone-layout'));
+  }
+
+  fitMobileScale(mobile: boolean) {
+    const factor = mobileActorScale(mobile, this.npcId === 'a_moc');
+    if (factor === this.layoutScale) return;
+    this.layoutScale = factor;
+    this.setScale(this.baseScale * factor);
+    this.shadow.setScale(factor);
+    const labelY = this.y - this.headOffset * factor;
+    this.label.setY(labelY);
+    this.markerTween.remove();
+    this.marker.setY(labelY - 34);
+    this.markerTween = this.scene.tweens.add({ targets: this.marker, y: labelY - 40, yoyo: true, repeat: -1, duration: 600, ease: 'Sine.InOut' });
   }
 
   refreshMarker(log: QuestLog) {
@@ -99,6 +120,7 @@ export class Npc extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene?: boolean) {
+    this.markerTween?.remove();
     this.label?.destroy();
     this.marker?.destroy();
     this.shadow?.destroy();

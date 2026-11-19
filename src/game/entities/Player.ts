@@ -37,7 +37,7 @@ import { worldInputBlocked } from '../systems/inputFocus';
 import { activeStatusEffects } from '../systems/statusEffects';
 import { statusEffectStore } from '../../store/statusEffectStore';
 import { CombatInputBuffer, INPUT_BUFFER_MS } from '../systems/combatInput';
-import { HERO_WORLD_SCALE } from '../art/heroVisual';
+import { heroWorldScale } from '../art/heroVisual';
 import { isHeroCastingFrame } from '../art/heroSheetLayout';
 import { heroBodyPose, heroSkillBody } from '../art/heroActionSpec';
 import { placeActor } from '../art/actorDepth';
@@ -322,24 +322,28 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const lift = mount ? 44 + Math.sin(this.world.time.now / 500) * 2 : 0;
     this.mountArt.setVisible(!!mount?.showMount);
     const look = cosmeticsForHero(heroFor(gameStore.getState().player).id,appearanceStore.getState().preview ?? wornCosmetics(gameStore.getState().player));
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},heroFrameDirection(this.art.frame.name,this.visualDir),!!mount||isChildhood(gameStore.getState().player)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY,heroBodyPose(this.art.frame));
-    if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     placeActor(this.art, spot.x + centerOffset, spot.y - lift, spot.y);
     const p=gameStore.getState().player;
     this.nameplate.sync({level:p.level,child:isChildhood(p)},heroName(p));
-    this.syncLook();
     placeActor(this.realmAura.setVisible(p.realmIndex>0&&!isChildhood(p)&&canAct(this.life)).setScale(.21+p.realmIndex*.018,.1+p.realmIndex*.009).setTint([0xd7f3ff,0x90dcff,0xffdf9d,0xd7b6ff][p.realmIndex%4]),spot.x,spot.y-lift+3,spot.y-.2);
     if(p.realmIndex>0&&!this.isTinted&&!this.tintFill&&!this.art.texture.key.includes('-outfit-'))this.art.setTint([0xffffff,0xe1f4ff,0xffefd6,0xf0e3ff][p.realmIndex%4]);
+    this.syncLook();
+    this.weaponLook.sync(look.weapon,{x:this.art.x,y:this.art.y},heroFrameDirection(this.art.frame.name,this.visualDir),!!mount||isChildhood(p)||!canAct(this.life),isHeroCastingFrame(this.art.frame.cutY,this.art.frame.cutHeight),this.art.texture.key,this.art.frame.cutY,heroBodyPose(this.art.frame),this.art);
+    if (mount) this.weaponLook.placeMount(this.mountArt,mount.id,this.facing,spot,lift);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) * HERO_WORLD_SCALE - lift);
+    this.nameplate.place(spot.x, spot.y - (this.ctrl.rig.frameHeight === 160 ? 119 : 92) * this.visualScale - lift);
     this.drawBar({x:spot.x,y:spot.y-lift});
   }
 
   /** Copies flashing/alpha from the hidden physics sprite onto the drawn body. */
+  private get visualScale() {
+    return heroWorldScale(!!this.world.registry.get('phone-layout'), this.ctrl.rig.frameHeight !== 160);
+  }
+
   private syncLook() {
     const breath = this.ctrl.currentAnim === 'idle' && !this.activeMount && !heroBodyPose(this.art.frame)
       ? Math.sin(this.world.time.now / 700) * 0.007 : 0;
-    this.art.setAlpha(this.alpha).setScale(this.scaleX * HERO_WORLD_SCALE, this.scaleY * HERO_WORLD_SCALE * (1 + breath));
+    this.art.setAlpha(this.alpha).setScale(this.scaleX * this.visualScale, this.scaleY * this.visualScale * (1 + breath));
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
     else if (this.isTinted) this.art.setTint(this.tintTopLeft);
     else this.art.clearTint();
@@ -348,7 +352,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private drawBar(spot: Vec2) {
     const { player, stats } = gameStore.getState();
     const w = 46;
-    const above = (this.ctrl.rig.frameHeight === 160 ? 117 : 90) * HERO_WORLD_SCALE;
+    const above = (this.ctrl.rig.frameHeight === 160 ? 117 : 90) * this.visualScale;
     this.bar.setPosition(spot.x, spot.y - above);
     const ratio = Math.max(0, Math.min(1, player.hp / Math.max(1, stats.maxHp)));
     if (ratio === this.barRatio) return;

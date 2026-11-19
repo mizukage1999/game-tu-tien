@@ -54,9 +54,24 @@ locally; online login/multiplayer still need Internet. Browser storage and nativ
 app storage are separate; use the same account for cloud progress. Android may
 still suspend the app in the background: online combat continues on the server.
 
+## Change the app icon
+
+To replace the installed application's icon, save the original square artwork to
+`art/android/app-icon.png`, then generate the Android density resources:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android-icons.ps1
+```
+
+The generator preserves the complete image and adds transparent padding to the
+adaptive foreground for Android launchers. The application manifest uses
+`@mipmap/cuuhuyen_launcher` for both `android:icon` and `android:roundIcon`.
+`npm run android:apk` regenerates these resources before building. Installing the
+new APK with the same debug key updates the existing app.
+
 ## Future release
 
-Package ID is `com.cuuhuyen.game`, version code 1. This is a signed **debug test**
+Package ID is `com.cuuhuyen.game`, version code 3 (1.0.2). This is a signed **debug test**
 APK, not a Play Store release. Before publishing, select a permanent identifier,
 configure a private release signing key and prepare a release AAB, store listing
 and any required platform integrations. Real-money purchases are not enabled by
@@ -64,3 +79,20 @@ this packaging step.
 
 References: [Capacitor Android](https://capacitorjs.com/docs/android),
 [App lifecycle](https://capacitorjs.com/docs/apis/app).
+
+## 1.0.2 character rendering
+
+- Sharp quality uses the actual device pixel ratio within an 8 MP / GPU texture
+  limit. Coarse device-memory hints no longer force sharp mode down to DPR 1.5/2.
+  Explicit light/balanced settings and recovery modes retain their limits.
+- Adult world characters, other players, NPCs and wandering cultivators render at
+  85% of their previous size on mobile. Proportions and feet stay anchored; children,
+  PC sizes, collision, movement and combat distances are unchanged.
+- Wang Lam's sword follows corrected hand positions in all 64 running poses and
+  shares the displayed body's scale, facing and foot position, including cosmetics.
+
+Validation: 16 unit tests; 13 production-browser checks, including real DPR 2.75
+at 844×390, adult/NPC/peer scale, the raised running fist and restoring PC sizes.
+APK production build and signing verification passed. Physical Android-device
+visual/performance testing is still required; browser checks do not measure a
+particular phone's GPU performance.

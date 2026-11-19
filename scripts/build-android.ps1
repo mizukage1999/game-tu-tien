@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $taskRoot
+& "$PSScriptRoot/build-android-icons.ps1"
 $toolRoot = Join-Path $taskRoot '.android-tools'
 if (!$env:JAVA_HOME) {
   $jdk = Get-ChildItem -LiteralPath $toolRoot -Directory -Filter 'jdk-21*' -ErrorAction SilentlyContinue | Select-Object -First 1

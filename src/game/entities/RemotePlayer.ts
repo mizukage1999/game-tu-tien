@@ -15,7 +15,7 @@ import { isoVector } from '../art/iso';
 import type { SkillId } from '../../data';
 import { RealmNameplate } from './RealmNameplate';
 import { worldInputBlocked } from '../systems/inputFocus';
-import { HERO_WORLD_SCALE } from '../art/heroVisual';
+import { heroWorldScale } from '../art/heroVisual';
 import { placeActor } from '../art/actorDepth';
 import { acquireAppearance, type AppearanceLease } from '../art/cosmeticTextures';
 import { cosmeticsForHero } from '../../data/cosmetics';
@@ -61,7 +61,7 @@ export class RemotePlayer {
     const authored = world.textures.exists(directionalArt(heroFor(state).id,!!state.child))?directionalArt(heroFor(state).id,!!state.child):state.heroId ? rosterArt(state.heroId) : state.sex === 'male' ? 'hero-wang-v5' : 'hero-li-v5';
     const art = world.textures.exists(authored) ? authored : playerArt(state.sex);
     const spot = iso(state.x, state.y);
-    this.sprite = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1).setScale(HERO_WORLD_SCALE);
+    this.sprite = world.add.sprite(spot.x, spot.y, art).setOrigin(0.5, 1).setScale(heroWorldScale(!!world.registry.get('phone-layout'), !!state.child));
     this.ctrl = new AnimationController(this.sprite, art);
     this.shadow = world.add.image(spot.x, spot.y - 2, 'shadow').setDepth(-100);
     this.mountArt=world.add.image(spot.x,spot.y,'immortal-sword').setVisible(false);
@@ -98,16 +98,18 @@ export class RemotePlayer {
     this.map = stepToward(this.map, this.target, dt);
     const spot = iso(this.map.x, this.map.y);
     const lift=this.state.mount?44+Math.sin(this.sprite.scene.time.now/500)*2:0;
+    const visualScale = heroWorldScale(!!this.sprite.scene.registry.get('phone-layout'), !!this.state.child);
+    this.sprite.setScale(visualScale);
     placeActor(this.sprite,spot.x,spot.y-lift,spot.y).setAlpha(this.state.combat?.hp === 0 ? .45 : 1);
     const face={x:this.state.dx??0,y:this.state.dy??1};
     const vector=isoVector(face.x,face.y),dir=this.state.visualDir??heroDirection(vector.x,vector.y),look=cosmeticsForHero(heroFor(this.state).id,this.state.cosmetics);
     this.ctrl.play(this.state.combat?.hp===0?'downed':this.state.moving ? 'run' : 'idle', dir);
-    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},heroFrameDirection(this.sprite.frame.name,dir),!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,isHeroCastingFrame(this.sprite.frame.cutY,this.sprite.frame.cutHeight),this.sprite.texture.key,this.sprite.frame.cutY,heroBodyPose(this.sprite.frame));
+    this.weaponLook.sync(look.weapon,{x:spot.x,y:spot.y-lift},heroFrameDirection(this.sprite.frame.name,dir),!!this.state.mount||!!this.state.child||this.state.combat?.hp===0,isHeroCastingFrame(this.sprite.frame.cutY,this.sprite.frame.cutHeight),this.sprite.texture.key,this.sprite.frame.cutY,heroBodyPose(this.sprite.frame),this.sprite);
     this.mountArt.setVisible(!!this.state.mount&&!!this.state.showMount);
     if(this.state.mount)this.weaponLook.placeMount(this.mountArt,this.state.mount,face,spot,lift);
     this.shadow.setPosition(spot.x, spot.y - 2);
-    this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)*HERO_WORLD_SCALE-lift,settingsStore.getState().preferences.showNames);
-    this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)*HERO_WORLD_SCALE-lift);
+    this.nameplate.place(spot.x, spot.y - (this.state.child?92:119)*visualScale-lift,settingsStore.getState().preferences.showNames);
+    this.bubble?.setPosition(spot.x,spot.y-(this.state.child?146:218)*visualScale-lift);
   }
 
   private refreshLook() {

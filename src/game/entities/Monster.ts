@@ -13,6 +13,7 @@ import type { WorldMonsterState } from '../../net/worldProtocol';
 import { RealmNameplate } from './RealmNameplate';
 import { placeActor } from '../art/actorDepth';
 import { gameStore } from '../../store/gameStore';
+import { mobileActorScale } from '../art/heroVisual';
 
 export class Monster extends Phaser.Physics.Arcade.Sprite {
   netId='';
@@ -178,7 +179,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
     this.syncLook();
     this.shadow.setPosition(spot.x, spot.y - 2);
     const visualHeight = speciesForArt(this.art.texture.key)?.height;
-    const top = spot.y - (visualHeight ? visualHeight + 10 : this.hideStrength||this.def.art.startsWith('dungeon_boss_')?116:66) * this.scaleY;
+    const actorScale = this.hideStrength ? mobileActorScale(!!this.world.registry.get('phone-layout')) : 1;
+    const top = spot.y - (visualHeight ? visualHeight + 10 : this.hideStrength||this.def.art.startsWith('dungeon_boss_')?116:66) * this.scaleY * actorScale;
     const density = this.world.registry.get('render-density') as number || 1;
     const zoom = this.world.cameras.main.zoom / density;
     const compact = !!this.world.registry.get('phone-layout');
@@ -210,7 +212,8 @@ export class Monster extends Phaser.Physics.Arcade.Sprite {
 
   /** The drawn body mirrors the hidden sprite's tint, alpha and squash. */
   private syncLook() {
-    this.art.setAlpha(this.alpha).setScale(this.scaleX, this.scaleY);
+    const actorScale = this.hideStrength ? mobileActorScale(!!this.world.registry.get('phone-layout')) : 1;
+    this.art.setAlpha(this.alpha).setScale(this.scaleX * actorScale, this.scaleY * actorScale);
     if (this.tintFill) this.art.setTintFill(this.tintTopLeft);
     else if (this.isTinted) this.art.setTint(this.tintTopLeft);
     else this.art.clearTint();

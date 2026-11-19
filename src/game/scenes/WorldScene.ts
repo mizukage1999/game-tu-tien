@@ -594,6 +594,7 @@ export class WorldScene extends Phaser.Scene {
 
   private fitZoom() {
     this.registry.set('phone-layout', window.matchMedia('(pointer: coarse), (hover: none) and (max-width: 900px)').matches);
+    for (const npc of this.npcs) npc.fitMobileScale(!!this.registry.get('phone-layout'));
     const density = (this.registry.get('render-density') as number | undefined) ?? 1;
     this.cameras.main.setZoom(worldZoom(this.scale.width / density, this.scale.height / density) * density);
     this.villageAtmosphere?.fit();

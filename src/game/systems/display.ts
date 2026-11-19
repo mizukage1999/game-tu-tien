@@ -18,13 +18,13 @@ export function preferredDensity(
 ) {
   const ratio = Number.isFinite(deviceRatio) && deviceRatio > 0 ? deviceRatio : 1;
   // Painted art needs real device pixels. Supersampling above the device ratio
-  // only wastes memory; 8 MP covers a 3x phone in either orientation.
+  // only wastes memory. Bound sharp mode by the pixel budget, not a rounded DPR.
   const pixels = quality === 'sharp' ? 8_000_000 : 4_000_000;
   return Math.max(
     1,
     Math.min(
       ratio,
-      quality === 'light' ? 1 : quality === 'sharp' ? 3 : 2,
+      quality === 'light' ? 1 : quality === 'sharp' ? ratio : 2,
       Math.sqrt(pixels / Math.max(1, width * height)),
     ),
   );
@@ -52,11 +52,15 @@ export function startupDensity(
   const budget =
     limits.mode === 2
       ? 1
-      : limits.mode === 1 || (limits.mobile && !!limits.memory && limits.memory <= 2)
+      : limits.mode === 1
         ? 1.5
-        : limits.mobile && !!limits.memory && limits.memory <= 4
-          ? 2
-          : 3;
+        : quality === 'sharp'
+          ? Infinity
+          : limits.mobile && !!limits.memory && limits.memory <= 2
+            ? 1.5
+            : limits.mobile && !!limits.memory && limits.memory <= 4
+              ? 2
+              : 3;
   const edge =
     limits.maxEdge && limits.maxEdge > 0 ? limits.maxEdge / Math.max(1, width, height) : Infinity;
   return Math.max(0.5, Math.min(adaptiveDensity(width, height, ratio, quality), budget, edge));

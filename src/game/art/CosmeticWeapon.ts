@@ -12,6 +12,11 @@ import { heroRunPhase } from './heroSheetLayout';
 import type { HeroBodyPose } from './heroActionSpec';
 
 export const COSMETIC_WEAPONS_URL = '/assets/ui/cosmetic-weapons-v1.webp';
+export interface WeaponBodyTransform {
+  scaleX: number;
+  scaleY: number;
+  flipX?: boolean;
+}
 const TEXTURE = 'cosmetic-weapon-skins';
 const DEFAULT_SWORD = 'running-native-sword';
 /** Centre of the visible handle in each 128×256 skin cell, rather than its guard. */
@@ -68,6 +73,7 @@ export class CosmeticWeapon {
     bodyKey = '',
     frameY = 0,
     pose?: HeroBodyPose,
+    body?: WeaponBodyTransform,
   ) {
     this.skin = skin;
     if (skin && !this.requested) {
@@ -115,6 +121,9 @@ export class CosmeticWeapon {
       dy = 0.15;
     }
     const back = direction.startsWith('up');
+    const scaleX = body?.scaleX ?? HERO_WORLD_SCALE;
+    const scaleY = body?.scaleY ?? HERO_WORLD_SCALE;
+    const flip = body?.flipX ? -1 : 1;
     const [gripX, gripY] = native ? [30 / 192, 102 / 116] : cosmeticWeaponGrip(drawnSkin!);
     const texture = native ? DEFAULT_SWORD : TEXTURE,
       frame = native ? '__BASE' : drawnSkin!;
@@ -123,14 +132,17 @@ export class CosmeticWeapon {
     this.image
       .setOrigin(gripX, gripY)
       .setDisplaySize(
-        (native ? 62 : 28) * HERO_WORLD_SCALE,
-        (native ? 37.5 : 78) * HERO_WORLD_SCALE,
+        (native ? 62 : 28) * Math.abs(scaleX),
+        (native ? 37.5 : 78) * Math.abs(scaleY),
       )
-      .setRotation(Math.atan2(dy, dx) + (native ? -Math.atan2(-85, 143) : Math.PI / 2));
+      .setRotation(
+        Math.atan2(dy * scaleY, dx * scaleX * flip) +
+          (native ? -Math.atan2(-85, 143) : Math.PI / 2),
+      );
     placeActor(
       this.image,
-      spot.x + x * HERO_WORLD_SCALE,
-      spot.y + y * HERO_WORLD_SCALE,
+      spot.x + x * scaleX * flip,
+      spot.y + y * scaleY,
       spot.y + (back ? -0.05 : 0.05),
     );
   }

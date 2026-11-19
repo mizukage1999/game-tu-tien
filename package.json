@@ -10,6 +10,7 @@
     "build:android": "node scripts/verify-runtime-assets.mjs && tsc -b && vite build --mode android && node scripts/stage-android-assets.mjs",
     "android:sync": "npm run build:android && cap sync android",
     "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1",
+    "android:icons": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android-icons.ps1",
     "test": "vitest run",
     "lint": "eslint .",
     "leaderboard:generate": "node scripts/generate-leaderboard-sql.mjs",

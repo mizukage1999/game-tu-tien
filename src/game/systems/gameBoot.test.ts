@@ -64,13 +64,21 @@ it('explicit recovery survives reload, skips the start screen once and never edi
 });
 it('keeps high-end Retina sharp while bounding low-memory, recovery and GPU-limited buffers', () => {
   expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 0, memory: 8 })).toBe(3);
-  expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 0, memory: 4 })).toBe(2);
-  expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 0, memory: 2 })).toBe(1.5);
+  expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 0, memory: 4 })).toBe(3);
+  expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 0, memory: 2 })).toBe(3);
+  expect(startupDensity(844, 390, 3.5, 'sharp', { mobile: true, mode: 0, memory: 4 })).toBe(3.5);
+  expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 1 })).toBe(1.5);
+  expect(startupDensity(844, 390, 3, 'balanced', { mobile: true, mode: 0, memory: 4 })).toBe(2);
   expect(startupDensity(844, 390, 3, 'sharp', { mobile: true, mode: 2 })).toBe(1);
   expect(startupDensity(844, 390, 3, 'light', { mobile: true, mode: 0, memory: 4 })).toBe(1);
   expect(
     startupDensity(1200, 800, 3, 'sharp', { mobile: true, mode: 0, maxEdge: 2048 }) * 1200,
   ).toBeLessThanOrEqual(2048);
+});
+it('bounds sharp framebuffers on large high-DPI screens without supersampling low-DPI ones', () => {
+  const density = startupDensity(1920, 1080, 4, 'sharp', { mobile: true, mode: 0 });
+  expect(1920 * 1080 * density ** 2).toBeLessThanOrEqual(8_000_001);
+  expect(startupDensity(844, 390, 1, 'sharp', { mobile: true, mode: 0 })).toBe(1);
 });
 it('plans only the field bestiary and includes every wave/boss across all dungeon difficulties', () => {
   expect(monsterSheets(mapMonsterArt(getMap('vuong_gia_thon')))).toHaveLength(0);
