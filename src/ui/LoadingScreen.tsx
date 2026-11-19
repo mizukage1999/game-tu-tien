@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { optimizedAsset } from '../data/assetDelivery';
 import { CrestArt } from './SpiritArt';
 import './loading-screen.css';
+import { ResourceLoadingScreen } from './ResourceLoadingScreen';
 
 export function LoadingScreen({
   progress,
@@ -18,6 +19,7 @@ export function LoadingScreen({
   error?: string;
   onRetry: () => void;
 }) {
+  if (phase === 'game') return <ResourceLoadingScreen progress={progress} error={error} onRetry={onRetry} />;
   const variant = /hoa|viem|xich/.test(mapId)
     ? 4
     : /u_minh|bi_canh/.test(mapId)

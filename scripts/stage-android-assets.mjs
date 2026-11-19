@@ -11,9 +11,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const output = path.join(root, 'dist-android');
+// Android keeps the original command; iOS uses the same verified delivery pack.
+const platform = process.argv[2] ?? 'android';
+if (!['android', 'ios'].includes(platform)) throw Error('Expected android or ios.');
+const output = path.join(root, `dist-${platform}`);
 if (!existsSync(path.join(output, 'index.html')))
-  throw Error('Build with vite --mode android first.');
+  throw Error(`Build with vite --mode ${platform} first.`);
 const variants = JSON.parse(readFileSync(path.join(root, 'src/data/optimizedAssets.json'), 'utf8'));
 const walk = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -59,7 +62,7 @@ const report = {
   omittedSourceMiB: +(omitted / 1048576).toFixed(2),
 };
 writeFileSync(
-  path.join(output, 'android-assets-report.json'),
+  path.join(output, `${platform}-assets-report.json`),
   JSON.stringify(report, null, 2) + '\n',
 );
-console.log('Android asset staging:', report);
+console.log(`${platform} asset staging:`, report);

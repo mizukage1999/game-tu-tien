@@ -6,7 +6,7 @@
   align-items: center;
   overflow: auto;
   padding: 40px clamp(30px, 7vw, 120px) 60px;
-  background: #061524 url('/assets/ui/login-v5.png') center / cover no-repeat;
+  background: #061524 url('/assets/ui/entry-preload-v1.webp') center / cover no-repeat;
   color: #e9e5da;
   touch-action: auto;
   container: entry-stage / size;

@@ -129,13 +129,17 @@ export function saveNow() {
 export function PhaserGame({
   started = true,
   onReadyChange,
+  onWarmReady,
 }: {
   started?: boolean;
   onReadyChange?: (ready: boolean) => void;
+  onWarmReady?: () => void;
 }) {
   const brightness = useSettings((s) => s.preferences.brightness);
   const readyListener = useRef(onReadyChange);
   readyListener.current = onReadyChange;
+  const warmReadyListener = useRef(onWarmReady);
+  warmReadyListener.current = onWarmReady;
   const host = useRef<HTMLDivElement>(null);
   const startRequested = useRef(started);
   const launch = useRef<() => void>(() => {});
@@ -171,6 +175,7 @@ export function PhaserGame({
       clearTimeout(stalled);
       setLoading(true);
       setError(message);
+      warmReadyListener.current?.();
     };
     const lost = (event: Event) => {
       event.preventDefault();
@@ -237,10 +242,11 @@ export function PhaserGame({
       warmTimer = undefined;
       if (!alive || startRequested.current || !current.isRunning) return;
       const next = readyStartupTextures().find((entry) => !current.textures.exists(entry.key));
-      if (!next) return;
+      if (!next) { warmReadyListener.current?.(); return; }
       try {
         current.textures.addImage(next.key, next.image);
       } catch {
+        warmReadyListener.current?.();
         return;
       } // Normal map loading/recovery owns an unavailable context.
       warmTimer = setTimeout(uploadWarmTexture, 16);
@@ -268,6 +274,7 @@ export function PhaserGame({
         launchWorld();
       });
     current.events.once(Phaser.Core.Events.READY, rendererReady);
+    if (current.isRunning) rendererReady();
     const updateProgress = (progress: number) => setLoadingProgress(Math.round(progress * 100));
     const assetsReady = () => {
       enteredWorld = true;
@@ -277,6 +284,7 @@ export function PhaserGame({
       clearTimeout(stable);
       setError('');
       setLoading(false);
+      warmReadyListener.current?.();
       stable = setTimeout(() => finishGameBoot(storage), 10_000);
     };
     const assetsLoading = (target?: { mapId?: string; mapName?: string }) => {

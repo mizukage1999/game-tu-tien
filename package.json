@@ -26,12 +26,20 @@
     "assets:equipment": "node scripts/build-equipment-icons.mjs",
     "assets:hero-actions": "node scripts/build-hero-actions.mjs",
     "assets:startup": "node scripts/build-startup-assets.mjs",
-    "assets:verify": "node scripts/verify-runtime-assets.mjs"
+    "assets:verify": "node scripts/verify-runtime-assets.mjs",
+    "build:ios": "node scripts/verify-runtime-assets.mjs && tsc -b && vite build --mode ios && node scripts/stage-android-assets.mjs ios",
+    "ios:sync": "npm run build:ios && node scripts/capacitor-ios.mjs sync && node scripts/verify-ios-project.mjs",
+    "ios:open": "node scripts/capacitor-ios.mjs open",
+    "ios:run": "npm run ios:sync && node scripts/capacitor-ios.mjs run",
+    "ios:verify": "node scripts/verify-ios-project.mjs",
+    "ios:simulator": "node scripts/build-ios.mjs simulator",
+    "ios:archive": "node scripts/build-ios.mjs archive"
   },
   "dependencies": {
     "@capacitor/android": "8.6.2",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.6.2",
+    "@capacitor/ios": "8.6.2",
     "@supabase/supabase-js": "^2.118.0",
     "phaser": "^3.90.0",
     "react": "^18.3.1",

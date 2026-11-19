@@ -71,7 +71,7 @@ new APK with the same debug key updates the existing app.
 
 ## Future release
 
-Package ID is `com.cuuhuyen.game`, version code 3 (1.0.2). This is a signed **debug test**
+Package ID is `com.cuuhuyen.game`, version code 4 (1.0.3). This is a signed **debug test**
 APK, not a Play Store release. Before publishing, select a permanent identifier,
 configure a private release signing key and prepare a release AAB, store listing
 and any required platform integrations. Real-money purchases are not enabled by

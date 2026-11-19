@@ -1,5 +1,4 @@
 import { useEffect, type ReactNode } from 'react';
-import { optimizedAsset } from '../data/assetDelivery';
 import { getMap } from '../game/maps';
 import { heroName, isChildhood } from '../game/systems/origin';
 import { realmNameAtLevel } from '../game/systems/progression';
@@ -16,7 +15,7 @@ export function EntryScreen({ children, kind = '' }: { children: ReactNode; kind
     void warmImage('/assets/ui/cultivation/ui-night-v1.png');
   }, []);
   return (
-    <main className={`entry-screen entry-${kind}`} style={{ backgroundImage: `url('${optimizedAsset('/assets/ui/login-v5.png')}')` }}>
+    <main className={`entry-screen entry-${kind}`} style={{ backgroundImage: "url('/assets/ui/entry-preload-v1.webp')" }}>
       <div className="entry-vignette" aria-hidden="true" />
       <div className="entry-content">
         <header className="entry-brand">

@@ -7,6 +7,7 @@ import { App } from './App';
 const boot = vi.hoisted(() => ({
   saved: true,
   worldReady: undefined as undefined | ((ready: boolean) => void),
+  warmReady: undefined as undefined | (() => void),
   hudMounts: 0,
   hudUnmounts: 0,
   engineMounts: 0,
@@ -15,11 +16,14 @@ vi.mock('./game/PhaserGame', () => ({
   PhaserGame: ({
     started,
     onReadyChange,
+    onWarmReady,
   }: {
     started: boolean;
     onReadyChange: (ready: boolean) => void;
+    onWarmReady?: () => void;
   }) => {
     boot.worldReady = onReadyChange;
+    boot.warmReady = onWarmReady;
     useEffect(() => {
       boot.engineMounts++;
     }, []);
@@ -93,6 +97,7 @@ beforeEach(() => {
   Object.assign(boot, {
     saved: true,
     worldReady: undefined,
+    warmReady: undefined,
     hudMounts: 0,
     hudUnmounts: 0,
     engineMounts: 0,
@@ -108,6 +113,14 @@ afterEach(() => {
 const render = () => act(() => root.render(<App />));
 const enter = () => act(() => host.querySelector<HTMLButtonElement>('[data-start]')!.click());
 const ready = (value: boolean) => act(() => boot.worldReady!(value));
+
+it('waits for graphics preparation before releasing the outer entry screen', () => {
+  const onEntryReady = vi.fn();
+  act(() => root.render(<App onEntryReady={onEntryReady} />));
+  expect(onEntryReady).not.toHaveBeenCalled();
+  act(() => boot.warmReady!());
+  expect(onEntryReady).toHaveBeenCalledOnce();
+});
 
 it('does not build HUD or menus during entry, initial loading, or a failed initial load', () => {
   render();

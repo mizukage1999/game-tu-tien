@@ -4,7 +4,10 @@ import react from '@vitejs/plugin-react';
 import variants from './src/data/optimizedAssets.json';
 
 export default defineConfig(({ mode }) => ({
-  define: { 'import.meta.env.VITE_NATIVE_ANDROID': JSON.stringify(mode === 'android') },
+  define: {
+    'import.meta.env.VITE_NATIVE_APP': JSON.stringify(mode === 'android' || mode === 'ios'),
+    'import.meta.env.VITE_NATIVE_ANDROID': JSON.stringify(mode === 'android'),
+  },
   plugins: [
     react(),
     {
@@ -25,7 +28,7 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'verify-admin-engine-isolation',
       generateBundle(_options, bundle) {
-        if (mode === 'android') return;
+        if (mode === 'android' || mode === 'ios') return;
         const admin = Object.values(bundle).find(
           (entry) =>
             entry.type === 'chunk' &&
@@ -54,13 +57,13 @@ export default defineConfig(({ mode }) => ({
   ],
   server: { port: 5173, watch: { ignored: ['**/.preview/**'] } },
   build: {
-    outDir: mode === 'android' ? 'dist-android' : 'dist',
-    copyPublicDir: mode !== 'android',
+    outDir: mode === 'android' || mode === 'ios' ? `dist-${mode}` : 'dist',
+    copyPublicDir: mode !== 'android' && mode !== 'ios',
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       input: {
         game: 'index.html',
-        ...(mode === 'android' ? {} : { admin: 'admin/index.html' }),
+        ...(mode === 'android' || mode === 'ios' ? {} : { admin: 'admin/index.html' }),
       } as Record<string, string>,
       output: {
         onlyExplicitManualChunks: true,

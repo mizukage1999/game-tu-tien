@@ -1,0 +1,62 @@
+name: iOS build (manual, unsigned)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Simulator app or unsigned device archive (signing needed for iPhone)'
+        type: choice
+        required: true
+        default: simulator
+        options:
+          - simulator
+          - archive
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Select Xcode 26
+        run: |
+          echo "DEVELOPER_DIR=/Applications/Xcode_26.3.app/Contents/Developer" >> "$GITHUB_ENV"
+      - name: Check public game configuration
+        run: |
+          node -e "if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) throw Error('Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in repository Actions Variables first. Use the public anon key, never service_role.');"
+      - run: npm ci
+      - name: Test native lifecycle and entry loading
+        run: npx vitest run src/native/ios.test.ts src/native/android.test.ts src/startup/screen.test.ts src/startup/resources.test.ts src/App.test.tsx
+      - name: Build simulator app
+        if: inputs.target == 'simulator'
+        run: npm run ios:simulator
+      - name: Build unsigned device archive
+        if: inputs.target == 'archive'
+        run: npm run ios:archive
+      - name: Package result preserving bundle metadata
+        env:
+          BUILD_TARGET: ${{ inputs.target }}
+        run: |
+          if [ "$BUILD_TARGET" = "archive" ]; then
+            ditto -c -k --sequesterRsrc --keepParent artifacts/ios/CuuHuyen-unsigned.xcarchive artifacts/ios/CuuHuyen-unsigned.xcarchive.zip
+          else
+            ditto -c -k --sequesterRsrc --keepParent artifacts/ios/DerivedData/Build/Products/Release-iphonesimulator/App.app artifacts/ios/CuuHuyen-simulator.zip
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: CuuHuyen-ios-${{ inputs.target }}-unsigned
+          path: artifacts/ios/*.zip
+          if-no-files-found: error
+          retention-days: 14

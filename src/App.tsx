@@ -19,16 +19,16 @@ import { maintenanceBlocks, useServerControl, watchServerControl } from './net/s
 import { endGameSession } from './net/boot';
 import './ui/server-control.css';
 
-export function App() {
+export function App({ onEntryReady }: { onEntryReady?: () => void } = {}) {
   useEffect(() => {
-    if (!import.meta.env.VITE_NATIVE_ANDROID) return;
+    if (!import.meta.env.VITE_NATIVE_APP) return;
     let cancelled = false;
     let cleanup: (() => void) | undefined;
-    void import('./native/android').then(async ({ startAndroidRuntime }) => {
-      const stop = await startAndroidRuntime();
+    void import('./native/runtime').then(async ({ startNativeRuntime }) => {
+      const stop = await startNativeRuntime();
       if (cancelled) stop();
       else cleanup = stop;
-    }).catch((error) => console.error('[android] lifecycle unavailable', error));
+    }).catch((error) => console.error('[native] lifecycle unavailable', error));
     return () => { cancelled = true; cleanup?.(); };
   }, []);
   const performanceTier = usePerformanceTier();
@@ -44,6 +44,9 @@ export function App() {
   // Defer the first HUD mount, then preserve its state across loading/recovery.
   const [worldUi, setWorldUi] = useState({ initialized: false, ready: false });
   useTryLockLandscape(phone);
+  useEffect(() => {
+    if (needsLogin || control.blocked || maintenanceBlocks(control)) onEntryReady?.();
+  }, [needsLogin, control, onEntryReady]);
   useEffect(() => {
     if (!accountId) return;
     return watchServerControl(
@@ -100,6 +103,7 @@ export function App() {
       {!needsLogin && !control.blocked && !maintenanceBlocks(control) && (
         <PhaserGame
           started={ready && entered}
+          onWarmReady={onEntryReady}
           onReadyChange={(worldReady) =>
             setWorldUi((previous) => ({
               initialized: previous.initialized || worldReady,
@@ -120,7 +124,7 @@ export function App() {
             <button className="btn gold" onClick={() => location.reload()}>
               Thử kết nối lại
             </button>
-            {!import.meta.env.VITE_NATIVE_ANDROID && <a href="/admin/">Quản trị</a>}
+            {!import.meta.env.VITE_NATIVE_APP && <a href="/admin/">Quản trị</a>}
           </section>
         </div>
       ) : needsLogin ? (

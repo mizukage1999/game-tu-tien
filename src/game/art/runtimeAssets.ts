@@ -39,6 +39,7 @@ import type { SkillId } from '../../data';
 import { wangEffect, type WangEffectArt } from '../../data/wangSkills';
 import { warmedImage, clearStartupWarmCache } from './startupCache';
 import startup from '../../data/startupAssets.json';
+import { CORE_STARTUP_IMAGES } from '../../data/startupPlan';
 import {
   registerVillageStartup,
   VILLAGE_STARTUP_TEXTURE,
@@ -91,9 +92,7 @@ export function queueMapAssets(scene: Phaser.Scene, mapId: string) {
   group(
     'core',
     () => {
-      image('immortal-thanh_linh_thao', '/assets/ui/thanh-linh-thao-v3.webp');
-      for (const id of ['linh_thach', 'linh_khi', 'hoi_xuan_dan', 'nhan_bac', 'kiem_pho'])
-        image(`item-sprite-${id}`, ITEM_SPRITE_ASSETS[id]);
+      for (const entry of CORE_STARTUP_IMAGES) image(entry.key, entry.url);
     },
     () => {},
   );

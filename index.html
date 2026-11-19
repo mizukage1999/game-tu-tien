@@ -2,11 +2,49 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Tu Tiên Demo</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Cửu Huyền · Nghịch Mệnh Trường Sinh</title>
+    <link rel="preload" as="image" href="/assets/ui/entry-preload-v1.webp" fetchpriority="high" />
+    <link rel="stylesheet" href="/src/ui/resource-loading.css" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="startup-splash" class="resource-loading" aria-label="Chuẩn bị game">
+      <section class="resource-loading-content">
+        <p class="resource-loading-eyebrow">NGHỊCH MỆNH TRƯỜNG SINH</p>
+        <h1>Cửu Huyền</h1>
+        <div class="resource-loading-stage">
+          <span data-startup-status role="status" aria-live="polite">Đang khởi động tiên lộ…</span>
+          <b data-startup-value>…</b>
+        </div>
+        <div
+          class="resource-loading-track is-indeterminate"
+          role="progressbar"
+          aria-label="Chuẩn bị tài nguyên"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span class="resource-loading-fill" data-startup-fill></span>
+        </div>
+        <p class="resource-loading-detail" data-startup-detail>
+          Tài nguyên được chuẩn bị trước để vào thế giới nhanh hơn.
+        </p>
+        <div class="resource-loading-actions">
+          <button type="button" data-startup-retry hidden>Thử tải lại</button>
+          <button type="button" data-startup-continue hidden>Tiếp tục vào game</button>
+        </div>
+      </section>
+    </div>
+    <div id="root" inert aria-hidden="true"></div>
+    <noscript
+      ><style>
+        #startup-splash {
+          display: none;
+        }</style
+      >Vui lòng bật JavaScript để vào Cửu Huyền.</noscript
+    >
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
