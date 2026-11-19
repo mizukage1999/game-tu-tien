@@ -1,6 +1,7 @@
 import type { Sex } from '../game/systems/save';
 import type { HeroId } from '../data/heroes';
 import { RosterPortrait } from './HeroArt';
+import { optimizedAsset } from '../data/assetDelivery';
 
 /** Crop the front pose from the authored atlas, keeping the UI and world hero consistent. */
 export function HeroPortrait({
@@ -24,7 +25,7 @@ export function HeroPortrait({
       aria-hidden={!label}
     >
       <image
-        href={`/assets/sprites/hero-${sex === 'male' ? 'wang' : 'li'}-v5.png`}
+        href={optimizedAsset(`/assets/sprites/hero-${sex === 'male' ? 'wang' : 'li'}-v5.png`)}
         width="1774"
         height="887"
       />

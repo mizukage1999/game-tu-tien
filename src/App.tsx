@@ -20,6 +20,17 @@ import { endGameSession } from './net/boot';
 import './ui/server-control.css';
 
 export function App() {
+  useEffect(() => {
+    if (!import.meta.env.VITE_NATIVE_ANDROID) return;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    void import('./native/android').then(async ({ startAndroidRuntime }) => {
+      const stop = await startAndroidRuntime();
+      if (cancelled) stop();
+      else cleanup = stop;
+    }).catch((error) => console.error('[android] lifecycle unavailable', error));
+    return () => { cancelled = true; cleanup?.(); };
+  }, []);
   const performanceTier = usePerformanceTier();
   const phone = usePhoneLayout();
   const portrait = usePortrait();
@@ -109,7 +120,7 @@ export function App() {
             <button className="btn gold" onClick={() => location.reload()}>
               Thử kết nối lại
             </button>
-            <a href="/admin/">Quản trị</a>
+            {!import.meta.env.VITE_NATIVE_ANDROID && <a href="/admin/">Quản trị</a>}
           </section>
         </div>
       ) : needsLogin ? (

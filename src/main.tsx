@@ -16,7 +16,7 @@ declare global {
  * loaded, because the store reads localStorage once, at import time.
  */
 async function main() {
-  if (/^\/admin(?:\/(?:index\.html)?)?$/.test(window.location.pathname)) {
+  if (!import.meta.env.VITE_NATIVE_ANDROID && /^\/admin(?:\/(?:index\.html)?)?$/.test(window.location.pathname)) {
     const { AdminApp } = await import('./admin/AdminApp');
     window.__APP_READY = true;
     createRoot(document.getElementById('root')!).render(<AdminApp />);

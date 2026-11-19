@@ -28,6 +28,7 @@ import {
   SkillGlyph,
 } from './menus/CultivationUI';
 import './social/player-inspection.css';
+import { optimizedAsset } from '../data/assetDelivery';
 import { RealmBadge } from './RealmBadge';
 import { CosmeticArt } from './CosmeticArt';
 
@@ -126,7 +127,7 @@ function PetArt({ id }: { id: string }) {
     <div
       className="inspect-pet-art"
       style={{
-        backgroundImage: "url('/assets/ui/cultivation/inspect-companions-v1.png')",
+        backgroundImage: `url('${optimizedAsset('/assets/ui/cultivation/inspect-companions-v1.png')}')`,
         backgroundPosition: `${(index % 3) * 50}% ${Math.floor(index / 3) * 100}%`,
       }}
       aria-hidden="true"
@@ -530,7 +531,7 @@ function InspectionCard({ id }: { id: string }) {
                     {data.mounts.map((m) => (
                       <article key={m.id}>
                         <div className={`inspect-mount-art ${m.id}`}>
-                          <img src="/assets/journey/mounts.png" alt="" />
+                          <img src={optimizedAsset('/assets/journey/mounts.png')} alt="" />
                         </div>
                         <h3>{MOUNTS.find((v) => v.id === m.id)?.name}</h3>
                         <span className="inspect-tag">
